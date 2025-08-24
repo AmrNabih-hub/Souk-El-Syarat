@@ -56,12 +56,12 @@
     "ci": "npm run lint && npm run type-check && npm run test:run && npm run build",
     "ci:full": "npm run security:check && npm run lint && npm run type-check && npm run test:coverage && npm run build",
     "precommit": "npm run lint:fix && npm run format && npm run type-check",
-    "prepare": "npm run precommit",
+    "prepare": "[ -n \"$CI\" ] && echo 'Skipping prepare hook in CI environment' || npm run precommit",
     "start:prod": "npm run build && npm run preview",
     "health-check": "curl -f http://localhost:4173/health || exit 1",
     "docs:generate": "npx typedoc --out docs/api src",
     "docs:serve": "npx serve docs",
-    "postinstall": "npm run type-check",
+    "postinstall": "echo '✅ Dependencies installed successfully - TypeScript checking moved to CI/CD workflows'",
     "validate": "npm run ci:full"
   },
   "dependencies": {

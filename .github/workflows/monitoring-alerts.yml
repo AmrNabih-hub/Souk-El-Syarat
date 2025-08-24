@@ -20,6 +20,7 @@ on:
           - production
 
 env:
+  CI: true
   NODE_VERSION: '20'
   FIREBASE_PROJECT_ID: ${{ secrets.FIREBASE_PROJECT_ID }}
 
