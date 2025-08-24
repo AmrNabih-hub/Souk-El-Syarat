@@ -14,13 +14,35 @@ interface AuthStore extends AuthState {
   setLoading: (loading: boolean) => void;
   setError: (error: string | null) => void;
   clearError: () => void;
+  initialize: () => void;
 }
 
 export const useAuthStore = create<AuthStore>((set, get) => ({
   // Initial state
   user: null,
-  isLoading: false,
+  isLoading: true, // Start with loading true
   error: null,
+
+  // Initialize auth state
+  initialize: () => {
+    console.log('🚀 Initializing auth store...');
+    
+    try {
+      // Set up auth state listener
+      const unsubscribe = AuthService.onAuthStateChange((user) => {
+        console.log('🔄 Auth state changed:', user ? 'User logged in' : 'User logged out');
+        set({ user, isLoading: false });
+      });
+
+      // Store unsubscribe function for cleanup
+      (window as any).__authUnsubscribe = unsubscribe;
+      
+      console.log('✅ Auth store initialized successfully');
+    } catch (error) {
+      console.error('❌ Failed to initialize auth store:', error);
+      set({ isLoading: false, error: 'Failed to initialize authentication' });
+    }
+  },
 
   // Actions
   signIn: async (email: string, password: string) => {

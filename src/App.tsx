@@ -111,15 +111,9 @@ function App() {
 
   // Set up authentication state listener
   useEffect(() => {
-    setLoading(true);
-
-    const unsubscribe = AuthService.onAuthStateChange(user => {
-      setUser(user);
-      setLoading(false);
-    });
-
-    return () => unsubscribe();
-  }, [setUser, setLoading]);
+    console.log('🚀 Initializing authentication...');
+    initialize();
+  }, [initialize]);
 
   // Initialize real-time services when user logs in
   useEffect(() => {
