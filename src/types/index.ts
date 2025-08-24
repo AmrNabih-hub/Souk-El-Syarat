@@ -552,6 +552,35 @@ export type NotificationType =
   | 'payment_received'
   | 'system_announcement';
 
+// Real-time Types
+export interface UserPresence {
+  userId: string;
+  isOnline: boolean;
+  lastSeen: Date;
+  currentPage?: string;
+  device?: string;
+}
+
+export interface ChatMessage {
+  id: string;
+  chatId: string;
+  senderId: string;
+  receiverId: string;
+  message: string;
+  type: 'text' | 'image' | 'file';
+  timestamp: Date;
+  read: boolean;
+  delivered: boolean;
+}
+
+export interface Conversation {
+  id: string;
+  participants: string[];
+  lastMessage?: ChatMessage;
+  updatedAt: Date;
+  createdAt: Date;
+}
+
 // Form Types
 export interface VendorApplicationForm {
   businessName: string;
