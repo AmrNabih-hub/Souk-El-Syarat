@@ -105,7 +105,7 @@ const pageVariants = {
 };
 
 function App() {
-  const { setUser, setLoading, user } = useAuthStore();
+  const { setUser, setLoading, user, initialize } = useAuthStore();
   const { language, theme } = useAppStore();
   const { initialize: initializeRealtime, cleanup: cleanupRealtime } = useRealtimeStore();
 
