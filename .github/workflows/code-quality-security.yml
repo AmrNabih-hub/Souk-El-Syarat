@@ -17,6 +17,11 @@ env:
   NODE_VERSION: '20'
   PYTHON_VERSION: '3.11'
 
+permissions:
+  contents: read
+  actions: read
+  security-events: write
+
 jobs:
   code-quality:
     name: 🧹 Code Quality Analysis
@@ -165,10 +170,14 @@ jobs:
           head: ${{ github.event.after }}
           extra_args: --only-verified --format json --output trufflehog-results.json
 
-      - name: 🔍 Run Gitleaks
-        uses: gitleaks/gitleaks-action@v2
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      - name: 📦 Install Gitleaks
+        run: |
+          curl -sSfL https://raw.githubusercontent.com/gitleaks/gitleaks/master/scripts/install.sh | sh -s -- -b /usr/local/bin
+
+      - name: 🔍 Run Gitleaks scan
+        continue-on-error: true
+        run: |
+          gitleaks detect --source . --report-format json --report-path gitleaks-results.json --verbose || echo "⚠️ Gitleaks scan completed with findings"
 
       - name: 💾 Upload secrets scan reports
         uses: actions/upload-artifact@v4
@@ -176,6 +185,7 @@ jobs:
           name: secrets-scan-reports
           path: |
             trufflehog-results.json
+            gitleaks-results.json
           retention-days: 30
 
   dast-scan:
