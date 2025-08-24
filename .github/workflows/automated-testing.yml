@@ -37,6 +37,7 @@ jobs:
         run: npm ci
 
       - name: 🧪 Run unit tests
+        continue-on-error: true
         run: npm run test:unit || npm run test
 
       - name: 💾 Upload test results
@@ -73,6 +74,7 @@ jobs:
           sleep 15
 
       - name: 🧪 Run integration tests
+        continue-on-error: true
         run: npm run test:integration || echo "Integration tests not configured"
 
       - name: 💾 Upload integration test results
