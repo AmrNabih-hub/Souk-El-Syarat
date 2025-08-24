@@ -23,7 +23,6 @@ on:
 env:
   CI: true
   NODE_VERSION: '20'
-  FIREBASE_PROJECT_ID: ${{ secrets.FIREBASE_PROJECT_ID }}
 
 jobs:
   test:
@@ -208,24 +207,66 @@ jobs:
       - name: 📥 Checkout code
         uses: actions/checkout@v4
 
+      - name: 🟢 Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: 'npm'
+
       - name: 📥 Download build artifacts
         uses: actions/download-artifact@v4
         with:
           name: build-artifacts
-          path: build-artifacts/
+          path: ./
 
-      - name: 🔥 Setup Firebase
-        uses: w9jds/firebase-action@master
-        with:
-          args: deploy --only hosting --project ${{ env.FIREBASE_PROJECT_ID }}-staging
+      - name: 🔍 Verify build artifacts
+        run: |
+          echo "📂 Contents after artifact download:"
+          ls -la
+          if [ -d "dist" ]; then
+            echo "✅ dist directory found"
+            ls -la dist/
+          elif [ -d "build-artifacts/dist" ]; then
+            echo "📦 Moving build artifacts to correct location"
+            mv build-artifacts/dist ./
+            ls -la dist/
+          else
+            echo "❌ No dist directory found!"
+            find . -name "dist" -type d
+            exit 1
+          fi
+
+      - name: 🔥 Setup Firebase CLI
+        run: |
+          npm install -g firebase-tools@latest
+          firebase --version
+
+      - name: 🚀 Deploy to Firebase Staging
+        run: |
+          echo "🔥 Starting Firebase deployment to staging..."
+          if [ -n "$FIREBASE_TOKEN" ]; then
+            echo "Using Firebase Token authentication"
+            firebase deploy --only hosting --project "$FIREBASE_PROJECT_ID-staging" --token "$FIREBASE_TOKEN"
+          elif [ -n "$GOOGLE_APPLICATION_CREDENTIALS_JSON" ]; then
+            echo "Using Service Account authentication"
+            echo "$GOOGLE_APPLICATION_CREDENTIALS_JSON" > $HOME/gcp-key.json
+            export GOOGLE_APPLICATION_CREDENTIALS="$HOME/gcp-key.json"
+            firebase deploy --only hosting --project "$FIREBASE_PROJECT_ID-staging"
+          else
+            echo "❌ No Firebase authentication method available!"
+            echo "Please set either FIREBASE_TOKEN or GOOGLE_APPLICATION_CREDENTIALS_JSON in repository secrets"
+            exit 1
+          fi
         env:
           FIREBASE_TOKEN: ${{ secrets.FIREBASE_TOKEN }}
+          GOOGLE_APPLICATION_CREDENTIALS_JSON: ${{ secrets.GOOGLE_APPLICATION_CREDENTIALS_JSON }}
+          FIREBASE_PROJECT_ID: ${{ secrets.FIREBASE_PROJECT_ID }}
 
       - name: 📊 Deploy status
         run: |
           echo "🚀 Staging deployment completed successfully!"
           echo "Environment: staging"
-          echo "Project: ${{ env.FIREBASE_PROJECT_ID }}-staging"
+          echo "Project: ${{ secrets.FIREBASE_PROJECT_ID }}-staging"
 
   deploy-production:
     name: 🚀 Deploy to Production
@@ -239,18 +280,60 @@ jobs:
       - name: 📥 Checkout code
         uses: actions/checkout@v4
 
+      - name: 🟢 Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: 'npm'
+
       - name: 📥 Download build artifacts
         uses: actions/download-artifact@v4
         with:
           name: build-artifacts
-          path: build-artifacts/
+          path: ./
 
-      - name: 🔥 Setup Firebase
-        uses: w9jds/firebase-action@master
-        with:
-          args: deploy --only hosting --project ${{ env.FIREBASE_PROJECT_ID }}
+      - name: 🔍 Verify build artifacts
+        run: |
+          echo "📂 Contents after artifact download:"
+          ls -la
+          if [ -d "dist" ]; then
+            echo "✅ dist directory found"
+            ls -la dist/
+          elif [ -d "build-artifacts/dist" ]; then
+            echo "📦 Moving build artifacts to correct location"
+            mv build-artifacts/dist ./
+            ls -la dist/
+          else
+            echo "❌ No dist directory found!"
+            find . -name "dist" -type d
+            exit 1
+          fi
+
+      - name: 🔥 Setup Firebase CLI
+        run: |
+          npm install -g firebase-tools@latest
+          firebase --version
+
+      - name: 🚀 Deploy to Firebase Production
+        run: |
+          echo "🔥 Starting Firebase deployment to production..."
+          if [ -n "$FIREBASE_TOKEN" ]; then
+            echo "Using Firebase Token authentication"
+            firebase deploy --only hosting --project "$FIREBASE_PROJECT_ID" --token "$FIREBASE_TOKEN"
+          elif [ -n "$GOOGLE_APPLICATION_CREDENTIALS_JSON" ]; then
+            echo "Using Service Account authentication"
+            echo "$GOOGLE_APPLICATION_CREDENTIALS_JSON" > $HOME/gcp-key.json
+            export GOOGLE_APPLICATION_CREDENTIALS="$HOME/gcp-key.json"
+            firebase deploy --only hosting --project "$FIREBASE_PROJECT_ID"
+          else
+            echo "❌ No Firebase authentication method available!"
+            echo "Please set either FIREBASE_TOKEN or GOOGLE_APPLICATION_CREDENTIALS_JSON in repository secrets"
+            exit 1
+          fi
         env:
           FIREBASE_TOKEN: ${{ secrets.FIREBASE_TOKEN }}
+          GOOGLE_APPLICATION_CREDENTIALS_JSON: ${{ secrets.GOOGLE_APPLICATION_CREDENTIALS_JSON }}
+          FIREBASE_PROJECT_ID: ${{ secrets.FIREBASE_PROJECT_ID }}
 
       - name: 🔍 Health check
         run: |
@@ -262,7 +345,7 @@ jobs:
         run: |
           echo "🚀 Production deployment completed successfully!"
           echo "Environment: production"
-          echo "Project: ${{ env.FIREBASE_PROJECT_ID }}"
+          echo "Project: ${{ secrets.FIREBASE_PROJECT_ID }}"
 
   post-deployment:
     name: 📊 Post-Deployment
