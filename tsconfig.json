@@ -24,7 +24,6 @@
     "noFallthroughCasesInSwitch": false,
     "noImplicitReturns": false,
     "noImplicitThis": false,
-    "suppressImplicitAnyIndexErrors": true,
 
     /* Path mapping */
     "baseUrl": ".",
