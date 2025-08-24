@@ -3,14 +3,15 @@
  * Production-ready Firebase setup with analytics and performance monitoring
  */
 
+import { initializeApp, FirebaseApp } from 'firebase/app';
 import { getAuth, Auth, connectAuthEmulator } from 'firebase/auth';
-
+import { getFirestore, Firestore, connectFirestoreEmulator } from 'firebase/firestore';
 import { getStorage, FirebaseStorage, connectStorageEmulator } from 'firebase/storage';
-
 import { getDatabase, Database, connectDatabaseEmulator } from 'firebase/database';
-
+import { getFunctions, Functions, connectFunctionsEmulator } from 'firebase/functions';
 import { getPerformance, FirebasePerformance } from 'firebase/performance';
-
+import { getAnalytics, Analytics } from 'firebase/analytics';
+import { getMessaging, Messaging } from 'firebase/messaging';
 import { initializeAppCheck, AppCheck, ReCaptchaV3Provider } from 'firebase/app-check';
 
 // Production Firebase Configuration
