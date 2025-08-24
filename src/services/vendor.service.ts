@@ -14,8 +14,9 @@ import {
   DocumentSnapshot,
   serverTimestamp,
 } from 'firebase/firestore';
+import { ref, uploadBytes, getDownloadURL, deleteObject } from 'firebase/storage';
 
-import { db, storage } from './firebase';
+import { db, storage } from '@/services/firebase';
 import { Vendor, VendorStatus, BusinessType, VendorApplication } from '@/types';
 
 export interface VendorApplicationData {

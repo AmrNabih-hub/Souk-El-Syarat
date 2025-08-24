@@ -3,7 +3,8 @@
  * Handles all backend operations and automated processes
  */
 
-import { functions } from '../config/firebase.config';
+import { functions } from '@/services/firebase';
+import { connectFunctionsEmulator, Functions, httpsCallable } from 'firebase/functions';
 
 // Connect to emulators in development
 if (process.env.NODE_ENV === 'development') {

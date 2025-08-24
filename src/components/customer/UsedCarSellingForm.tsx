@@ -1,9 +1,13 @@
+import React, { useState } from 'react';
+import { useForm } from 'react-hook-form';
+import { useDropzone } from 'react-dropzone';
 import { CloudArrowUpIcon, XMarkIcon } from '@heroicons/react/24/outline';
 
 import { yupResolver } from '@hookform/resolvers/yup';
 import * as yup from 'yup';
 
 import { useAppStore } from '@/stores/appStore';
+import { useAuthStore } from '@/stores/authStore';
 
 import { ProductService } from '@/services/product.service';
 import LoadingSpinner from '@/components/ui/LoadingSpinner';

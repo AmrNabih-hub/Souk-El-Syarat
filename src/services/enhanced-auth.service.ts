@@ -1,3 +1,4 @@
+import { auth, db } from '@/services/firebase';
 import {
   signInWithEmailAndPassword,
   createUserWithEmailAndPassword,
@@ -51,8 +52,8 @@ export interface MultiFactorSetupData {
 export class EnhancedAuthService {
   private static instance: EnhancedAuthService;
   private authStateListeners: Set<(state: EnhancedAuthState) => void> = new Set();
-  private sessionTimeout: NodeJS.Timeout | null = null;
-  private lastActivityUpdate: NodeJS.Timeout | null = null;
+  private sessionTimeout: ReturnType<typeof setTimeout> | null = null;
+  private lastActivityUpdate: ReturnType<typeof setTimeout> | null = null;
   private readonly SESSION_DURATION = 24 * 60 * 60 * 1000; // 24 hours
   private readonly ACTIVITY_UPDATE_INTERVAL = 5 * 60 * 1000; // 5 minutes
 

@@ -3,6 +3,7 @@
  * Comprehensive product information display with image gallery
  */
 
+import React, { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import {
   XMarkIcon,
@@ -19,6 +20,8 @@ import {
 
 import clsx from 'clsx';
 import { Product } from '@/types';
+import { useAppStore } from '@/stores/appStore';
+import { HeartSolidIcon } from '@/components/ui/CustomIcons';
 
 // import { useAuthStore } from '@/stores/authStore';
 

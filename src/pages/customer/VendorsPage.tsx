@@ -1,5 +1,6 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
+import { motion } from 'framer-motion';
 
 import {
   MapPinIcon,
@@ -16,6 +17,8 @@ import {
 import { useAppStore } from '@/stores/appStore';
 
 import { Vendor } from '@/types';
+import { SampleVendorsService } from '@/services/vendor.service';
+import { StarSolid } from '@/components/ui/CustomIcons';
 import LoadingSpinner from '@/components/ui/LoadingSpinner';
 import clsx from 'clsx';
 

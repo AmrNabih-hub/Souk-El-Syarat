@@ -3,7 +3,7 @@
  * Configures the testing environment before running Playwright tests
  */
 
-import { chromium, FullConfig } from '@playwright/test';
+import { chromium, FullConfig, Page } from '@playwright/test';
 
 async function globalSetup(config: FullConfig) {
   console.log('🚀 Starting E2E Test Global Setup...');
@@ -36,7 +36,7 @@ async function globalSetup(config: FullConfig) {
   console.log('🏁 E2E Test Global Setup Complete');
 }
 
-async function setupTestData(page: any) {
+async function setupTestData(page: Page) {
   // Add any test data setup logic here
   console.log('📋 Setting up test data...');
   

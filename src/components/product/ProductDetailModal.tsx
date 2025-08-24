@@ -1,3 +1,4 @@
+import React, { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import {
   XMarkIcon,
@@ -15,8 +16,9 @@ import {
 } from '@heroicons/react/24/outline';
 
 import { Product, CarProduct } from '@/types';
-
+import { useAppStore } from '@/stores/appStore';
 import { useAuthStore } from '@/stores/authStore';
+import { HeartSolid } from '@/components/ui/CustomIcons';
 import toast from 'react-hot-toast';
 
 interface ProductDetailModalProps {

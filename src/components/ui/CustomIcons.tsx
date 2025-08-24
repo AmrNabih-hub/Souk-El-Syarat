@@ -1,0 +1,51 @@
+import React from 'react';
+
+// HeartSolid Icon
+export const HeartSolid: React.FC<{ className?: string }> = ({ className = '' }) => (
+  <svg
+    className={className}
+    fill="currentColor"
+    viewBox="0 0 24 24"
+    xmlns="http://www.w3.org/2000/svg"
+  >
+    <path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z" />
+  </svg>
+);
+
+// HeartSolidIcon (alternative name)
+export const HeartSolidIcon: React.FC<{ className?: string }> = ({ className = '' }) => (
+  <HeartSolid className={className} />
+);
+
+// StarSolid Icon
+export const StarSolid: React.FC<{ className?: string }> = ({ className = '' }) => (
+  <svg
+    className={className}
+    fill="currentColor"
+    viewBox="0 0 24 24"
+    xmlns="http://www.w3.org/2000/svg"
+  >
+    <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z" />
+  </svg>
+);
+
+// EgyptianLoader Icon
+export const EgyptianLoader: React.FC<{ className?: string }> = ({ className = '' }) => (
+  <div className={`animate-spin rounded-full h-8 w-8 border-b-2 border-primary-600 ${className}`} />
+);
+
+// LoadingSpinner Icon
+export const LoadingSpinner: React.FC<{ className?: string; size?: 'sm' | 'md' | 'lg' }> = ({ 
+  className = '', 
+  size = 'md' 
+}) => {
+  const sizeClasses = {
+    sm: 'h-4 w-4',
+    md: 'h-6 w-6',
+    lg: 'h-8 w-8'
+  };
+  
+  return (
+    <div className={`animate-spin rounded-full border-b-2 border-primary-600 ${sizeClasses[size]} ${className}`} />
+  );
+};

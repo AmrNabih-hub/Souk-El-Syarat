@@ -1,5 +1,6 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate, Link } from 'react-router-dom';
+import { motion, AnimatePresence } from 'framer-motion';
 
 import {
   ArrowLeftIcon,
@@ -17,11 +18,13 @@ import {
 } from '@heroicons/react/24/outline';
 
 import { useAppStore } from '@/stores/appStore';
+import { useAuthStore } from '@/stores/authStore';
 
+import { Product, CarProduct } from '@/types';
 import { ProductService } from '@/services/product.service';
 
 import ProductCard from '@/components/product/ProductCard';
-import { EgyptianLoader } from '@/components/ui/LoadingSpinner';
+import { EgyptianLoader, HeartSolid } from '@/components/ui/CustomIcons';
 import toast from 'react-hot-toast';
 
 const ProductDetailsPage: React.FC = () => {

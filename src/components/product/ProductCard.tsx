@@ -1,3 +1,4 @@
+import React, { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import {
   HeartIcon,
@@ -8,6 +9,8 @@ import {
 } from '@heroicons/react/24/outline';
 
 import { Product, CarProduct } from '@/types';
+import { useAppStore } from '@/stores/appStore';
+import { HeartSolid } from '@/components/ui/CustomIcons';
 
 import ProductDetailModal from './ProductDetailModal';
 import EnhancedProductDetailsModal from './EnhancedProductDetailsModal';

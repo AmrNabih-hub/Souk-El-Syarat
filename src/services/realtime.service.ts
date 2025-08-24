@@ -4,6 +4,7 @@
  */
 
 import { db, realtimeDb } from '@/config/firebase.config';
+import { getDatabase } from 'firebase/database';
 import {
   collection,
   query,
@@ -11,9 +12,8 @@ import {
   orderBy,
   limit,
   onSnapshot,
-  writeBatch,
 } from 'firebase/firestore';
-import { ref, set, push, onValue, update, remove } from 'firebase/database';
+import { ref, set, push, onValue, update } from 'firebase/database';
 
 export interface ChatMessage {
   id: string;
@@ -36,9 +36,10 @@ export interface UserPresence {
 
 export class RealtimeService {
   private static instance: RealtimeService;
-  private presenceRef = ref(realtimeDb, 'presence');
-  private chatRef = ref(realtimeDb, 'chat');
-  private activityRef = ref(realtimeDb, 'activity');
+  private realtimeDb = getDatabase();
+  private presenceRef = ref(this.realtimeDb, 'presence');
+  private chatRef = ref(this.realtimeDb, 'chat');
+  private activityRef = ref(this.realtimeDb, 'activity');
 
   static getInstance(): RealtimeService {
     if (!RealtimeService.instance) {
@@ -146,8 +147,7 @@ export class RealtimeService {
       });
     } catch (error) {
       if (process.env.NODE_ENV === 'development')
-        if (process.env.NODE_ENV === 'development')
-          console.error('❌ Error setting user online:', error);
+        console.error('❌ Error setting user online:', error);
       throw error;
     }
   }
@@ -162,8 +162,7 @@ export class RealtimeService {
       });
     } catch (error) {
       if (process.env.NODE_ENV === 'development')
-        if (process.env.NODE_ENV === 'development')
-          console.error('❌ Error setting user offline:', error);
+        console.error('❌ Error setting user offline:', error);
       throw error;
     }
   }
@@ -194,8 +193,7 @@ export class RealtimeService {
       return newMessageRef.key || '';
     } catch (error) {
       if (process.env.NODE_ENV === 'development')
-        if (process.env.NODE_ENV === 'development')
-          console.error('❌ Error sending message:', error);
+        console.error('❌ Error sending message:', error);
       throw error;
     }
   }
@@ -212,8 +210,7 @@ export class RealtimeService {
       });
     } catch (error) {
       if (process.env.NODE_ENV === 'development')
-        if (process.env.NODE_ENV === 'development')
-          console.error('❌ Error marking message as read:', error);
+        console.error('❌ Error marking message as read:', error);
       throw error;
     }
   }
@@ -224,7 +221,7 @@ export class RealtimeService {
     receiverId: string,
     callback: (messages: ChatMessage[]) => void
   ) {
-    const chatRef = ref(realtimeDb, `chat/${this.getChatId(senderId, receiverId)}`);
+    const chatRef = ref(this.realtimeDb, `chat/${this.getChatId(senderId, receiverId)}`);
 
     const unsubscribe = onValue(chatRef, snapshot => {
       const data = snapshot.val();
@@ -299,7 +296,7 @@ export class RealtimeService {
 
   // Listen to analytics
   listenToAnalytics(callback: (analytics: unknown) => void) {
-    const analyticsRef = ref(realtimeDb, 'analytics');
+    const analyticsRef = ref(this.realtimeDb, 'analytics');
 
     const unsubscribe = onValue(analyticsRef, snapshot => {
       const data = snapshot.val();
@@ -312,7 +309,7 @@ export class RealtimeService {
   // Add activity
   async addActivity(userId: string, type: string, data: Record<string, any>): Promise<void> {
     try {
-      const activityRef = ref(realtimeDb, `activity/${userId}`);
+      const activityRef = ref(this.realtimeDb, `activity/${userId}`);
       const newActivityRef = push(activityRef);
 
       await set(newActivityRef, {
@@ -322,8 +319,7 @@ export class RealtimeService {
       });
     } catch (error) {
       if (process.env.NODE_ENV === 'development')
-        if (process.env.NODE_ENV === 'development')
-          console.error('❌ Error adding activity:', error);
+        console.error('❌ Error adding activity:', error);
       throw error;
     }
   }
@@ -331,15 +327,14 @@ export class RealtimeService {
   // Update user typing status
   async updateTypingStatus(userId: string, isTyping: boolean): Promise<void> {
     try {
-      const userPresenceRef = ref(realtimeDb, `presence/${userId}`);
+      const userPresenceRef = ref(this.realtimeDb, `presence/${userId}`);
       await update(userPresenceRef, {
         isTyping,
         lastSeen: Date.now(),
       });
     } catch (error) {
       if (process.env.NODE_ENV === 'development')
-        if (process.env.NODE_ENV === 'development')
-          console.error('❌ Error updating typing status:', error);
+        console.error('❌ Error updating typing status:', error);
       throw error;
     }
   }

@@ -1,4 +1,5 @@
-import React from 'react';
+import React, { ReactElement } from 'react';
+import { BrowserRouter } from 'react-router-dom';
 /**
  * Custom Testing Utilities
  * Enhanced React Testing Library setup with providers

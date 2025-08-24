@@ -1,10 +1,12 @@
+import React, { useEffect, Suspense } from 'react';
 import { Routes, Route, Navigate } from 'react-router-dom';
+import { motion, AnimatePresence } from 'framer-motion';
 
 import { useAuthStore } from '@/stores/authStore';
-
+import { useAppStore } from '@/stores/appStore';
 import { useRealtimeStore } from '@/stores/realtimeStore';
-
 import { PushNotificationService } from '@/services/push-notification.service';
+import { AuthService } from '@/services/auth.service';
 
 // Layout Components
 import Navbar from '@/components/layout/Navbar';

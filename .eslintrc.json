@@ -8,7 +8,9 @@
   "extends": [
     "eslint:recommended",
     "@typescript-eslint/recommended",
-    "plugin:react-hooks/recommended"
+    "plugin:react/recommended",
+    "plugin:react-hooks/recommended",
+    "plugin:react/jsx-runtime"
   ],
   "ignorePatterns": [
     "dist", 
@@ -21,10 +23,23 @@
     "*.config.ts"
   ],
   "parser": "@typescript-eslint/parser",
+  "parserOptions": {
+    "ecmaVersion": "latest",
+    "sourceType": "module",
+    "ecmaFeatures": {
+      "jsx": true
+    }
+  },
   "plugins": [
+    "react",
     "react-refresh",
     "@typescript-eslint"
   ],
+  "settings": {
+    "react": {
+      "version": "detect"
+    }
+  },
   "rules": {
     "react-refresh/only-export-components": [
       "warn",
@@ -40,20 +55,39 @@
     ],
     "@typescript-eslint/no-explicit-any": "warn",
     "@typescript-eslint/no-non-null-assertion": "warn",
-    "no-console": process.env.NODE_ENV === "production" ? "warn" : "off",
-    "no-debugger": process.env.NODE_ENV === "production" ? "error" : "warn",
+    "no-console": "warn",
+    "no-debugger": "warn",
     "react-hooks/exhaustive-deps": "warn",
-    "no-undef": "error"
+    "no-undef": "error",
+    "react/jsx-uses-react": "off",
+    "react/react-in-jsx-scope": "off"
   },
   "globals": {
     "NodeJS": "readonly",
-    "NotificationPermission": "readonly"
+    "NotificationPermission": "readonly",
+    "React": "readonly",
+    "describe": "readonly",
+    "it": "readonly",
+    "expect": "readonly",
+    "beforeEach": "readonly",
+    "afterEach": "readonly",
+    "vi": "readonly",
+    "test": "readonly"
   },
   "overrides": [
     {
-      "files": ["**/*.test.ts", "**/*.test.tsx"],
+      "files": ["**/*.test.ts", "**/*.test.tsx", "**/*.spec.ts", "**/*.spec.tsx"],
       "env": {
         "vitest-globals/env": true
+      },
+      "globals": {
+        "describe": "readonly",
+        "it": "readonly",
+        "expect": "readonly",
+        "beforeEach": "readonly",
+        "afterEach": "readonly",
+        "vi": "readonly",
+        "test": "readonly"
       }
     }
   ]

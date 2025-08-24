@@ -1,10 +1,10 @@
+import React, { useState, useCallback, useEffect } from 'react';
+
 import { NotificationService } from '@/services/notification.service';
-
 import { OrderService, Order } from '@/services/order.service';
-
 import { AnalyticsService, BusinessMetrics, RealTimeStats } from '@/services/analytics.service';
-
 import { ProcessOrchestratorService } from '@/services/process-orchestrator.service';
+import { MessagingService } from '@/services/messaging.service';
 import { useAuthStore } from '@/stores/authStore';
 
 export interface DashboardData {

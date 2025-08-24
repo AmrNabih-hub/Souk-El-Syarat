@@ -4,18 +4,19 @@
  */
 
 import React from 'react';
-import { render, screen } from '@testing-library/react';
+import { screen } from '@testing-library/react';
 import { describe, it, expect } from 'vitest';
 
 import HomePage from '../HomePage';
+import { render as customRender } from '@/test/utils/test-utils';
 
 describe('HomePage', () => {
   it('renders without crashing', () => {
-    expect(() => render(<HomePage />)).not.toThrow();
+    expect(() => customRender(<HomePage />)).not.toThrow();
   });
 
   it('renders main layout structure', () => {
-    render(<HomePage />);
+    customRender(<HomePage />);
     
     // Check that main structural elements exist - HomePage uses div with min-h-screen
     const mainContainer = document.querySelector('.min-h-screen');
@@ -24,7 +25,7 @@ describe('HomePage', () => {
   });
 
   it('displays hero section', () => {
-    render(<HomePage />);
+    customRender(<HomePage />);
     
     // Look for Arabic hero text that should be in the homepage
     expect(screen.getByText('سوق السيارات')).toBeInTheDocument();
@@ -32,7 +33,7 @@ describe('HomePage', () => {
   });
 
   it('renders navigation elements', () => {
-    render(<HomePage />);
+    customRender(<HomePage />);
     
     // Check for navigation links using data-testid
     const links = screen.getAllByTestId('router-link');
@@ -40,7 +41,7 @@ describe('HomePage', () => {
   });
 
   it('displays main action buttons', () => {
-    render(<HomePage />);
+    customRender(<HomePage />);
     
     // Look for main Arabic action buttons
     expect(screen.getByText('تصفح السوق')).toBeInTheDocument();
@@ -49,12 +50,12 @@ describe('HomePage', () => {
 
   it('handles component lifecycle', () => {
     // Test mounting and unmounting
-    const { unmount } = render(<HomePage />);
+    const { unmount } = customRender(<HomePage />);
     expect(() => unmount()).not.toThrow();
   });
 
   it('renders responsive images', () => {
-    render(<HomePage />);
+    customRender(<HomePage />);
     
     // Check for hero image
     const images = screen.getAllByRole('img');
@@ -62,7 +63,7 @@ describe('HomePage', () => {
   });
 
   it('displays content sections', () => {
-    render(<HomePage />);
+    customRender(<HomePage />);
     
     // Check that basic content is rendered
     const sections = document.querySelectorAll('section');

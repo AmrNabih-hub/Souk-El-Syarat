@@ -15,8 +15,9 @@ import {
   serverTimestamp,
   increment,
 } from 'firebase/firestore';
+import { ref, deleteObject, uploadBytes, getDownloadURL } from 'firebase/storage';
 
-import { db, storage } from './firebase';
+import { db, storage } from '@/services/firebase';
 import {
   Product,
   CarProduct,

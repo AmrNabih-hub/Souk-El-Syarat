@@ -3,7 +3,7 @@
  * Enterprise-grade performance monitoring and optimization
  */
 
-import React from 'react';
+import React, { useEffect, useMemo, useState, useCallback } from 'react';
 import { useInView } from 'react-intersection-observer';
 
 // Performance monitoring hook

@@ -1,3 +1,4 @@
+import React, { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import {
   UsersIcon,
@@ -13,9 +14,11 @@ import {
 } from '@heroicons/react/24/outline';
 
 import { useAppStore } from '@/stores/appStore';
+import { useAuthStore } from '@/stores/authStore';
 
 import { VendorApplication, Vendor } from '@/types';
-
+import { VendorService } from '@/services/vendor.service';
+import { EgyptianLoader, LoadingSpinner } from '@/components/ui/CustomIcons';
 import toast from 'react-hot-toast';
 
 interface AdminStats {

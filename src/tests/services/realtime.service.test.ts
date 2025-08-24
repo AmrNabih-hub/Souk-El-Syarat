@@ -3,9 +3,10 @@
  * Tests all real-time functionality and error handling
  */
 
+import { describe, it, expect, vi, beforeEach, afterEach, Mock } from 'vitest';
 import { RealtimeService } from '@/services/realtime.service';
 
-import { Notification } from '@/types';
+
 
 // Mock Firebase modules
 vi.mock('@/config/firebase.config', () => ({

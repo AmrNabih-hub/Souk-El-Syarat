@@ -1,3 +1,4 @@
+import { db } from '@/services/firebase';
 import {
   collection,
   doc,

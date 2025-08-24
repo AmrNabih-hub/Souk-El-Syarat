@@ -1,3 +1,4 @@
+import { describe, it, expect } from 'vitest';
 import { AdminService } from '@/services/admin.service';
 
 // Test the real AdminService functionality

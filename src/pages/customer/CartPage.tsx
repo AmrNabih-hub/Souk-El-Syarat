@@ -1,4 +1,5 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
+import { Link } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 
 import {
@@ -14,9 +15,11 @@ import {
 } from '@heroicons/react/24/outline';
 
 import { useAuthStore } from '@/stores/authStore';
+import { useAppStore } from '@/stores/appStore';
 
 import { Product } from '@/types';
-
+import { ProductService } from '@/services/product.service';
+import { EgyptianLoader, LoadingSpinner } from '@/components/ui/CustomIcons';
 import toast from 'react-hot-toast';
 
 const CartPage: React.FC = () => {

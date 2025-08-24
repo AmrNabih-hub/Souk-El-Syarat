@@ -1,8 +1,15 @@
-import { db } from './firebase';
+import { db } from '@/services/firebase';
+import {
+  collection,
+  query,
+  where,
+  onSnapshot,
+} from 'firebase/firestore';
 
 import { OrderService } from './order.service';
-
 import { MessagingService } from './messaging.service';
+import { AnalyticsService } from './analytics.service';
+import { NotificationService } from './notification.service';
 
 export interface ProcessEvent {
   id: string;

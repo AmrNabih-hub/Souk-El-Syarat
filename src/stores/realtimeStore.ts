@@ -3,10 +3,14 @@
  * Manages real-time data using Zustand with Firebase integration
  */
 
+import { create } from 'zustand';
 import { subscribeWithSelector } from 'zustand/middleware';
 
 import { PushNotificationService } from '@/services/push-notification.service';
+import { RealtimeService } from '@/services/realtime.service';
+import { AuthService } from '@/services/auth.service';
 
+import { UserPresence, ChatMessage, Order, Product, Notification } from '@/types';
 import { Unsubscribe } from 'firebase/firestore';
 
 interface RealtimeState {
