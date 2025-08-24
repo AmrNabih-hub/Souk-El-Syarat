@@ -82,7 +82,7 @@ interface RealtimeState {
   subscribeToAnalytics: () => void;
 
   // Activity feed actions
-  addActivity: (type: string, data: any) => Promise<void>;
+  addActivity: (type: string, data: unknown) => Promise<void>;
 }
 
 export const useRealtimeStore = create<RealtimeState>()(
@@ -108,7 +108,7 @@ export const useRealtimeStore = create<RealtimeState>()(
     // Initialize real-time services
     initialize: async (userId: string) => {
       try {
-        console.log('🔄 Initializing real-time services for user:', userId);
+        // console.log('🔄 Initializing real-time services for user:', userId);
 
         // Initialize Firebase real-time services
         await RealtimeService.initializeForUser(userId);
@@ -155,24 +155,24 @@ export const useRealtimeStore = create<RealtimeState>()(
           isConnected: true,
         });
 
-        console.log('✅ Real-time services initialized successfully');
+        // console.log('✅ Real-time services initialized successfully');
       } catch (error) {
-        console.error('❌ Failed to initialize real-time services:', error);
+        if (process.env.NODE_ENV === 'development') console.error('❌ Failed to initialize real-time services:', error);
         set({ isConnected: false });
       }
     },
 
     // Cleanup all listeners
     cleanup: () => {
-      console.log('🧹 Cleaning up real-time services');
+      // console.log('🧹 Cleaning up real-time services');
 
       // Clean up all listeners
       get().listeners.forEach((unsubscribe, key) => {
         try {
           unsubscribe();
-          console.log(`✅ Cleaned up listener: ${key}`);
+          // console.log(`✅ Cleaned up listener: ${key}`);
         } catch (error) {
-          console.error(`❌ Error cleaning up listener ${key}:`, error);
+          if (process.env.NODE_ENV === 'development') console.error(`❌ Error cleaning up listener ${key}:`, error);
         }
       });
 
@@ -243,9 +243,9 @@ export const useRealtimeStore = create<RealtimeState>()(
           messageType: type,
         });
 
-        console.log('✅ Message sent successfully');
+        // console.log('✅ Message sent successfully');
       } catch (error) {
-        console.error('❌ Failed to send message:', error);
+        if (process.env.NODE_ENV === 'development') console.error('❌ Failed to send message:', error);
         throw error;
       }
     },
@@ -266,7 +266,7 @@ export const useRealtimeStore = create<RealtimeState>()(
           },
         }));
       } catch (error) {
-        console.error('❌ Failed to mark message as read:', error);
+        if (process.env.NODE_ENV === 'development') console.error('❌ Failed to mark message as read:', error);
       }
     },
 
@@ -362,14 +362,14 @@ export const useRealtimeStore = create<RealtimeState>()(
     },
 
     // Activity feed actions
-    addActivity: async (type: string, data: any) => {
+    addActivity: async (type: string, data: unknown) => {
       try {
         const currentUser = await AuthService.getCurrentUser();
         if (!currentUser) return;
 
         await RealtimeService.addActivity(currentUser.id, type as any, data);
       } catch (error) {
-        console.error('❌ Failed to add activity:', error);
+        if (process.env.NODE_ENV === 'development') console.error('❌ Failed to add activity:', error);
       }
     },
   }))
@@ -435,7 +435,7 @@ useRealtimeStore.subscribe(
   state => state.isInitialized,
   (isInitialized, previousIsInitialized) => {
     if (!isInitialized && previousIsInitialized) {
-      console.log('🔄 Re-initializing real-time services...');
+      // console.log('🔄 Re-initializing real-time services...');
       // Handle reconnection logic here if needed
     }
   }

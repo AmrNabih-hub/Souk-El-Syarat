@@ -4,68 +4,59 @@ import { motion } from 'framer-motion';
 import { 
   StarIcon, 
   CheckBadgeIcon,
-  ArrowRightIcon 
+  ArrowRightIcon,
+  SparklesIcon,
+  CogIcon,
+  ShieldCheckIcon,
+  TruckIcon
 } from '@heroicons/react/24/outline';
-import { ProductCard } from '../components/product/ProductCard';
-import { CategoryFilter } from '../components/filters/CategoryFilter';
-import { SearchFilters } from '../components/filters/SearchFilters';
-import { PaginationControls } from '../components/ui/PaginationControls';
-import { RecentlyViewedProducts } from '../components/product/RecentlyViewedProducts';
-import { FeaturedVendors } from '../components/vendor/FeaturedVendors';
-import { TestimonialCarousel } from '../components/testimonials/TestimonialCarousel';
-import { NewsletterSignup } from '../components/ui/NewsletterSignup';
-import { PerformanceMonitor } from '../components/monitoring/PerformanceMonitor';
-import { useAppStore } from '@/stores/appStore';
-import { EgyptianLoader } from '@/components/ui/LoadingSpinner';
 
 const HomePage: React.FC = () => {
-  const { language } = useAppStore();
-
   const features = {
     ar: [
       {
-        icon: LuxuryCarIcon,
+        icon: SparklesIcon,
         title: 'سيارات فاخرة معتمدة',
         description:
           'مجموعة حصرية من أفخم السيارات المعتمدة من أشهر الماركات العالمية مع ضمان الجودة والأصالة',
       },
       {
-        icon: PremiumEngineIcon,
+        icon: CogIcon,
         title: 'قطع غيار أصلية',
         description: 'قطع غيار أصلية من المصنع مباشرة مع شهادات الجودة وضمان الأداء المتميز',
       },
       {
-        icon: LuxuryServiceIcon,
+        icon: TruckIcon,
         title: 'خدمات احترافية',
         description: 'مراكز خدمة معتمدة بأحدث التقنيات وفنيين متخصصين لضمان أفضل أداء لسيارتك',
       },
       {
-        icon: PremiumShieldIcon,
+        icon: ShieldCheckIcon,
         title: 'ضمان شامل',
         description: 'حماية شاملة لاستثمارك مع ضمانات ممتدة وخدمة ما بعد البيع المتميزة',
       },
     ],
     en: [
       {
-        icon: LuxuryCarIcon,
+        icon: SparklesIcon,
         title: 'Certified Luxury Vehicles',
         description:
           'Exclusive collection of premium certified vehicles from world-renowned brands with guaranteed quality and authenticity',
       },
       {
-        icon: PremiumEngineIcon,
+        icon: CogIcon,
         title: 'Genuine OEM Parts',
         description:
           'Factory-direct genuine parts with quality certifications and guaranteed superior performance',
       },
       {
-        icon: LuxuryServiceIcon,
+        icon: TruckIcon,
         title: 'Professional Services',
         description:
           'Certified service centers with cutting-edge technology and specialized technicians for optimal vehicle performance',
       },
       {
-        icon: PremiumShieldIcon,
+        icon: ShieldCheckIcon,
         title: 'Comprehensive Warranty',
         description:
           'Complete protection for your investment with extended warranties and exceptional after-sales service',
@@ -74,10 +65,10 @@ const HomePage: React.FC = () => {
   };
 
   const stats = [
-    { number: '10,000+', label: language === 'ar' ? 'سيارة متاحة' : 'Available Cars' },
-    { number: '500+', label: language === 'ar' ? 'تاجر موثوق' : 'Trusted Vendors' },
-    { number: '50,000+', label: language === 'ar' ? 'عميل راضي' : 'Happy Customers' },
-    { number: '27', label: language === 'ar' ? 'محافظة' : 'Governorates' },
+    { number: '10,000+', label: 'سيارة متاحة' },
+    { number: '500+', label: 'تاجر موثوق' },
+    { number: '50,000+', label: 'عميل راضي' },
+    { number: '27', label: 'محافظة' },
   ];
 
   return (
@@ -114,11 +105,11 @@ const HomePage: React.FC = () => {
                 transition={{ delay: 0.2, duration: 0.8 }}
               >
                 <span className='bg-gradient-to-r from-yellow-400 via-yellow-300 to-yellow-500 bg-clip-text text-transparent drop-shadow-lg'>
-                  {language === 'ar' ? 'سوق السيارات' : 'Souk El-Syarat'}
+                  سوق السيارات
                 </span>
                 <br />
                 <span className='text-white/90 drop-shadow-lg'>
-                  {language === 'ar' ? 'الأول في مصر' : "Egypt's #1 Platform"}
+                  الأول في مصر
                 </span>
               </motion.h1>
 
@@ -128,9 +119,7 @@ const HomePage: React.FC = () => {
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: 0.4, duration: 0.8 }}
               >
-                {language === 'ar'
-                  ? 'اكتشف أفضل السيارات وقطع الغيار والخدمات من تجار موثوقين في جميع أنحاء مصر'
-                  : 'Discover the best cars, parts, and services from trusted vendors across Egypt'}
+                اكتشف أفضل السيارات وقطع الغيار والخدمات من تجار موثوقين في جميع أنحاء مصر
               </motion.p>
 
               <motion.div
@@ -140,12 +129,12 @@ const HomePage: React.FC = () => {
                 transition={{ delay: 0.6, duration: 0.8 }}
               >
                 <Link to='/marketplace' className='btn btn-primary btn-lg group'>
-                  {language === 'ar' ? 'تصفح السوق' : 'Browse Marketplace'}
+                  تصفح السوق
                   <ArrowRightIcon className='w-5 h-5 ml-2 transition-transform group-hover:translate-x-1' />
                 </Link>
 
                 <Link to='/vendor/apply' className='btn btn-outline btn-lg'>
-                  {language === 'ar' ? 'كن تاجراً' : 'Become a Vendor'}
+                  كن تاجراً
                 </Link>
               </motion.div>
             </motion.div>
@@ -278,17 +267,15 @@ const HomePage: React.FC = () => {
             viewport={{ once: true }}
           >
             <h2 className='text-3xl lg:text-4xl font-bold text-neutral-900 mb-4'>
-              {language === 'ar' ? 'لماذا سوق السيارات؟' : 'Why Souk El-Syarat?'}
+              لماذا سوق السيارات؟
             </h2>
             <p className='text-xl text-neutral-600 max-w-3xl mx-auto'>
-              {language === 'ar'
-                ? 'نقدم لك أفضل تجربة شراء للسيارات في مصر مع ضمان الجودة والثقة'
-                : 'We provide the best car buying experience in Egypt with quality and trust guaranteed'}
+              نقدم لك أفضل تجربة شراء للسيارات في مصر مع ضمان الجودة والثقة
             </p>
           </motion.div>
 
           <div className='grid md:grid-cols-2 lg:grid-cols-4 gap-8'>
-            {features[language].map((feature, index) => (
+            {features.ar.map((feature, index) => (
               <motion.div
                 key={feature.title}
                 className='card p-6 text-center card-hover'
@@ -323,12 +310,10 @@ const HomePage: React.FC = () => {
             viewport={{ once: true }}
           >
             <h2 className='text-3xl lg:text-4xl font-bold text-neutral-900 mb-4'>
-              {language === 'ar' ? 'أفضل البائعين المعتمدين' : 'Top Trusted Vendors'}
+              أفضل البائعين المعتمدين
             </h2>
             <p className='text-xl text-neutral-600 max-w-3xl mx-auto'>
-              {language === 'ar'
-                ? 'تعرف على أفضل البائعين المعتمدين لدينا الذين يقدمون أجود المنتجات والخدمات'
-                : 'Meet our top trusted vendors who provide the finest products and services'}
+              تعرف على أفضل البائعين المعتمدين لدينا الذين يقدمون أجود المنتجات والخدمات
             </p>
           </motion.div>
 
@@ -353,12 +338,10 @@ const HomePage: React.FC = () => {
                 </div>
               </div>
               <h3 className='text-xl font-bold text-neutral-900 mb-2'>
-                {language === 'ar' ? 'معرض النخبة للسيارات' : 'Elite Luxury Cars'}
+                معرض النخبة للسيارات
               </h3>
               <p className='text-neutral-600 mb-4'>
-                {language === 'ar'
-                  ? 'متخصص في BMW، Mercedes، Audi'
-                  : 'Specializing in BMW, Mercedes, Audi'}
+                متخصص في BMW، Mercedes، Audi
               </p>
               <div className='flex items-center justify-center mb-4'>
                 {[...Array(5)].map((_, i) => (
@@ -369,15 +352,15 @@ const HomePage: React.FC = () => {
               <div className='grid grid-cols-2 gap-4 mb-6 text-sm'>
                 <div className='bg-white/50 rounded-lg p-2'>
                   <div className='font-bold text-neutral-900'>45</div>
-                  <div className='text-neutral-600'>{language === 'ar' ? 'منتج' : 'Products'}</div>
+                  <div className='text-neutral-600'>منتج</div>
                 </div>
                 <div className='bg-white/50 rounded-lg p-2'>
                   <div className='font-bold text-neutral-900'>127</div>
-                  <div className='text-neutral-600'>{language === 'ar' ? 'تقييم' : 'Reviews'}</div>
+                  <div className='text-neutral-600'>تقييم</div>
                 </div>
               </div>
               <Link to='/vendors' className='btn btn-primary w-full'>
-                {language === 'ar' ? 'عرض المنتجات' : 'View Products'}
+                عرض المنتجات
               </Link>
             </motion.div>
 
@@ -401,10 +384,10 @@ const HomePage: React.FC = () => {
                 </div>
               </div>
               <h3 className='text-xl font-bold text-neutral-900 mb-2'>
-                {language === 'ar' ? 'تويوتا الشرق الأوسط' : 'Toyota Middle East'}
+                تويوتا الشرق الأوسط
               </h3>
               <p className='text-neutral-600 mb-4'>
-                {language === 'ar' ? 'الوكيل المعتمد لسيارات تويوتا' : 'Official Toyota Dealer'}
+                الوكيل المعتمد لسيارات تويوتا
               </p>
               <div className='flex items-center justify-center mb-4'>
                 {[...Array(5)].map((_, i) => (
@@ -418,15 +401,15 @@ const HomePage: React.FC = () => {
               <div className='grid grid-cols-2 gap-4 mb-6 text-sm'>
                 <div className='bg-white/50 rounded-lg p-2'>
                   <div className='font-bold text-neutral-900'>32</div>
-                  <div className='text-neutral-600'>{language === 'ar' ? 'منتج' : 'Products'}</div>
+                  <div className='text-neutral-600'>منتج</div>
                 </div>
                 <div className='bg-white/50 rounded-lg p-2'>
                   <div className='font-bold text-neutral-900'>89</div>
-                  <div className='text-neutral-600'>{language === 'ar' ? 'تقييم' : 'Reviews'}</div>
+                  <div className='text-neutral-600'>تقييم</div>
                 </div>
               </div>
               <Link to='/vendors' className='btn btn-secondary w-full'>
-                {language === 'ar' ? 'عرض المنتجات' : 'View Products'}
+                عرض المنتجات
               </Link>
             </motion.div>
 
@@ -450,10 +433,10 @@ const HomePage: React.FC = () => {
                 </div>
               </div>
               <h3 className='text-xl font-bold text-neutral-900 mb-2'>
-                {language === 'ar' ? 'مركز الصفوة VIP' : 'Alsafwa VIP Center'}
+                مركز الصفوة VIP
               </h3>
               <p className='text-neutral-600 mb-4'>
-                {language === 'ar' ? 'خدمات VIP للسيارات الفاخرة' : 'VIP Services for Luxury Cars'}
+                خدمات VIP للسيارات الفاخرة
               </p>
               <div className='flex items-center justify-center mb-4'>
                 {[...Array(5)].map((_, i) => (
@@ -464,15 +447,15 @@ const HomePage: React.FC = () => {
               <div className='grid grid-cols-2 gap-4 mb-6 text-sm'>
                 <div className='bg-white/50 rounded-lg p-2'>
                   <div className='font-bold text-neutral-900'>23</div>
-                  <div className='text-neutral-600'>{language === 'ar' ? 'خدمة' : 'Services'}</div>
+                  <div className='text-neutral-600'>خدمة</div>
                 </div>
                 <div className='bg-white/50 rounded-lg p-2'>
                   <div className='font-bold text-neutral-900'>78</div>
-                  <div className='text-neutral-600'>{language === 'ar' ? 'تقييم' : 'Reviews'}</div>
+                  <div className='text-neutral-600'>تقييم</div>
                 </div>
               </div>
               <Link to='/vendors' className='btn btn-accent w-full'>
-                {language === 'ar' ? 'عرض الخدمات' : 'View Services'}
+                عرض الخدمات
               </Link>
             </motion.div>
           </div>
@@ -485,7 +468,7 @@ const HomePage: React.FC = () => {
             viewport={{ once: true }}
           >
             <Link to='/vendors' className='btn btn-outline btn-lg'>
-              {language === 'ar' ? 'عرض جميع البائعين' : 'View All Vendors'}
+              عرض جميع البائعين
               <ArrowRightIcon className='w-5 h-5 ml-2' />
             </Link>
           </motion.div>
@@ -502,14 +485,10 @@ const HomePage: React.FC = () => {
             viewport={{ once: true }}
           >
             <h2 className='text-3xl lg:text-4xl font-bold text-white mb-6'>
-              {language === 'ar'
-                ? 'ابدأ رحلتك في عالم السيارات اليوم'
-                : 'Start Your Car Journey Today'}
+              ابدأ رحلتك في عالم السيارات اليوم
             </h2>
             <p className='text-xl text-white/90 mb-8 leading-relaxed'>
-              {language === 'ar'
-                ? 'انضم إلى آلاف العملاء الذين وجدوا سياراتهم المثالية معنا'
-                : 'Join thousands of customers who found their perfect cars with us'}
+              انضم إلى آلاف العملاء الذين وجدوا سياراتهم المثالية معنا
             </p>
 
             <div className='flex flex-col sm:flex-row gap-4 justify-center'>
@@ -518,7 +497,7 @@ const HomePage: React.FC = () => {
                   to='/register'
                   className='btn bg-white text-primary-600 hover:bg-neutral-50 btn-lg font-semibold'
                 >
-                  {language === 'ar' ? 'سجل الآن' : 'Sign Up Now'}
+                  سجل الآن
                 </Link>
               </motion.div>
 
@@ -527,7 +506,7 @@ const HomePage: React.FC = () => {
                   to='/marketplace'
                   className='btn border-2 border-white text-white hover:bg-white hover:text-primary-600 btn-lg font-semibold'
                 >
-                  {language === 'ar' ? 'تصفح السيارات' : 'Browse Cars'}
+                  تصفح السيارات
                 </Link>
               </motion.div>
             </div>
@@ -546,12 +525,10 @@ const HomePage: React.FC = () => {
             data-testid='featured-products'
           >
             <h2 className='text-4xl font-bold text-neutral-800 mb-4'>
-              {language === 'ar' ? 'مجموعة مختارة من أفخم السيارات' : 'Curated Luxury Collection'}
+              مجموعة مختارة من أفخم السيارات
             </h2>
             <p className='text-xl text-neutral-600 max-w-3xl mx-auto'>
-              {language === 'ar'
-                ? 'اكتشف مجموعتنا الحصرية من أرقى السيارات والقطع والخدمات المتميزة'
-                : 'Discover our exclusive selection of premium vehicles, parts, and professional services'}
+              اكتشف مجموعتنا الحصرية من أرقى السيارات والقطع والخدمات المتميزة
             </p>
           </motion.div>
 
@@ -574,28 +551,26 @@ const HomePage: React.FC = () => {
                   className='w-full h-full object-cover transition-transform duration-300 hover:scale-110'
                 />
                 <div className='absolute top-4 left-4 bg-primary-500 text-white px-3 py-1 rounded-full text-sm font-semibold'>
-                  {language === 'ar' ? 'جديد' : 'NEW'}
+                  جديد
                 </div>
                 <div className='absolute top-4 right-4 bg-red-500 text-white px-3 py-1 rounded-full text-sm font-semibold'>
-                  {language === 'ar' ? '٦% خصم' : '6% OFF'}
+                  ٦% خصم
                 </div>
               </div>
               <div className='p-6'>
                 <h3 className='font-bold text-xl mb-2 text-neutral-800'>
-                  {language === 'ar' ? 'بورش ٩١١ تيربو إس ٢٠٢٤' : 'Porsche 911 Turbo S 2024'}
+                  بورش ٩١١ تيربو إس ٢٠٢٤
                 </h3>
                 <p className='text-neutral-600 mb-4 text-sm'>
-                  {language === 'ar'
-                    ? 'محرك تيربو مسطح ٦ أسطوانات بقوة ٦٤٠ حصان'
-                    : '640 HP Twin-Turbo Flat-6 Engine'}
+                  محرك تيربو مسطح ٦ أسطوانات بقوة ٦٤٠ حصان
                 </p>
                 <div className='flex items-center justify-between'>
                   <div>
                     <span className='text-2xl font-bold text-primary-600'>
-                      {language === 'ar' ? '٤,٥٠٠,٠٠٠ جنيه' : 'EGP 4,500,000'}
+                      ٤,٥٠٠,٠٠٠ جنيه
                     </span>
                     <span className='text-sm text-neutral-500 line-through ml-2'>
-                      {language === 'ar' ? '٤,٨٠٠,٠٠٠' : '4,800,000'}
+                      ٤,٨٠٠,٠٠٠
                     </span>
                   </div>
                   <motion.button
@@ -603,7 +578,7 @@ const HomePage: React.FC = () => {
                     whileTap={{ scale: 0.95 }}
                     className='bg-primary-500 text-white px-4 py-2 rounded-lg font-semibold hover:bg-primary-600 transition-colors'
                   >
-                    {language === 'ar' ? 'عرض التفاصيل' : 'View Details'}
+                    عرض التفاصيل
                   </motion.button>
                 </div>
               </div>
@@ -624,25 +599,23 @@ const HomePage: React.FC = () => {
                   className='w-full h-full object-cover transition-transform duration-300 hover:scale-110'
                 />
                 <div className='absolute top-4 left-4 bg-green-500 text-white px-3 py-1 rounded-full text-sm font-semibold'>
-                  {language === 'ar' ? 'متوفر' : 'IN STOCK'}
+                  متوفر
                 </div>
               </div>
               <div className='p-6'>
                 <h3 className='font-bold text-xl mb-2 text-neutral-800'>
-                  {language === 'ar' ? 'طقم فرامل بريمبو GT' : 'Brembo GT Brake Kit'}
+                  طقم فرامل بريمبو GT
                 </h3>
                 <p className='text-neutral-600 mb-4 text-sm'>
-                  {language === 'ar'
-                    ? 'طقم فرامل احترافي ٦ مكابس لسيارات BMW M'
-                    : 'Professional 6-Piston Kit for BMW M Series'}
+                  طقم فرامل احترافي ٦ مكابس لسيارات BMW M
                 </p>
                 <div className='flex items-center justify-between'>
                   <div>
                     <span className='text-2xl font-bold text-primary-600'>
-                      {language === 'ar' ? '٤٥,٠٠٠ جنيه' : 'EGP 45,000'}
+                      ٤٥,٠٠٠ جنيه
                     </span>
                     <span className='text-sm text-neutral-500 line-through ml-2'>
-                      {language === 'ar' ? '٥٢,٠٠٠' : '52,000'}
+                      ٥٢,٠٠٠
                     </span>
                   </div>
                   <motion.button
@@ -650,7 +623,7 @@ const HomePage: React.FC = () => {
                     whileTap={{ scale: 0.95 }}
                     className='bg-primary-500 text-white px-4 py-2 rounded-lg font-semibold hover:bg-primary-600 transition-colors'
                   >
-                    {language === 'ar' ? 'أضف للسلة' : 'Add to Cart'}
+                    أضف للسلة
                   </motion.button>
                 </div>
               </div>
@@ -671,25 +644,23 @@ const HomePage: React.FC = () => {
                   className='w-full h-full object-cover transition-transform duration-300 hover:scale-110'
                 />
                 <div className='absolute top-4 left-4 bg-blue-500 text-white px-3 py-1 rounded-full text-sm font-semibold'>
-                  {language === 'ar' ? 'خدمة' : 'SERVICE'}
+                  خدمة
                 </div>
               </div>
               <div className='p-6'>
                 <h3 className='font-bold text-xl mb-2 text-neutral-800'>
-                  {language === 'ar' ? 'طلاء سيراميك احترافي' : 'Ceramic Coating Service'}
+                  طلاء سيراميك احترافي
                 </h3>
                 <p className='text-neutral-600 mb-4 text-sm'>
-                  {language === 'ar'
-                    ? 'حماية متقدمة للطلاء لمدة ٥ سنوات'
-                    : '5-Year Advanced Paint Protection'}
+                  حماية متقدمة للطلاء لمدة ٥ سنوات
                 </p>
                 <div className='flex items-center justify-between'>
                   <div>
                     <span className='text-2xl font-bold text-primary-600'>
-                      {language === 'ar' ? '١٥,٠٠٠ جنيه' : 'EGP 15,000'}
+                      ١٥,٠٠٠ جنيه
                     </span>
                     <span className='text-sm text-neutral-500 line-through ml-2'>
-                      {language === 'ar' ? '١٨,٠٠٠' : '18,000'}
+                      ١٨,٠٠٠
                     </span>
                   </div>
                   <motion.button
@@ -697,7 +668,7 @@ const HomePage: React.FC = () => {
                     whileTap={{ scale: 0.95 }}
                     className='bg-primary-500 text-white px-4 py-2 rounded-lg font-semibold hover:bg-primary-600 transition-colors'
                   >
-                    {language === 'ar' ? 'احجز الآن' : 'Book Now'}
+                    احجز الآن
                   </motion.button>
                 </div>
               </div>
@@ -715,7 +686,7 @@ const HomePage: React.FC = () => {
               to='/marketplace'
               className='inline-flex items-center bg-gradient-to-r from-primary-500 to-primary-600 text-white px-8 py-4 rounded-xl font-bold text-lg hover:from-primary-600 hover:to-primary-700 transition-all duration-300 shadow-lg hover:shadow-xl'
             >
-              {language === 'ar' ? 'تصفح جميع المنتجات' : 'Explore All Products'}
+              تصفح جميع المنتجات
               <ArrowRightIcon className='w-5 h-5 ml-2' />
             </Link>
           </motion.div>

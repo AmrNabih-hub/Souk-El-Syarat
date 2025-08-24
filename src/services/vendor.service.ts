@@ -118,7 +118,7 @@ export class VendorService {
 
       return applicationId;
     } catch (error) {
-      console.error('Error submitting vendor application:', error);
+      if (process.env.NODE_ENV === 'development') console.error('Error submitting vendor application:', error);
       throw new Error('Failed to submit vendor application');
     }
   }
@@ -141,7 +141,7 @@ export class VendorService {
       }
       return null;
     } catch (error) {
-      console.error('Error getting vendor application:', error);
+      if (process.env.NODE_ENV === 'development') console.error('Error getting vendor application:', error);
       throw new Error('Failed to get vendor application');
     }
   }
@@ -169,7 +169,7 @@ export class VendorService {
         } as VendorApplication;
       });
     } catch (error) {
-      console.error('Error getting user vendor applications:', error);
+      if (process.env.NODE_ENV === 'development') console.error('Error getting user vendor applications:', error);
       throw new Error('Failed to get vendor applications');
     }
   }
@@ -219,7 +219,7 @@ export class VendorService {
 
       return { applications, lastDoc: lastDocument };
     } catch (error) {
-      console.error('Error getting all vendor applications:', error);
+      if (process.env.NODE_ENV === 'development') console.error('Error getting all vendor applications:', error);
       throw new Error('Failed to get vendor applications');
     }
   }
@@ -253,7 +253,7 @@ export class VendorService {
         await this.createVendorFromApplication(application);
       }
     } catch (error) {
-      console.error('Error reviewing vendor application:', error);
+      if (process.env.NODE_ENV === 'development') console.error('Error reviewing vendor application:', error);
       throw new Error('Failed to review vendor application');
     }
   }
@@ -305,7 +305,7 @@ export class VendorService {
         updatedAt: serverTimestamp(),
       });
     } catch (error) {
-      console.error('Error creating vendor from application:', error);
+      if (process.env.NODE_ENV === 'development') console.error('Error creating vendor from application:', error);
       throw new Error('Failed to create vendor profile');
     }
   }
@@ -328,7 +328,7 @@ export class VendorService {
       }
       return null;
     } catch (error) {
-      console.error('Error getting vendor:', error);
+      if (process.env.NODE_ENV === 'development') console.error('Error getting vendor:', error);
       throw new Error('Failed to get vendor');
     }
   }
@@ -357,7 +357,7 @@ export class VendorService {
       }
       return null;
     } catch (error) {
-      console.error('Error getting vendor by user ID:', error);
+      if (process.env.NODE_ENV === 'development') console.error('Error getting vendor by user ID:', error);
       throw new Error('Failed to get vendor');
     }
   }
@@ -407,7 +407,7 @@ export class VendorService {
 
       return { vendors, lastDoc: lastDocument };
     } catch (error) {
-      console.error('Error getting all vendors:', error);
+      if (process.env.NODE_ENV === 'development') console.error('Error getting all vendors:', error);
       throw new Error('Failed to get vendors');
     }
   }
@@ -432,7 +432,7 @@ export class VendorService {
 
       await updateDoc(doc(db, this.COLLECTION_NAME, vendorId), updateData);
     } catch (error) {
-      console.error('Error updating vendor:', error);
+      if (process.env.NODE_ENV === 'development') console.error('Error updating vendor:', error);
       throw new Error('Failed to update vendor');
     }
   }
@@ -447,7 +447,7 @@ export class VendorService {
         updatedAt: serverTimestamp(),
       });
     } catch (error) {
-      console.error('Error updating vendor status:', error);
+      if (process.env.NODE_ENV === 'development') console.error('Error updating vendor status:', error);
       throw new Error('Failed to update vendor status');
     }
   }
@@ -464,14 +464,14 @@ export class VendorService {
           const logoRef = ref(storage, `vendors/${vendorId}/logo.jpg`);
           await deleteObject(logoRef);
         } catch (logoError) {
-          console.warn('Error deleting vendor logo:', logoError);
+          // console.warn('Error deleting vendor logo:', logoError);
         }
       }
 
       // Delete vendor document
       await deleteDoc(doc(db, this.COLLECTION_NAME, vendorId));
     } catch (error) {
-      console.error('Error deleting vendor:', error);
+      if (process.env.NODE_ENV === 'development') console.error('Error deleting vendor:', error);
       throw new Error('Failed to delete vendor');
     }
   }
@@ -512,7 +512,7 @@ export class VendorService {
 
       return filteredVendors;
     } catch (error) {
-      console.error('Error searching vendors:', error);
+      if (process.env.NODE_ENV === 'development') console.error('Error searching vendors:', error);
       throw new Error('Failed to search vendors');
     }
   }
@@ -570,7 +570,7 @@ export class VendorService {
         },
       };
     } catch (error) {
-      console.error('Error getting vendor statistics:', error);
+      if (process.env.NODE_ENV === 'development') console.error('Error getting vendor statistics:', error);
       throw new Error('Failed to get vendor statistics');
     }
   }

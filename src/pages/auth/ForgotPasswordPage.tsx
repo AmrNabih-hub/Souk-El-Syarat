@@ -42,7 +42,7 @@ const ForgotPasswordPage: React.FC = () => {
           ? 'تم إرسال رابط إعادة تعيين كلمة المرور إلى بريدك الإلكتروني'
           : 'Password reset link sent to your email'
       );
-    } catch (error: any) {
+    } catch (error) {
       toast.error(error.message || 'Failed to send reset email');
     }
   };

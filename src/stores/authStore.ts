@@ -28,7 +28,7 @@ export const useAuthStore = create<AuthStore>((set, get) => ({
       set({ isLoading: true, error: null });
       const user = await AuthService.signIn(email, password);
       set({ user, isLoading: false });
-    } catch (error: any) {
+    } catch (error) {
       set({ error: error.message, isLoading: false });
       throw error;
     }
@@ -39,7 +39,7 @@ export const useAuthStore = create<AuthStore>((set, get) => ({
       set({ isLoading: true, error: null });
       const user = await AuthService.signUp(email, password, displayName);
       set({ user, isLoading: false });
-    } catch (error: any) {
+    } catch (error) {
       set({ error: error.message, isLoading: false });
       throw error;
     }
@@ -50,7 +50,7 @@ export const useAuthStore = create<AuthStore>((set, get) => ({
       set({ isLoading: true, error: null });
       const user = await AuthService.signInWithGoogle();
       set({ user, isLoading: false });
-    } catch (error: any) {
+    } catch (error) {
       set({ error: error.message, isLoading: false });
       throw error;
     }
@@ -61,7 +61,7 @@ export const useAuthStore = create<AuthStore>((set, get) => ({
       set({ isLoading: true, error: null });
       await AuthService.signOut();
       set({ user: null, isLoading: false });
-    } catch (error: any) {
+    } catch (error) {
       set({ error: error.message, isLoading: false });
       throw error;
     }
@@ -72,7 +72,7 @@ export const useAuthStore = create<AuthStore>((set, get) => ({
       set({ isLoading: true, error: null });
       await AuthService.resetPassword(email);
       set({ isLoading: false });
-    } catch (error: any) {
+    } catch (error) {
       set({ error: error.message, isLoading: false });
       throw error;
     }
@@ -89,7 +89,7 @@ export const useAuthStore = create<AuthStore>((set, get) => ({
         user: { ...user, ...updates },
         isLoading: false,
       });
-    } catch (error: any) {
+    } catch (error) {
       set({ error: error.message, isLoading: false });
       throw error;
     }

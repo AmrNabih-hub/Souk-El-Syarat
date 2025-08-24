@@ -151,8 +151,8 @@ const UsedCarSellingForm: React.FC = () => {
       reset();
       setUploadedImages([]);
       setImagePreviewUrls([]);
-    } catch (error: any) {
-      console.error('Error submitting used car:', error);
+    } catch (error) {
+      if (process.env.NODE_ENV === 'development') console.error('Error submitting used car:', error);
       toast.error(language === 'ar' ? 'حدث خطأ أثناء إضافة السيارة' : 'Error adding used car');
     } finally {
       setIsSubmitting(false);

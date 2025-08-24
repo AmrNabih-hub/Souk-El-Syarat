@@ -15,7 +15,7 @@ export const usePerformanceMonitor = () => {
       list.getEntries().forEach(entry => {
         if (entry.entryType === 'navigation') {
           const navigationEntry = entry as PerformanceNavigationTiming;
-          console.log('Navigation Performance:', {
+          // console.log('Navigation Performance:', {
             DNS: navigationEntry.domainLookupEnd - navigationEntry.domainLookupStart,
             TCP: navigationEntry.connectEnd - navigationEntry.connectStart,
             Request: navigationEntry.responseStart - navigationEntry.requestStart,
@@ -28,11 +28,11 @@ export const usePerformanceMonitor = () => {
         }
 
         if (entry.entryType === 'paint') {
-          console.log(`${entry.name}: ${entry.startTime}ms`);
+          // console.log(`${entry.name}: ${entry.startTime}ms`);
         }
 
         if (entry.entryType === 'largest-contentful-paint') {
-          console.log(`LCP: ${entry.startTime}ms`);
+          // console.log(`LCP: ${entry.startTime}ms`);
         }
       });
     });
@@ -145,9 +145,9 @@ export const useServiceWorker = () => {
       window.addEventListener('load', async () => {
         try {
           const registration = await navigator.serviceWorker.register('/sw.js');
-          console.log('Service Worker registered:', registration);
+          // console.log('Service Worker registered:', registration);
         } catch (error) {
-          console.error('Service Worker registration failed:', error);
+          if (process.env.NODE_ENV === 'development') console.error('Service Worker registration failed:', error);
         }
       });
     }
@@ -187,7 +187,7 @@ export const useBundleAnalytics = () => {
       const observer = new PerformanceObserver(list => {
         list.getEntries().forEach(entry => {
           if (entry.entryType === 'resource' && entry.name.includes('.js')) {
-            console.log('JS Bundle:', {
+            // console.log('JS Bundle:', {
               name: entry.name,
               size: (entry as any).transferSize || 0,
               loadTime: entry.duration,

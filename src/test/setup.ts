@@ -4,7 +4,7 @@
  */
 
 import '@testing-library/jest-dom'
-import { vi } from 'vitest'
+import { vi, beforeAll, afterAll, afterEach } from 'vitest'
 
 // Mock Firebase for testing
 vi.mock('firebase/app', () => ({
@@ -19,7 +19,23 @@ vi.mock('firebase/auth', () => ({
   createUserWithEmailAndPassword: vi.fn(),
   signOut: vi.fn(),
   onAuthStateChanged: vi.fn(),
-  updateProfile: vi.fn()
+  updateProfile: vi.fn(),
+  sendPasswordResetEmail: vi.fn(),
+  sendEmailVerification: vi.fn(),
+  updatePassword: vi.fn(),
+  deleteUser: vi.fn(),
+  reload: vi.fn(),
+  GoogleAuthProvider: class MockGoogleAuthProvider {
+    constructor() {}
+    setCustomParameters() {}
+  },
+  FacebookAuthProvider: class MockFacebookAuthProvider {
+    constructor() {}
+  },
+  TwitterAuthProvider: class MockTwitterAuthProvider {
+    constructor() {}
+  },
+  signInWithPopup: vi.fn()
 }))
 
 vi.mock('firebase/firestore', () => ({

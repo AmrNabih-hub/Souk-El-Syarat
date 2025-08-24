@@ -1,19 +1,16 @@
-import React, { useState, useEffect, useCallback } from 'react';
+import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import {
   UsersIcon,
   BuildingStorefrontIcon,
   ShoppingBagIcon,
   CurrencyDollarIcon,
-  ClockIcon,
   CheckCircleIcon,
-  XCircleIcon,
   EyeIcon,
   ChartBarIcon,
   DocumentCheckIcon,
   ShieldCheckIcon,
   CogIcon,
-  BellIcon,
   ExclamationTriangleIcon,
   ArrowTrendingUpIcon,
   ArrowTrendingDownIcon,
@@ -25,15 +22,13 @@ import {
 import { useAuthStore } from '@/stores/authStore';
 import { useAppStore } from '@/stores/appStore';
 import { AdminService } from '@/services/admin.service';
-import { AdminStats, VendorApprovalData } from '@/types';
+import { AdminStats } from '@/types';
 import { VendorApplication, Vendor, AdminAnalytics } from '@/types';
 import LoadingSpinner from '@/components/ui/LoadingSpinner';
 import toast from 'react-hot-toast';
 import {
   LineChart,
   Line,
-  BarChart,
-  Bar,
   PieChart,
   Pie,
   Cell,
@@ -48,11 +43,9 @@ import {
 interface DashboardTab {
   id: string;
   label: string;
-  icon: React.ComponentType<any>;
-  component: React.ComponentType<any>;
+  icon: React.ComponentType<React.SVGProps<SVGSVGElement>>;
+  component: React.ComponentType<Record<string, never>>;
 }
-
-const COLORS = ['#0088FE', '#00C49F', '#FFBB28', '#FF8042', '#8884D8'];
 
 const EnhancedAdminDashboard: React.FC = () => {
   const { user } = useAuthStore();
@@ -104,7 +97,7 @@ const EnhancedAdminDashboard: React.FC = () => {
       const adminStats = await AdminService.getAdminStats();
       setStats(adminStats);
     } catch (error) {
-      console.error('Error loading dashboard data:', error);
+      if (process.env.NODE_ENV === 'development') console.error('Error loading dashboard data:', error);
       toast.error(language === 'ar' ? 'خطأ في تحميل البيانات' : 'Error loading dashboard data');
     } finally {
       setIsLoading(false);
@@ -116,12 +109,6 @@ const EnhancedAdminDashboard: React.FC = () => {
 
     try {
       setIsProcessing(true);
-      const approvalData: VendorApprovalData = {
-        applicationId: selectedApplication.id,
-        status: reviewStatus,
-        notes: reviewNotes,
-        adminId: user.id,
-      };
 
       await AdminService.processVendorApplication(
         selectedApplication.id,
@@ -139,7 +126,7 @@ const EnhancedAdminDashboard: React.FC = () => {
       setReviewModalOpen(false);
       setSelectedApplication(null);
       setReviewNotes('');
-    } catch (error: any) {
+    } catch (error) {
       toast.error(error.message || 'Failed to process application');
     } finally {
       setIsProcessing(false);
@@ -159,7 +146,7 @@ const EnhancedAdminDashboard: React.FC = () => {
           ? `تم ${newStatus === 'active' ? 'إعادة تفعيل' : 'تعليق'} حساب البائع`
           : `Vendor account ${newStatus === 'active' ? 'reactivated' : 'suspended'}`
       );
-    } catch (error: any) {
+    } catch (error) {
       toast.error(error.message || 'Failed to update vendor status');
     }
   };
@@ -388,7 +375,13 @@ const EnhancedAdminDashboard: React.FC = () => {
 };
 
 // Tab Components
-const OverviewTab: React.FC<any> = ({ stats, analytics, language }) => {
+interface OverviewTabProps {
+  stats: AdminStats | null;
+  analytics: AdminAnalytics | null;
+  language: string;
+}
+
+const OverviewTab: React.FC<OverviewTabProps> = ({ stats, language }) => {
   if (!stats) return null;
 
   const platformHealthColor =
@@ -717,7 +710,12 @@ const VendorsTab: React.FC<any> = ({
   );
 };
 
-const AnalyticsTab: React.FC<any> = ({ analytics, language }) => {
+interface AnalyticsTabProps {
+  analytics: AdminAnalytics | null;
+  language: string;
+}
+
+const AnalyticsTab: React.FC<AnalyticsTabProps> = ({ analytics, language }) => {
   if (!analytics) return null;
 
   // Mock data for charts - in real app this would come from analytics service
@@ -913,7 +911,7 @@ const SystemTab: React.FC<any> = ({ language }) => {
 const StatsCard: React.FC<{
   title: string;
   value: string;
-  icon: React.ComponentType<any>;
+  icon: React.ComponentType<Record<string, never>>;
   trend: string;
   trendDirection: 'up' | 'down';
   color: string;

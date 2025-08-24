@@ -211,7 +211,7 @@ export class MessagingService {
         return conversationDoc.id;
       });
     } catch (error) {
-      console.error('Error creating conversation:', error);
+      if (process.env.NODE_ENV === 'development') console.error('Error creating conversation:', error);
       throw new Error('Failed to create conversation');
     }
   }
@@ -313,7 +313,7 @@ export class MessagingService {
         return messageDoc.id;
       });
     } catch (error) {
-      console.error('Error sending message:', error);
+      if (process.env.NODE_ENV === 'development') console.error('Error sending message:', error);
       throw new Error('Failed to send message');
     }
   }
@@ -375,7 +375,7 @@ export class MessagingService {
         });
       });
     } catch (error) {
-      console.error('Error marking messages as read:', error);
+      if (process.env.NODE_ENV === 'development') console.error('Error marking messages as read:', error);
       throw new Error('Failed to mark messages as read');
     }
   }
@@ -405,7 +405,7 @@ export class MessagingService {
           updatedAt: data.updatedAt?.toDate() || new Date(),
           closedAt: data.closedAt?.toDate() || null,
           participants:
-            data.participants?.map((p: any) => ({
+            data.participants?.map((p: unknown) => ({
               ...p,
               joinedAt: p.joinedAt?.toDate() || new Date(),
               lastReadAt: p.lastReadAt?.toDate() || null,
@@ -447,7 +447,7 @@ export class MessagingService {
           updatedAt: data.updatedAt?.toDate() || new Date(),
           editedAt: data.editedAt?.toDate() || null,
           readBy:
-            data.readBy?.map((r: any) => ({
+            data.readBy?.map((r: unknown) => ({
               ...r,
               readAt: r.readAt?.toDate() || new Date(),
             })) || [],
@@ -472,7 +472,7 @@ export class MessagingService {
           updatedAt: data.updatedAt?.toDate() || new Date(),
           closedAt: data.closedAt?.toDate() || null,
           participants:
-            data.participants?.map((p: any) => ({
+            data.participants?.map((p: unknown) => ({
               ...p,
               joinedAt: p.joinedAt?.toDate() || new Date(),
               lastReadAt: p.lastReadAt?.toDate() || null,
@@ -487,7 +487,7 @@ export class MessagingService {
       }
       return null;
     } catch (error) {
-      console.error('Error getting conversation:', error);
+      if (process.env.NODE_ENV === 'development') console.error('Error getting conversation:', error);
       throw new Error('Failed to get conversation');
     }
   }
@@ -538,7 +538,7 @@ export class MessagingService {
         vendorId: participants.find(p => p.role === 'vendor')?.userId,
       });
     } catch (error) {
-      console.error('Error finding or creating conversation:', error);
+      if (process.env.NODE_ENV === 'development') console.error('Error finding or creating conversation:', error);
       throw new Error('Failed to find or create conversation');
     }
   }
@@ -558,7 +558,7 @@ export class MessagingService {
         },
       });
     } catch (error) {
-      console.error('Error closing conversation:', error);
+      if (process.env.NODE_ENV === 'development') console.error('Error closing conversation:', error);
       throw new Error('Failed to close conversation');
     }
   }
@@ -573,7 +573,7 @@ export class MessagingService {
         updatedAt: serverTimestamp(),
       });
     } catch (error) {
-      console.error('Error archiving conversation:', error);
+      if (process.env.NODE_ENV === 'development') console.error('Error archiving conversation:', error);
       throw new Error('Failed to archive conversation');
     }
   }
@@ -599,7 +599,7 @@ export class MessagingService {
         updatedAt: serverTimestamp(),
       });
     } catch (error) {
-      console.error('Error adding participant:', error);
+      if (process.env.NODE_ENV === 'development') console.error('Error adding participant:', error);
       throw new Error('Failed to add participant');
     }
   }
@@ -620,7 +620,7 @@ export class MessagingService {
         });
       }
     } catch (error) {
-      console.error('Error removing participant:', error);
+      if (process.env.NODE_ENV === 'development') console.error('Error removing participant:', error);
       throw new Error('Failed to remove participant');
     }
   }
@@ -637,7 +637,7 @@ export class MessagingService {
         updatedAt: serverTimestamp(),
       });
     } catch (error) {
-      console.error('Error editing message:', error);
+      if (process.env.NODE_ENV === 'development') console.error('Error editing message:', error);
       throw new Error('Failed to edit message');
     }
   }

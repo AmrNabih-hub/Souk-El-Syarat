@@ -79,7 +79,7 @@ const RegisterPage: React.FC = () => {
       } else {
         navigate('/');
       }
-    } catch (error: any) {
+    } catch (error) {
       toast.error(error.message || 'Failed to create account');
     }
   };
@@ -90,7 +90,7 @@ const RegisterPage: React.FC = () => {
       await signInWithGoogle();
       toast.success(language === 'ar' ? 'تم إنشاء الحساب بنجاح!' : 'Account created successfully!');
       navigate('/');
-    } catch (error: any) {
+    } catch (error) {
       toast.error(error.message || 'Failed to sign up with Google');
     }
   };

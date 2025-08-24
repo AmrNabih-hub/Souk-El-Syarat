@@ -74,8 +74,8 @@ const AdminLoginPage: React.FC = () => {
               : 'This account does not have admin privileges',
         });
       }
-    } catch (error: any) {
-      console.error('Admin login error:', error);
+    } catch (error) {
+      if (process.env.NODE_ENV === 'development') console.error('Admin login error:', error);
 
       if (error.message.includes('admin')) {
         setError('adminCode', { message: error.message });

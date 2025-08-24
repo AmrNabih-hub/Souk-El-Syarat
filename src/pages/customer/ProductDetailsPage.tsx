@@ -65,7 +65,7 @@ const ProductDetailsPage: React.FC = () => {
       const related = await ProductService.getRecommendations(productId, 4);
       setRelatedProducts(related);
     } catch (error) {
-      console.error('Error loading product:', error);
+      if (process.env.NODE_ENV === 'development') console.error('Error loading product:', error);
       toast.error(language === 'ar' ? 'خطأ في تحميل المنتج' : 'Error loading product');
     } finally {
       setIsLoading(false);
@@ -119,7 +119,7 @@ const ProductDetailsPage: React.FC = () => {
           url: window.location.href,
         });
       } catch (error) {
-        console.log('Error sharing:', error);
+        // console.log('Error sharing:', error);
       }
     } else {
       navigator.clipboard.writeText(window.location.href);

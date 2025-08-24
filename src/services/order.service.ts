@@ -256,7 +256,7 @@ export class OrderService {
         return orderDoc.id;
       });
     } catch (error) {
-      console.error('Error creating order:', error);
+      if (process.env.NODE_ENV === 'development') console.error('Error creating order:', error);
       throw new Error('Failed to create order');
     }
   }
@@ -325,7 +325,7 @@ export class OrderService {
         await this.sendStatusUpdateNotifications(orderData, newStatus);
       });
     } catch (error) {
-      console.error('Error updating order status:', error);
+      if (process.env.NODE_ENV === 'development') console.error('Error updating order status:', error);
       throw new Error('Failed to update order status');
     }
   }
@@ -369,7 +369,7 @@ export class OrderService {
         await this.sendPaymentNotifications(orderData, paymentStatus);
       }
     } catch (error) {
-      console.error('Error updating payment status:', error);
+      if (process.env.NODE_ENV === 'development') console.error('Error updating payment status:', error);
       throw new Error('Failed to update payment status');
     }
   }
@@ -393,7 +393,7 @@ export class OrderService {
           estimatedDelivery: data.estimatedDelivery?.toDate() || null,
           actualDelivery: data.actualDelivery?.toDate() || null,
           tracking:
-            data.tracking?.map((t: any) => ({
+            data.tracking?.map((t: unknown) => ({
               ...t,
               timestamp: t.timestamp?.toDate() || new Date(),
             })) || [],
@@ -406,7 +406,7 @@ export class OrderService {
       }
       return null;
     } catch (error) {
-      console.error('Error getting order:', error);
+      if (process.env.NODE_ENV === 'development') console.error('Error getting order:', error);
       throw new Error('Failed to get order');
     }
   }
@@ -440,7 +440,7 @@ export class OrderService {
           estimatedDelivery: data.estimatedDelivery?.toDate() || null,
           actualDelivery: data.actualDelivery?.toDate() || null,
           tracking:
-            data.tracking?.map((t: any) => ({
+            data.tracking?.map((t: unknown) => ({
               ...t,
               timestamp: t.timestamp?.toDate() || new Date(),
             })) || [],
@@ -495,7 +495,7 @@ export class OrderService {
           estimatedDelivery: data.estimatedDelivery?.toDate() || null,
           actualDelivery: data.actualDelivery?.toDate() || null,
           tracking:
-            data.tracking?.map((t: any) => ({
+            data.tracking?.map((t: unknown) => ({
               ...t,
               timestamp: t.timestamp?.toDate() || new Date(),
             })) || [],
@@ -547,7 +547,7 @@ export class OrderService {
           estimatedDelivery: data.estimatedDelivery?.toDate() || null,
           actualDelivery: data.actualDelivery?.toDate() || null,
           tracking:
-            data.tracking?.map((t: any) => ({
+            data.tracking?.map((t: unknown) => ({
               ...t,
               timestamp: t.timestamp?.toDate() || new Date(),
             })) || [],
@@ -611,7 +611,7 @@ export class OrderService {
           break;
       }
     } catch (error) {
-      console.error('Error sending status update notifications:', error);
+      if (process.env.NODE_ENV === 'development') console.error('Error sending status update notifications:', error);
     }
   }
 
@@ -654,7 +654,7 @@ export class OrderService {
           break;
       }
     } catch (error) {
-      console.error('Error sending payment notifications:', error);
+      if (process.env.NODE_ENV === 'development') console.error('Error sending payment notifications:', error);
     }
   }
 
@@ -701,7 +701,7 @@ export class OrderService {
         });
       });
     } catch (error) {
-      console.error('Error cancelling order:', error);
+      if (process.env.NODE_ENV === 'development') console.error('Error cancelling order:', error);
       throw new Error('Failed to cancel order');
     }
   }

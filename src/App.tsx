@@ -123,16 +123,22 @@ function App() {
   // Initialize real-time services when user logs in
   useEffect(() => {
     if (user) {
-      console.log('🚀 User authenticated, initializing real-time services');
-
       // Initialize real-time services
       initializeRealtime(user.id).catch(error => {
-        console.error('Failed to initialize real-time services:', error);
+        // Silent handling - service will continue without real-time features
+        if (process.env.NODE_ENV === 'development') {
+          // eslint-disable-next-line no-console
+          if (process.env.NODE_ENV === 'development') console.error('Failed to initialize real-time services:', error);
+        }
       });
 
       // Initialize push notifications
       PushNotificationService.initialize(user.id).catch(error => {
-        console.error('Failed to initialize push notifications:', error);
+        // Silent handling - service will continue without push notifications
+        if (process.env.NODE_ENV === 'development') {
+          // eslint-disable-next-line no-console
+          if (process.env.NODE_ENV === 'development') console.error('Failed to initialize push notifications:', error);
+        }
       });
 
       // Subscribe to user-specific topics based on role
@@ -148,7 +154,7 @@ function App() {
       }
     } else {
       // Clean up real-time services when user logs out
-      console.log('🧹 User logged out, cleaning up real-time services');
+      // Clean up real-time services on logout
       cleanupRealtime();
     }
 

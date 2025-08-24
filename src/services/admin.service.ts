@@ -117,7 +117,7 @@ export class AdminService {
         },
       };
     } catch (error) {
-      console.error('Error fetching admin stats:', error);
+      if (process.env.NODE_ENV === 'development') console.error('Error fetching admin stats:', error);
       throw new Error('Failed to fetch admin statistics');
     }
   }
@@ -335,7 +335,7 @@ export class AdminService {
         adminId,
       });
     } catch (error) {
-      console.error('Error processing vendor application:', error);
+      if (process.env.NODE_ENV === 'development') console.error('Error processing vendor application:', error);
       throw new Error(
         `Failed to process vendor application: ${error instanceof Error ? error.message : 'Unknown error'}`
       );
@@ -403,7 +403,7 @@ export class AdminService {
         adminId,
       });
     } catch (error) {
-      console.error('Error toggling vendor status:', error);
+      if (process.env.NODE_ENV === 'development') console.error('Error toggling vendor status:', error);
       throw new Error(
         `Failed to toggle vendor status: ${error instanceof Error ? error.message : 'Unknown error'}`
       );
@@ -436,7 +436,7 @@ export class AdminService {
   /**
    * Update platform metrics in real-time
    */
-  private static async updatePlatformMetrics(action: string, data: any): Promise<void> {
+  private static async updatePlatformMetrics(action: string, data: unknown): Promise<void> {
     try {
       const metricsRef = doc(collection(db, this.COLLECTIONS.PLATFORM_METRICS));
 
@@ -447,7 +447,7 @@ export class AdminService {
         totalActions: (data.totalActions || 0) + 1,
       });
     } catch (error) {
-      console.error('Error updating platform metrics:', error);
+      if (process.env.NODE_ENV === 'development') console.error('Error updating platform metrics:', error);
     }
   }
 
@@ -492,7 +492,7 @@ export class AdminService {
         lastUpdated: metricsData.timestamp?.toDate() || new Date(),
       };
     } catch (error) {
-      console.error('Error fetching platform performance:', error);
+      if (process.env.NODE_ENV === 'development') console.error('Error fetching platform performance:', error);
       return {
         uptime: 99.9,
         responseTime: 150,

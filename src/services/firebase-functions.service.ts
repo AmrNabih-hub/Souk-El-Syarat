@@ -10,9 +10,9 @@ import { functions } from '../config/firebase.config';
 if (process.env.NODE_ENV === 'development') {
   try {
     connectFunctionsEmulator(functions, 'localhost', 5001);
-    console.log('Connected to Firebase Functions emulator');
+    // console.log('Connected to Firebase Functions emulator');
   } catch (error) {
-    console.log('Functions emulator already connected');
+    // console.log('Functions emulator already connected');
   }
 }
 
@@ -91,9 +91,9 @@ export class FirebaseFunctionsService {
     try {
       const sendEmail = httpsCallable(this.functions, 'sendEmailNotification');
       await sendEmail(data);
-      console.log('Email notification sent successfully');
+      // console.log('Email notification sent successfully');
     } catch (error) {
-      console.error('Error sending email notification:', error);
+      if (process.env.NODE_ENV === 'development') console.error('Error sending email notification:', error);
       throw new Error('Failed to send email notification');
     }
   }
@@ -105,9 +105,9 @@ export class FirebaseFunctionsService {
     try {
       const processApproval = httpsCallable(this.functions, 'processVendorApproval');
       await processApproval(data);
-      console.log('Vendor approval processed successfully');
+      // console.log('Vendor approval processed successfully');
     } catch (error) {
-      console.error('Error processing vendor approval:', error);
+      if (process.env.NODE_ENV === 'development') console.error('Error processing vendor approval:', error);
       throw new Error('Failed to process vendor approval');
     }
   }
@@ -119,9 +119,9 @@ export class FirebaseFunctionsService {
     try {
       const sendOrderNotification = httpsCallable(this.functions, 'sendOrderNotification');
       await sendOrderNotification(data);
-      console.log('Order notification sent successfully');
+      // console.log('Order notification sent successfully');
     } catch (error) {
-      console.error('Error sending order notification:', error);
+      if (process.env.NODE_ENV === 'development') console.error('Error sending order notification:', error);
       throw new Error('Failed to send order notification');
     }
   }
@@ -133,9 +133,9 @@ export class FirebaseFunctionsService {
     try {
       const sendSystemNotification = httpsCallable(this.functions, 'sendSystemNotification');
       await sendSystemNotification(data);
-      console.log('System notification sent successfully');
+      // console.log('System notification sent successfully');
     } catch (error) {
-      console.error('Error sending system notification:', error);
+      if (process.env.NODE_ENV === 'development') console.error('Error sending system notification:', error);
       throw new Error('Failed to send system notification');
     }
   }
@@ -150,9 +150,9 @@ export class FirebaseFunctionsService {
     try {
       const generateReport = httpsCallable(this.functions, 'generateAnalyticsReport');
       await generateReport({ reportType, dateRange });
-      console.log('Analytics report generated successfully');
+      // console.log('Analytics report generated successfully');
     } catch (error) {
-      console.error('Error generating analytics report:', error);
+      if (process.env.NODE_ENV === 'development') console.error('Error generating analytics report:', error);
       throw new Error('Failed to generate analytics report');
     }
   }
@@ -160,13 +160,13 @@ export class FirebaseFunctionsService {
   /**
    * Process payment webhooks
    */
-  async processPaymentWebhook(webhookData: any): Promise<void> {
+  async processPaymentWebhook(webhookData: unknown): Promise<void> {
     try {
       const processWebhook = httpsCallable(this.functions, 'processPaymentWebhook');
       await processWebhook(webhookData);
-      console.log('Payment webhook processed successfully');
+      // console.log('Payment webhook processed successfully');
     } catch (error) {
-      console.error('Error processing payment webhook:', error);
+      if (process.env.NODE_ENV === 'development') console.error('Error processing payment webhook:', error);
       throw new Error('Failed to process payment webhook');
     }
   }
@@ -178,9 +178,9 @@ export class FirebaseFunctionsService {
     try {
       const backupDb = httpsCallable(this.functions, 'backupDatabase');
       await backupDb({ backupType });
-      console.log('Database backup initiated successfully');
+      // console.log('Database backup initiated successfully');
     } catch (error) {
-      console.error('Error initiating database backup:', error);
+      if (process.env.NODE_ENV === 'development') console.error('Error initiating database backup:', error);
       throw new Error('Failed to initiate database backup');
     }
   }
@@ -192,9 +192,9 @@ export class FirebaseFunctionsService {
     try {
       const cleanup = httpsCallable(this.functions, 'cleanupExpiredData');
       await cleanup();
-      console.log('Data cleanup completed successfully');
+      // console.log('Data cleanup completed successfully');
     } catch (error) {
-      console.error('Error during data cleanup:', error);
+      if (process.env.NODE_ENV === 'development') console.error('Error during data cleanup:', error);
       throw new Error('Failed to cleanup expired data');
     }
   }
@@ -209,9 +209,9 @@ export class FirebaseFunctionsService {
     try {
       const bulkOp = httpsCallable(this.functions, 'processBulkOperation');
       await bulkOp({ operation, data });
-      console.log('Bulk operation completed successfully');
+      // console.log('Bulk operation completed successfully');
     } catch (error) {
-      console.error('Error during bulk operation:', error);
+      if (process.env.NODE_ENV === 'development') console.error('Error during bulk operation:', error);
       throw new Error('Failed to process bulk operation');
     }
   }
@@ -229,7 +229,7 @@ export class FirebaseFunctionsService {
       const result = await healthCheck();
       return result.data as any;
     } catch (error) {
-      console.error('Error during health check:', error);
+      if (process.env.NODE_ENV === 'development') console.error('Error during health check:', error);
       return {
         status: 'unhealthy',
         services: {},

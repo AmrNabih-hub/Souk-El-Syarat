@@ -69,9 +69,9 @@ export class RealtimeService {
     try {
       // Set initial presence
       await this.setUserOnline(userId, 'dashboard');
-      console.log('✅ Realtime services initialized for user:', userId);
+      // console.log('✅ Realtime services initialized for user:', userId);
     } catch (error) {
-      console.error('❌ Error initializing realtime services:', error);
+      if (process.env.NODE_ENV === 'development') console.error('❌ Error initializing realtime services:', error);
       throw error;
     }
   }
@@ -162,7 +162,7 @@ export class RealtimeService {
         isTyping: false
       });
     } catch (error) {
-      console.error('❌ Error setting user online:', error);
+      if (process.env.NODE_ENV === 'development') console.error('❌ Error setting user online:', error);
       throw error;
     }
   }
@@ -176,7 +176,7 @@ export class RealtimeService {
         lastSeen: Date.now()
       });
     } catch (error) {
-      console.error('❌ Error setting user offline:', error);
+      if (process.env.NODE_ENV === 'development') console.error('❌ Error setting user offline:', error);
       throw error;
     }
   }
@@ -206,7 +206,7 @@ export class RealtimeService {
       await set(newMessageRef, messageData);
       return newMessageRef.key || '';
     } catch (error) {
-      console.error('❌ Error sending message:', error);
+      if (process.env.NODE_ENV === 'development') console.error('❌ Error sending message:', error);
       throw error;
     }
   }
@@ -219,7 +219,7 @@ export class RealtimeService {
         read: true
       });
     } catch (error) {
-      console.error('❌ Error marking message as read:', error);
+      if (process.env.NODE_ENV === 'development') console.error('❌ Error marking message as read:', error);
       throw error;
     }
   }
@@ -298,7 +298,7 @@ export class RealtimeService {
   }
 
   // Listen to analytics
-  listenToAnalytics(callback: (analytics: any) => void) {
+  listenToAnalytics(callback: (analytics: unknown) => void) {
     const analyticsRef = ref(realtimeDb, 'analytics');
     
     const unsubscribe = onValue(analyticsRef, (snapshot) => {
@@ -321,7 +321,7 @@ export class RealtimeService {
         timestamp: Date.now()
       });
     } catch (error) {
-      console.error('❌ Error adding activity:', error);
+      if (process.env.NODE_ENV === 'development') console.error('❌ Error adding activity:', error);
       throw error;
     }
   }
@@ -335,7 +335,7 @@ export class RealtimeService {
         lastSeen: Date.now()
       });
     } catch (error) {
-      console.error('❌ Error updating typing status:', error);
+      if (process.env.NODE_ENV === 'development') console.error('❌ Error updating typing status:', error);
       throw error;
     }
   }
@@ -351,7 +351,7 @@ export class RealtimeService {
   cleanup(): void {
     // This method is called when the service is no longer needed
     // Individual listeners should be cleaned up by the components using them
-    console.log('🧹 Realtime service cleanup completed');
+    // console.log('🧹 Realtime service cleanup completed');
   }
 }
 

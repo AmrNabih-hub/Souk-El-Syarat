@@ -177,7 +177,7 @@ export class EnhancedAuthService {
             });
           }
         } catch (error) {
-          console.error('Error getting user data:', error);
+          if (process.env.NODE_ENV === 'development') console.error('Error getting user data:', error);
           this.notifyAuthStateChange({
             user: null,
             isLoading: false,
@@ -327,7 +327,7 @@ export class EnhancedAuthService {
       });
 
       return { id: firebaseUser.uid, ...userData };
-    } catch (error: any) {
+    } catch (error) {
       throw new Error(this.getAuthErrorMessage(error.code));
     }
   }
@@ -383,7 +383,7 @@ export class EnhancedAuthService {
         updatedAt: userData.updatedAt?.toDate() || new Date(),
         lastLoginAt: userData.lastLoginAt?.toDate() || new Date(),
       };
-    } catch (error: any) {
+    } catch (error) {
       throw new Error(this.getAuthErrorMessage(error.code));
     }
   }
@@ -428,7 +428,7 @@ export class EnhancedAuthService {
         updatedAt: userData.updatedAt?.toDate() || new Date(),
         lastLoginAt: userData.lastLoginAt?.toDate() || new Date(),
       };
-    } catch (error: any) {
+    } catch (error) {
       throw new Error(this.getAuthErrorMessage(error.code));
     }
   }
@@ -497,7 +497,7 @@ export class EnhancedAuthService {
 
         return newUser;
       }
-    } catch (error: any) {
+    } catch (error) {
       throw new Error(this.getAuthErrorMessage(error.code));
     }
   }
@@ -513,8 +513,8 @@ export class EnhancedAuthService {
       const instance = EnhancedAuthService.getInstance();
       instance.clearSessionTimer();
 
-      console.log('User signed out successfully');
-    } catch (error: any) {
+      // console.log('User signed out successfully');
+    } catch (error) {
       throw new Error(this.getAuthErrorMessage(error.code));
     }
   }
@@ -528,7 +528,7 @@ export class EnhancedAuthService {
         url: `${window.location.origin}/login`,
         handleCodeInApp: true,
       });
-    } catch (error: any) {
+    } catch (error) {
       throw new Error(this.getAuthErrorMessage(error.code));
     }
   }
@@ -555,7 +555,7 @@ export class EnhancedAuthService {
         ...updates,
         updatedAt: serverTimestamp(),
       });
-    } catch (error: any) {
+    } catch (error) {
       throw new Error(this.getAuthErrorMessage(error.code));
     }
   }
@@ -570,7 +570,7 @@ export class EnhancedAuthService {
       }
 
       await updatePassword(auth.currentUser, newPassword);
-    } catch (error: any) {
+    } catch (error) {
       throw new Error(this.getAuthErrorMessage(error.code));
     }
   }
@@ -597,7 +597,7 @@ export class EnhancedAuthService {
 
       // Store session for verification
       (window as any).multiFactorSession = session;
-    } catch (error: any) {
+    } catch (error) {
       throw new Error(this.getAuthErrorMessage(error.code));
     }
   }
@@ -631,7 +631,7 @@ export class EnhancedAuthService {
 
       // Clear session
       delete (window as any).multiFactorSession;
-    } catch (error: any) {
+    } catch (error) {
       throw new Error(this.getAuthErrorMessage(error.code));
     }
   }

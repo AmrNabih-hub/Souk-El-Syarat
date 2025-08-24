@@ -126,7 +126,7 @@ export class AnalyticsService {
 
       return docRef.id;
     } catch (error) {
-      console.error('Error tracking analytics event:', error);
+      if (process.env.NODE_ENV === 'development') console.error('Error tracking analytics event:', error);
       throw new Error('Failed to track analytics event');
     }
   }
@@ -141,7 +141,7 @@ export class AnalyticsService {
       const promises = events.map(event => this.trackEvent(event));
       return await Promise.all(promises);
     } catch (error) {
-      console.error('Error tracking batch analytics events:', error);
+      if (process.env.NODE_ENV === 'development') console.error('Error tracking batch analytics events:', error);
       throw new Error('Failed to track batch analytics events');
     }
   }
@@ -173,7 +173,7 @@ export class AnalyticsService {
 
       return docRef.id;
     } catch (error) {
-      console.error('Error tracking system metric:', error);
+      if (process.env.NODE_ENV === 'development') console.error('Error tracking system metric:', error);
       throw new Error('Failed to track system metric');
     }
   }
@@ -208,12 +208,12 @@ export class AnalyticsService {
         const stats: RealTimeStats = {
           ...data,
           recentOrders:
-            data.recentOrders?.map((order: any) => ({
+            data.recentOrders?.map((order: unknown) => ({
               ...order,
               timestamp: order.timestamp?.toDate() || new Date(),
             })) || [],
           recentSignups:
-            data.recentSignups?.map((signup: any) => ({
+            data.recentSignups?.map((signup: unknown) => ({
               ...signup,
               timestamp: signup.timestamp?.toDate() || new Date(),
             })) || [],
@@ -262,7 +262,7 @@ export class AnalyticsService {
             totalRevenue += order.finalAmount || 0;
 
             // Category stats
-            order.items?.forEach((item: any) => {
+            order.items?.forEach((item: unknown) => {
               const category = item.category || 'other';
               if (!categoryStats[category]) {
                 categoryStats[category] = { count: 0, revenue: 0 };
@@ -339,7 +339,7 @@ export class AnalyticsService {
         );
       });
     } catch (error) {
-      console.error('Error updating business metrics:', error);
+      if (process.env.NODE_ENV === 'development') console.error('Error updating business metrics:', error);
       throw new Error('Failed to update business metrics');
     }
   }
@@ -438,7 +438,7 @@ export class AnalyticsService {
         );
       });
     } catch (error) {
-      console.error('Error updating real-time stats:', error);
+      if (process.env.NODE_ENV === 'development') console.error('Error updating real-time stats:', error);
       throw new Error('Failed to update real-time stats');
     }
   }
@@ -472,7 +472,7 @@ export class AnalyticsService {
           break;
       }
     } catch (error) {
-      console.error('Error updating real-time counters:', error);
+      if (process.env.NODE_ENV === 'development') console.error('Error updating real-time counters:', error);
     }
   }
 
@@ -518,7 +518,7 @@ export class AnalyticsService {
         timestamp: doc.data().timestamp?.toDate() || new Date(),
       })) as AnalyticsEvent[];
     } catch (error) {
-      console.error('Error getting analytics events:', error);
+      if (process.env.NODE_ENV === 'development') console.error('Error getting analytics events:', error);
       throw new Error('Failed to get analytics events');
     }
   }

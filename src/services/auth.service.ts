@@ -80,8 +80,9 @@ export class AuthService {
       await setDoc(doc(db, 'users', firebaseUser.uid), userData);
 
       return { id: firebaseUser.uid, ...userData };
-    } catch (error: any) {
-      throw new Error(this.getAuthErrorMessage(error.code));
+    } catch (error) {
+      const authError = error as { code?: string };
+      throw new Error(this.getAuthErrorMessage(authError.code));
     }
   }
 
@@ -112,7 +113,7 @@ export class AuthService {
       });
 
       return { id: firebaseUser.uid, ...userData } as User;
-    } catch (error: any) {
+    } catch (error) {
       throw new Error(this.getAuthErrorMessage(error.code));
     }
   }
@@ -169,7 +170,7 @@ export class AuthService {
         await setDoc(doc(db, 'users', firebaseUser.uid), userData);
         return { id: firebaseUser.uid, ...userData };
       }
-    } catch (error: any) {
+    } catch (error) {
       throw new Error(this.getAuthErrorMessage(error.code));
     }
   }
@@ -178,7 +179,7 @@ export class AuthService {
   static async signOut(): Promise<void> {
     try {
       await firebaseSignOut(auth);
-    } catch (error: any) {
+    } catch (error) {
       throw new Error('Failed to sign out. Please try again.');
     }
   }
@@ -188,7 +189,7 @@ export class AuthService {
     try {
       const result = await signInWithPopup(auth, this.facebookProvider);
       return this.handleSocialSignIn(result.user, role);
-    } catch (error: any) {
+    } catch (error) {
       throw new Error(this.getAuthErrorMessage(error.code));
     }
   }
@@ -198,7 +199,7 @@ export class AuthService {
     try {
       const result = await signInWithPopup(auth, this.twitterProvider);
       return this.handleSocialSignIn(result.user, role);
-    } catch (error: any) {
+    } catch (error) {
       throw new Error(this.getAuthErrorMessage(error.code));
     }
   }
@@ -266,7 +267,7 @@ export class AuthService {
         url: `${window.location.origin}/verify-email`,
         handleCodeInApp: true,
       });
-    } catch (error: any) {
+    } catch (error) {
       throw new Error(this.getAuthErrorMessage(error.code));
     }
   }
@@ -288,8 +289,8 @@ export class AuthService {
       }
 
       return auth.currentUser.emailVerified;
-    } catch (error: any) {
-      console.error('Error checking email verification:', error);
+    } catch (error) {
+      if (process.env.NODE_ENV === 'development') console.error('Error checking email verification:', error);
       return false;
     }
   }
@@ -301,7 +302,7 @@ export class AuthService {
         url: `${window.location.origin}/reset-password`,
         handleCodeInApp: true,
       });
-    } catch (error: any) {
+    } catch (error) {
       throw new Error(this.getAuthErrorMessage(error.code));
     }
   }
@@ -322,7 +323,7 @@ export class AuthService {
           photoURL: updates.photoURL,
         });
       }
-    } catch (error: any) {
+    } catch (error) {
       throw new Error('Failed to update profile. Please try again.');
     }
   }
@@ -334,7 +335,7 @@ export class AuthService {
         throw new Error('No user is currently signed in');
       }
       await updatePassword(auth.currentUser, newPassword);
-    } catch (error: any) {
+    } catch (error) {
       throw new Error(this.getAuthErrorMessage(error.code));
     }
   }
@@ -351,7 +352,7 @@ export class AuthService {
       const userData = userDoc.data();
       return { id: auth.currentUser.uid, ...userData } as User;
     } catch (error) {
-      console.error('Error getting current user:', error);
+      if (process.env.NODE_ENV === 'development') console.error('Error getting current user:', error);
       return null;
     }
   }
@@ -365,7 +366,7 @@ export class AuthService {
       const userData = userDoc.data();
       return userData.role === role;
     } catch (error) {
-      console.error('Error checking user role:', error);
+      if (process.env.NODE_ENV === 'development') console.error('Error checking user role:', error);
       return false;
     }
   }
@@ -394,7 +395,7 @@ export class AuthService {
       if (auth.currentUser && auth.currentUser.uid === userId) {
         await deleteUser(auth.currentUser);
       }
-    } catch (error: any) {
+    } catch (error) {
       throw new Error('Failed to delete account. Please try again.');
     }
   }
@@ -412,7 +413,7 @@ export class AuthService {
             callback(null);
           }
         } catch (error) {
-          console.error('Error fetching user data:', error);
+          if (process.env.NODE_ENV === 'development') console.error('Error fetching user data:', error);
           callback(null);
         }
       } else {
@@ -435,7 +436,7 @@ export class AuthService {
 
       return users;
     } catch (error) {
-      console.error('Error getting users by role:', error);
+      if (process.env.NODE_ENV === 'development') console.error('Error getting users by role:', error);
       throw new Error('Failed to fetch users');
     }
   }

@@ -43,7 +43,7 @@ const LoginPage: React.FC = () => {
       await signIn(data.email, data.password);
       toast.success(language === 'ar' ? 'تم تسجيل الدخول بنجاح!' : 'Logged in successfully!');
       navigate('/');
-    } catch (error: any) {
+    } catch (error) {
       toast.error(error.message || 'Failed to sign in');
     }
   };
@@ -54,7 +54,7 @@ const LoginPage: React.FC = () => {
       await signInWithGoogle();
       toast.success(language === 'ar' ? 'تم تسجيل الدخول بنجاح!' : 'Logged in successfully!');
       navigate('/');
-    } catch (error: any) {
+    } catch (error) {
       toast.error(error.message || 'Failed to sign in with Google');
     }
   };

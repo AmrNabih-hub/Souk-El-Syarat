@@ -211,14 +211,14 @@ const VendorApplicationPage: React.FC = () => {
       };
 
       const applicationId = await VendorService.submitApplication(user.id, applicationData);
-      console.log('Application submitted with ID:', applicationId);
+      // console.log('Application submitted with ID:', applicationId);
 
       setApplicationSubmitted(true);
       toast.success(
         language === 'ar' ? 'تم تقديم الطلب بنجاح!' : 'Application submitted successfully!'
       );
     } catch (error) {
-      console.error('Application submission error:', error);
+      if (process.env.NODE_ENV === 'development') console.error('Application submission error:', error);
       toast.error(language === 'ar' ? 'حدث خطأ في تقديم الطلب' : 'Error submitting application');
     } finally {
       setIsSubmitting(false);

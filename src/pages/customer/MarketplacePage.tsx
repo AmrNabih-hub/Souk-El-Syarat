@@ -86,7 +86,7 @@ const MarketplacePage: React.FC = () => {
 
       setProducts(moreProducts);
     } catch (error) {
-      console.error('Error loading products:', error);
+      if (process.env.NODE_ENV === 'development') console.error('Error loading products:', error);
       toast.error(language === 'ar' ? 'خطأ في تحميل المنتجات' : 'Error loading products');
     } finally {
       setIsLoading(false);
@@ -144,7 +144,7 @@ const MarketplacePage: React.FC = () => {
     setFilteredProducts(filtered);
   };
 
-  const handleFilterChange = (key: keyof SearchFilters, value: any) => {
+  const handleFilterChange = (key: keyof SearchFilters, value: unknown) => {
     setFilters(prev => ({ ...prev, [key]: value }));
   };
 

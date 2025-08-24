@@ -32,14 +32,14 @@ export class PushNotificationService {
   static async initialize(userId: string): Promise<string | null> {
     try {
       if (!messaging) {
-        console.warn('Firebase Messaging not available');
+        // console.warn('Firebase Messaging not available');
         return null;
       }
 
       // Request notification permission
       const permission = await this.requestPermission();
       if (permission !== 'granted') {
-        console.warn('Notification permission denied');
+        // console.warn('Notification permission denied');
         return null;
       }
 
@@ -55,14 +55,14 @@ export class PushNotificationService {
         // Set up foreground message listener
         this.setupForegroundListener();
 
-        console.log('🔔 Push notifications initialized successfully');
+        // console.log('🔔 Push notifications initialized successfully');
         return token;
       } else {
-        console.warn('No FCM token available');
+        // console.warn('No FCM token available');
         return null;
       }
     } catch (error) {
-      console.error('Error initializing push notifications:', error);
+      if (process.env.NODE_ENV === 'development') console.error('Error initializing push notifications:', error);
       return null;
     }
   }
@@ -71,7 +71,7 @@ export class PushNotificationService {
   static async requestPermission(): Promise<NotificationPermission> {
     try {
       if (!('Notification' in window)) {
-        console.warn('This browser does not support notifications');
+        // console.warn('This browser does not support notifications');
         return 'denied';
       }
 
@@ -87,7 +87,7 @@ export class PushNotificationService {
       const permission = await Notification.requestPermission();
       return permission;
     } catch (error) {
-      console.error('Error requesting notification permission:', error);
+      if (process.env.NODE_ENV === 'development') console.error('Error requesting notification permission:', error);
       return 'denied';
     }
   }
@@ -102,7 +102,7 @@ export class PushNotificationService {
         pushNotificationsEnabled: true,
       });
     } catch (error) {
-      console.error('Error saving FCM token:', error);
+      if (process.env.NODE_ENV === 'development') console.error('Error saving FCM token:', error);
     }
   }
 
@@ -111,7 +111,7 @@ export class PushNotificationService {
     if (!messaging) return;
 
     onMessage(messaging, payload => {
-      console.log('📱 Foreground message received:', payload);
+      // console.log('📱 Foreground message received:', payload);
 
       const { notification, data } = payload;
 
@@ -131,12 +131,12 @@ export class PushNotificationService {
   static async showNotification(payload: PushNotificationPayload): Promise<void> {
     try {
       if (!('serviceWorker' in navigator) || !('Notification' in window)) {
-        console.warn('Browser does not support notifications');
+        // console.warn('Browser does not support notifications');
         return;
       }
 
       if (Notification.permission !== 'granted') {
-        console.warn('Notification permission not granted');
+        // console.warn('Notification permission not granted');
         return;
       }
 
@@ -157,7 +157,7 @@ export class PushNotificationService {
         // timestamp: Date.now(), // Not supported in basic Notification API
       });
     } catch (error) {
-      console.error('Error showing notification:', error);
+      if (process.env.NODE_ENV === 'development') console.error('Error showing notification:', error);
     }
   }
 
@@ -165,7 +165,7 @@ export class PushNotificationService {
   static showLocalNotification(payload: PushNotificationPayload): void {
     try {
       if (Notification.permission !== 'granted') {
-        console.warn('Notification permission not granted');
+        // console.warn('Notification permission not granted');
         return;
       }
 
@@ -200,7 +200,7 @@ export class PushNotificationService {
         notification.close();
       }, 10000);
     } catch (error) {
-      console.error('Error showing local notification:', error);
+      if (process.env.NODE_ENV === 'development') console.error('Error showing local notification:', error);
     }
   }
 
@@ -215,9 +215,9 @@ export class PushNotificationService {
         subscriptionsUpdatedAt: new Date(),
       });
 
-      console.log(`📢 Subscribed to topic: ${topic}`);
+      // console.log(`📢 Subscribed to topic: ${topic}`);
     } catch (error) {
-      console.error(`Error subscribing to topic ${topic}:`, error);
+      if (process.env.NODE_ENV === 'development') console.error(`Error subscribing to topic ${topic}:`, error);
     }
   }
 
@@ -230,9 +230,9 @@ export class PushNotificationService {
         subscriptionsUpdatedAt: new Date(),
       });
 
-      console.log(`📢 Unsubscribed from topic: ${topic}`);
+      // console.log(`📢 Unsubscribed from topic: ${topic}`);
     } catch (error) {
-      console.error(`Error unsubscribing from topic ${topic}:`, error);
+      if (process.env.NODE_ENV === 'development') console.error(`Error unsubscribing from topic ${topic}:`, error);
     }
   }
 
@@ -253,9 +253,9 @@ export class PushNotificationService {
         'preferences.updatedAt': new Date(),
       });
 
-      console.log('🔔 Notification preferences updated');
+      // console.log('🔔 Notification preferences updated');
     } catch (error) {
-      console.error('Error updating notification preferences:', error);
+      if (process.env.NODE_ENV === 'development') console.error('Error updating notification preferences:', error);
     }
   }
 
@@ -269,9 +269,9 @@ export class PushNotificationService {
         fcmTokenUpdatedAt: new Date(),
       });
 
-      console.log('🔕 Push notifications disabled');
+      // console.log('🔕 Push notifications disabled');
     } catch (error) {
-      console.error('Error disabling push notifications:', error);
+      if (process.env.NODE_ENV === 'development') console.error('Error disabling push notifications:', error);
     }
   }
 
@@ -288,7 +288,7 @@ export class PushNotificationService {
   }
 
   // Handle notification click actions
-  static handleNotificationAction(action: string, data: any): void {
+  static handleNotificationAction(action: string, data: unknown): void {
     switch (action) {
       case 'view_order':
         window.location.href = `/orders/${data.orderId}`;
@@ -303,7 +303,7 @@ export class PushNotificationService {
         // Just close the notification
         break;
       default:
-        console.log('Unknown notification action:', action);
+        // console.log('Unknown notification action:', action);
     }
   }
 

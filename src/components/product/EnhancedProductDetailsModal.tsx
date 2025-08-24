@@ -78,7 +78,7 @@ export const EnhancedProductDetailsModal: React.FC<EnhancedProductDetailsModalPr
           url: window.location.href,
         });
       } catch (error) {
-        console.log('Error sharing:', error);
+        // console.log('Error sharing:', error);
       }
     } else {
       // Fallback: copy to clipboard

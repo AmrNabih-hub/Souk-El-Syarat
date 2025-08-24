@@ -150,7 +150,7 @@ export const useRealTimeDashboard = (): DashboardData & DashboardActions => {
 
       setUnsubscribeFunctions(newUnsubscribeFunctions);
     } catch (error) {
-      console.error('Error initializing dashboard subscriptions:', error);
+      if (process.env.NODE_ENV === 'development') console.error('Error initializing dashboard subscriptions:', error);
       setData(prev => ({
         ...prev,
         error: 'Failed to initialize real-time connections',
@@ -167,7 +167,7 @@ export const useRealTimeDashboard = (): DashboardData & DashboardActions => {
       try {
         unsubscribe();
       } catch (error) {
-        console.error('Error cleaning up subscription:', error);
+        if (process.env.NODE_ENV === 'development') console.error('Error cleaning up subscription:', error);
       }
     });
     setUnsubscribeFunctions([]);
@@ -180,9 +180,9 @@ export const useRealTimeDashboard = (): DashboardData & DashboardActions => {
     if (user?.role === 'admin') {
       try {
         ProcessOrchestratorService.getInstance();
-        console.log('Process orchestrator initialized');
+        // console.log('Process orchestrator initialized');
       } catch (error) {
-        console.error('Error initializing process orchestrator:', error);
+        if (process.env.NODE_ENV === 'development') console.error('Error initializing process orchestrator:', error);
       }
     }
   }, [user?.role]);
@@ -206,7 +206,7 @@ export const useRealTimeDashboard = (): DashboardData & DashboardActions => {
     try {
       await NotificationService.markAsRead(notificationId);
     } catch (error) {
-      console.error('Error marking notification as read:', error);
+      if (process.env.NODE_ENV === 'development') console.error('Error marking notification as read:', error);
       setData(prev => ({
         ...prev,
         error: 'Failed to mark notification as read',
@@ -223,7 +223,7 @@ export const useRealTimeDashboard = (): DashboardData & DashboardActions => {
     try {
       await NotificationService.markAllAsRead(user.id);
     } catch (error) {
-      console.error('Error marking all notifications as read:', error);
+      if (process.env.NODE_ENV === 'development') console.error('Error marking all notifications as read:', error);
       setData(prev => ({
         ...prev,
         error: 'Failed to mark all notifications as read',
@@ -252,7 +252,7 @@ export const useRealTimeDashboard = (): DashboardData & DashboardActions => {
           metadata: { notes },
         });
       } catch (error) {
-        console.error('Error updating order status:', error);
+        if (process.env.NODE_ENV === 'development') console.error('Error updating order status:', error);
         setData(prev => ({
           ...prev,
           error: 'Failed to update order status',
@@ -289,7 +289,7 @@ export const useRealTimeDashboard = (): DashboardData & DashboardActions => {
           metadata: { conversationId },
         });
       } catch (error) {
-        console.error('Error sending message:', error);
+        if (process.env.NODE_ENV === 'development') console.error('Error sending message:', error);
         setData(prev => ({
           ...prev,
           error: 'Failed to send message',
@@ -309,7 +309,7 @@ export const useRealTimeDashboard = (): DashboardData & DashboardActions => {
       try {
         await MessagingService.markMessagesAsRead(conversationId, user.id);
       } catch (error) {
-        console.error('Error marking messages as read:', error);
+        if (process.env.NODE_ENV === 'development') console.error('Error marking messages as read:', error);
         setData(prev => ({
           ...prev,
           error: 'Failed to mark messages as read',
@@ -341,7 +341,7 @@ export const useRealTimeDashboard = (): DashboardData & DashboardActions => {
 
       setData(prev => ({ ...prev, isLoading: false }));
     } catch (error) {
-      console.error('Error refreshing dashboard data:', error);
+      if (process.env.NODE_ENV === 'development') console.error('Error refreshing dashboard data:', error);
       setData(prev => ({
         ...prev,
         error: 'Failed to refresh dashboard data',
