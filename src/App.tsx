@@ -128,7 +128,7 @@ function App() {
         // Silent handling - service will continue without real-time features
         if (process.env.NODE_ENV === 'development') {
           // eslint-disable-next-line no-console
-          if (process.env.NODE_ENV === 'development') console.error('Failed to initialize real-time services:', error);
+          if (process.env.NODE_ENV === 'development') if (process.env.NODE_ENV === 'development') console.error('Failed to initialize real-time services:', error);
         }
       });
 
@@ -137,7 +137,7 @@ function App() {
         // Silent handling - service will continue without push notifications
         if (process.env.NODE_ENV === 'development') {
           // eslint-disable-next-line no-console
-          if (process.env.NODE_ENV === 'development') console.error('Failed to initialize push notifications:', error);
+          if (process.env.NODE_ENV === 'development') if (process.env.NODE_ENV === 'development') console.error('Failed to initialize push notifications:', error);
         }
       });
 

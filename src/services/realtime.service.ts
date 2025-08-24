@@ -6,18 +6,11 @@
 import { db, realtimeDb } from '@/config/firebase.config';
 import { 
   collection, 
-  doc, 
-  addDoc, 
-  updateDoc, 
-  deleteDoc, 
-  getDocs, 
-  getDoc, 
   query, 
   where, 
   orderBy, 
   limit, 
   onSnapshot,
-  serverTimestamp,
   writeBatch
 } from 'firebase/firestore';
 import { 
@@ -25,12 +18,9 @@ import {
   set, 
   push, 
   onValue, 
-  off, 
-  get,
   update,
   remove
 } from 'firebase/database';
-import type { User, Vendor, Order, Product } from '@/types';
 
 export interface ChatMessage {
   id: string;
@@ -69,9 +59,9 @@ export class RealtimeService {
     try {
       // Set initial presence
       await this.setUserOnline(userId, 'dashboard');
-      // console.log('✅ Realtime services initialized for user:', userId);
+      // if (process.env.NODE_ENV === 'development') console.log('✅ Realtime services initialized for user:', userId);
     } catch (error) {
-      if (process.env.NODE_ENV === 'development') console.error('❌ Error initializing realtime services:', error);
+      if (process.env.NODE_ENV === 'development') if (process.env.NODE_ENV === 'development') console.error('❌ Error initializing realtime services:', error);
       throw error;
     }
   }
@@ -118,7 +108,7 @@ export class RealtimeService {
   }
 
   // Listen to user notifications
-  listenToUserNotifications(userId: string, callback: (notifications: any[]) => void) {
+  listenToUserNotifications(userId: string, callback: (notifications: unknown[]) => void) {
     const q = query(
       collection(db, 'notifications'),
       where('userId', '==', userId),
@@ -135,7 +125,7 @@ export class RealtimeService {
   }
 
   // Listen to activity feed
-  listenToActivityFeed(callback: (activities: any[]) => void) {
+  listenToActivityFeed(callback: (activities: unknown[]) => void) {
     const q = query(
       collection(db, 'activities'),
       orderBy('createdAt', 'desc'),
@@ -162,7 +152,7 @@ export class RealtimeService {
         isTyping: false
       });
     } catch (error) {
-      if (process.env.NODE_ENV === 'development') console.error('❌ Error setting user online:', error);
+      if (process.env.NODE_ENV === 'development') if (process.env.NODE_ENV === 'development') console.error('❌ Error setting user online:', error);
       throw error;
     }
   }
@@ -176,7 +166,7 @@ export class RealtimeService {
         lastSeen: Date.now()
       });
     } catch (error) {
-      if (process.env.NODE_ENV === 'development') console.error('❌ Error setting user offline:', error);
+      if (process.env.NODE_ENV === 'development') if (process.env.NODE_ENV === 'development') console.error('❌ Error setting user offline:', error);
       throw error;
     }
   }
@@ -206,7 +196,7 @@ export class RealtimeService {
       await set(newMessageRef, messageData);
       return newMessageRef.key || '';
     } catch (error) {
-      if (process.env.NODE_ENV === 'development') console.error('❌ Error sending message:', error);
+      if (process.env.NODE_ENV === 'development') if (process.env.NODE_ENV === 'development') console.error('❌ Error sending message:', error);
       throw error;
     }
   }
@@ -219,7 +209,7 @@ export class RealtimeService {
         read: true
       });
     } catch (error) {
-      if (process.env.NODE_ENV === 'development') console.error('❌ Error marking message as read:', error);
+      if (process.env.NODE_ENV === 'development') if (process.env.NODE_ENV === 'development') console.error('❌ Error marking message as read:', error);
       throw error;
     }
   }
@@ -254,7 +244,7 @@ export class RealtimeService {
   }
 
   // Listen to user orders
-  listenToUserOrders(userId: string, userRole: string, callback: (orders: any[]) => void) {
+  listenToUserOrders(userId: string, userRole: string, callback: (orders: unknown[]) => void) {
     let q;
     
     if (userRole === 'vendor') {
@@ -281,7 +271,7 @@ export class RealtimeService {
   }
 
   // Listen to vendor products
-  listenToVendorProducts(vendorId: string, callback: (products: any[]) => void) {
+  listenToVendorProducts(vendorId: string, callback: (products: unknown[]) => void) {
     const q = query(
       collection(db, 'products'),
       where('vendorId', '==', vendorId),
@@ -321,7 +311,7 @@ export class RealtimeService {
         timestamp: Date.now()
       });
     } catch (error) {
-      if (process.env.NODE_ENV === 'development') console.error('❌ Error adding activity:', error);
+      if (process.env.NODE_ENV === 'development') if (process.env.NODE_ENV === 'development') console.error('❌ Error adding activity:', error);
       throw error;
     }
   }
@@ -335,7 +325,7 @@ export class RealtimeService {
         lastSeen: Date.now()
       });
     } catch (error) {
-      if (process.env.NODE_ENV === 'development') console.error('❌ Error updating typing status:', error);
+      if (process.env.NODE_ENV === 'development') if (process.env.NODE_ENV === 'development') console.error('❌ Error updating typing status:', error);
       throw error;
     }
   }
@@ -351,7 +341,7 @@ export class RealtimeService {
   cleanup(): void {
     // This method is called when the service is no longer needed
     // Individual listeners should be cleaned up by the components using them
-    // console.log('🧹 Realtime service cleanup completed');
+    // if (process.env.NODE_ENV === 'development') console.log('🧹 Realtime service cleanup completed');
   }
 }
 

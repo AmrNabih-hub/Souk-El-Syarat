@@ -4,9 +4,9 @@
  */
 
 import { describe, it, expect, beforeEach, afterEach, vi, Mock } from 'vitest';
-import { RealtimeService, RealtimeSubscription, RealtimeEvent } from '@/services/realtime.service';
-import { db, realtimeDb } from '@/config/firebase.config';
-import { User, Vendor, Product, Order, Notification } from '@/types';
+import { RealtimeService } from '@/services/realtime.service';
+import { realtimeDb } from '@/config/firebase.config';
+import { Notification } from '@/types';
 
 // Mock Firebase modules
 vi.mock('@/config/firebase.config', () => ({
@@ -160,14 +160,8 @@ describe('RealtimeService', () => {
       realtimeService.subscribeToUser('user123', mockCallback);
 
       // Simulate snapshot callback with minimal data
-      const mockSnapshot = {
-        exists: () => true,
-        id: 'user123',
-        data: () => ({
-          email: 'test@example.com',
-          role: 'customer',
-        }),
-      };
+      // Mock snapshot structure would be:
+      // { exists: () => true, id: 'user123', data: () => ({ email: 'test@example.com', role: 'customer' }) }
 
       // This would normally be called by Firebase
       // We're just testing the structure
@@ -277,7 +271,7 @@ describe('RealtimeService', () => {
       realtimeService.subscribeToEvents(mockCallback);
 
       // Simulate an event (this would normally be triggered internally)
-      const mockEvent: RealtimeEvent = {
+      const mockEvent = {
         type: 'created',
         collection: 'users',
         documentId: 'user123',

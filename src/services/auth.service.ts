@@ -290,7 +290,7 @@ export class AuthService {
 
       return auth.currentUser.emailVerified;
     } catch (error) {
-      if (process.env.NODE_ENV === 'development') console.error('Error checking email verification:', error);
+      if (process.env.NODE_ENV === 'development') if (process.env.NODE_ENV === 'development') console.error('Error checking email verification:', error);
       return false;
     }
   }
@@ -352,7 +352,7 @@ export class AuthService {
       const userData = userDoc.data();
       return { id: auth.currentUser.uid, ...userData } as User;
     } catch (error) {
-      if (process.env.NODE_ENV === 'development') console.error('Error getting current user:', error);
+      if (process.env.NODE_ENV === 'development') if (process.env.NODE_ENV === 'development') console.error('Error getting current user:', error);
       return null;
     }
   }
@@ -366,7 +366,7 @@ export class AuthService {
       const userData = userDoc.data();
       return userData.role === role;
     } catch (error) {
-      if (process.env.NODE_ENV === 'development') console.error('Error checking user role:', error);
+      if (process.env.NODE_ENV === 'development') if (process.env.NODE_ENV === 'development') console.error('Error checking user role:', error);
       return false;
     }
   }
@@ -413,7 +413,7 @@ export class AuthService {
             callback(null);
           }
         } catch (error) {
-          if (process.env.NODE_ENV === 'development') console.error('Error fetching user data:', error);
+          if (process.env.NODE_ENV === 'development') if (process.env.NODE_ENV === 'development') console.error('Error fetching user data:', error);
           callback(null);
         }
       } else {
@@ -436,7 +436,7 @@ export class AuthService {
 
       return users;
     } catch (error) {
-      if (process.env.NODE_ENV === 'development') console.error('Error getting users by role:', error);
+      if (process.env.NODE_ENV === 'development') if (process.env.NODE_ENV === 'development') console.error('Error getting users by role:', error);
       throw new Error('Failed to fetch users');
     }
   }

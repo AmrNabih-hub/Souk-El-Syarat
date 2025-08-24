@@ -73,7 +73,7 @@ declare global {
       use: React.SVGProps<SVGUseElement>;
 
       // Catch-all for other elements
-      [elemName: string]: any;
+      [elemName: string]: unknown;
     }
   }
 
@@ -107,7 +107,7 @@ declare module 'react' {
 
   // Ensure useEffect and other hooks are properly exported
   export function useEffect(effect: React.EffectCallback, deps?: React.DependencyList): void;
-  export function useCallback<T extends (...args: any[]) => any>(
+  export function useCallback<T extends (...args: unknown[]) => any>(
     callback: T,
     deps: React.DependencyList
   ): T;

@@ -74,9 +74,9 @@ if (isProduction && typeof window !== 'undefined') {
       isTokenAutoRefreshEnabled: true,
     });
 
-    // console.log('🔥 Firebase Analytics, Performance, Messaging, and App Check initialized');
+    // if (process.env.NODE_ENV === 'development') console.log('🔥 Firebase Analytics, Performance, Messaging, and App Check initialized');
   } catch (error) {
-    // console.warn('Firebase services initialization failed:', error);
+    // if (process.env.NODE_ENV === 'development') console.warn('Firebase services initialization failed:', error);
   }
 }
 
@@ -100,9 +100,9 @@ if (isDevelopment && useEmulators) {
     // Connect to Functions emulator
     connectFunctionsEmulator(functions, 'localhost', 5001);
 
-    // console.log('🔥 Connected to Firebase Emulators');
+    // if (process.env.NODE_ENV === 'development') console.log('🔥 Connected to Firebase Emulators');
   } catch (error) {
-    // console.warn('Firebase Emulator connection failed:', error);
+    // if (process.env.NODE_ENV === 'development') console.warn('Firebase Emulator connection failed:', error);
   }
 }
 
@@ -121,12 +121,12 @@ export const validateFirebaseConfig = (): boolean => {
 
   for (const field of requiredFields) {
     if (!currentConfig[field as keyof typeof currentConfig]) {
-      if (process.env.NODE_ENV === 'development') console.error(`❌ Firebase configuration missing: ${field}`);
+      if (process.env.NODE_ENV === 'development') if (process.env.NODE_ENV === 'development') console.error(`❌ Firebase configuration missing: ${field}`);
       return false;
     }
   }
 
-  // console.log('✅ Firebase configuration validated');
+  // if (process.env.NODE_ENV === 'development') console.log('✅ Firebase configuration validated');
   return true;
 };
 
@@ -142,13 +142,13 @@ export const initializeFirebase = async (): Promise<boolean> => {
     if (isProduction) {
       // Test Firestore connection in production
       await (db as any)._delegate._databaseId;
-      // console.log('🔥 Firebase Firestore connected successfully');
+      // if (process.env.NODE_ENV === 'development') console.log('🔥 Firebase Firestore connected successfully');
     }
 
-    // console.log('🚀 Firebase initialized successfully');
+    // if (process.env.NODE_ENV === 'development') console.log('🚀 Firebase initialized successfully');
     return true;
   } catch (error) {
-    if (process.env.NODE_ENV === 'development') console.error('❌ Firebase initialization failed:', error);
+    if (process.env.NODE_ENV === 'development') if (process.env.NODE_ENV === 'development') console.error('❌ Firebase initialization failed:', error);
     return false;
   }
 };
@@ -177,9 +177,9 @@ export const logPerformanceMetric = (name: string, value: number) => {
   if (performance && isProduction) {
     try {
       // Log custom performance metrics
-      // console.log(`📊 Performance Metric - ${name}: ${value}ms`);
+      // if (process.env.NODE_ENV === 'development') console.log(`📊 Performance Metric - ${name}: ${value}ms`);
     } catch (error) {
-      // console.warn('Performance logging failed:', error);
+      // if (process.env.NODE_ENV === 'development') console.warn('Performance logging failed:', error);
     }
   }
 };
@@ -190,10 +190,10 @@ export const logAnalyticsEvent = (eventName: string, parameters?: Record<string,
     try {
       import('firebase/analytics').then(({ logEvent }) => {
         logEvent(analytics!, eventName, parameters);
-        // console.log(`📈 Analytics Event - ${eventName}:`, parameters);
+        // if (process.env.NODE_ENV === 'development') console.log(`📈 Analytics Event - ${eventName}:`, parameters);
       });
     } catch (error) {
-      // console.warn('Analytics logging failed:', error);
+      // if (process.env.NODE_ENV === 'development') console.warn('Analytics logging failed:', error);
     }
   }
 };
@@ -217,9 +217,9 @@ export const getFirebaseConfig = () => ({
 // Initialize Firebase on module load
 initializeFirebase().then(success => {
   if (success) {
-    // console.log('🎉 Souk El-Syarat Firebase setup complete!');
+    // if (process.env.NODE_ENV === 'development') console.log('🎉 Souk El-Syarat Firebase setup complete!');
   } else {
-    if (process.env.NODE_ENV === 'development') console.error('💥 Firebase setup failed!');
+    if (process.env.NODE_ENV === 'development') if (process.env.NODE_ENV === 'development') console.error('💥 Firebase setup failed!');
   }
 });
 

@@ -1,5 +1,4 @@
 import {
-  User as FirebaseUser,
   signInWithEmailAndPassword,
   createUserWithEmailAndPassword,
   signInWithPopup,
@@ -9,28 +8,19 @@ import {
   updateProfile,
   updatePassword,
   onAuthStateChanged,
-  deleteUser,
-  reload,
   GoogleAuthProvider,
   FacebookAuthProvider,
   TwitterAuthProvider,
   PhoneAuthProvider,
   RecaptchaVerifier,
   multiFactor,
-  MultiFactorError,
   PhoneMultiFactorGenerator,
-  RecaptchaVerifierInstance,
 } from 'firebase/auth';
 import {
   doc,
   setDoc,
   getDoc,
   updateDoc,
-  collection,
-  query,
-  where,
-  getDocs,
-  onSnapshot,
   serverTimestamp,
 } from 'firebase/firestore';
 import { auth, db } from '../config/firebase.config';
@@ -177,7 +167,7 @@ export class EnhancedAuthService {
             });
           }
         } catch (error) {
-          if (process.env.NODE_ENV === 'development') console.error('Error getting user data:', error);
+          if (process.env.NODE_ENV === 'development') if (process.env.NODE_ENV === 'development') console.error('Error getting user data:', error);
           this.notifyAuthStateChange({
             user: null,
             isLoading: false,
@@ -513,7 +503,7 @@ export class EnhancedAuthService {
       const instance = EnhancedAuthService.getInstance();
       instance.clearSessionTimer();
 
-      // console.log('User signed out successfully');
+      // if (process.env.NODE_ENV === 'development') console.log('User signed out successfully');
     } catch (error) {
       throw new Error(this.getAuthErrorMessage(error.code));
     }

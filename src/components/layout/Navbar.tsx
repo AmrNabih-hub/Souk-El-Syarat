@@ -52,7 +52,7 @@ const Navbar: React.FC = () => {
       setIsUserMenuOpen(false);
       navigate('/');
     } catch (error) {
-      if (process.env.NODE_ENV === 'development') console.error('Error signing out:', error);
+      if (process.env.NODE_ENV === 'development') if (process.env.NODE_ENV === 'development') console.error('Error signing out:', error);
     }
   };
 

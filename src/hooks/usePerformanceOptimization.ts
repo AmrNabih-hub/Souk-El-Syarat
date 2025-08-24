@@ -15,24 +15,18 @@ export const usePerformanceMonitor = () => {
       list.getEntries().forEach(entry => {
         if (entry.entryType === 'navigation') {
           const navigationEntry = entry as PerformanceNavigationTiming;
-          // console.log('Navigation Performance:', {
-            DNS: navigationEntry.domainLookupEnd - navigationEntry.domainLookupStart,
-            TCP: navigationEntry.connectEnd - navigationEntry.connectStart,
-            Request: navigationEntry.responseStart - navigationEntry.requestStart,
-            Response: navigationEntry.responseEnd - navigationEntry.responseStart,
-            DOM:
-              navigationEntry.domContentLoadedEventEnd - navigationEntry.domContentLoadedEventStart,
-            Load: navigationEntry.loadEventEnd - navigationEntry.loadEventStart,
-            Total: navigationEntry.loadEventEnd - navigationEntry.fetchStart,
-          });
+          // Performance metrics tracking disabled for production
+          if (process.env.NODE_ENV === 'development') {
+            // Performance data available but logging disabled
+          }
         }
 
         if (entry.entryType === 'paint') {
-          // console.log(`${entry.name}: ${entry.startTime}ms`);
+          // if (process.env.NODE_ENV === 'development') console.log(`${entry.name}: ${entry.startTime}ms`);
         }
 
         if (entry.entryType === 'largest-contentful-paint') {
-          // console.log(`LCP: ${entry.startTime}ms`);
+          // if (process.env.NODE_ENV === 'development') console.log(`LCP: ${entry.startTime}ms`);
         }
       });
     });
@@ -110,7 +104,7 @@ export const useDebounce = <T>(value: T, delay: number): T => {
 };
 
 // Memory-efficient list virtualization
-export const useVirtualization = (items: any[], itemHeight: number, containerHeight: number) => {
+export const useVirtualization = (items: unknown[], itemHeight: number, containerHeight: number) => {
   const [scrollTop, setScrollTop] = useState(0);
 
   const visibleItems = useMemo(() => {
@@ -145,9 +139,9 @@ export const useServiceWorker = () => {
       window.addEventListener('load', async () => {
         try {
           const registration = await navigator.serviceWorker.register('/sw.js');
-          // console.log('Service Worker registered:', registration);
+          // if (process.env.NODE_ENV === 'development') console.log('Service Worker registered:', registration);
         } catch (error) {
-          if (process.env.NODE_ENV === 'development') console.error('Service Worker registration failed:', error);
+          if (process.env.NODE_ENV === 'development') if (process.env.NODE_ENV === 'development') console.error('Service Worker registration failed:', error);
         }
       });
     }
@@ -187,11 +181,10 @@ export const useBundleAnalytics = () => {
       const observer = new PerformanceObserver(list => {
         list.getEntries().forEach(entry => {
           if (entry.entryType === 'resource' && entry.name.includes('.js')) {
-            // console.log('JS Bundle:', {
-              name: entry.name,
-              size: (entry as any).transferSize || 0,
-              loadTime: entry.duration,
-            });
+            // Bundle performance monitoring disabled for production
+            if (process.env.NODE_ENV === 'development') {
+              // Bundle metrics available but logging disabled
+            }
           }
         });
       });

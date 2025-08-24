@@ -97,7 +97,7 @@ const EnhancedAdminDashboard: React.FC = () => {
       const adminStats = await AdminService.getAdminStats();
       setStats(adminStats);
     } catch (error) {
-      if (process.env.NODE_ENV === 'development') console.error('Error loading dashboard data:', error);
+      if (process.env.NODE_ENV === 'development') if (process.env.NODE_ENV === 'development') console.error('Error loading dashboard data:', error);
       toast.error(language === 'ar' ? 'خطأ في تحميل البيانات' : 'Error loading dashboard data');
     } finally {
       setIsLoading(false);

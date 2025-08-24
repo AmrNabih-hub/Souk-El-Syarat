@@ -61,7 +61,7 @@ if (import.meta.env.DEV) {
       }
     } catch (error) {
       // Emulators might already be connected, ignore error
-      // console.log('Emulators connection info:', error);
+      // if (process.env.NODE_ENV === 'development') console.log('Emulators connection info:', error);
     }
   };
 
