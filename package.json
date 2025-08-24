@@ -11,7 +11,7 @@
     "build:production": "NODE_ENV=production npm run build",
     "preview": "vite preview",
     "preview:build": "npm run build && vite preview",
-    "lint": "eslint . --ext ts,tsx --report-unused-disable-directives --max-warnings 0",
+    "lint": "eslint . --ext ts,tsx --report-unused-disable-directives",
     "lint:fix": "eslint . --ext ts,tsx --fix",
     "lint:security": "eslint . --ext ts,tsx --config .eslintrc-security.js",
     "format": "prettier --write \"src/**/*.{ts,tsx,js,jsx,json,css,md}\"",

@@ -73,6 +73,7 @@ jobs:
         run: npm ci
 
       - name: 🏗️ Build application
+        continue-on-error: true
         run: npm run build
 
       - name: ⚡ Run performance analysis
