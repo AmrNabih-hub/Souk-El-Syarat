@@ -31,19 +31,20 @@ export class PushNotificationService {
   // Initialize push notifications
   static async initialize(userId: string): Promise<string | null> {
     try {
-      if (!messaging) {
-        // if (process.env.NODE_ENV === 'development') console.warn('Firebase Messaging not available');
+      // Safely check for messaging availability
+      if (!messaging || typeof window === 'undefined') {
+        console.log('Push notifications not available in this environment');
         return null;
       }
 
       // Request notification permission
       const permission = await this.requestPermission();
       if (permission !== 'granted') {
-        // if (process.env.NODE_ENV === 'development') console.warn('Notification permission denied');
+        console.log('Notification permission not granted');
         return null;
       }
 
-      // Get FCM token
+      // Get FCM token safely
       const token = await getToken(messaging, {
         vapidKey: this.vapidKey,
       });

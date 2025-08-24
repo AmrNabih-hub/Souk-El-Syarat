@@ -118,42 +118,56 @@ function App() {
   // Initialize real-time services when user logs in
   useEffect(() => {
     if (user) {
-      // Initialize real-time services
-      initializeRealtime(user.id).catch(error => {
-        // Silent handling - service will continue without real-time features
-        if (process.env.NODE_ENV === 'development') {
-          console.error('Failed to initialize real-time services:', error);
-        }
-      });
+      // Initialize real-time services safely
+      try {
+        initializeRealtime(user.id).catch(error => {
+          console.log('Real-time services unavailable, continuing without them');
+        });
+      } catch (error) {
+        console.log('Real-time services unavailable, continuing without them');
+      }
 
-      // Initialize push notifications
-      PushNotificationService.initialize(user.id).catch(error => {
-        // Silent handling - service will continue without push notifications
-        if (process.env.NODE_ENV === 'development') {
-          console.error('Failed to initialize push notifications:', error);
-        }
-      });
+      // Initialize push notifications safely
+      try {
+        PushNotificationService.initialize(user.id).catch(error => {
+          console.log('Push notifications unavailable, continuing without them');
+        });
+      } catch (error) {
+        console.log('Push notifications unavailable, continuing without them');
+      }
 
-      // Subscribe to user-specific topics based on role
-      if (user.role === 'vendor') {
-        PushNotificationService.subscribeToTopic(user.id, 'vendor-notifications');
-        PushNotificationService.subscribeToTopic(user.id, 'order-updates');
-      } else if (user.role === 'customer') {
-        PushNotificationService.subscribeToTopic(user.id, 'customer-notifications');
-        PushNotificationService.subscribeToTopic(user.id, 'promotions');
-      } else if (user.role === 'admin') {
-        PushNotificationService.subscribeToTopic(user.id, 'admin-notifications');
-        PushNotificationService.subscribeToTopic(user.id, 'system-alerts');
+      // Subscribe to user-specific topics based on role safely
+      try {
+        if (user.role === 'vendor') {
+          PushNotificationService.subscribeToTopic(user.id, 'vendor-notifications').catch(() => {});
+          PushNotificationService.subscribeToTopic(user.id, 'order-updates').catch(() => {});
+        } else if (user.role === 'customer') {
+          PushNotificationService.subscribeToTopic(user.id, 'customer-notifications').catch(() => {});
+          PushNotificationService.subscribeToTopic(user.id, 'promotions').catch(() => {});
+        } else if (user.role === 'admin') {
+          PushNotificationService.subscribeToTopic(user.id, 'admin-notifications').catch(() => {});
+          PushNotificationService.subscribeToTopic(user.id, 'system-alerts').catch(() => {});
+        }
+      } catch (error) {
+        console.log('Push notification topics unavailable, continuing without them');
       }
     } else {
-      // Clean up real-time services when user logs out
-      cleanupRealtime();
+      // Clean up real-time services when user logs out safely
+      try {
+        cleanupRealtime();
+      } catch (error) {
+        // Silent cleanup failure
+      }
     }
 
     // Cleanup on unmount
     return () => {
       if (!user) {
-        cleanupRealtime();
+        try {
+          cleanupRealtime();
+        } catch (error) {
+          // Silent cleanup failure
+        }
       }
     };
   }, [user, initializeRealtime, cleanupRealtime]);
