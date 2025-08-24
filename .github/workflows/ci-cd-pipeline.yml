@@ -45,7 +45,7 @@ jobs:
 
       - name: 🔍 Run linting
         continue-on-error: true
-        run: npm run lint
+        run: npm run lint:ci
 
       - name: 🎨 Check formatting
         continue-on-error: true
@@ -53,11 +53,11 @@ jobs:
 
       - name: 🧪 Run TypeScript check
         continue-on-error: true
-        run: npm run type-check
+        run: npm run type-check:ci
 
       - name: 🧪 Run unit tests
         continue-on-error: true
-        run: npm run test
+        run: npm run test:unit
 
       - name: 🧪 Run integration tests
         continue-on-error: true
