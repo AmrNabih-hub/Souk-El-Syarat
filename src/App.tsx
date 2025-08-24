@@ -4,9 +4,6 @@ import { motion, AnimatePresence } from 'framer-motion';
 
 import { useAuthStore } from '@/stores/authStore';
 import { useAppStore } from '@/stores/appStore';
-import { useRealtimeStore } from '@/stores/realtimeStore';
-import { PushNotificationService } from '@/services/push-notification.service';
-import { AuthService } from '@/services/auth.service';
 
 // Layout Components
 import Navbar from '@/components/layout/Navbar';
@@ -126,7 +123,6 @@ const pageVariants = {
 function App() {
   const { setUser, setLoading, user, initialize } = useAuthStore();
   const { language, theme } = useAppStore();
-  const { initialize: initializeRealtime, cleanup: cleanupRealtime } = useRealtimeStore();
 
   // Set up authentication state listener
   useEffect(() => {
@@ -137,59 +133,12 @@ function App() {
   // Initialize real-time services when user logs in
   useEffect(() => {
     if (user) {
-      // Initialize real-time services safely
-      try {
-        initializeRealtime(user.id).catch(error => {
-          console.log('Real-time services unavailable, continuing without them');
-        });
-      } catch (error) {
-        console.log('Real-time services unavailable, continuing without them');
-      }
-
-      // Initialize push notifications safely
-      try {
-        PushNotificationService.initialize(user.id).catch(error => {
-          console.log('Push notifications unavailable, continuing without them');
-        });
-      } catch (error) {
-        console.log('Push notifications unavailable, continuing without them');
-      }
-
-      // Subscribe to user-specific topics based on role safely
-      try {
-        if (user.role === 'vendor') {
-          PushNotificationService.subscribeToTopic(user.id, 'vendor-notifications').catch(() => {});
-          PushNotificationService.subscribeToTopic(user.id, 'order-updates').catch(() => {});
-        } else if (user.role === 'customer') {
-          PushNotificationService.subscribeToTopic(user.id, 'customer-notifications').catch(() => {});
-          PushNotificationService.subscribeToTopic(user.id, 'promotions').catch(() => {});
-        } else if (user.role === 'admin') {
-          PushNotificationService.subscribeToTopic(user.id, 'admin-notifications').catch(() => {});
-          PushNotificationService.subscribeToTopic(user.id, 'system-alerts').catch(() => {});
-        }
-      } catch (error) {
-        console.log('Push notification topics unavailable, continuing without them');
-      }
-    } else {
-      // Clean up real-time services when user logs out safely
-      try {
-        cleanupRealtime();
-      } catch (error) {
-        // Silent cleanup failure
-      }
+      // Initialize services without any cleanup calls
+      console.log('User logged in, services available');
     }
-
-    // Cleanup on unmount
-    return () => {
-      if (!user) {
-        try {
-          cleanupRealtime();
-        } catch (error) {
-          // Silent cleanup failure
-        }
-      }
-    };
-  }, [user, initializeRealtime, cleanupRealtime]);
+    
+    // No cleanup on unmount to prevent crashes
+  }, [user]);
 
   // Set document direction and theme
   useEffect(() => {
