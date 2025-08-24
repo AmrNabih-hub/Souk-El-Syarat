@@ -78,7 +78,7 @@ const Navbar: React.FC = () => {
   const isCurrentPath = (path: string) => location.pathname === path;
 
   return (
-    <nav className='bg-white/95 backdrop-blur-sm border-b border-neutral-200 sticky top-0 z-50'>
+    <nav className='bg-white/90 backdrop-blur-md border-b border-neutral-200/50 sticky top-0 z-50 shadow-sm'>
       <div className='max-w-7xl mx-auto px-4 sm:px-6 lg:px-8'>
         <div className='flex justify-between items-center h-16'>
           {/* Logo */}
@@ -96,7 +96,7 @@ const Navbar: React.FC = () => {
                 <span className='text-white font-bold text-xl'>س</span>
               </motion.div>
               <div className='hidden sm:block'>
-                <h1 className='text-xl font-bold gradient-text font-display'>سوق السيارات</h1>
+                <h1 className='text-xl font-bold gradient-text-animated font-display'>سوق السيارات</h1>
                 <p className='text-xs text-neutral-500 -mt-1'>Souk El-Syarat</p>
               </div>
             </Link>

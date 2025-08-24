@@ -72,7 +72,7 @@ const HomePage: React.FC = () => {
   ];
 
   return (
-    <div className='min-h-screen'>
+    <div className='min-h-screen fade-in-view'>
       {/* Hero Section */}
       <section className='relative bg-gradient-to-br from-primary-50 to-secondary-50 overflow-hidden'>
         {/* Premium Car Background */}
@@ -81,8 +81,9 @@ const HomePage: React.FC = () => {
           <img
             src='https://images.unsplash.com/photo-1544636331-e26879cd4d9b?w=1920&h=1080&fit=crop&crop=center'
             alt='Premium Exotic Car - Souk El-Syarat'
-            className='w-full h-full object-cover object-center scale-105'
+            className='w-full h-full object-cover object-center scale-105 animate-pulse-soft'
             style={{ objectPosition: '65% center' }}
+            loading='eager'
           />
           <div className='absolute inset-0 bg-gradient-to-t from-black/70 via-transparent to-black/40 z-5'></div>
           <div className='absolute inset-0 bg-gradient-to-br from-primary-900/30 to-secondary-900/20 z-8'></div>
@@ -104,11 +105,11 @@ const HomePage: React.FC = () => {
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: 0.2, duration: 0.8 }}
               >
-                <span className='bg-gradient-to-r from-yellow-400 via-yellow-300 to-yellow-500 bg-clip-text text-transparent drop-shadow-lg'>
+                <span className='gradient-text-animated text-5xl lg:text-7xl font-black drop-shadow-lg'>
                   سوق السيارات
                 </span>
                 <br />
-                <span className='text-white/90 drop-shadow-lg'>الأول في مصر</span>
+                <span className='text-white/90 drop-shadow-lg animate-fade-in-up'>الأول في مصر</span>
               </motion.h1>
 
               <motion.p
@@ -126,12 +127,12 @@ const HomePage: React.FC = () => {
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: 0.6, duration: 0.8 }}
               >
-                <Link to='/marketplace' className='btn btn-primary btn-lg group'>
+                <Link to='/marketplace' className='btn btn-primary btn-lg group transform hover:scale-105 transition-all duration-300 shadow-lg hover:shadow-2xl'>
                   تصفح السوق
                   <ArrowRightIcon className='w-5 h-5 ml-2 transition-transform group-hover:translate-x-1' />
                 </Link>
 
-                <Link to='/vendor/apply' className='btn btn-outline btn-lg'>
+                <Link to='/vendor/apply' className='btn btn-outline btn-lg glass-effect hover:bg-white/20 transform hover:scale-105 transition-all duration-300'>
                   كن تاجراً
                 </Link>
               </motion.div>
@@ -276,15 +277,16 @@ const HomePage: React.FC = () => {
             {features.ar.map((feature, index) => (
               <motion.div
                 key={feature.title}
-                className='card p-6 text-center card-hover'
+                className='card p-6 text-center card-modern-hover glass-effect backdrop-blur-md'
                 initial={{ opacity: 0, y: 30 }}
                 whileInView={{ opacity: 1, y: 0 }}
                 transition={{ delay: index * 0.1, duration: 0.6 }}
                 viewport={{ once: true }}
+                whileHover={{ y: -5 }}
               >
                 <motion.div
-                  className='w-16 h-16 bg-gradient-to-br from-primary-500 to-secondary-500 rounded-full flex items-center justify-center mx-auto mb-4'
-                  whileHover={{ scale: 1.1 }}
+                  className='w-16 h-16 bg-gradient-to-br from-primary-500 to-secondary-500 rounded-full flex items-center justify-center mx-auto mb-4 shadow-lg'
+                  whileHover={{ scale: 1.1, rotate: 360 }}
                   transition={{ type: 'spring', stiffness: 300 }}
                 >
                   <feature.icon className='w-8 h-8 text-white' />

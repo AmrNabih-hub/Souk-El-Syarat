@@ -64,20 +64,29 @@ try {
             toastOptions={{
               duration: 4000,
               style: {
-                background: '#363636',
+                background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
                 color: '#fff',
-                borderRadius: '8px',
+                borderRadius: '12px',
+                boxShadow: '0 10px 25px rgba(0,0,0,0.2)',
+                padding: '16px',
+                fontSize: '14px',
               },
               success: {
                 iconTheme: {
                   primary: '#22c55e',
                   secondary: '#fff',
                 },
+                style: {
+                  background: 'linear-gradient(135deg, #22c55e 0%, #16a34a 100%)',
+                },
               },
               error: {
                 iconTheme: {
                   primary: '#ef4444',
                   secondary: '#fff',
+                },
+                style: {
+                  background: 'linear-gradient(135deg, #ef4444 0%, #dc2626 100%)',
                 },
               },
             }}
@@ -89,6 +98,15 @@ try {
   
   console.log('🎉 REACT APP RENDERED SUCCESSFULLY!');
   console.log('🌐 Souk El-Syarat Marketplace is now LIVE!');
+  
+  // Remove preloader after React renders
+  const preloader = document.getElementById('preloader');
+  if (preloader) {
+    preloader.style.opacity = '0';
+    setTimeout(() => {
+      preloader.style.display = 'none';
+    }, 500);
+  }
   
 } catch (error) {
   console.error('💥 CRITICAL: React rendering failed:', error);

@@ -2,15 +2,31 @@
 @tailwind components;
 @tailwind utilities;
 
+/* Reset and Base Styles */
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
 /* Global Styles */
 @layer base {
   html {
     font-family: 'Cairo', 'Inter', system-ui, sans-serif;
+    scroll-behavior: smooth;
   }
 
   body {
-    @apply bg-neutral-50 text-neutral-900 antialiased;
+    @apply bg-gradient-to-br from-neutral-50 via-white to-neutral-100 text-neutral-900 antialiased;
     font-feature-settings: 'cv02', 'cv03', 'cv04', 'cv11';
+    min-height: 100vh;
+    overflow-x: hidden;
+  }
+
+  #root {
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
   }
 
   * {
@@ -342,5 +358,94 @@
   }
   100% {
     background-position: 200% 0;
+  }
+}
+
+/* Additional Modern UI/UX Enhancements */
+@layer utilities {
+  /* Loading Animation */
+  .loading-pulse {
+    animation: pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+  }
+
+  @keyframes pulse {
+    0%, 100% {
+      opacity: 1;
+    }
+    50% {
+      opacity: 0.5;
+    }
+  }
+
+  /* Splash Screen Animation */
+  .splash-fade-in {
+    animation: splashFadeIn 0.8s ease-out forwards;
+  }
+
+  @keyframes splashFadeIn {
+    from {
+      opacity: 0;
+      transform: scale(0.95);
+    }
+    to {
+      opacity: 1;
+      transform: scale(1);
+    }
+  }
+
+  /* Modern Glass Effect */
+  .glass-effect {
+    background: rgba(255, 255, 255, 0.1);
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+  }
+
+  /* Gradient Text Animation */
+  .gradient-text-animated {
+    background: linear-gradient(90deg, #f59e0b, #0ea5e9, #f59e0b);
+    background-size: 200% auto;
+    -webkit-background-clip: text;
+    background-clip: text;
+    -webkit-text-fill-color: transparent;
+    animation: gradientShift 3s ease infinite;
+  }
+
+  @keyframes gradientShift {
+    0% {
+      background-position: 0% 50%;
+    }
+    50% {
+      background-position: 100% 50%;
+    }
+    100% {
+      background-position: 0% 50%;
+    }
+  }
+
+  /* Modern Card Hover */
+  .card-modern-hover {
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  }
+
+  .card-modern-hover:hover {
+    transform: translateY(-4px) scale(1.02);
+    box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+  }
+
+  /* Smooth Fade Transitions */
+  .fade-in-view {
+    animation: fadeInView 0.6s ease-out forwards;
+  }
+
+  @keyframes fadeInView {
+    from {
+      opacity: 0;
+      transform: translateY(10px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
   }
 }

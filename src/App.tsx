@@ -11,7 +11,7 @@ import { AuthService } from '@/services/auth.service';
 // Layout Components
 import Navbar from '@/components/layout/Navbar';
 import Footer from '@/components/layout/Footer';
-import LoadingSpinner from '@/components/ui/LoadingSpinner';
+import LoadingScreen from '@/components/ui/LoadingScreen';
 
 // Lazy load pages for better performance
 const HomePage = React.lazy(() => import('@/pages/HomePage'));
@@ -39,11 +39,7 @@ const ProtectedRoute: React.FC<{
   const { user, isLoading } = useAuthStore();
 
   if (isLoading) {
-    return (
-      <div className='min-h-screen flex items-center justify-center'>
-        <LoadingSpinner size='lg' />
-      </div>
-    );
+    return <LoadingScreen message='جاري التحقق من الصلاحيات...' />;
   }
 
   if (!user) {
@@ -172,23 +168,12 @@ function App() {
   }, [language, theme]);
 
   return (
-    <div className='min-h-screen bg-gradient-to-br from-neutral-50 to-neutral-100'>
+    <div className='min-h-screen bg-gradient-to-br from-primary-50 via-white to-secondary-50 transition-all duration-500'>
       <Navbar />
 
       <main className='flex-1'>
         <AnimatePresence mode='wait'>
-          <Suspense
-            fallback={
-              <motion.div
-                className='min-h-screen flex items-center justify-center'
-                initial={{ opacity: 0 }}
-                animate={{ opacity: 1 }}
-                exit={{ opacity: 0 }}
-              >
-                <LoadingSpinner size='lg' />
-              </motion.div>
-            }
-          >
+          <Suspense fallback={<LoadingScreen />}>
             <Routes>
               {/* Public Routes */}
               <Route
