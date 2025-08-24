@@ -53,8 +53,8 @@ coverage
 Thumbs.db
 ehthumbs.db
 
-# Package managers
-package-lock.json
+# Package managers (keep package-lock.json for CI/CD reproducibility)
+# package-lock.json  # Required for npm ci in workflows
 yarn.lock
 pnpm-lock.yaml
 
@@ -70,3 +70,13 @@ out/
 # Misc
 *.tgz
 *.tar.gz
+
+# Core dumps and system files
+core
+core.*
+*.core
+
+# Core dumps and system files
+core
+core.*
+*.core

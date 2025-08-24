@@ -1,0 +1,34 @@
+# ESLint ignore patterns for Souk El-Sayarat
+
+# Build outputs
+dist/
+build/
+coverage/
+
+# Dependencies
+node_modules/
+
+# Functions directory (has its own ESLint configuration)
+functions/
+
+# Generated files
+dataconnect-generated/
+
+# Cache directories
+.cache/
+.vite/
+
+# Test outputs
+test-results/
+
+# Configuration files
+*.config.js
+*.config.ts
+vite.config.*
+playwright.config.*
+
+# Environment files
+.env*
+
+# Logs
+*.log

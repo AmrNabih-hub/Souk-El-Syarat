@@ -1,0 +1,47 @@
+# Gitleaks Configuration for Souk El-Sayarat Security Scanning
+
+[extend]
+# Extend the base gitleaks configuration
+useDefault = true
+
+[[rules]]
+id = "generic-api-key"
+description = "Generic API Key"
+regex = '''(?i)(?:key|api[_-]?key|secret|token)[_-]?[:=]\s*['"]?([0-9a-zA-Z\-_]{20,})['"]?'''
+tags = ["key", "API", "generic"]
+
+[[rules]]
+id = "firebase-key"
+description = "Firebase API Key"
+regex = '''(?i)firebase[_-]?(?:api[_-]?key|secret)[_-]?[:=]\s*['"]?([0-9a-zA-Z\-_]{20,})['"]?'''
+tags = ["key", "firebase"]
+
+[[rules]]
+id = "slack-webhook"
+description = "Slack Webhook URL"
+regex = '''https://hooks\.slack\.com/services/[A-Z0-9]+/[A-Z0-9]+/[a-zA-Z0-9]+'''
+tags = ["slack", "webhook"]
+
+[allowlist]
+description = "Global allowlist"
+paths = [
+    '''node_modules/.*''',
+    '''\.git/.*''',
+    '''dist/.*''',
+    '''build/.*''',
+    '''.*/test/.*'''
+]
+
+commits = [
+    # Add commit hashes here to allowlist specific commits if needed
+]
+
+regexes = [
+    # Allow common false positives
+    '''example\.com''',
+    '''localhost''',
+    '''127\.0\.0\.1''',
+    '''test[_-]?key''',
+    '''demo[_-]?key''',
+    '''fake[_-]?key'''
+]
