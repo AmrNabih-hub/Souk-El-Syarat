@@ -284,7 +284,7 @@ jobs:
           retention-days: 30
 
       - name: 📧 Send security report (if configured)
-        if: ${{ secrets.SLACK_WEBHOOK_URL != '' }}
+        if: secrets.SLACK_WEBHOOK_URL
         uses: 8398a7/action-slack@v3
         with:
           status: ${{ job.status }}
