@@ -329,284 +329,354 @@ const App: React.FC = () => {
     );
   }
 
-  // 🚨 MAIN APP RENDERING
+  // �� MAIN APP RENDERING WITH HEADER AND FOOTER
   return (
-    <div className="App">
-      <AnimatePresence mode="wait">
-        <Routes>
-          {/* Public Routes */}
-          <Route
-            path="/"
-            element={
-              <PublicRoute>
+    <div className="App min-h-screen bg-gradient-to-br from-neutral-50 to-neutral-100">
+      {/* 🚨 BULLETPROOF HEADER */}
+      {Navbar ? (
+        <Navbar />
+      ) : (
+        <nav className="bg-white shadow-lg border-b border-gray-200">
+          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div className="flex justify-between items-center h-16">
+              <div className="flex items-center">
+                <h1 className="text-2xl font-bold text-blue-600">🚀 سوق السيارات</h1>
+                <span className="ml-2 text-gray-600">Souk El-Syarat</span>
+              </div>
+              <div className="flex items-center space-x-4">
+                <a href="/" className="text-gray-700 hover:text-blue-600">Home</a>
+                <a href="/marketplace" className="text-gray-700 hover:text-blue-600">Marketplace</a>
+                <a href="/login" className="text-gray-700 hover:text-blue-600">Login</a>
+                <a href="/register" className="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700">Register</a>
+              </div>
+            </div>
+          </div>
+        </nav>
+      )}
+
+      {/* 🚨 MAIN CONTENT */}
+      <main className="flex-1">
+        <AnimatePresence mode="wait">
+          <Routes>
+            {/* Public Routes */}
+            <Route
+              path="/"
+              element={
+                <PublicRoute>
+                  <motion.div
+                    key="home"
+                    initial="initial"
+                    animate="animate"
+                    exit="exit"
+                    variants={pageVariants}
+                  >
+                    <Suspense fallback={<div>Loading Home...</div>}>
+                      <HomePage />
+                    </Suspense>
+                  </motion.div>
+                </PublicRoute>
+              }
+            />
+
+            <Route
+              path="/login"
+              element={
+                <PublicRoute>
+                  <motion.div
+                    key="login"
+                    initial="initial"
+                    animate="animate"
+                    exit="exit"
+                    variants={pageVariants}
+                  >
+                    <Suspense fallback={<div>Loading Login...</div>}>
+                      <LoginPage />
+                    </Suspense>
+                  </motion.div>
+                </PublicRoute>
+              }
+            />
+
+            <Route
+              path="/register"
+              element={
+                <PublicRoute>
+                  <motion.div
+                    key="register"
+                    initial="initial"
+                    animate="animate"
+                    exit="exit"
+                    variants={pageVariants}
+                  >
+                    <Suspense fallback={<div>Loading Register...</div>}>
+                      <RegisterPage />
+                    </Suspense>
+                  </motion.div>
+                </PublicRoute>
+              }
+            />
+
+            <Route
+              path="/forgot-password"
+              element={
+                <PublicRoute>
+                  <motion.div
+                    key="forgot-password"
+                    initial="initial"
+                    animate="animate"
+                    exit="exit"
+                    variants={pageVariants}
+                  >
+                    <Suspense fallback={<div>Loading Forgot Password...</div>}>
+                      <ForgotPasswordPage />
+                    </Suspense>
+                  </motion.div>
+                </PublicRoute>
+              }
+            />
+
+            <Route
+              path="/vendor/apply"
+              element={
+                <PublicRoute>
+                  <motion.div
+                    key="vendor-apply"
+                    initial="initial"
+                    animate="animate"
+                    exit="exit"
+                    variants={pageVariants}
+                  >
+                    <Suspense fallback={<div>Loading Vendor Application...</div>}>
+                      <VendorApplicationPage />
+                    </Suspense>
+                  </motion.div>
+                </PublicRoute>
+              }
+            />
+
+            {/* Customer Routes */}
+            <Route
+              path="/marketplace"
+              element={
+                <ProtectedRoute roles={['customer', 'vendor', 'admin']}>
+                  <motion.div
+                    key="marketplace"
+                    initial="initial"
+                    animate="animate"
+                    exit="exit"
+                    variants={pageVariants}
+                  >
+                    <Suspense fallback={<div>Loading Marketplace...</div>}>
+                      <MarketplacePage />
+                    </Suspense>
+                  </motion.div>
+                </ProtectedRoute>
+              }
+            />
+
+            <Route
+              path="/product/:id"
+              element={
+                <ProtectedRoute roles={['customer', 'vendor', 'admin']}>
+                  <motion.div
+                    key="product-details"
+                    initial="initial"
+                    animate="animate"
+                    exit="exit"
+                    variants={pageVariants}
+                  >
+                    <Suspense fallback={<div>Loading Product Details...</div>}>
+                      <ProductDetailsPage />
+                    </Suspense>
+                  </motion.div>
+                </ProtectedRoute>
+              }
+            />
+
+            <Route
+              path="/vendors"
+              element={
+                <ProtectedRoute roles={['customer', 'vendor', 'admin']}>
+                  <motion.div
+                    key="vendors"
+                    initial="initial"
+                    animate="animate"
+                    exit="exit"
+                    variants={pageVariants}
+                  >
+                    <Suspense fallback={<div>Loading Vendors...</div>}>
+                      <VendorsPage />
+                    </Suspense>
+                  </motion.div>
+                </ProtectedRoute>
+              }
+            />
+
+            <Route
+              path="/cart"
+              element={
+                <ProtectedRoute roles={['customer', 'vendor', 'admin']}>
+                  <motion.div
+                    key="cart"
+                    initial="initial"
+                    animate="animate"
+                    exit="exit"
+                    variants={pageVariants}
+                  >
+                    <Suspense fallback={<div>Loading Cart...</div>}>
+                      <CartPage />
+                    </Suspense>
+                  </motion.div>
+                </ProtectedRoute>
+              }
+            />
+
+            <Route
+              path="/profile"
+              element={
+                <ProtectedRoute roles={['customer', 'vendor', 'admin']}>
+                  <motion.div
+                    key="profile"
+                    initial="initial"
+                    animate="animate"
+                    exit="exit"
+                    variants={pageVariants}
+                  >
+                    <Suspense fallback={<div>Loading Profile...</div>}>
+                      <ProfilePage />
+                    </Suspense>
+                  </motion.div>
+                </ProtectedRoute>
+              }
+            />
+
+            <Route
+              path="/dashboard"
+              element={
+                <ProtectedRoute roles={['customer']}>
+                  <motion.div
+                    key="customer-dashboard"
+                    initial="initial"
+                    animate="animate"
+                    exit="exit"
+                    variants={pageVariants}
+                  >
+                    <Suspense fallback={<div>Loading Customer Dashboard...</div>}>
+                      <CustomerDashboard />
+                    </Suspense>
+                  </motion.div>
+                </ProtectedRoute>
+              }
+            />
+
+            {/* Vendor Routes */}
+            <Route
+              path="/vendor/dashboard"
+              element={
+                <ProtectedRoute roles={['vendor']}>
+                  <motion.div
+                    key="vendor-dashboard"
+                    initial="initial"
+                    animate="animate"
+                    exit="exit"
+                    variants={pageVariants}
+                  >
+                    <Suspense fallback={<div>Loading Vendor Dashboard...</div>}>
+                      <VendorDashboard />
+                    </Suspense>
+                  </motion.div>
+                </ProtectedRoute>
+              }
+            />
+
+            {/* Admin Routes */}
+            <Route
+              path="/admin/dashboard"
+              element={
+                <ProtectedRoute roles={['admin']}>
+                  <motion.div
+                    key="admin-dashboard"
+                    initial="initial"
+                    animate="animate"
+                    exit="exit"
+                    variants={pageVariants}
+                  >
+                    <Suspense fallback={<div>Loading Admin Dashboard...</div>}>
+                      <AdminDashboard />
+                    </Suspense>
+                  </motion.div>
+                </ProtectedRoute>
+              }
+            />
+
+            {/* Catch all route */}
+            <Route
+              path="*"
+              element={
                 <motion.div
-                  key="home"
+                  key="not-found"
                   initial="initial"
                   animate="animate"
                   exit="exit"
                   variants={pageVariants}
+                  className="min-h-screen flex items-center justify-center"
                 >
-                  <Suspense fallback={<div>Loading Home...</div>}>
-                    <HomePage />
-                  </Suspense>
+                  <div className="text-center">
+                    <h1 className="text-4xl font-bold mb-4">404</h1>
+                    <p className="text-xl mb-4">Page not found</p>
+                    <Navigate to="/" replace />
+                  </div>
                 </motion.div>
-              </PublicRoute>
-            }
-          />
+              }
+            />
+          </Routes>
+        </AnimatePresence>
+      </main>
 
-          <Route
-            path="/login"
-            element={
-              <PublicRoute>
-                <motion.div
-                  key="login"
-                  initial="initial"
-                  animate="animate"
-                  exit="exit"
-                  variants={pageVariants}
-                >
-                  <Suspense fallback={<div>Loading Login...</div>}>
-                    <LoginPage />
-                  </Suspense>
-                </motion.div>
-              </PublicRoute>
-            }
-          />
-
-          <Route
-            path="/register"
-            element={
-              <PublicRoute>
-                <motion.div
-                  key="register"
-                  initial="initial"
-                  animate="animate"
-                  exit="exit"
-                  variants={pageVariants}
-                >
-                  <Suspense fallback={<div>Loading Register...</div>}>
-                    <RegisterPage />
-                  </Suspense>
-                </motion.div>
-              </PublicRoute>
-            }
-          />
-
-          <Route
-            path="/forgot-password"
-            element={
-              <PublicRoute>
-                <motion.div
-                  key="forgot-password"
-                  initial="initial"
-                  animate="animate"
-                  exit="exit"
-                  variants={pageVariants}
-                >
-                  <Suspense fallback={<div>Loading Forgot Password...</div>}>
-                    <ForgotPasswordPage />
-                  </Suspense>
-                </motion.div>
-              </PublicRoute>
-            }
-          />
-
-          <Route
-            path="/vendor/apply"
-            element={
-              <PublicRoute>
-                <motion.div
-                  key="vendor-apply"
-                  initial="initial"
-                  animate="animate"
-                  exit="exit"
-                  variants={pageVariants}
-                >
-                  <Suspense fallback={<div>Loading Vendor Application...</div>}>
-                    <VendorApplicationPage />
-                  </Suspense>
-                </motion.div>
-              </PublicRoute>
-            }
-          />
-
-          {/* Customer Routes */}
-          <Route
-            path="/marketplace"
-            element={
-              <ProtectedRoute roles={['customer', 'vendor', 'admin']}>
-                <motion.div
-                  key="marketplace"
-                  initial="initial"
-                  animate="animate"
-                  exit="exit"
-                  variants={pageVariants}
-                >
-                  <Suspense fallback={<div>Loading Marketplace...</div>}>
-                    <MarketplacePage />
-                  </Suspense>
-                </motion.div>
-              </ProtectedRoute>
-            }
-          />
-
-          <Route
-            path="/product/:id"
-            element={
-              <ProtectedRoute roles={['customer', 'vendor', 'admin']}>
-                <motion.div
-                  key="product-details"
-                  initial="initial"
-                  animate="animate"
-                  exit="exit"
-                  variants={pageVariants}
-                >
-                  <Suspense fallback={<div>Loading Product Details...</div>}>
-                    <ProductDetailsPage />
-                  </Suspense>
-                </motion.div>
-              </ProtectedRoute>
-            }
-          />
-
-          <Route
-            path="/vendors"
-            element={
-              <ProtectedRoute roles={['customer', 'vendor', 'admin']}>
-                <motion.div
-                  key="vendors"
-                  initial="initial"
-                  animate="animate"
-                  exit="exit"
-                  variants={pageVariants}
-                >
-                  <Suspense fallback={<div>Loading Vendors...</div>}>
-                    <VendorsPage />
-                  </Suspense>
-                </motion.div>
-              </ProtectedRoute>
-            }
-          />
-
-          <Route
-            path="/cart"
-            element={
-              <ProtectedRoute roles={['customer', 'vendor', 'admin']}>
-                <motion.div
-                  key="cart"
-                  initial="initial"
-                  animate="animate"
-                  exit="exit"
-                  variants={pageVariants}
-                >
-                  <Suspense fallback={<div>Loading Cart...</div>}>
-                    <CartPage />
-                  </Suspense>
-                </motion.div>
-              </ProtectedRoute>
-            }
-          />
-
-          <Route
-            path="/profile"
-            element={
-              <ProtectedRoute roles={['customer', 'vendor', 'admin']}>
-                <motion.div
-                  key="profile"
-                  initial="initial"
-                  animate="animate"
-                  exit="exit"
-                  variants={pageVariants}
-                >
-                  <Suspense fallback={<div>Loading Profile...</div>}>
-                    <ProfilePage />
-                  </Suspense>
-                </motion.div>
-              </ProtectedRoute>
-            }
-          />
-
-          <Route
-            path="/dashboard"
-            element={
-              <ProtectedRoute roles={['customer']}>
-                <motion.div
-                  key="customer-dashboard"
-                  initial="initial"
-                  animate="animate"
-                  exit="exit"
-                  variants={pageVariants}
-                >
-                  <Suspense fallback={<div>Loading Customer Dashboard...</div>}>
-                    <CustomerDashboard />
-                  </Suspense>
-                </motion.div>
-              </ProtectedRoute>
-            }
-          />
-
-          {/* Vendor Routes */}
-          <Route
-            path="/vendor/dashboard"
-            element={
-              <ProtectedRoute roles={['vendor']}>
-                <motion.div
-                  key="vendor-dashboard"
-                  initial="initial"
-                  animate="animate"
-                  exit="exit"
-                  variants={pageVariants}
-                >
-                  <Suspense fallback={<div>Loading Vendor Dashboard...</div>}>
-                    <VendorDashboard />
-                  </Suspense>
-                </motion.div>
-              </ProtectedRoute>
-            }
-          />
-
-          {/* Admin Routes */}
-          <Route
-            path="/admin/dashboard"
-            element={
-              <ProtectedRoute roles={['admin']}>
-                <motion.div
-                  key="admin-dashboard"
-                  initial="initial"
-                  animate="animate"
-                  exit="exit"
-                  variants={pageVariants}
-                >
-                  <Suspense fallback={<div>Loading Admin Dashboard...</div>}>
-                    <AdminDashboard />
-                  </Suspense>
-                </motion.div>
-              </ProtectedRoute>
-            }
-          />
-
-          {/* Catch all route */}
-          <Route
-            path="*"
-            element={
-              <motion.div
-                key="not-found"
-                initial="initial"
-                animate="animate"
-                exit="exit"
-                variants={pageVariants}
-                className="min-h-screen flex items-center justify-center"
-              >
-                <div className="text-center">
-                  <h1 className="text-4xl font-bold mb-4">404</h1>
-                  <p className="text-xl mb-4">Page not found</p>
-                  <Navigate to="/" replace />
+      {/* 🚨 BULLETPROOF FOOTER */}
+      {Footer ? (
+        <Footer />
+      ) : (
+        <footer className="bg-gray-800 text-white">
+          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
+            <div className="grid grid-cols-1 md:grid-cols-4 gap-8">
+              <div>
+                <h3 className="text-lg font-semibold mb-4">🚀 سوق السيارات</h3>
+                <p className="text-gray-300">Largest e-commerce platform in Egypt for cars, spare parts, and services</p>
+              </div>
+              <div>
+                <h4 className="text-md font-semibold mb-4">Quick Links</h4>
+                <ul className="space-y-2">
+                  <li><a href="/" className="text-gray-300 hover:text-white">Home</a></li>
+                  <li><a href="/marketplace" className="text-gray-300 hover:text-white">Marketplace</a></li>
+                  <li><a href="/vendors" className="text-gray-300 hover:text-white">Vendors</a></li>
+                  <li><a href="/about" className="text-gray-300 hover:text-white">About</a></li>
+                </ul>
+              </div>
+              <div>
+                <h4 className="text-md font-semibold mb-4">Services</h4>
+                <ul className="space-y-2">
+                  <li><a href="/vendor/apply" className="text-gray-300 hover:text-white">Become a Vendor</a></li>
+                  <li><a href="/support" className="text-gray-300 hover:text-white">Support</a></li>
+                  <li><a href="/contact" className="text-gray-300 hover:text-white">Contact</a></li>
+                </ul>
+              </div>
+              <div>
+                <h4 className="text-md font-semibold mb-4">Connect</h4>
+                <p className="text-gray-300">Follow us on social media</p>
+                <div className="flex space-x-4 mt-4">
+                  <a href="#" className="text-gray-300 hover:text-white">Facebook</a>
+                  <a href="#" className="text-gray-300 hover:text-white">Twitter</a>
+                  <a href="#" className="text-gray-300 hover:text-white">Instagram</a>
                 </div>
-              </motion.div>
-            }
-          />
-        </Routes>
-      </AnimatePresence>
+              </div>
+            </div>
+            <div className="border-t border-gray-700 mt-8 pt-8 text-center">
+              <p className="text-gray-300">&copy; 2024 Souk El-Syarat. All rights reserved.</p>
+            </div>
+          </div>
+        </footer>
+      )}
     </div>
   );
 };
