@@ -1,0 +1,68 @@
+# Firebase App Hosting Configuration
+# Professional configuration for Souk El-Syarat production deployment
+
+# Runtime configuration
+runtime:
+  nodejs: 20
+
+# Build configuration
+build:
+  installCommand: npm ci --production=false --silent
+  buildCommand: npm run build:deploy
+
+# Environment variables
+env:
+  - variable: NODE_ENV
+    value: production
+    availability: 
+      - BUILD
+      - RUNTIME
+      
+  - variable: CI
+    value: "true"
+    availability:
+      - BUILD
+
+# Static file serving configuration  
+serve:
+  staticFiles:
+    - source: dist
+      destination: /
+      
+# Health check configuration
+healthCheck:
+  path: /
+  
+# Performance configuration
+performance:
+  # Enable compression
+  compression: true
+  # Cache static assets for 1 year
+  staticAssetsCacheTTL: 31536000
+  # Cache HTML files for 1 hour
+  htmlCacheTTL: 3600
+
+# Security configuration
+security:
+  # Enable HTTPS redirect
+  httpsRedirect: true
+  # Security headers
+  headers:
+    - key: X-Content-Type-Options
+      value: nosniff
+    - key: X-Frame-Options  
+      value: DENY
+    - key: X-XSS-Protection
+      value: "1; mode=block"
+    - key: Strict-Transport-Security
+      value: max-age=31536000; includeSubDomains
+
+# Resource limits
+resources:
+  memory: 1Gi
+  cpu: 1
+
+# Scaling configuration
+scaling:
+  minInstances: 1
+  maxInstances: 10

@@ -1,11 +1,9 @@
-import React, { useState, useRef } from 'react';
-import { motion } from 'framer-motion';
+import React, { useState } from 'react';
+import { CloudArrowUpIcon, XMarkIcon } from '@heroicons/react/24/outline';
 import { useForm } from 'react-hook-form';
 import { yupResolver } from '@hookform/resolvers/yup';
 import * as yup from 'yup';
 import { useDropzone } from 'react-dropzone';
-import { CloudArrowUpIcon, CheckCircleIcon } from '@heroicons/react/24/outline';
-import { EgyptianSpinnerSmall } from '../ui/EgyptianSpinner';
 import { useAppStore } from '@/stores/appStore';
 import { useAuthStore } from '@/stores/authStore';
 import { ProductService } from '@/services/product.service';

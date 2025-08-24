@@ -1,19 +1,20 @@
-import React, { useEffect, useState } from 'react';
+import React from 'react';
 import { Link } from 'react-router-dom';
-import { motion, AnimatePresence } from 'framer-motion';
+import { motion } from 'framer-motion';
 import { 
-  ShoppingCartIcon, 
   StarIcon, 
-  UserGroupIcon, 
-  TruckIcon,
-  CheckBadgeIcon 
+  CheckBadgeIcon,
+  ArrowRightIcon 
 } from '@heroicons/react/24/outline';
-import {
-  LuxuryCarIcon,
-  PremiumEngineIcon,
-  LuxuryServiceIcon,
-  PremiumShieldIcon,
-} from '@/components/ui/ProfessionalIcons';
+import { ProductCard } from '../components/product/ProductCard';
+import { CategoryFilter } from '../components/filters/CategoryFilter';
+import { SearchFilters } from '../components/filters/SearchFilters';
+import { PaginationControls } from '../components/ui/PaginationControls';
+import { RecentlyViewedProducts } from '../components/product/RecentlyViewedProducts';
+import { FeaturedVendors } from '../components/vendor/FeaturedVendors';
+import { TestimonialCarousel } from '../components/testimonials/TestimonialCarousel';
+import { NewsletterSignup } from '../components/ui/NewsletterSignup';
+import { PerformanceMonitor } from '../components/monitoring/PerformanceMonitor';
 import { useAppStore } from '@/stores/appStore';
 import { EgyptianLoader } from '@/components/ui/LoadingSpinner';
 
