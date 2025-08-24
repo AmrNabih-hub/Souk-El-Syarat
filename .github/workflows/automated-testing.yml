@@ -37,8 +37,7 @@ jobs:
         run: npm ci
 
       - name: 🧪 Run unit tests
-        continue-on-error: true
-        run: npm run test:unit || npm run test
+        run: npm run test:unit
 
       - name: 💾 Upload test results
         uses: actions/upload-artifact@v4
@@ -74,8 +73,7 @@ jobs:
           sleep 15
 
       - name: 🧪 Run integration tests
-        continue-on-error: true
-        run: npm run test:integration || echo "Integration tests not configured"
+        run: npm run test:integration
 
       - name: 💾 Upload integration test results
         uses: actions/upload-artifact@v4
@@ -105,11 +103,10 @@ jobs:
         run: npm ci
 
       - name: 🏗️ Build application
-        continue-on-error: true
         run: npm run build
 
       - name: 🧪 Run E2E tests
-        run: npm run test:e2e || echo "E2E tests not configured"
+        run: npm run test:e2e
 
       - name: 💾 Upload E2E test results
         uses: actions/upload-artifact@v4
@@ -139,7 +136,6 @@ jobs:
         run: npm ci
 
       - name: 🏗️ Build application
-        continue-on-error: true
         run: npm run build
 
       - name: 📱 Run mobile tests
@@ -175,7 +171,6 @@ jobs:
         run: npm ci
 
       - name: 🏗️ Build application
-        continue-on-error: true
         run: npm run build
 
       - name: ⚡ Run performance tests

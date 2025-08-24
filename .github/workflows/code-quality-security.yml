@@ -43,20 +43,16 @@ jobs:
       - name: 📦 Install dependencies
         run: npm ci
 
-      - name: 🔍 Run ESLint
-        continue-on-error: true
-        run: npm run lint
+      - name: �� Run ESLint
+        run: npm run lint:ci
 
       - name: 🎨 Run Prettier check
-        continue-on-error: true
         run: npm run format:check
 
       - name: 🧪 Run TypeScript check
-        continue-on-error: true
-        run: npm run type-check
+        run: npm run type-check:ci
 
       - name: 📊 Run tests
-        continue-on-error: true
         run: npm run test:coverage
 
       - name: 💾 Upload coverage reports
@@ -137,8 +133,6 @@ jobs:
             p/javascript
             p/typescript
             p/react
-          output-format: sarif
-          output-file: semgrep-results.sarif
 
       - name: 💾 Upload SAST reports
         uses: actions/upload-artifact@v4
@@ -233,8 +227,6 @@ jobs:
         with:
           directory: ./
           framework: terraform,kubernetes,cloudformation,arm,serverless,helm
-          output: sarif
-          output-file-path: checkov-results.sarif
 
       - name: 🔍 Run Trivy
         uses: aquasecurity/trivy-action@master
