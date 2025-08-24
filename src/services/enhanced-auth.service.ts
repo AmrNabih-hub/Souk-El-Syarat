@@ -23,7 +23,7 @@ import {
   updateDoc,
   serverTimestamp,
 } from 'firebase/firestore';
-import { auth, db } from '../config/firebase.config';
+
 import { User, UserRole } from '@/types';
 
 export interface EnhancedAuthState {
@@ -98,9 +98,9 @@ export class EnhancedAuthService {
             const user: User = {
               id: firebaseUser.uid,
               ...userData,
-              createdAt: userData.createdAt?.toDate() || new Date(),
-              updatedAt: userData.updatedAt?.toDate() || new Date(),
-              lastLoginAt: userData.lastLoginAt?.toDate() || new Date(),
+              createdAt: userData.createdAt.toDate() || new Date(),
+              updatedAt: userData.updatedAt.toDate() || new Date(),
+              lastLoginAt: userData.lastLoginAt.toDate() || new Date(),
             };
 
             // Update last login time
@@ -369,9 +369,9 @@ export class EnhancedAuthService {
       return {
         id: firebaseUser.uid,
         ...userData,
-        createdAt: userData.createdAt?.toDate() || new Date(),
-        updatedAt: userData.updatedAt?.toDate() || new Date(),
-        lastLoginAt: userData.lastLoginAt?.toDate() || new Date(),
+        createdAt: userData.createdAt.toDate() || new Date(),
+        updatedAt: userData.updatedAt.toDate() || new Date(),
+        lastLoginAt: userData.lastLoginAt.toDate() || new Date(),
       };
     } catch (error) {
       throw new Error(this.getAuthErrorMessage(error.code));
@@ -414,9 +414,9 @@ export class EnhancedAuthService {
       return {
         id: firebaseUser.uid,
         ...userData,
-        createdAt: userData.createdAt?.toDate() || new Date(),
-        updatedAt: userData.updatedAt?.toDate() || new Date(),
-        lastLoginAt: userData.lastLoginAt?.toDate() || new Date(),
+        createdAt: userData.createdAt.toDate() || new Date(),
+        updatedAt: userData.updatedAt.toDate() || new Date(),
+        lastLoginAt: userData.lastLoginAt.toDate() || new Date(),
       };
     } catch (error) {
       throw new Error(this.getAuthErrorMessage(error.code));
@@ -450,9 +450,9 @@ export class EnhancedAuthService {
         return {
           id: firebaseUser.uid,
           ...userData,
-          createdAt: userData.createdAt?.toDate() || new Date(),
-          updatedAt: userData.updatedAt?.toDate() || new Date(),
-          lastLoginAt: userData.lastLoginAt?.toDate() || new Date(),
+          createdAt: userData.createdAt.toDate() || new Date(),
+          updatedAt: userData.updatedAt.toDate() || new Date(),
+          lastLoginAt: userData.lastLoginAt.toDate() || new Date(),
         };
       } else {
         // Create new user from Google sign-in

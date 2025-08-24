@@ -1,4 +1,3 @@
-import React, { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import {
   UsersIcon,
@@ -12,11 +11,11 @@ import {
   ChartBarIcon,
   DocumentCheckIcon,
 } from '@heroicons/react/24/outline';
-import { useAuthStore } from '@/stores/authStore';
+
 import { useAppStore } from '@/stores/appStore';
-import { VendorService } from '@/services/vendor.service';
+
 import { VendorApplication, Vendor } from '@/types';
-import LoadingSpinner, { EgyptianLoader } from '@/components/ui/LoadingSpinner';
+
 import toast from 'react-hot-toast';
 
 interface AdminStats {
@@ -74,7 +73,9 @@ const AdminDashboard: React.FC = () => {
       setApplications(pendingApps);
       setVendors(recentVendors);
     } catch (error) {
-      if (process.env.NODE_ENV === 'development') if (process.env.NODE_ENV === 'development') console.error('Error loading dashboard data:', error);
+      if (process.env.NODE_ENV === 'development')
+        if (process.env.NODE_ENV === 'development')
+          console.error('Error loading dashboard data:', error);
       toast.error(language === 'ar' ? 'خطأ في تحميل البيانات' : 'Error loading dashboard data');
     } finally {
       setIsLoading(false);
@@ -105,7 +106,9 @@ const AdminDashboard: React.FC = () => {
       setReviewNotes('');
       loadDashboardData(); // Reload data
     } catch (error) {
-      if (process.env.NODE_ENV === 'development') if (process.env.NODE_ENV === 'development') console.error('Error reviewing application:', error);
+      if (process.env.NODE_ENV === 'development')
+        if (process.env.NODE_ENV === 'development')
+          console.error('Error reviewing application:', error);
       toast.error(language === 'ar' ? 'خطأ في معالجة الطلب' : 'Error processing application');
     } finally {
       setIsProcessing(false);

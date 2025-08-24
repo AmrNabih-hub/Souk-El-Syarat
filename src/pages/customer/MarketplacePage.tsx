@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import {
   MagnifyingGlassIcon,
@@ -6,9 +6,9 @@ import {
   Squares2X2Icon,
   ListBulletIcon,
 } from '@heroicons/react/24/outline';
-import { useAppStore } from '@/stores/appStore';
+
 import { ProductService } from '@/services/product.service';
-import { Product, ProductCategory, ProductCondition, SearchFilters } from '@/types';
+
 import ProductCard from '@/components/product/ProductCard';
 import { EgyptianLoader } from '@/components/ui/LoadingSpinner';
 import toast from 'react-hot-toast';
@@ -86,7 +86,8 @@ const MarketplacePage: React.FC = () => {
 
       setProducts(moreProducts);
     } catch (error) {
-      if (process.env.NODE_ENV === 'development') if (process.env.NODE_ENV === 'development') console.error('Error loading products:', error);
+      if (process.env.NODE_ENV === 'development')
+        if (process.env.NODE_ENV === 'development') console.error('Error loading products:', error);
       toast.error(language === 'ar' ? 'خطأ في تحميل المنتجات' : 'Error loading products');
     } finally {
       setIsLoading(false);
@@ -121,24 +122,24 @@ const MarketplacePage: React.FC = () => {
       );
     }
 
-    if (filters.inStock !== undefined) {
+    if (filters.inStock !== null) {
       filtered = filtered.filter(product => product.inStock === filters.inStock);
     }
 
     switch (sortBy) {
       case 'price_low':
         filtered.sort((a, b) => a.price - b.price);
-        break;
+      //         break;
       case 'price_high':
         filtered.sort((a, b) => b.price - a.price);
-        break;
+      //         break;
       case 'popular':
         filtered.sort((a, b) => b.views - a.views);
-        break;
+      //         break;
       case 'newest':
       default:
         filtered.sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
-        break;
+      //         break;
     }
 
     setFilteredProducts(filtered);

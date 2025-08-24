@@ -3,24 +3,16 @@
  * Handles real-time updates using Firebase Realtime Database
  */
 
-import { db, realtimeDb } from '@/config/firebase.config';
-import { 
-  collection, 
-  query, 
-  where, 
-  orderBy, 
-  limit, 
+import {
+  collection,
+  query,
+  where,
+  orderBy,
+  limit,
   onSnapshot,
-  writeBatch
+  writeBatch,
 } from 'firebase/firestore';
-import { 
-  ref, 
-  set, 
-  push, 
-  onValue, 
-  update,
-  remove
-} from 'firebase/database';
+import { ref, set, push, onValue, update, remove } from 'firebase/database';
 
 export interface ChatMessage {
   id: string;
@@ -61,7 +53,9 @@ export class RealtimeService {
       await this.setUserOnline(userId, 'dashboard');
       // if (process.env.NODE_ENV === 'development') console.log('✅ Realtime services initialized for user:', userId);
     } catch (error) {
-      if (process.env.NODE_ENV === 'development') if (process.env.NODE_ENV === 'development') console.error('❌ Error initializing realtime services:', error);
+      if (process.env.NODE_ENV === 'development')
+        if (process.env.NODE_ENV === 'development')
+          console.error('❌ Error initializing realtime services:', error);
       throw error;
     }
   }
@@ -69,8 +63,8 @@ export class RealtimeService {
   // Listen to user presence
   listenToUserPresence(userId: string, callback: (presence: UserPresence) => void) {
     const userPresenceRef = ref(realtimeDb, `presence/${userId}`);
-    
-    const unsubscribe = onValue(userPresenceRef, (snapshot) => {
+
+    const unsubscribe = onValue(userPresenceRef, snapshot => {
       const data = snapshot.val();
       if (data) {
         callback({
@@ -78,7 +72,7 @@ export class RealtimeService {
           status: data.status || 'offline',
           lastSeen: new Date(data.lastSeen || Date.now()),
           currentPage: data.currentPage,
-          isTyping: data.isTyping || false
+          isTyping: data.isTyping || false,
         });
       }
     });
@@ -88,16 +82,18 @@ export class RealtimeService {
 
   // Listen to all users presence
   listenToAllUsersPresence(callback: (presenceList: UserPresence[]) => void) {
-    const unsubscribe = onValue(this.presenceRef, (snapshot) => {
+    const unsubscribe = onValue(this.presenceRef, snapshot => {
       const data = snapshot.val();
       if (data) {
-        const presenceList: UserPresence[] = Object.entries(data).map(([userId, userData]: [string, any]) => ({
-          userId,
-          status: userData.status || 'offline',
-          lastSeen: new Date(userData.lastSeen || Date.now()),
-          currentPage: userData.currentPage,
-          isTyping: userData.isTyping || false
-        }));
+        const presenceList: UserPresence[] = Object.entries(data).map(
+          ([userId, userData]: [string, any]) => ({
+            userId,
+            status: userData.status || 'offline',
+            lastSeen: new Date(userData.lastSeen || Date.now()),
+            currentPage: userData.currentPage,
+            isTyping: userData.isTyping || false,
+          })
+        );
         callback(presenceList);
       } else {
         callback([]);
@@ -114,11 +110,11 @@ export class RealtimeService {
       where('userId', '==', userId),
       orderBy('createdAt', 'desc')
     );
-    
-    return onSnapshot(q, (snapshot) => {
+
+    return onSnapshot(q, snapshot => {
       const notifications = snapshot.docs.map(doc => ({
         id: doc.id,
-        ...doc.data()
+        ...doc.data(),
       }));
       callback(notifications);
     });
@@ -126,16 +122,12 @@ export class RealtimeService {
 
   // Listen to activity feed
   listenToActivityFeed(callback: (activities: unknown[]) => void) {
-    const q = query(
-      collection(db, 'activities'),
-      orderBy('createdAt', 'desc'),
-      limit(50)
-    );
-    
-    return onSnapshot(q, (snapshot) => {
+    const q = query(collection(db, 'activities'), orderBy('createdAt', 'desc'), limit(50));
+
+    return onSnapshot(q, snapshot => {
       const activities = snapshot.docs.map(doc => ({
         id: doc.id,
-        ...doc.data()
+        ...doc.data(),
       }));
       callback(activities);
     });
@@ -149,10 +141,12 @@ export class RealtimeService {
         status: 'online',
         lastSeen: Date.now(),
         currentPage,
-        isTyping: false
+        isTyping: false,
       });
     } catch (error) {
-      if (process.env.NODE_ENV === 'development') if (process.env.NODE_ENV === 'development') console.error('❌ Error setting user online:', error);
+      if (process.env.NODE_ENV === 'development')
+        if (process.env.NODE_ENV === 'development')
+          console.error('❌ Error setting user online:', error);
       throw error;
     }
   }
@@ -163,10 +157,12 @@ export class RealtimeService {
       const userPresenceRef = ref(realtimeDb, `presence/${userId}`);
       await update(userPresenceRef, {
         status: 'offline',
-        lastSeen: Date.now()
+        lastSeen: Date.now(),
       });
     } catch (error) {
-      if (process.env.NODE_ENV === 'development') if (process.env.NODE_ENV === 'development') console.error('❌ Error setting user offline:', error);
+      if (process.env.NODE_ENV === 'development')
+        if (process.env.NODE_ENV === 'development')
+          console.error('❌ Error setting user offline:', error);
       throw error;
     }
   }
@@ -182,7 +178,7 @@ export class RealtimeService {
     try {
       const chatRef = ref(realtimeDb, `chat/${this.getChatId(senderId, receiverId)}`);
       const newMessageRef = push(chatRef);
-      
+
       const messageData: Omit<ChatMessage, 'id'> = {
         senderId,
         receiverId,
@@ -190,13 +186,15 @@ export class RealtimeService {
         timestamp: new Date(),
         read: false,
         type,
-        data: data || {}
+        data: data || {},
       };
 
       await set(newMessageRef, messageData);
       return newMessageRef.key || '';
     } catch (error) {
-      if (process.env.NODE_ENV === 'development') if (process.env.NODE_ENV === 'development') console.error('❌ Error sending message:', error);
+      if (process.env.NODE_ENV === 'development')
+        if (process.env.NODE_ENV === 'development')
+          console.error('❌ Error sending message:', error);
       throw error;
     }
   }
@@ -204,34 +202,45 @@ export class RealtimeService {
   // Mark message as read
   async markMessageAsRead(senderId: string, receiverId: string, messageId: string): Promise<void> {
     try {
-      const messageRef = ref(realtimeDb, `chat/${this.getChatId(senderId, receiverId)}/${messageId}`);
+      const messageRef = ref(
+        realtimeDb,
+        `chat/${this.getChatId(senderId, receiverId)}/${messageId}`
+      );
       await update(messageRef, {
-        read: true
+        read: true,
       });
     } catch (error) {
-      if (process.env.NODE_ENV === 'development') if (process.env.NODE_ENV === 'development') console.error('❌ Error marking message as read:', error);
+      if (process.env.NODE_ENV === 'development')
+        if (process.env.NODE_ENV === 'development')
+          console.error('❌ Error marking message as read:', error);
       throw error;
     }
   }
 
   // Listen to chat messages
-  listenToChatMessages(senderId: string, receiverId: string, callback: (messages: ChatMessage[]) => void) {
+  listenToChatMessages(
+    senderId: string,
+    receiverId: string,
+    callback: (messages: ChatMessage[]) => void
+  ) {
     const chatRef = ref(realtimeDb, `chat/${this.getChatId(senderId, receiverId)}`);
-    
-    const unsubscribe = onValue(chatRef, (snapshot) => {
+
+    const unsubscribe = onValue(chatRef, snapshot => {
       const data = snapshot.val();
       if (data) {
-        const messages: ChatMessage[] = Object.entries(data).map(([id, messageData]: [string, any]) => ({
-          id,
-          senderId: messageData.senderId,
-          receiverId: messageData.receiverId,
-          message: messageData.message,
-          timestamp: new Date(messageData.timestamp),
-          read: messageData.read || false,
-          type: messageData.type || 'text',
-          data: messageData.data || {}
-        }));
-        
+        const messages: ChatMessage[] = Object.entries(data).map(
+          ([id, messageData]: [string, any]) => ({
+            id,
+            senderId: messageData.senderId,
+            receiverId: messageData.receiverId,
+            message: messageData.message,
+            timestamp: new Date(messageData.timestamp),
+            read: messageData.read || false,
+            type: messageData.type || 'text',
+            data: messageData.data || {},
+          })
+        );
+
         // Sort by timestamp
         messages.sort((a, b) => a.timestamp.getTime() - b.timestamp.getTime());
         callback(messages);
@@ -246,7 +255,7 @@ export class RealtimeService {
   // Listen to user orders
   listenToUserOrders(userId: string, userRole: string, callback: (orders: unknown[]) => void) {
     let q;
-    
+
     if (userRole === 'vendor') {
       q = query(
         collection(db, 'orders'),
@@ -260,11 +269,11 @@ export class RealtimeService {
         orderBy('createdAt', 'desc')
       );
     }
-    
-    return onSnapshot(q, (snapshot) => {
+
+    return onSnapshot(q, snapshot => {
       const orders = snapshot.docs.map(doc => ({
         id: doc.id,
-        ...doc.data()
+        ...doc.data(),
       }));
       callback(orders);
     });
@@ -277,11 +286,11 @@ export class RealtimeService {
       where('vendorId', '==', vendorId),
       orderBy('createdAt', 'desc')
     );
-    
-    return onSnapshot(q, (snapshot) => {
+
+    return onSnapshot(q, snapshot => {
       const products = snapshot.docs.map(doc => ({
         id: doc.id,
-        ...doc.data()
+        ...doc.data(),
       }));
       callback(products);
     });
@@ -290,8 +299,8 @@ export class RealtimeService {
   // Listen to analytics
   listenToAnalytics(callback: (analytics: unknown) => void) {
     const analyticsRef = ref(realtimeDb, 'analytics');
-    
-    const unsubscribe = onValue(analyticsRef, (snapshot) => {
+
+    const unsubscribe = onValue(analyticsRef, snapshot => {
       const data = snapshot.val();
       callback(data || {});
     });
@@ -304,14 +313,16 @@ export class RealtimeService {
     try {
       const activityRef = ref(realtimeDb, `activity/${userId}`);
       const newActivityRef = push(activityRef);
-      
+
       await set(newActivityRef, {
         type,
         data,
-        timestamp: Date.now()
+        timestamp: Date.now(),
       });
     } catch (error) {
-      if (process.env.NODE_ENV === 'development') if (process.env.NODE_ENV === 'development') console.error('❌ Error adding activity:', error);
+      if (process.env.NODE_ENV === 'development')
+        if (process.env.NODE_ENV === 'development')
+          console.error('❌ Error adding activity:', error);
       throw error;
     }
   }
@@ -322,10 +333,12 @@ export class RealtimeService {
       const userPresenceRef = ref(realtimeDb, `presence/${userId}`);
       await update(userPresenceRef, {
         isTyping,
-        lastSeen: Date.now()
+        lastSeen: Date.now(),
       });
     } catch (error) {
-      if (process.env.NODE_ENV === 'development') if (process.env.NODE_ENV === 'development') console.error('❌ Error updating typing status:', error);
+      if (process.env.NODE_ENV === 'development')
+        if (process.env.NODE_ENV === 'development')
+          console.error('❌ Error updating typing status:', error);
       throw error;
     }
   }

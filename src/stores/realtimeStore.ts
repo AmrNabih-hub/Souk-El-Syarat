@@ -3,11 +3,10 @@
  * Manages real-time data using Zustand with Firebase integration
  */
 
-import { create } from 'zustand';
 import { subscribeWithSelector } from 'zustand/middleware';
-import { RealtimeService, ChatMessage, UserPresence } from '@/services/realtime.service';
+
 import { PushNotificationService } from '@/services/push-notification.service';
-import { AuthService } from '@/services/auth.service';
+
 import { Unsubscribe } from 'firebase/firestore';
 
 interface RealtimeState {
@@ -156,7 +155,9 @@ export const useRealtimeStore = create<RealtimeState>()(
 
         // if (process.env.NODE_ENV === 'development') console.log('✅ Real-time services initialized successfully');
       } catch (error) {
-        if (process.env.NODE_ENV === 'development') if (process.env.NODE_ENV === 'development') console.error('❌ Failed to initialize real-time services:', error);
+        if (process.env.NODE_ENV === 'development')
+          if (process.env.NODE_ENV === 'development')
+            console.error('❌ Failed to initialize real-time services:', error);
         set({ isConnected: false });
       }
     },
@@ -171,7 +172,9 @@ export const useRealtimeStore = create<RealtimeState>()(
           unsubscribe();
           // if (process.env.NODE_ENV === 'development') console.log(`✅ Cleaned up listener: ${key}`);
         } catch (error) {
-          if (process.env.NODE_ENV === 'development') if (process.env.NODE_ENV === 'development') console.error(`❌ Error cleaning up listener ${key}:`, error);
+          if (process.env.NODE_ENV === 'development')
+            if (process.env.NODE_ENV === 'development')
+              console.error(`❌ Error cleaning up listener ${key}:`, error);
         }
       });
 
@@ -244,7 +247,9 @@ export const useRealtimeStore = create<RealtimeState>()(
 
         // if (process.env.NODE_ENV === 'development') console.log('✅ Message sent successfully');
       } catch (error) {
-        if (process.env.NODE_ENV === 'development') if (process.env.NODE_ENV === 'development') console.error('❌ Failed to send message:', error);
+        if (process.env.NODE_ENV === 'development')
+          if (process.env.NODE_ENV === 'development')
+            console.error('❌ Failed to send message:', error);
         throw error;
       }
     },
@@ -265,7 +270,9 @@ export const useRealtimeStore = create<RealtimeState>()(
           },
         }));
       } catch (error) {
-        if (process.env.NODE_ENV === 'development') if (process.env.NODE_ENV === 'development') console.error('❌ Failed to mark message as read:', error);
+        if (process.env.NODE_ENV === 'development')
+          if (process.env.NODE_ENV === 'development')
+            console.error('❌ Failed to mark message as read:', error);
       }
     },
 
@@ -368,7 +375,9 @@ export const useRealtimeStore = create<RealtimeState>()(
 
         await RealtimeService.addActivity(currentUser.id, type as any, data);
       } catch (error) {
-        if (process.env.NODE_ENV === 'development') if (process.env.NODE_ENV === 'development') console.error('❌ Failed to add activity:', error);
+        if (process.env.NODE_ENV === 'development')
+          if (process.env.NODE_ENV === 'development')
+            console.error('❌ Failed to add activity:', error);
       }
     },
   }))

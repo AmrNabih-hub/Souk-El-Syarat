@@ -3,7 +3,6 @@
  * Enterprise-grade performance monitoring and optimization
  */
 
-import { useEffect, useCallback, useState, useMemo } from 'react';
 import React from 'react';
 import { useInView } from 'react-intersection-observer';
 
@@ -104,7 +103,11 @@ export const useDebounce = <T>(value: T, delay: number): T => {
 };
 
 // Memory-efficient list virtualization
-export const useVirtualization = (items: unknown[], itemHeight: number, containerHeight: number) => {
+export const useVirtualization = <T extends Record<string, unknown>>(
+  items: T[],
+  itemHeight: number,
+  containerHeight: number
+) => {
   const [scrollTop, setScrollTop] = useState(0);
 
   const visibleItems = useMemo(() => {
@@ -141,7 +144,9 @@ export const useServiceWorker = () => {
           const registration = await navigator.serviceWorker.register('/sw.js');
           // if (process.env.NODE_ENV === 'development') console.log('Service Worker registered:', registration);
         } catch (error) {
-          if (process.env.NODE_ENV === 'development') if (process.env.NODE_ENV === 'development') console.error('Service Worker registration failed:', error);
+          if (process.env.NODE_ENV === 'development')
+            if (process.env.NODE_ENV === 'development')
+              console.error('Service Worker registration failed:', error);
         }
       });
     }

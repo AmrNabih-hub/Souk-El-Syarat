@@ -3,7 +3,8 @@
  * Handles all types of notifications with real-time delivery
  */
 
-import { db } from '@/config/firebase.config';
+
+import { Notification, NotificationType } from '@/types';
 import { 
   collection, 
   doc, 
@@ -17,7 +18,9 @@ import {
   orderBy, 
   limit, 
   onSnapshot,
-  writeBatch
+  writeBatch,
+  serverTimestamp,
+  Timestamp
 } from 'firebase/firestore';
 
 export class NotificationService {
@@ -41,7 +44,7 @@ export class NotificationService {
       });
       return docRef.id;
     } catch (error) {
-      if (process.env.NODE_ENV === 'development') if (process.env.NODE_ENV === 'development') console.error('Error creating notification:', error);
+      if (process.env.NODE_ENV === 'development') console.error('Error creating notification:', error);
       throw new Error('Failed to create notification');
     }
   }
@@ -55,12 +58,16 @@ export class NotificationService {
         orderBy('createdAt', 'desc')
       );
       const snapshot = await getDocs(q);
-      return snapshot.docs.map(doc => ({
-        id: doc.id,
-        ...doc.data()
-      })) as Notification[];
+      return snapshot.docs.map(doc => {
+        const data = doc.data();
+        return {
+          id: doc.id,
+          ...(data as any),
+          createdAt: data.createdAt.toDate() || new Date(),
+        } as Notification;
+      });
     } catch (error) {
-      if (process.env.NODE_ENV === 'development') if (process.env.NODE_ENV === 'development') console.error('Error getting user notifications:', error);
+      if (process.env.NODE_ENV === 'development') console.error('Error getting user notifications:', error);
       throw new Error('Failed to get user notifications');
     }
   }
@@ -124,10 +131,14 @@ export class NotificationService {
     );
     
     return onSnapshot(q, (snapshot) => {
-      const notifications = snapshot.docs.map(doc => ({
-        id: doc.id,
-        ...doc.data()
-      })) as Notification[];
+      const notifications = snapshot.docs.map(doc => {
+        const data = doc.data();
+        return {
+          id: doc.id,
+          ...(data as any),
+          createdAt: data.createdAt.toDate() || new Date(),
+        } as Notification;
+      });
       callback(notifications);
     });
   }
@@ -222,12 +233,16 @@ export class NotificationService {
         orderBy('createdAt', 'desc')
       );
       const snapshot = await getDocs(q);
-      return snapshot.docs.map(doc => ({
-        id: doc.id,
-        ...doc.data()
-      })) as Notification[];
+      return snapshot.docs.map(doc => {
+        const data = doc.data();
+        return {
+          id: doc.id,
+          ...(data as any),
+          createdAt: data.createdAt.toDate() || new Date(),
+        } as Notification;
+      });
     } catch (error) {
-      if (process.env.NODE_ENV === 'development') if (process.env.NODE_ENV === 'development') console.error('Error getting notifications by type:', error);
+      if (process.env.NODE_ENV === 'development') console.error('Error getting notifications by type:', error);
       throw new Error('Failed to get notifications by type');
     }
   }
@@ -242,19 +257,149 @@ export class NotificationService {
         limit(limitCount)
       );
       const snapshot = await getDocs(q);
-      return snapshot.docs.map(doc => ({
-        id: doc.id,
-        ...doc.data()
-      })) as Notification[];
+      return snapshot.docs.map(doc => {
+        const data = doc.data();
+        return {
+          id: doc.id,
+          ...(data as any),
+          createdAt: data.createdAt.toDate() || new Date(),
+        } as Notification;
+      });
     } catch (error) {
-      if (process.env.NODE_ENV === 'development') if (process.env.NODE_ENV === 'development') console.error('Error getting recent notifications:', error);
+      if (process.env.NODE_ENV === 'development') console.error('Error getting recent notifications:', error);
       throw new Error('Failed to get recent notifications');
     }
+  }
+
+  // Subscribe to user notifications with real-time updates
+  static subscribeToUserNotifications(userId: string, callback: (notifications: Notification[]) => void) {
+    return NotificationService.getInstance().subscribeToUserNotifications(userId, callback);
+  }
+
+  subscribeToUserNotifications(userId: string, callback: (notifications: Notification[]) => void) {
+    const q = query(
+      this.notificationsCollection,
+      where('userId', '==', userId),
+      orderBy('createdAt', 'desc')
+    );
+    
+    return onSnapshot(q, (snapshot) => {
+      const notifications = snapshot.docs.map(doc => {
+        const data = doc.data();
+        return {
+          id: doc.id,
+          ...(data as any),
+          createdAt: data.createdAt.toDate() || new Date(),
+        } as Notification;
+      });
+      callback(notifications);
+    });
+  }
+
+  // Subscribe to unread notification count
+  static subscribeToUnreadCount(userId: string, callback: (count: number) => void) {
+    return NotificationService.getInstance().subscribeToUnreadCount(userId, callback);
+  }
+
+  subscribeToUnreadCount(userId: string, callback: (count: number) => void) {
+    const q = query(
+      this.notificationsCollection,
+      where('userId', '==', userId),
+      where('read', '==', false)
+    );
+    
+    return onSnapshot(q, (snapshot) => {
+      callback(snapshot.size);
+    });
+  }
+
+  // Mark notification as read
+  static async markAsRead(notificationId: string): Promise<void> {
+    return await NotificationService.getInstance().markAsRead(notificationId);
+  }
+
+  async markAsRead(notificationId: string): Promise<void> {
+    try {
+      const notificationRef = doc(this.notificationsCollection, notificationId);
+      await updateDoc(notificationRef, {
+        read: true,
+        updatedAt: serverTimestamp()
+      });
+    } catch (error) {
+      if (process.env.NODE_ENV === 'development') console.error('Error marking notification as read:', error);
+      throw new Error('Failed to mark notification as read');
+    }
+  }
+
+  // Mark all notifications as read for a user
+  static async markAllAsRead(userId: string): Promise<void> {
+    return await NotificationService.getInstance().markAllAsRead(userId);
+  }
+
+  async markAllAsRead(userId: string): Promise<void> {
+    try {
+      const q = query(
+        this.notificationsCollection,
+        where('userId', '==', userId),
+        where('read', '==', false)
+      );
+      const snapshot = await getDocs(q);
+      
+      const batch = writeBatch(db);
+      snapshot.docs.forEach(doc => {
+        batch.update(doc.ref, {
+          read: true,
+          updatedAt: serverTimestamp()
+        });
+      });
+      
+      await batch.commit();
+    } catch (error) {
+      if (process.env.NODE_ENV === 'development') console.error('Error marking all notifications as read:', error);
+      throw new Error('Failed to mark all notifications as read');
+    }
+  }
+
+  // Additional static methods for compatibility
+  static async sendVendorApprovalNotification(vendorId: string, status: string, message: string) {
+    const instance = NotificationService.getInstance();
+    return await instance.createNotification({
+      userId: vendorId,
+      title: 'Vendor Application Update',
+      message: `Your vendor application has been ${status}. ${message}`,
+      type: 'vendor_application',
+      read: false,
+    });
+  }
+
+  static async sendSystemNotification(notification: { title: string; message: string; userId: string }) {
+    const instance = NotificationService.getInstance();
+    return await instance.createNotification({
+      ...notification,
+      type: 'system',
+      read: false,
+    });
+  }
+
+  static async sendTemplatedNotification(userId: string, template: string, language: string, data: Record<string, unknown>) {
+    const instance = NotificationService.getInstance();
+    return await instance.createNotification({
+      userId,
+      title: `Notification (${language})`,
+      message: `Template: ${template}`,
+      type: 'system',
+      read: false,
+      data,
+    });
+  }
+
+  static async createNotification(notification: Omit<Notification, 'id' | 'createdAt' | 'updatedAt'>) {
+    const instance = NotificationService.getInstance();
+    return await instance.createNotification(notification);
   }
 }
 
 // Export singleton instance
 export const notificationService = NotificationService.getInstance();
 
-// Export types
-export type { Notification, NotificationType };
+// Types imported from @/types

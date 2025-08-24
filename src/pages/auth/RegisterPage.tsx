@@ -1,8 +1,9 @@
-import React, { useState } from 'react';
+import React from 'react';
+import { useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { motion } from 'framer-motion';
+
 import { useForm } from 'react-hook-form';
-import { yupResolver } from '@hookform/resolvers/yup';
+
 import * as yup from 'yup';
 import {
   EyeIcon,
@@ -12,7 +13,7 @@ import {
   EnvelopeIcon,
   UserCircleIcon,
 } from '@heroicons/react/24/outline';
-import { useAuthStore } from '@/stores/authStore';
+
 import { useAppStore } from '@/stores/appStore';
 import LoadingSpinner from '@/components/ui/LoadingSpinner';
 import toast from 'react-hot-toast';

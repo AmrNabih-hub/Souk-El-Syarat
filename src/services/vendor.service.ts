@@ -14,7 +14,7 @@ import {
   DocumentSnapshot,
   serverTimestamp,
 } from 'firebase/firestore';
-import { ref, uploadBytes, getDownloadURL, deleteObject } from 'firebase/storage';
+
 import { db, storage } from './firebase';
 import { Vendor, VendorStatus, BusinessType, VendorApplication } from '@/types';
 
@@ -132,11 +132,11 @@ export class VendorService {
       if (docSnap.exists()) {
         const data = docSnap.data();
         return {
-          ...data,
-          appliedDate: data.appliedDate?.toDate() || new Date(),
-          reviewedDate: data.reviewedDate?.toDate() || null,
-          createdAt: data.createdAt?.toDate() || new Date(),
-          updatedAt: data.updatedAt?.toDate() || new Date(),
+          ...(data as any),
+          appliedDate: data.appliedDate.toDate() || new Date(),
+          reviewedDate: data.reviewedDate.toDate() || new Date() || null,
+          createdAt: data.createdAt.toDate() || new Date(),
+          updatedAt: data.updatedAt.toDate() || new Date(),
         } as VendorApplication;
       }
       return null;
@@ -161,11 +161,11 @@ export class VendorService {
       return querySnapshot.docs.map(doc => {
         const data = doc.data();
         return {
-          ...data,
-          appliedDate: data.appliedDate?.toDate() || new Date(),
-          reviewedDate: data.reviewedDate?.toDate() || null,
-          createdAt: data.createdAt?.toDate() || new Date(),
-          updatedAt: data.updatedAt?.toDate() || new Date(),
+          ...(data as any),
+          appliedDate: data.appliedDate.toDate() || new Date(),
+          reviewedDate: data.reviewedDate.toDate() || new Date() || null,
+          createdAt: data.createdAt.toDate() || new Date(),
+          updatedAt: data.updatedAt.toDate() || new Date(),
         } as VendorApplication;
       });
     } catch (error) {
@@ -206,11 +206,11 @@ export class VendorService {
       const applications = querySnapshot.docs.map(doc => {
         const data = doc.data();
         return {
-          ...data,
-          appliedDate: data.appliedDate?.toDate() || new Date(),
-          reviewedDate: data.reviewedDate?.toDate() || null,
-          createdAt: data.createdAt?.toDate() || new Date(),
-          updatedAt: data.updatedAt?.toDate() || new Date(),
+          ...(data as any),
+          appliedDate: data.appliedDate.toDate() || new Date(),
+          reviewedDate: data.reviewedDate.toDate() || new Date() || null,
+          createdAt: data.createdAt.toDate() || new Date(),
+          updatedAt: data.updatedAt.toDate() || new Date(),
         } as VendorApplication;
       });
 
@@ -319,11 +319,11 @@ export class VendorService {
       if (docSnap.exists()) {
         const data = docSnap.data();
         return {
-          ...data,
-          joinedDate: data.joinedDate?.toDate() || new Date(),
-          lastActive: data.lastActive?.toDate() || new Date(),
-          createdAt: data.createdAt?.toDate() || new Date(),
-          updatedAt: data.updatedAt?.toDate() || new Date(),
+          ...(data as any),
+          joinedDate: data.joinedDate.toDate() || new Date(),
+          lastActive: data.lastActive.toDate() || new Date(),
+          createdAt: data.createdAt.toDate() || new Date(),
+          updatedAt: data.updatedAt.toDate() || new Date(),
         } as Vendor;
       }
       return null;
@@ -348,11 +348,11 @@ export class VendorService {
       if (!querySnapshot.empty) {
         const data = querySnapshot.docs[0].data();
         return {
-          ...data,
-          joinedDate: data.joinedDate?.toDate() || new Date(),
-          lastActive: data.lastActive?.toDate() || new Date(),
-          createdAt: data.createdAt?.toDate() || new Date(),
-          updatedAt: data.updatedAt?.toDate() || new Date(),
+          ...(data as any),
+          joinedDate: data.joinedDate.toDate() || new Date(),
+          lastActive: data.lastActive.toDate() || new Date(),
+          createdAt: data.createdAt.toDate() || new Date(),
+          updatedAt: data.updatedAt.toDate() || new Date(),
         } as Vendor;
       }
       return null;
@@ -394,11 +394,11 @@ export class VendorService {
       const vendors = querySnapshot.docs.map(doc => {
         const data = doc.data();
         return {
-          ...data,
-          joinedDate: data.joinedDate?.toDate() || new Date(),
-          lastActive: data.lastActive?.toDate() || new Date(),
-          createdAt: data.createdAt?.toDate() || new Date(),
-          updatedAt: data.updatedAt?.toDate() || new Date(),
+          ...(data as any),
+          joinedDate: data.joinedDate.toDate() || new Date(),
+          lastActive: data.lastActive.toDate() || new Date(),
+          createdAt: data.createdAt.toDate() || new Date(),
+          updatedAt: data.updatedAt.toDate() || new Date(),
         } as Vendor;
       });
 
@@ -494,11 +494,11 @@ export class VendorService {
       const vendors = querySnapshot.docs.map(doc => {
         const data = doc.data();
         return {
-          ...data,
-          joinedDate: data.joinedDate?.toDate() || new Date(),
-          lastActive: data.lastActive?.toDate() || new Date(),
-          createdAt: data.createdAt?.toDate() || new Date(),
-          updatedAt: data.updatedAt?.toDate() || new Date(),
+          ...(data as any),
+          joinedDate: data.joinedDate.toDate() || new Date(),
+          lastActive: data.lastActive.toDate() || new Date(),
+          createdAt: data.createdAt.toDate() || new Date(),
+          updatedAt: data.updatedAt.toDate() || new Date(),
         } as Vendor;
       });
 

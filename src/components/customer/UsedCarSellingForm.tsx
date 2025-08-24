@@ -1,35 +1,13 @@
-import React, { useState } from 'react';
 import { CloudArrowUpIcon, XMarkIcon } from '@heroicons/react/24/outline';
-import { useForm } from 'react-hook-form';
+
 import { yupResolver } from '@hookform/resolvers/yup';
 import * as yup from 'yup';
-import { useDropzone } from 'react-dropzone';
+
 import { useAppStore } from '@/stores/appStore';
-import { useAuthStore } from '@/stores/authStore';
+
 import { ProductService } from '@/services/product.service';
 import LoadingSpinner from '@/components/ui/LoadingSpinner';
 import toast from 'react-hot-toast';
-
-interface UsedCarFormData {
-  title: string;
-  description: string;
-  price: number;
-  make: string;
-  model: string;
-  year: number;
-  mileage: number;
-  fuelType: string;
-  transmission: string;
-  bodyType: string;
-  color: string;
-  engineSize: number;
-  doors: number;
-  seats: number;
-  images: File[];
-  contactPhone: string;
-  location: string;
-  agreedToTerms: boolean;
-}
 
 const usedCarSchema = yup.object().shape({
   title: yup.string().min(10).required(),
@@ -55,6 +33,8 @@ const usedCarSchema = yup.object().shape({
   location: yup.string().required(),
   agreedToTerms: yup.boolean().oneOf([true]).required(),
 });
+
+type UsedCarFormData = yup.InferType<typeof usedCarSchema>;
 
 const UsedCarSellingForm: React.FC = () => {
   const { language } = useAppStore();
@@ -109,7 +89,7 @@ const UsedCarSellingForm: React.FC = () => {
   const onSubmit = async (data: UsedCarFormData) => {
     if (!user) {
       toast.error(language === 'ar' ? 'يجب تسجيل الدخول أولاً' : 'Please login first');
-      return;
+      //       return;
     }
 
     try {
@@ -152,7 +132,9 @@ const UsedCarSellingForm: React.FC = () => {
       setUploadedImages([]);
       setImagePreviewUrls([]);
     } catch (error) {
-      if (process.env.NODE_ENV === 'development') if (process.env.NODE_ENV === 'development') console.error('Error submitting used car:', error);
+      if (process.env.NODE_ENV === 'development')
+        if (process.env.NODE_ENV === 'development')
+          console.error('Error submitting used car:', error);
       toast.error(language === 'ar' ? 'حدث خطأ أثناء إضافة السيارة' : 'Error adding used car');
     } finally {
       setIsSubmitting(false);

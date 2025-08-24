@@ -1,4 +1,3 @@
-import React, { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import {
   XMarkIcon,
@@ -14,9 +13,9 @@ import {
   ChevronLeftIcon,
   ChevronRightIcon,
 } from '@heroicons/react/24/outline';
-import { HeartIcon as HeartSolid } from '@heroicons/react/24/solid';
+
 import { Product, CarProduct } from '@/types';
-import { useAppStore } from '@/stores/appStore';
+
 import { useAuthStore } from '@/stores/authStore';
 import toast from 'react-hot-toast';
 
@@ -48,7 +47,7 @@ const ProductDetailModal: React.FC<ProductDetailModalProps> = ({
   const handleToggleFavorite = () => {
     if (!user) {
       toast.error(language === 'ar' ? 'يجب تسجيل الدخول أولاً' : 'Please login first');
-      return;
+      //       return;
     }
 
     if (isProductFavorite) {
@@ -65,7 +64,7 @@ const ProductDetailModal: React.FC<ProductDetailModalProps> = ({
   const handleAddToCart = () => {
     if (!user) {
       toast.error(language === 'ar' ? 'يجب تسجيل الدخول أولاً' : 'Please login first');
-      return;
+      //       return;
     }
 
     onAddToCart?.(product.id, quantity);

@@ -3,7 +3,6 @@
  * Comprehensive product information display with image gallery
  */
 
-import React, { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import {
   XMarkIcon,
@@ -17,10 +16,10 @@ import {
   ShieldCheckIcon,
   EyeIcon,
 } from '@heroicons/react/24/outline';
-import { HeartIcon as HeartSolidIcon } from '@heroicons/react/24/solid';
+
 import clsx from 'clsx';
 import { Product } from '@/types';
-import { useAppStore } from '@/stores/appStore';
+
 // import { useAuthStore } from '@/stores/authStore';
 
 interface EnhancedProductDetailsModalProps {

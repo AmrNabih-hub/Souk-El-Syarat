@@ -3,9 +3,8 @@
  * Tests all real-time functionality and error handling
  */
 
-import { describe, it, expect, beforeEach, afterEach, vi, Mock } from 'vitest';
 import { RealtimeService } from '@/services/realtime.service';
-import { realtimeDb } from '@/config/firebase.config';
+
 import { Notification } from '@/types';
 
 // Mock Firebase modules
@@ -45,7 +44,7 @@ describe('RealtimeService', () => {
     vi.clearAllMocks();
 
     // Reset singleton instance
-    (RealtimeService as any).instance = undefined;
+    (RealtimeService as any).instance = null;
 
     mockUnsubscribe = vi.fn();
     mockOnSnapshot = vi.fn().mockReturnValue(mockUnsubscribe);

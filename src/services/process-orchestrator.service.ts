@@ -1,8 +1,7 @@
-import { onSnapshot, collection, query, where } from 'firebase/firestore';
 import { db } from './firebase';
-import { NotificationService } from './notification.service';
+
 import { OrderService } from './order.service';
-import { AnalyticsService } from './analytics.service';
+
 import { MessagingService } from './messaging.service';
 
 export interface ProcessEvent {
@@ -489,7 +488,9 @@ export class ProcessOrchestratorService {
         await this.executeWorkflow(workflow, event);
       }
     } catch (error) {
-      if (process.env.NODE_ENV === 'development') if (process.env.NODE_ENV === 'development') console.error('Error triggering workflow:', error);
+      if (process.env.NODE_ENV === 'development')
+        if (process.env.NODE_ENV === 'development')
+          console.error('Error triggering workflow:', error);
       // Track error in analytics
       await AnalyticsService.trackMetric('error', 'workflow_trigger_error', 1, 'count', {
         eventType,
@@ -523,7 +524,9 @@ export class ProcessOrchestratorService {
         },
       });
     } catch (error) {
-      if (process.env.NODE_ENV === 'development') if (process.env.NODE_ENV === 'development') console.error(`Error executing workflow ${workflow.id}:`, error);
+      if (process.env.NODE_ENV === 'development')
+        if (process.env.NODE_ENV === 'development')
+          console.error(`Error executing workflow ${workflow.id}:`, error);
 
       // Track workflow error
       await AnalyticsService.trackMetric('error', 'workflow_execution_error', 1, 'count', {
@@ -548,33 +551,35 @@ export class ProcessOrchestratorService {
       switch (step.type) {
         case 'notification':
           await this.executeNotificationStep(step, event);
-          break;
+        //           break;
 
         case 'status_update':
           await this.executeStatusUpdateStep(step, event);
-          break;
+        //           break;
 
         case 'analytics':
           await this.executeAnalyticsStep(step, event);
-          break;
+        //           break;
 
         case 'messaging':
           await this.executeMessagingStep(step, event);
-          break;
+        //           break;
 
         case 'validation':
           await this.executeValidationStep(step, event);
-          break;
+        //           break;
 
         case 'external_api':
           await this.executeExternalApiStep(step, event);
-          break;
+        //           break;
 
         default:
-          // if (process.env.NODE_ENV === 'development') console.warn(`Unknown step type: ${step.type}`);
+        // if (process.env.NODE_ENV === 'development') console.warn(`Unknown step type: ${step.type}`);
       }
     } catch (error) {
-      if (process.env.NODE_ENV === 'development') if (process.env.NODE_ENV === 'development') console.error(`Error executing step ${step.id}:`, error);
+      if (process.env.NODE_ENV === 'development')
+        if (process.env.NODE_ENV === 'development')
+          console.error(`Error executing step ${step.id}:`, error);
 
       // Retry logic if configured
       if (step.retryConfig) {
@@ -603,18 +608,18 @@ export class ProcessOrchestratorService {
       switch (recipient) {
         case 'admin':
           userId = 'admin_user_id'; // Should be configured
-          break;
+        //           break;
         case 'vendor':
           userId = event.data.vendorId || event.triggeredBy;
-          break;
+        //           break;
         case 'customer':
           userId = event.data.customerId || event.triggeredBy;
-          break;
+        //           break;
         case 'applicant':
         case 'user':
         default:
           userId = event.triggeredBy;
-          break;
+        //           break;
       }
 
       await NotificationService.sendTemplatedNotification(userId, template, language, {
@@ -641,17 +646,17 @@ export class ProcessOrchestratorService {
             `Status updated by workflow: ${step.name}`
           );
         }
-        break;
+      //         break;
 
       case 'product':
         if (action === 'decrease_inventory' && event.data.items) {
           // This would be handled by OrderService.createOrder
           // if (process.env.NODE_ENV === 'development') console.log('Inventory update handled by order creation');
         }
-        break;
+      //         break;
 
       default:
-        // if (process.env.NODE_ENV === 'development') console.warn(`Unknown entity type for status update: ${entity}`);
+      // if (process.env.NODE_ENV === 'development') console.warn(`Unknown entity type for status update: ${entity}`);
     }
   }
 
@@ -782,9 +787,11 @@ export class ProcessOrchestratorService {
         await this.executeWorkflowStep(step, event, workflow);
 
         // if (process.env.NODE_ENV === 'development') console.log(`Step ${step.id} succeeded on retry attempt ${attempt}`);
-        return;
+        //         return;
       } catch (retryError) {
-        if (process.env.NODE_ENV === 'development') if (process.env.NODE_ENV === 'development') console.error(`Retry attempt ${attempt} failed for step ${step.id}:`, retryError);
+        if (process.env.NODE_ENV === 'development')
+          if (process.env.NODE_ENV === 'development')
+            console.error(`Retry attempt ${attempt} failed for step ${step.id}:`, retryError);
 
         if (attempt === maxRetries) {
           throw new Error(`Step ${step.id} failed after ${maxRetries} retries: ${error.message}`);
@@ -813,7 +820,7 @@ export class ProcessOrchestratorService {
             role: 'vendor' as const,
           }
         );
-        break;
+      //         break;
 
       case 'vendor_customer':
         participants.push(
@@ -828,7 +835,7 @@ export class ProcessOrchestratorService {
             role: 'customer' as const,
           }
         );
-        break;
+      //         break;
 
       case 'customer_support':
         participants.push(
@@ -843,7 +850,7 @@ export class ProcessOrchestratorService {
             role: 'admin' as const,
           }
         );
-        break;
+      //         break;
     }
 
     return participants;

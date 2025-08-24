@@ -3,9 +3,8 @@
  * Integration testing for the main landing page
  */
 
-import { describe, it, expect, vi } from 'vitest';
 import { screen, fireEvent, waitFor } from '@testing-library/react';
-import { render } from '@/test/utils/test-utils';
+
 import HomePage from '../HomePage';
 
 // Mock stores

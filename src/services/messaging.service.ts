@@ -13,7 +13,7 @@ import {
   runTransaction,
   arrayUnion,
 } from 'firebase/firestore';
-import { db } from './firebase';
+
 import { NotificationService } from './notification.service';
 
 export type MessageType = 'text' | 'image' | 'file' | 'order_update' | 'system';
@@ -130,7 +130,7 @@ export class MessagingService {
         const conversationDoc = doc(collection(db, this.CONVERSATIONS_COLLECTION));
 
         const participants = data.participants.map(p => ({
-          ...p,
+          ...(p as any),
           joinedAt: new Date(),
           notifications: true,
         }));
@@ -156,7 +156,7 @@ export class MessagingService {
           createdAt: serverTimestamp(),
           updatedAt: serverTimestamp(),
           participants: participants.map(p => ({
-            ...p,
+            ...(p as any),
             joinedAt: serverTimestamp(),
           })),
         });
@@ -335,13 +335,13 @@ export class MessagingService {
 
           // Update participant's last read time
           const updatedParticipants = conversationData.participants.map(p =>
-            p.userId === userId ? { ...p, lastReadAt: new Date() } : p
+            p.userId === userId ? { ...(p as any), lastReadAt: new Date() } : p
           );
 
           transaction.update(conversationDoc, {
             unreadCount: newUnreadCount,
             participants: updatedParticipants.map(p => ({
-              ...p,
+              ...(p as any),
               lastReadAt: p.userId === userId ? serverTimestamp() : p.lastReadAt,
             })),
             updatedAt: serverTimestamp(),
@@ -400,20 +400,20 @@ export class MessagingService {
         const data = doc.data();
         return {
           id: doc.id,
-          ...data,
-          createdAt: data.createdAt?.toDate() || new Date(),
-          updatedAt: data.updatedAt?.toDate() || new Date(),
-          closedAt: data.closedAt?.toDate() || null,
+          ...(data as any),
+          createdAt: data.createdAt.toDate() || new Date(),
+          updatedAt: data.updatedAt.toDate() || new Date(),
+          closedAt: data.closedAt.toDate() || new Date() || null,
           participants:
             data.participants?.map((p: unknown) => ({
-              ...p,
-              joinedAt: p.joinedAt?.toDate() || new Date(),
-              lastReadAt: p.lastReadAt?.toDate() || null,
+              ...(p as any),
+              joinedAt: p.joinedAt.toDate() || new Date(),
+              lastReadAt: p.lastReadAt.toDate() || new Date() || null,
             })) || [],
           lastMessage: data.lastMessage
             ? {
                 ...data.lastMessage,
-                timestamp: data.lastMessage.timestamp?.toDate() || new Date(),
+                timestamp: data.lastMessage.timestamp.toDate() || new Date(),
               }
             : undefined,
         } as Conversation;
@@ -442,14 +442,14 @@ export class MessagingService {
         const data = doc.data();
         return {
           id: doc.id,
-          ...data,
-          createdAt: data.createdAt?.toDate() || new Date(),
-          updatedAt: data.updatedAt?.toDate() || new Date(),
-          editedAt: data.editedAt?.toDate() || null,
+          ...(data as any),
+          createdAt: data.createdAt.toDate() || new Date(),
+          updatedAt: data.updatedAt.toDate() || new Date(),
+          editedAt: data.editedAt.toDate() || new Date() || null,
           readBy:
             data.readBy?.map((r: unknown) => ({
-              ...r,
-              readAt: r.readAt?.toDate() || new Date(),
+              ...(r as any),
+              readAt: r.readAt.toDate() || new Date(),
             })) || [],
         } as Message;
       });
@@ -467,20 +467,20 @@ export class MessagingService {
         const data = conversationDoc.data();
         return {
           id: conversationDoc.id,
-          ...data,
-          createdAt: data.createdAt?.toDate() || new Date(),
-          updatedAt: data.updatedAt?.toDate() || new Date(),
-          closedAt: data.closedAt?.toDate() || null,
+          ...(data as any),
+          createdAt: data.createdAt.toDate() || new Date(),
+          updatedAt: data.updatedAt.toDate() || new Date(),
+          closedAt: data.closedAt.toDate() || new Date() || null,
           participants:
             data.participants?.map((p: unknown) => ({
-              ...p,
-              joinedAt: p.joinedAt?.toDate() || new Date(),
-              lastReadAt: p.lastReadAt?.toDate() || null,
+              ...(p as any),
+              joinedAt: p.joinedAt.toDate() || new Date(),
+              lastReadAt: p.lastReadAt.toDate() || new Date() || null,
             })) || [],
           lastMessage: data.lastMessage
             ? {
                 ...data.lastMessage,
-                timestamp: data.lastMessage.timestamp?.toDate() || new Date(),
+                timestamp: data.lastMessage.timestamp.toDate() || new Date(),
               }
             : undefined,
         } as Conversation;

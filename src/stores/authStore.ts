@@ -1,4 +1,3 @@
-import { create } from 'zustand';
 import { User, AuthState } from '@/types';
 import { AuthService } from '@/services/auth.service';
 

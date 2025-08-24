@@ -1,4 +1,3 @@
-import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
 import { AppState, CartItem } from '@/types';
 
@@ -100,13 +99,13 @@ export const useAppStore = create<AppStore>()(
 
         return cartItems.reduce((total, item) => {
           const price = samplePrices[item.productId] || 0;
-          return total + price * item.quantity;
+          return total + price * (item as any)?.quantity;
         }, 0);
       },
 
       getCartItemsCount: () => {
         const { cartItems } = get();
-        return cartItems.reduce((total, item) => total + item.quantity, 0);
+        return cartItems.reduce((total, item) => total + (item as any)?.quantity, 0);
       },
 
       // Favorites actions

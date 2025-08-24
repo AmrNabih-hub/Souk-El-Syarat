@@ -188,8 +188,8 @@ export class AnalyticsService {
       if (snapshot.exists()) {
         const data = snapshot.data();
         const metrics: BusinessMetrics = {
-          ...data,
-          lastUpdated: data.lastUpdated?.toDate() || new Date(),
+          ...(data as any),
+          lastUpdated: data.lastUpdated.toDate() || new Date(),
         } as BusinessMetrics;
         callback(metrics);
       }
@@ -206,18 +206,18 @@ export class AnalyticsService {
       if (snapshot.exists()) {
         const data = snapshot.data();
         const stats: RealTimeStats = {
-          ...data,
+          ...(data as any),
           recentOrders:
             data.recentOrders?.map((order: unknown) => ({
               ...order,
-              timestamp: order.timestamp?.toDate() || new Date(),
+              timestamp: order.timestamp.toDate() || new Date(),
             })) || [],
           recentSignups:
             data.recentSignups?.map((signup: unknown) => ({
               ...signup,
-              timestamp: signup.timestamp?.toDate() || new Date(),
+              timestamp: signup.timestamp.toDate() || new Date(),
             })) || [],
-          lastUpdated: data.lastUpdated?.toDate() || new Date(),
+          lastUpdated: data.lastUpdated.toDate() || new Date(),
         } as RealTimeStats;
         callback(stats);
       }
@@ -263,12 +263,12 @@ export class AnalyticsService {
 
             // Category stats
             order.items?.forEach((item: unknown) => {
-              const category = item.category || 'other';
+              const category = ((item as any)?.category) || 'other';
               if (!categoryStats[category]) {
                 categoryStats[category] = { count: 0, revenue: 0 };
               }
-              categoryStats[category].count += item.quantity;
-              categoryStats[category].revenue += item.price * item.quantity;
+              categoryStats[category].count += ((item as any)?.quantity);
+              categoryStats[category].revenue += ((item as any)?.price) * ((item as any)?.quantity);
             });
 
             // Vendor stats
@@ -388,7 +388,7 @@ export class AnalyticsService {
             vendorName: data.vendorName,
             amount: data.finalAmount,
             status: data.status,
-            timestamp: data.createdAt?.toDate() || new Date(),
+            timestamp: data.createdAt.toDate() || new Date(),
           };
         });
 
@@ -398,7 +398,7 @@ export class AnalyticsService {
             userId: doc.id,
             userName: data.displayName,
             userType: data.role || 'customer',
-            timestamp: data.createdAt?.toDate() || new Date(),
+            timestamp: data.createdAt.toDate() || new Date(),
           };
         });
 
@@ -461,15 +461,15 @@ export class AnalyticsService {
               lastUpdated: serverTimestamp(),
             });
           }
-          break;
+//           break;
 
         case 'purchase':
           // This would be handled by order creation
-          break;
+//           break;
 
         default:
           // Generic event tracking
-          break;
+//           break;
       }
     } catch (error) {
       if (process.env.NODE_ENV === 'development') if (process.env.NODE_ENV === 'development') console.error('Error updating real-time counters:', error);
@@ -515,7 +515,7 @@ export class AnalyticsService {
       return snapshot.docs.map(doc => ({
         id: doc.id,
         ...doc.data(),
-        timestamp: doc.data().timestamp?.toDate() || new Date(),
+        timestamp: doc.data().timestamp.toDate() || new Date(),
       })) as AnalyticsEvent[];
     } catch (error) {
       if (process.env.NODE_ENV === 'development') if (process.env.NODE_ENV === 'development') console.error('Error getting analytics events:', error);

@@ -1,6 +1,6 @@
-import React, { useState, useEffect } from 'react';
+import React from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Link } from 'react-router-dom';
+
 import {
   ShoppingCartIcon,
   TrashIcon,
@@ -8,11 +8,11 @@ import {
   EyeIcon,
   ShareIcon,
 } from '@heroicons/react/24/outline';
-import { HeartIcon as HeartSolid } from '@heroicons/react/24/solid';
+
 import { useAppStore } from '@/stores/appStore';
-import { useAuthStore } from '@/stores/authStore';
+
 import { ProductService } from '@/services/product.service';
-import { Product } from '@/types';
+
 import { EgyptianLoader } from '@/components/ui/LoadingSpinner';
 import ProductDetailModal from '@/components/product/ProductDetailModal';
 import toast from 'react-hot-toast';
@@ -28,7 +28,7 @@ const WishlistPage: React.FC = () => {
   useEffect(() => {
     if (!user) {
       setIsLoading(false);
-      return;
+      //       return;
     }
     loadWishlistProducts();
   }, [favorites, user]);
@@ -83,7 +83,9 @@ const WishlistPage: React.FC = () => {
 
       setProducts(productMap);
     } catch (error) {
-      if (process.env.NODE_ENV === 'development') if (process.env.NODE_ENV === 'development') console.error('Error loading wishlist products:', error);
+      if (process.env.NODE_ENV === 'development')
+        if (process.env.NODE_ENV === 'development')
+          console.error('Error loading wishlist products:', error);
       toast.error(language === 'ar' ? 'خطأ في تحميل المنتجات' : 'Error loading products');
     } finally {
       setIsLoading(false);
@@ -103,7 +105,7 @@ const WishlistPage: React.FC = () => {
       toast(language === 'ar' ? 'قريباً - حجز الخدمات' : 'Coming Soon - Service Booking', {
         icon: 'ℹ️',
       });
-      return;
+      //       return;
     }
 
     addToCart({ productId, quantity });

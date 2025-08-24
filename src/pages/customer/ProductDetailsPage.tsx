@@ -1,6 +1,6 @@
-import React, { useState, useEffect } from 'react';
+import React from 'react';
 import { useParams, useNavigate, Link } from 'react-router-dom';
-import { motion, AnimatePresence } from 'framer-motion';
+
 import {
   ArrowLeftIcon,
   HeartIcon,
@@ -15,11 +15,11 @@ import {
   ChevronRightIcon,
   EyeIcon,
 } from '@heroicons/react/24/outline';
-import { HeartIcon as HeartSolid } from '@heroicons/react/24/solid';
+
 import { useAppStore } from '@/stores/appStore';
-import { useAuthStore } from '@/stores/authStore';
+
 import { ProductService } from '@/services/product.service';
-import { Product, CarProduct } from '@/types';
+
 import ProductCard from '@/components/product/ProductCard';
 import { EgyptianLoader } from '@/components/ui/LoadingSpinner';
 import toast from 'react-hot-toast';
@@ -53,7 +53,7 @@ const ProductDetailsPage: React.FC = () => {
       if (!foundProduct) {
         toast.error(language === 'ar' ? 'المنتج غير موجود' : 'Product not found');
         navigate('/marketplace');
-        return;
+        //         return;
       }
 
       setProduct(foundProduct);
@@ -65,7 +65,8 @@ const ProductDetailsPage: React.FC = () => {
       const related = await ProductService.getRecommendations(productId, 4);
       setRelatedProducts(related);
     } catch (error) {
-      if (process.env.NODE_ENV === 'development') if (process.env.NODE_ENV === 'development') console.error('Error loading product:', error);
+      if (process.env.NODE_ENV === 'development')
+        if (process.env.NODE_ENV === 'development') console.error('Error loading product:', error);
       toast.error(language === 'ar' ? 'خطأ في تحميل المنتج' : 'Error loading product');
     } finally {
       setIsLoading(false);
@@ -75,7 +76,7 @@ const ProductDetailsPage: React.FC = () => {
   const handleToggleFavorite = () => {
     if (!user) {
       toast.error(language === 'ar' ? 'يجب تسجيل الدخول أولاً' : 'Please login first');
-      return;
+      //       return;
     }
 
     if (!product) return;
@@ -92,7 +93,7 @@ const ProductDetailsPage: React.FC = () => {
   const handleAddToCart = () => {
     if (!user) {
       toast.error(language === 'ar' ? 'يجب تسجيل الدخول أولاً' : 'Please login first');
-      return;
+      //       return;
     }
 
     if (!product) return;
@@ -101,7 +102,7 @@ const ProductDetailsPage: React.FC = () => {
       toast(language === 'ar' ? 'قريباً - حجز الخدمات' : 'Coming Soon - Service Booking', {
         icon: 'ℹ️',
       });
-      return;
+      //       return;
     }
 
     addToCart({ productId: product.id, quantity });

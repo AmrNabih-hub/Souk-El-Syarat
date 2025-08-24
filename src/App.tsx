@@ -1,10 +1,9 @@
-import React, { useEffect, Suspense } from 'react';
 import { Routes, Route, Navigate } from 'react-router-dom';
-import { motion, AnimatePresence } from 'framer-motion';
+
 import { useAuthStore } from '@/stores/authStore';
-import { useAppStore } from '@/stores/appStore';
+
 import { useRealtimeStore } from '@/stores/realtimeStore';
-import { AuthService } from '@/services/auth.service';
+
 import { PushNotificationService } from '@/services/push-notification.service';
 
 // Layout Components
@@ -128,7 +127,9 @@ function App() {
         // Silent handling - service will continue without real-time features
         if (process.env.NODE_ENV === 'development') {
           // eslint-disable-next-line no-console
-          if (process.env.NODE_ENV === 'development') if (process.env.NODE_ENV === 'development') console.error('Failed to initialize real-time services:', error);
+          if (process.env.NODE_ENV === 'development')
+            if (process.env.NODE_ENV === 'development')
+              console.error('Failed to initialize real-time services:', error);
         }
       });
 
@@ -137,7 +138,9 @@ function App() {
         // Silent handling - service will continue without push notifications
         if (process.env.NODE_ENV === 'development') {
           // eslint-disable-next-line no-console
-          if (process.env.NODE_ENV === 'development') if (process.env.NODE_ENV === 'development') console.error('Failed to initialize push notifications:', error);
+          if (process.env.NODE_ENV === 'development')
+            if (process.env.NODE_ENV === 'development')
+              console.error('Failed to initialize push notifications:', error);
         }
       });
 

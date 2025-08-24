@@ -12,10 +12,10 @@ import {
   increment,
   runTransaction,
 } from 'firebase/firestore';
-import { db } from './firebase';
+
 import { NotificationService } from './notification.service';
 
-export type OrderStatus =
+export type OrderStatus = 
   | 'pending' // Order placed, waiting for vendor confirmation
   | 'confirmed' // Vendor confirmed the order
   | 'payment_pending' // Waiting for payment
@@ -166,7 +166,7 @@ export class OrderService {
           }
 
           const productData = productDoc.data();
-          const itemTotal = productData.price * item.quantity;
+          const itemTotal = productData.price * ((item as any)?.quantity);
           totalAmount += itemTotal;
 
           // Set vendor info (assuming all items are from the same vendor for now)
@@ -177,7 +177,7 @@ export class OrderService {
           }
 
           enrichedItems.push({
-            ...item,
+            ...(item as any),
             title: productData.title,
             price: productData.price,
             vendorId: productData.vendorId,
@@ -185,7 +185,7 @@ export class OrderService {
 
           // Update product inventory
           transaction.update(doc(db, 'products', item.productId), {
-            quantity: increment(-item.quantity),
+            quantity: increment(-((item as any)?.quantity)),
             updatedAt: serverTimestamp(),
           });
         }
@@ -302,14 +302,14 @@ export class OrderService {
         switch (newStatus) {
           case 'confirmed':
             updateData.confirmedAt = new Date();
-            break;
+//             break;
           case 'shipped':
             updateData.shippedAt = new Date();
-            break;
+//             break;
           case 'delivered':
             updateData.deliveredAt = new Date();
             updateData.actualDelivery = new Date();
-            break;
+//             break;
         }
 
         transaction.update(orderDoc, {
@@ -384,23 +384,23 @@ export class OrderService {
         const data = orderDoc.data();
         return {
           id: orderDoc.id,
-          ...data,
-          createdAt: data.createdAt?.toDate() || new Date(),
-          updatedAt: data.updatedAt?.toDate() || new Date(),
-          confirmedAt: data.confirmedAt?.toDate() || null,
-          shippedAt: data.shippedAt?.toDate() || null,
-          deliveredAt: data.deliveredAt?.toDate() || null,
-          estimatedDelivery: data.estimatedDelivery?.toDate() || null,
-          actualDelivery: data.actualDelivery?.toDate() || null,
+          ...(data as any),
+          createdAt: data.createdAt.toDate() || new Date(),
+          updatedAt: data.updatedAt.toDate() || new Date(),
+          confirmedAt: data.confirmedAt.toDate() || new Date() || null,
+          shippedAt: data.shippedAt.toDate() || new Date() || null,
+          deliveredAt: data.deliveredAt.toDate() || new Date() || null,
+          estimatedDelivery: data.estimatedDelivery.toDate() || new Date() || null,
+          actualDelivery: data.actualDelivery.toDate() || new Date() || null,
           tracking:
             data.tracking?.map((t: unknown) => ({
               ...t,
-              timestamp: t.timestamp?.toDate() || new Date(),
+              timestamp: t.timestamp.toDate() || new Date(),
             })) || [],
           payment: {
             ...data.payment,
-            paidAt: data.payment?.paidAt?.toDate() || null,
-            refundedAt: data.payment?.refundedAt?.toDate() || null,
+            paidAt: data.payment?.paidAt.toDate() || new Date() || null,
+            refundedAt: data.payment?.refundedAt.toDate() || new Date() || null,
           },
         } as Order;
       }
@@ -431,23 +431,23 @@ export class OrderService {
         const data = doc.data();
         return {
           id: doc.id,
-          ...data,
-          createdAt: data.createdAt?.toDate() || new Date(),
-          updatedAt: data.updatedAt?.toDate() || new Date(),
-          confirmedAt: data.confirmedAt?.toDate() || null,
-          shippedAt: data.shippedAt?.toDate() || null,
-          deliveredAt: data.deliveredAt?.toDate() || null,
-          estimatedDelivery: data.estimatedDelivery?.toDate() || null,
-          actualDelivery: data.actualDelivery?.toDate() || null,
+          ...(data as any),
+          createdAt: data.createdAt.toDate() || new Date(),
+          updatedAt: data.updatedAt.toDate() || new Date(),
+          confirmedAt: data.confirmedAt.toDate() || new Date() || null,
+          shippedAt: data.shippedAt.toDate() || new Date() || null,
+          deliveredAt: data.deliveredAt.toDate() || new Date() || null,
+          estimatedDelivery: data.estimatedDelivery.toDate() || new Date() || null,
+          actualDelivery: data.actualDelivery.toDate() || new Date() || null,
           tracking:
             data.tracking?.map((t: unknown) => ({
               ...t,
-              timestamp: t.timestamp?.toDate() || new Date(),
+              timestamp: t.timestamp.toDate() || new Date(),
             })) || [],
           payment: {
             ...data.payment,
-            paidAt: data.payment?.paidAt?.toDate() || null,
-            refundedAt: data.payment?.refundedAt?.toDate() || null,
+            paidAt: data.payment?.paidAt.toDate() || new Date() || null,
+            refundedAt: data.payment?.refundedAt.toDate() || new Date() || null,
           },
         } as Order;
       });
@@ -486,23 +486,23 @@ export class OrderService {
         const data = doc.data();
         return {
           id: doc.id,
-          ...data,
-          createdAt: data.createdAt?.toDate() || new Date(),
-          updatedAt: data.updatedAt?.toDate() || new Date(),
-          confirmedAt: data.confirmedAt?.toDate() || null,
-          shippedAt: data.shippedAt?.toDate() || null,
-          deliveredAt: data.deliveredAt?.toDate() || null,
-          estimatedDelivery: data.estimatedDelivery?.toDate() || null,
-          actualDelivery: data.actualDelivery?.toDate() || null,
+          ...(data as any),
+          createdAt: data.createdAt.toDate() || new Date(),
+          updatedAt: data.updatedAt.toDate() || new Date(),
+          confirmedAt: data.confirmedAt.toDate() || new Date() || null,
+          shippedAt: data.shippedAt.toDate() || new Date() || null,
+          deliveredAt: data.deliveredAt.toDate() || new Date() || null,
+          estimatedDelivery: data.estimatedDelivery.toDate() || new Date() || null,
+          actualDelivery: data.actualDelivery.toDate() || new Date() || null,
           tracking:
             data.tracking?.map((t: unknown) => ({
               ...t,
-              timestamp: t.timestamp?.toDate() || new Date(),
+              timestamp: t.timestamp.toDate() || new Date(),
             })) || [],
           payment: {
             ...data.payment,
-            paidAt: data.payment?.paidAt?.toDate() || null,
-            refundedAt: data.payment?.refundedAt?.toDate() || null,
+            paidAt: data.payment?.paidAt.toDate() || new Date() || null,
+            refundedAt: data.payment?.refundedAt.toDate() || new Date() || null,
           },
         } as Order;
       });
@@ -538,23 +538,23 @@ export class OrderService {
         const data = doc.data();
         return {
           id: doc.id,
-          ...data,
-          createdAt: data.createdAt?.toDate() || new Date(),
-          updatedAt: data.updatedAt?.toDate() || new Date(),
-          confirmedAt: data.confirmedAt?.toDate() || null,
-          shippedAt: data.shippedAt?.toDate() || null,
-          deliveredAt: data.deliveredAt?.toDate() || null,
-          estimatedDelivery: data.estimatedDelivery?.toDate() || null,
-          actualDelivery: data.actualDelivery?.toDate() || null,
+          ...(data as any),
+          createdAt: data.createdAt.toDate() || new Date(),
+          updatedAt: data.updatedAt.toDate() || new Date(),
+          confirmedAt: data.confirmedAt.toDate() || new Date() || null,
+          shippedAt: data.shippedAt.toDate() || new Date() || null,
+          deliveredAt: data.deliveredAt.toDate() || new Date() || null,
+          estimatedDelivery: data.estimatedDelivery.toDate() || new Date() || null,
+          actualDelivery: data.actualDelivery.toDate() || new Date() || null,
           tracking:
             data.tracking?.map((t: unknown) => ({
               ...t,
-              timestamp: t.timestamp?.toDate() || new Date(),
+              timestamp: t.timestamp.toDate() || new Date(),
             })) || [],
           payment: {
             ...data.payment,
-            paidAt: data.payment?.paidAt?.toDate() || null,
-            refundedAt: data.payment?.refundedAt?.toDate() || null,
+            paidAt: data.payment?.paidAt.toDate() || new Date() || null,
+            refundedAt: data.payment?.refundedAt.toDate() || new Date() || null,
           },
         } as Order;
       });
@@ -580,7 +580,7 @@ export class OrderService {
             language,
             { orderId: order.id, vendorName: order.vendorName }
           );
-          break;
+//           break;
 
         case 'shipped':
           await NotificationService.sendTemplatedNotification(
@@ -589,7 +589,7 @@ export class OrderService {
             language,
             { orderId: order.id, trackingNumber: order.trackingNumber }
           );
-          break;
+//           break;
 
         case 'delivered':
           await NotificationService.sendTemplatedNotification(
@@ -598,7 +598,7 @@ export class OrderService {
             language,
             { orderId: order.id }
           );
-          break;
+//           break;
 
         case 'pending':
           // Notify vendor of new order
@@ -608,7 +608,7 @@ export class OrderService {
             language,
             { orderId: order.id, customerName: order.customerName, amount: order.finalAmount }
           );
-          break;
+//           break;
       }
     } catch (error) {
       if (process.env.NODE_ENV === 'development') if (process.env.NODE_ENV === 'development') console.error('Error sending status update notifications:', error);
@@ -633,7 +633,7 @@ export class OrderService {
             language,
             { orderId: order.id, amount: order.finalAmount }
           );
-          break;
+//           break;
 
         case 'failed':
           await NotificationService.sendTemplatedNotification(
@@ -642,7 +642,7 @@ export class OrderService {
             language,
             { orderId: order.id }
           );
-          break;
+//           break;
 
         case 'pending':
           await NotificationService.sendTemplatedNotification(
@@ -651,7 +651,7 @@ export class OrderService {
             language,
             { orderId: order.id, amount: order.finalAmount }
           );
-          break;
+//           break;
       }
     } catch (error) {
       if (process.env.NODE_ENV === 'development') if (process.env.NODE_ENV === 'development') console.error('Error sending payment notifications:', error);
@@ -681,7 +681,7 @@ export class OrderService {
         // Restore product inventory
         for (const item of orderData.items) {
           transaction.update(doc(db, 'products', item.productId), {
-            quantity: increment(item.quantity),
+            quantity: increment(((item as any)?.quantity)),
             updatedAt: serverTimestamp(),
           });
         }

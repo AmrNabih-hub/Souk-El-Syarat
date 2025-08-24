@@ -1,8 +1,9 @@
-import { useState, useEffect, useCallback } from 'react';
-import { NotificationService, Notification } from '@/services/notification.service';
+import { NotificationService } from '@/services/notification.service';
+
 import { OrderService, Order } from '@/services/order.service';
+
 import { AnalyticsService, BusinessMetrics, RealTimeStats } from '@/services/analytics.service';
-import { MessagingService, Conversation } from '@/services/messaging.service';
+
 import { ProcessOrchestratorService } from '@/services/process-orchestrator.service';
 import { useAuthStore } from '@/stores/authStore';
 
@@ -150,7 +151,9 @@ export const useRealTimeDashboard = (): DashboardData & DashboardActions => {
 
       setUnsubscribeFunctions(newUnsubscribeFunctions);
     } catch (error) {
-      if (process.env.NODE_ENV === 'development') if (process.env.NODE_ENV === 'development') console.error('Error initializing dashboard subscriptions:', error);
+      if (process.env.NODE_ENV === 'development')
+        if (process.env.NODE_ENV === 'development')
+          console.error('Error initializing dashboard subscriptions:', error);
       setData(prev => ({
         ...prev,
         error: 'Failed to initialize real-time connections',
@@ -167,7 +170,9 @@ export const useRealTimeDashboard = (): DashboardData & DashboardActions => {
       try {
         unsubscribe();
       } catch (error) {
-        if (process.env.NODE_ENV === 'development') if (process.env.NODE_ENV === 'development') console.error('Error cleaning up subscription:', error);
+        if (process.env.NODE_ENV === 'development')
+          if (process.env.NODE_ENV === 'development')
+            console.error('Error cleaning up subscription:', error);
       }
     });
     setUnsubscribeFunctions([]);
@@ -182,7 +187,9 @@ export const useRealTimeDashboard = (): DashboardData & DashboardActions => {
         ProcessOrchestratorService.getInstance();
         // if (process.env.NODE_ENV === 'development') console.log('Process orchestrator initialized');
       } catch (error) {
-        if (process.env.NODE_ENV === 'development') if (process.env.NODE_ENV === 'development') console.error('Error initializing process orchestrator:', error);
+        if (process.env.NODE_ENV === 'development')
+          if (process.env.NODE_ENV === 'development')
+            console.error('Error initializing process orchestrator:', error);
       }
     }
   }, [user?.role]);
@@ -206,7 +213,9 @@ export const useRealTimeDashboard = (): DashboardData & DashboardActions => {
     try {
       await NotificationService.markAsRead(notificationId);
     } catch (error) {
-      if (process.env.NODE_ENV === 'development') if (process.env.NODE_ENV === 'development') console.error('Error marking notification as read:', error);
+      if (process.env.NODE_ENV === 'development')
+        if (process.env.NODE_ENV === 'development')
+          console.error('Error marking notification as read:', error);
       setData(prev => ({
         ...prev,
         error: 'Failed to mark notification as read',
@@ -223,7 +232,9 @@ export const useRealTimeDashboard = (): DashboardData & DashboardActions => {
     try {
       await NotificationService.markAllAsRead(user.id);
     } catch (error) {
-      if (process.env.NODE_ENV === 'development') if (process.env.NODE_ENV === 'development') console.error('Error marking all notifications as read:', error);
+      if (process.env.NODE_ENV === 'development')
+        if (process.env.NODE_ENV === 'development')
+          console.error('Error marking all notifications as read:', error);
       setData(prev => ({
         ...prev,
         error: 'Failed to mark all notifications as read',
@@ -235,7 +246,7 @@ export const useRealTimeDashboard = (): DashboardData & DashboardActions => {
    * Update order status
    */
   const updateOrderStatus = useCallback(
-    async (orderId: string, status: unknown, notes?: string): Promise<void> => {
+    async (orderId: string, status: OrderStatus, notes?: string): Promise<void> => {
       if (!user) return;
 
       try {
@@ -252,7 +263,9 @@ export const useRealTimeDashboard = (): DashboardData & DashboardActions => {
           metadata: { notes },
         });
       } catch (error) {
-        if (process.env.NODE_ENV === 'development') if (process.env.NODE_ENV === 'development') console.error('Error updating order status:', error);
+        if (process.env.NODE_ENV === 'development')
+          if (process.env.NODE_ENV === 'development')
+            console.error('Error updating order status:', error);
         setData(prev => ({
           ...prev,
           error: 'Failed to update order status',
@@ -289,7 +302,9 @@ export const useRealTimeDashboard = (): DashboardData & DashboardActions => {
           metadata: { conversationId },
         });
       } catch (error) {
-        if (process.env.NODE_ENV === 'development') if (process.env.NODE_ENV === 'development') console.error('Error sending message:', error);
+        if (process.env.NODE_ENV === 'development')
+          if (process.env.NODE_ENV === 'development')
+            console.error('Error sending message:', error);
         setData(prev => ({
           ...prev,
           error: 'Failed to send message',
@@ -309,7 +324,9 @@ export const useRealTimeDashboard = (): DashboardData & DashboardActions => {
       try {
         await MessagingService.markMessagesAsRead(conversationId, user.id);
       } catch (error) {
-        if (process.env.NODE_ENV === 'development') if (process.env.NODE_ENV === 'development') console.error('Error marking messages as read:', error);
+        if (process.env.NODE_ENV === 'development')
+          if (process.env.NODE_ENV === 'development')
+            console.error('Error marking messages as read:', error);
         setData(prev => ({
           ...prev,
           error: 'Failed to mark messages as read',
@@ -341,7 +358,9 @@ export const useRealTimeDashboard = (): DashboardData & DashboardActions => {
 
       setData(prev => ({ ...prev, isLoading: false }));
     } catch (error) {
-      if (process.env.NODE_ENV === 'development') if (process.env.NODE_ENV === 'development') console.error('Error refreshing dashboard data:', error);
+      if (process.env.NODE_ENV === 'development')
+        if (process.env.NODE_ENV === 'development')
+          console.error('Error refreshing dashboard data:', error);
       setData(prev => ({
         ...prev,
         error: 'Failed to refresh dashboard data',

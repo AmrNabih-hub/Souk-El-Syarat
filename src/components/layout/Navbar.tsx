@@ -1,6 +1,5 @@
-import React, { useState, useRef, useEffect } from 'react';
 import { Link, useNavigate, useLocation } from 'react-router-dom';
-import { motion, AnimatePresence } from 'framer-motion';
+
 import {
   UserIcon,
   ShoppingCartIcon,
@@ -13,7 +12,7 @@ import {
   MoonIcon,
   ChevronDownIcon,
 } from '@heroicons/react/24/outline';
-import { useAuthStore } from '@/stores/authStore';
+
 import { useAppStore } from '@/stores/appStore';
 import clsx from 'clsx';
 
@@ -52,7 +51,8 @@ const Navbar: React.FC = () => {
       setIsUserMenuOpen(false);
       navigate('/');
     } catch (error) {
-      if (process.env.NODE_ENV === 'development') if (process.env.NODE_ENV === 'development') console.error('Error signing out:', error);
+      if (process.env.NODE_ENV === 'development')
+        if (process.env.NODE_ENV === 'development') console.error('Error signing out:', error);
     }
   };
 

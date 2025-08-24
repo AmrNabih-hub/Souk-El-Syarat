@@ -3,15 +3,14 @@
  * Production-ready Firebase setup with analytics and performance monitoring
  */
 
-import { initializeApp, FirebaseApp } from 'firebase/app';
 import { getAuth, Auth, connectAuthEmulator } from 'firebase/auth';
-import { getFirestore, Firestore, connectFirestoreEmulator } from 'firebase/firestore';
+
 import { getStorage, FirebaseStorage, connectStorageEmulator } from 'firebase/storage';
-import { getFunctions, Functions, connectFunctionsEmulator } from 'firebase/functions';
+
 import { getDatabase, Database, connectDatabaseEmulator } from 'firebase/database';
-import { getAnalytics, Analytics } from 'firebase/analytics';
+
 import { getPerformance, FirebasePerformance } from 'firebase/performance';
-import { getMessaging, Messaging, getToken, onMessage } from 'firebase/messaging';
+
 import { initializeAppCheck, AppCheck, ReCaptchaV3Provider } from 'firebase/app-check';
 
 // Production Firebase Configuration
@@ -121,7 +120,9 @@ export const validateFirebaseConfig = (): boolean => {
 
   for (const field of requiredFields) {
     if (!currentConfig[field as keyof typeof currentConfig]) {
-      if (process.env.NODE_ENV === 'development') if (process.env.NODE_ENV === 'development') console.error(`❌ Firebase configuration missing: ${field}`);
+      if (process.env.NODE_ENV === 'development')
+        if (process.env.NODE_ENV === 'development')
+          console.error(`❌ Firebase configuration missing: ${field}`);
       return false;
     }
   }
@@ -148,7 +149,9 @@ export const initializeFirebase = async (): Promise<boolean> => {
     // if (process.env.NODE_ENV === 'development') console.log('🚀 Firebase initialized successfully');
     return true;
   } catch (error) {
-    if (process.env.NODE_ENV === 'development') if (process.env.NODE_ENV === 'development') console.error('❌ Firebase initialization failed:', error);
+    if (process.env.NODE_ENV === 'development')
+      if (process.env.NODE_ENV === 'development')
+        console.error('❌ Firebase initialization failed:', error);
     return false;
   }
 };
@@ -168,7 +171,7 @@ export const handleFirebaseError = (error: unknown): string => {
     'storage/quota-exceeded': 'Storage quota exceeded. Please contact support.',
   };
 
-  const errorCode = error?.code || 'unknown-error';
+  const errorCode = (error as { code?: string })?.code || 'unknown-error';
   return errorMessages[errorCode] || 'An unexpected error occurred. Please try again.';
 };
 
@@ -219,7 +222,8 @@ initializeFirebase().then(success => {
   if (success) {
     // if (process.env.NODE_ENV === 'development') console.log('🎉 Souk El-Syarat Firebase setup complete!');
   } else {
-    if (process.env.NODE_ENV === 'development') if (process.env.NODE_ENV === 'development') console.error('💥 Firebase setup failed!');
+    if (process.env.NODE_ENV === 'development')
+      if (process.env.NODE_ENV === 'development') console.error('💥 Firebase setup failed!');
   }
 });
 

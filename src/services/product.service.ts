@@ -15,7 +15,7 @@ import {
   serverTimestamp,
   increment,
 } from 'firebase/firestore';
-import { ref, uploadBytes, getDownloadURL, deleteObject } from 'firebase/storage';
+
 import { db, storage } from './firebase';
 import {
   Product,
@@ -150,10 +150,10 @@ export class ProductService {
       if (docSnap.exists()) {
         const data = docSnap.data();
         return {
-          ...data,
-          createdAt: data.createdAt?.toDate() || new Date(),
-          updatedAt: data.updatedAt?.toDate() || new Date(),
-          publishedAt: data.publishedAt?.toDate() || null,
+          ...(data as any),
+          createdAt: data.createdAt.toDate() || new Date(),
+          updatedAt: data.updatedAt.toDate() || new Date(),
+          publishedAt: data.publishedAt.toDate() || new Date() || null,
         } as Product;
       }
       return null;
@@ -198,10 +198,10 @@ export class ProductService {
       const products = querySnapshot.docs.map(doc => {
         const data = doc.data();
         return {
-          ...data,
-          createdAt: data.createdAt?.toDate() || new Date(),
-          updatedAt: data.updatedAt?.toDate() || new Date(),
-          publishedAt: data.publishedAt?.toDate() || null,
+          ...(data as any),
+          createdAt: data.createdAt.toDate() || new Date(),
+          updatedAt: data.updatedAt.toDate() || new Date(),
+          publishedAt: data.publishedAt.toDate() || new Date() || null,
         } as Product;
       });
 
@@ -240,7 +240,7 @@ export class ProductService {
         q = query(q, where('condition', '==', filters.condition));
       }
 
-      if (filters.inStock !== undefined) {
+      if (filters.inStock !== null) {
         q = query(q, where('inStock', '==', filters.inStock));
       }
 
@@ -252,10 +252,10 @@ export class ProductService {
       let products = querySnapshot.docs.map(doc => {
         const data = doc.data();
         return {
-          ...data,
-          createdAt: data.createdAt?.toDate() || new Date(),
-          updatedAt: data.updatedAt?.toDate() || new Date(),
-          publishedAt: data.publishedAt?.toDate() || null,
+          ...(data as any),
+          createdAt: data.createdAt.toDate() || new Date(),
+          updatedAt: data.updatedAt.toDate() || new Date(),
+          publishedAt: data.publishedAt.toDate() || new Date() || null,
         } as Product;
       });
 
@@ -327,10 +327,10 @@ export class ProductService {
       return querySnapshot.docs.map(doc => {
         const data = doc.data();
         return {
-          ...data,
-          createdAt: data.createdAt?.toDate() || new Date(),
-          updatedAt: data.updatedAt?.toDate() || new Date(),
-          publishedAt: data.publishedAt?.toDate() || null,
+          ...(data as any),
+          createdAt: data.createdAt.toDate() || new Date(),
+          updatedAt: data.updatedAt.toDate() || new Date(),
+          publishedAt: data.publishedAt.toDate() || new Date() || null,
         } as Product;
       });
     } catch (error) {
@@ -359,10 +359,10 @@ export class ProductService {
       return querySnapshot.docs.map(doc => {
         const data = doc.data();
         return {
-          ...data,
-          createdAt: data.createdAt?.toDate() || new Date(),
-          updatedAt: data.updatedAt?.toDate() || new Date(),
-          publishedAt: data.publishedAt?.toDate() || null,
+          ...(data as any),
+          createdAt: data.createdAt.toDate() || new Date(),
+          updatedAt: data.updatedAt.toDate() || new Date(),
+          publishedAt: data.publishedAt.toDate() || new Date() || null,
         } as Product;
       });
     } catch (error) {
@@ -505,10 +505,10 @@ export class ProductService {
         .map(doc => {
           const data = doc.data();
           return {
-            ...data,
-            createdAt: data.createdAt?.toDate() || new Date(),
-            updatedAt: data.updatedAt?.toDate() || new Date(),
-            publishedAt: data.publishedAt?.toDate() || null,
+            ...(data as any),
+            createdAt: data.createdAt.toDate() || new Date(),
+            updatedAt: data.updatedAt.toDate() || new Date(),
+            publishedAt: data.publishedAt.toDate() || new Date() || null,
           } as Product;
         })
         .filter(p => p.id !== productId)

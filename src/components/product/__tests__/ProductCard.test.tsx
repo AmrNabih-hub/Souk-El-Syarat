@@ -3,9 +3,8 @@
  * Comprehensive unit testing for ProductCard component
  */
 
-import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { screen, fireEvent, waitFor } from '@testing-library/react';
-import { render, createMockProduct } from '@/test/utils/test-utils';
+
 import ProductCard from '../ProductCard';
 
 // Mock stores

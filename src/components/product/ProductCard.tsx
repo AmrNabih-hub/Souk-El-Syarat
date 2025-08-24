@@ -1,4 +1,3 @@
-import React, { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import {
   HeartIcon,
@@ -7,9 +6,9 @@ import {
   StarIcon,
   CheckBadgeIcon,
 } from '@heroicons/react/24/outline';
-import { HeartIcon as HeartSolid } from '@heroicons/react/24/solid';
+
 import { Product, CarProduct } from '@/types';
-import { useAppStore } from '@/stores/appStore';
+
 import ProductDetailModal from './ProductDetailModal';
 import EnhancedProductDetailsModal from './EnhancedProductDetailsModal';
 import toast from 'react-hot-toast';
@@ -67,7 +66,7 @@ const ProductCard = ({
 
     if (!product.inStock) {
       toast.error(language === 'ar' ? 'المنتج غير متوفر' : 'Product is out of stock');
-      return;
+      //       return;
     }
 
     onAddToCart?.(product.id, 1);

@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import {
   UsersIcon,
@@ -19,11 +19,11 @@ import {
   CircleStackIcon,
   CloudIcon,
 } from '@heroicons/react/24/outline';
-import { useAuthStore } from '@/stores/authStore';
+
 import { useAppStore } from '@/stores/appStore';
-import { AdminService } from '@/services/admin.service';
+
 import { AdminStats } from '@/types';
-import { VendorApplication, Vendor, AdminAnalytics } from '@/types';
+
 import LoadingSpinner from '@/components/ui/LoadingSpinner';
 import toast from 'react-hot-toast';
 import {
@@ -97,7 +97,9 @@ const EnhancedAdminDashboard: React.FC = () => {
       const adminStats = await AdminService.getAdminStats();
       setStats(adminStats);
     } catch (error) {
-      if (process.env.NODE_ENV === 'development') if (process.env.NODE_ENV === 'development') console.error('Error loading dashboard data:', error);
+      if (process.env.NODE_ENV === 'development')
+        if (process.env.NODE_ENV === 'development')
+          console.error('Error loading dashboard data:', error);
       toast.error(language === 'ar' ? 'خطأ في تحميل البيانات' : 'Error loading dashboard data');
     } finally {
       setIsLoading(false);

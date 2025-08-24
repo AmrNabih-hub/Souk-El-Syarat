@@ -1,14 +1,14 @@
 import React from 'react';
-import { Link } from 'react-router-dom';
+
 import { motion } from 'framer-motion';
-import { 
-  StarIcon, 
+import {
+  StarIcon,
   CheckBadgeIcon,
   ArrowRightIcon,
   SparklesIcon,
   CogIcon,
   ShieldCheckIcon,
-  TruckIcon
+  TruckIcon,
 } from '@heroicons/react/24/outline';
 
 const HomePage: React.FC = () => {
@@ -108,9 +108,7 @@ const HomePage: React.FC = () => {
                   سوق السيارات
                 </span>
                 <br />
-                <span className='text-white/90 drop-shadow-lg'>
-                  الأول في مصر
-                </span>
+                <span className='text-white/90 drop-shadow-lg'>الأول في مصر</span>
               </motion.h1>
 
               <motion.p
@@ -152,11 +150,11 @@ const HomePage: React.FC = () => {
                   <motion.div
                     className='flex w-full h-full'
                     animate={{ x: [0, -100, -200, -300, 0] }}
-                    transition={{ 
-                      duration: 15, 
-                      repeat: Infinity, 
+                    transition={{
+                      duration: 15,
+                      repeat: Infinity,
                       ease: 'easeInOut',
-                      times: [0, 0.25, 0.5, 0.75, 1]
+                      times: [0, 0.25, 0.5, 0.75, 1],
                     }}
                   >
                     {/* Car Image 1 */}
@@ -166,7 +164,7 @@ const HomePage: React.FC = () => {
                         <p className='text-lg opacity-90'>Premium Selection</p>
                       </div>
                     </div>
-                    
+
                     {/* Car Image 2 */}
                     <div className='min-w-full h-full bg-gradient-to-br from-green-500 to-teal-600 flex items-center justify-center'>
                       <div className='text-center text-white'>
@@ -174,7 +172,7 @@ const HomePage: React.FC = () => {
                         <p className='text-lg opacity-90'>Safe & Reliable</p>
                       </div>
                     </div>
-                    
+
                     {/* Car Image 3 */}
                     <div className='min-w-full h-full bg-gradient-to-br from-orange-500 to-red-600 flex items-center justify-center'>
                       <div className='text-center text-white'>
@@ -182,7 +180,7 @@ const HomePage: React.FC = () => {
                         <p className='text-lg opacity-90'>High Performance</p>
                       </div>
                     </div>
-                    
+
                     {/* Car Image 4 */}
                     <div className='min-w-full h-full bg-gradient-to-br from-indigo-500 to-blue-600 flex items-center justify-center'>
                       <div className='text-center text-white'>
@@ -191,21 +189,21 @@ const HomePage: React.FC = () => {
                       </div>
                     </div>
                   </motion.div>
-                  
+
                   {/* Carousel Indicators */}
                   <div className='absolute bottom-4 left-1/2 transform -translate-x-1/2 flex space-x-2'>
-                    {[0, 1, 2, 3].map((index) => (
+                    {[0, 1, 2, 3].map(index => (
                       <motion.div
                         key={index}
                         className='w-3 h-3 bg-white rounded-full opacity-60'
-                        animate={{ 
+                        animate={{
                           opacity: [0.6, 1, 0.6],
-                          scale: [1, 1.2, 1]
+                          scale: [1, 1.2, 1],
                         }}
-                        transition={{ 
-                          duration: 3, 
-                          repeat: Infinity, 
-                          delay: index * 0.75 
+                        transition={{
+                          duration: 3,
+                          repeat: Infinity,
+                          delay: index * 0.75,
                         }}
                       />
                     ))}
@@ -337,12 +335,8 @@ const HomePage: React.FC = () => {
                   <CheckBadgeIcon className='w-4 h-4 text-white' />
                 </div>
               </div>
-              <h3 className='text-xl font-bold text-neutral-900 mb-2'>
-                معرض النخبة للسيارات
-              </h3>
-              <p className='text-neutral-600 mb-4'>
-                متخصص في BMW، Mercedes، Audi
-              </p>
+              <h3 className='text-xl font-bold text-neutral-900 mb-2'>معرض النخبة للسيارات</h3>
+              <p className='text-neutral-600 mb-4'>متخصص في BMW، Mercedes، Audi</p>
               <div className='flex items-center justify-center mb-4'>
                 {[...Array(5)].map((_, i) => (
                   <StarIcon key={i} className='w-5 h-5 text-yellow-400 fill-current' />
@@ -383,12 +377,8 @@ const HomePage: React.FC = () => {
                   <CheckBadgeIcon className='w-4 h-4 text-white' />
                 </div>
               </div>
-              <h3 className='text-xl font-bold text-neutral-900 mb-2'>
-                تويوتا الشرق الأوسط
-              </h3>
-              <p className='text-neutral-600 mb-4'>
-                الوكيل المعتمد لسيارات تويوتا
-              </p>
+              <h3 className='text-xl font-bold text-neutral-900 mb-2'>تويوتا الشرق الأوسط</h3>
+              <p className='text-neutral-600 mb-4'>الوكيل المعتمد لسيارات تويوتا</p>
               <div className='flex items-center justify-center mb-4'>
                 {[...Array(5)].map((_, i) => (
                   <StarIcon
@@ -432,12 +422,8 @@ const HomePage: React.FC = () => {
                   <CheckBadgeIcon className='w-4 h-4 text-white' />
                 </div>
               </div>
-              <h3 className='text-xl font-bold text-neutral-900 mb-2'>
-                مركز الصفوة VIP
-              </h3>
-              <p className='text-neutral-600 mb-4'>
-                خدمات VIP للسيارات الفاخرة
-              </p>
+              <h3 className='text-xl font-bold text-neutral-900 mb-2'>مركز الصفوة VIP</h3>
+              <p className='text-neutral-600 mb-4'>خدمات VIP للسيارات الفاخرة</p>
               <div className='flex items-center justify-center mb-4'>
                 {[...Array(5)].map((_, i) => (
                   <StarIcon key={i} className='w-5 h-5 text-yellow-400 fill-current' />
@@ -558,20 +544,14 @@ const HomePage: React.FC = () => {
                 </div>
               </div>
               <div className='p-6'>
-                <h3 className='font-bold text-xl mb-2 text-neutral-800'>
-                  بورش ٩١١ تيربو إس ٢٠٢٤
-                </h3>
+                <h3 className='font-bold text-xl mb-2 text-neutral-800'>بورش ٩١١ تيربو إس ٢٠٢٤</h3>
                 <p className='text-neutral-600 mb-4 text-sm'>
                   محرك تيربو مسطح ٦ أسطوانات بقوة ٦٤٠ حصان
                 </p>
                 <div className='flex items-center justify-between'>
                   <div>
-                    <span className='text-2xl font-bold text-primary-600'>
-                      ٤,٥٠٠,٠٠٠ جنيه
-                    </span>
-                    <span className='text-sm text-neutral-500 line-through ml-2'>
-                      ٤,٨٠٠,٠٠٠
-                    </span>
+                    <span className='text-2xl font-bold text-primary-600'>٤,٥٠٠,٠٠٠ جنيه</span>
+                    <span className='text-sm text-neutral-500 line-through ml-2'>٤,٨٠٠,٠٠٠</span>
                   </div>
                   <motion.button
                     whileHover={{ scale: 1.05 }}
@@ -603,20 +583,14 @@ const HomePage: React.FC = () => {
                 </div>
               </div>
               <div className='p-6'>
-                <h3 className='font-bold text-xl mb-2 text-neutral-800'>
-                  طقم فرامل بريمبو GT
-                </h3>
+                <h3 className='font-bold text-xl mb-2 text-neutral-800'>طقم فرامل بريمبو GT</h3>
                 <p className='text-neutral-600 mb-4 text-sm'>
                   طقم فرامل احترافي ٦ مكابس لسيارات BMW M
                 </p>
                 <div className='flex items-center justify-between'>
                   <div>
-                    <span className='text-2xl font-bold text-primary-600'>
-                      ٤٥,٠٠٠ جنيه
-                    </span>
-                    <span className='text-sm text-neutral-500 line-through ml-2'>
-                      ٥٢,٠٠٠
-                    </span>
+                    <span className='text-2xl font-bold text-primary-600'>٤٥,٠٠٠ جنيه</span>
+                    <span className='text-sm text-neutral-500 line-through ml-2'>٥٢,٠٠٠</span>
                   </div>
                   <motion.button
                     whileHover={{ scale: 1.05 }}
@@ -648,20 +622,12 @@ const HomePage: React.FC = () => {
                 </div>
               </div>
               <div className='p-6'>
-                <h3 className='font-bold text-xl mb-2 text-neutral-800'>
-                  طلاء سيراميك احترافي
-                </h3>
-                <p className='text-neutral-600 mb-4 text-sm'>
-                  حماية متقدمة للطلاء لمدة ٥ سنوات
-                </p>
+                <h3 className='font-bold text-xl mb-2 text-neutral-800'>طلاء سيراميك احترافي</h3>
+                <p className='text-neutral-600 mb-4 text-sm'>حماية متقدمة للطلاء لمدة ٥ سنوات</p>
                 <div className='flex items-center justify-between'>
                   <div>
-                    <span className='text-2xl font-bold text-primary-600'>
-                      ١٥,٠٠٠ جنيه
-                    </span>
-                    <span className='text-sm text-neutral-500 line-through ml-2'>
-                      ١٨,٠٠٠
-                    </span>
+                    <span className='text-2xl font-bold text-primary-600'>١٥,٠٠٠ جنيه</span>
+                    <span className='text-sm text-neutral-500 line-through ml-2'>١٨,٠٠٠</span>
                   </div>
                   <motion.button
                     whileHover={{ scale: 1.05 }}

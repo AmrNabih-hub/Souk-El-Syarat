@@ -6,7 +6,7 @@ import * as React from 'react';
 declare global {
   namespace JSX {
     interface Element extends React.ReactElement<any, any> {}
-    interface ElementClass extends React.Component<any> {
+    interface ElementClass extends React.Component<unknown> {
       render(): React.ReactNode;
     }
     interface ElementAttributesProperty {
@@ -100,13 +100,12 @@ declare module 'react' {
   export function useState<S>(
     initialState: S | (() => S)
   ): [S, React.Dispatch<React.SetStateAction<S>>];
-  export function useState<S = undefined>(): [
+  export function useState<S = null>(): [
     S | undefined,
     React.Dispatch<React.SetStateAction<S | undefined>>,
   ];
 
   // Ensure useEffect and other hooks are properly exported
-  export function useEffect(effect: React.EffectCallback, deps?: React.DependencyList): void;
   export function useCallback<T extends (...args: unknown[]) => any>(
     callback: T,
     deps: React.DependencyList
@@ -114,7 +113,7 @@ declare module 'react' {
   export function useMemo<T>(factory: () => T, deps: React.DependencyList): T;
   export function useRef<T>(initialValue: T): React.MutableRefObject<T>;
   export function useRef<T>(initialValue: T | null): React.RefObject<T>;
-  export function useRef<T = undefined>(): React.MutableRefObject<T | undefined>;
+  export function useRef<T = null>(): React.MutableRefObject<T | undefined>;
 
   // Event types
   export type MouseEvent<T = Element> = React.MouseEvent<T>;

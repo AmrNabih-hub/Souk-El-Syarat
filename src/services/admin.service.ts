@@ -12,7 +12,7 @@ import {
   serverTimestamp,
   writeBatch,
 } from 'firebase/firestore';
-import { db } from './firebase';
+
 import {
   AdminStats,
   VendorApplication,
@@ -21,7 +21,7 @@ import {
   SystemLog,
   PlatformMetrics,
 } from '@/types';
-import { firebaseFunctionsService } from './firebase-functions.service';
+
 import { notificationService } from './notification.service';
 
 export class AdminService {
@@ -73,7 +73,7 @@ export class AdminService {
       const currentYear = new Date().getFullYear();
       const monthlyOrders = ordersSnapshot.docs.filter(doc => {
         const orderData = doc.data();
-        const orderDate = orderData.createdAt?.toDate() || new Date();
+        const orderDate = orderData.createdAt.toDate() || new Date();
         return (
           orderDate.getMonth() === currentMonth &&
           orderDate.getFullYear() === currentYear &&
@@ -443,7 +443,7 @@ export class AdminService {
         lastAction: action,
         lastActionData: data,
         lastUpdated: serverTimestamp(),
-        totalActions: (data.totalActions || 0) + 1,
+        totalActions: ((data as any)?.totalActions || 0) + 1,
       });
     } catch (error) {
       if (process.env.NODE_ENV === 'development') if (process.env.NODE_ENV === 'development') console.error('Error updating platform metrics:', error);
@@ -488,7 +488,7 @@ export class AdminService {
         errorRate: metricsData.errorRate || 0.1,
         activeConnections: metricsData.activeConnections || 0,
         totalRequests: metricsData.totalRequests || 0,
-        lastUpdated: metricsData.timestamp?.toDate() || new Date(),
+        lastUpdated: metricsData.timestamp.toDate() || new Date(),
       };
     } catch (error) {
       if (process.env.NODE_ENV === 'development') if (process.env.NODE_ENV === 'development') console.error('Error fetching platform performance:', error);

@@ -1,16 +1,17 @@
-import React, { useState } from 'react';
+import React from 'react';
+import { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
-import { useForm } from 'react-hook-form';
+
 import { yupResolver } from '@hookform/resolvers/yup';
 import * as yup from 'yup';
-import { useNavigate } from 'react-router-dom';
+
 import {
   EyeIcon,
   EyeSlashIcon,
   ShieldCheckIcon,
   LockClosedIcon,
 } from '@heroicons/react/24/outline';
-import { EnhancedAuthService } from '@/services/enhanced-auth.service';
+
 import { useAppStore } from '@/stores/appStore';
 import LoadingSpinner from '@/components/ui/LoadingSpinner';
 import toast from 'react-hot-toast';
@@ -75,7 +76,8 @@ const AdminLoginPage: React.FC = () => {
         });
       }
     } catch (error) {
-      if (process.env.NODE_ENV === 'development') if (process.env.NODE_ENV === 'development') console.error('Admin login error:', error);
+      if (process.env.NODE_ENV === 'development')
+        if (process.env.NODE_ENV === 'development') console.error('Admin login error:', error);
 
       if (error.message.includes('admin')) {
         setError('adminCode', { message: error.message });

@@ -1,6 +1,6 @@
-import React, { useState, useEffect } from 'react';
+import React from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Link } from 'react-router-dom';
+
 import {
   ShoppingCartIcon,
   TrashIcon,
@@ -12,11 +12,11 @@ import {
   TruckIcon,
   ShieldCheckIcon,
 } from '@heroicons/react/24/outline';
-import { useAppStore } from '@/stores/appStore';
+
 import { useAuthStore } from '@/stores/authStore';
-import { ProductService } from '@/services/product.service';
+
 import { Product } from '@/types';
-import LoadingSpinner, { EgyptianLoader } from '@/components/ui/LoadingSpinner';
+
 import toast from 'react-hot-toast';
 
 const CartPage: React.FC = () => {
@@ -74,7 +74,9 @@ const CartPage: React.FC = () => {
 
       setProducts(productMap);
     } catch (error) {
-      if (process.env.NODE_ENV === 'development') if (process.env.NODE_ENV === 'development') console.error('Error loading cart products:', error);
+      if (process.env.NODE_ENV === 'development')
+        if (process.env.NODE_ENV === 'development')
+          console.error('Error loading cart products:', error);
       toast.error(language === 'ar' ? 'خطأ في تحميل المنتجات' : 'Error loading products');
     } finally {
       setIsLoading(false);
@@ -91,7 +93,7 @@ const CartPage: React.FC = () => {
       toast.error(
         language === 'ar' ? 'الكمية المطلوبة غير متوفرة' : 'Requested quantity not available'
       );
-      return;
+      //       return;
     }
 
     setIsUpdating(productId);
@@ -249,7 +251,7 @@ const CartPage: React.FC = () => {
                 if (!product) return null;
 
                 const primaryImage = product.images.find(img => img.isPrimary) || product.images[0];
-                const itemTotal = product.price * item.quantity;
+                const itemTotal = product.price * (item as any)?.quantity;
 
                 return (
                   <motion.div
@@ -321,9 +323,11 @@ const CartPage: React.FC = () => {
                             <div className='flex items-center border border-neutral-300 rounded-lg'>
                               <button
                                 onClick={() =>
-                                  handleQuantityUpdate(item.productId, item.quantity - 1)
+                                  handleQuantityUpdate(item.productId, (item as any)?.quantity - 1)
                                 }
-                                disabled={item.quantity <= 1 || isUpdating === item.productId}
+                                disabled={
+                                  (item as any)?.quantity <= 1 || isUpdating === item.productId
+                                }
                                 className='p-2 hover:bg-neutral-100 transition-colors disabled:opacity-50 disabled:cursor-not-allowed'
                               >
                                 <MinusIcon className='w-4 h-4' />
@@ -333,16 +337,17 @@ const CartPage: React.FC = () => {
                                 {isUpdating === item.productId ? (
                                   <LoadingSpinner size='sm' />
                                 ) : (
-                                  item.quantity
+                                  (item as any)?.quantity
                                 )}
                               </span>
 
                               <button
                                 onClick={() =>
-                                  handleQuantityUpdate(item.productId, item.quantity + 1)
+                                  handleQuantityUpdate(item.productId, (item as any)?.quantity + 1)
                                 }
                                 disabled={
-                                  item.quantity >= product.quantity || isUpdating === item.productId
+                                  (item as any)?.quantity >= product.quantity ||
+                                  isUpdating === item.productId
                                 }
                                 className='p-2 hover:bg-neutral-100 transition-colors disabled:opacity-50 disabled:cursor-not-allowed'
                               >
@@ -433,7 +438,7 @@ const CartPage: React.FC = () => {
                     toast.error(
                       language === 'ar' ? 'يجب تسجيل الدخول أولاً' : 'Please login first'
                     );
-                    return;
+                    //                     return;
                   }
                   toast(
                     language === 'ar' ? 'قريباً - نظام الدفع' : 'Coming Soon - Payment System',

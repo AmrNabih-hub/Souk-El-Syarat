@@ -1,11 +1,11 @@
+import { db, auth } from '@/config/firebase.config';
 /**
  * Push Notification Service for Souk El-Sayarat
  * Handles Firebase Cloud Messaging for real-time notifications
  */
 
-import { getToken, onMessage, Messaging } from 'firebase/messaging';
 import { messaging } from '../config/firebase.config';
-import { doc, updateDoc } from 'firebase/firestore';
+
 import { db } from '../config/firebase.config';
 
 export interface PushNotificationPayload {
@@ -62,7 +62,9 @@ export class PushNotificationService {
         return null;
       }
     } catch (error) {
-      if (process.env.NODE_ENV === 'development') if (process.env.NODE_ENV === 'development') console.error('Error initializing push notifications:', error);
+      if (process.env.NODE_ENV === 'development')
+        if (process.env.NODE_ENV === 'development')
+          console.error('Error initializing push notifications:', error);
       return null;
     }
   }
@@ -87,7 +89,9 @@ export class PushNotificationService {
       const permission = await Notification.requestPermission();
       return permission;
     } catch (error) {
-      if (process.env.NODE_ENV === 'development') if (process.env.NODE_ENV === 'development') console.error('Error requesting notification permission:', error);
+      if (process.env.NODE_ENV === 'development')
+        if (process.env.NODE_ENV === 'development')
+          console.error('Error requesting notification permission:', error);
       return 'denied';
     }
   }
@@ -102,7 +106,8 @@ export class PushNotificationService {
         pushNotificationsEnabled: true,
       });
     } catch (error) {
-      if (process.env.NODE_ENV === 'development') if (process.env.NODE_ENV === 'development') console.error('Error saving FCM token:', error);
+      if (process.env.NODE_ENV === 'development')
+        if (process.env.NODE_ENV === 'development') console.error('Error saving FCM token:', error);
     }
   }
 
@@ -132,12 +137,12 @@ export class PushNotificationService {
     try {
       if (!('serviceWorker' in navigator) || !('Notification' in window)) {
         // if (process.env.NODE_ENV === 'development') console.warn('Browser does not support notifications');
-        return;
+        //         return;
       }
 
       if (Notification.permission !== 'granted') {
         // if (process.env.NODE_ENV === 'development') console.warn('Notification permission not granted');
-        return;
+        //         return;
       }
 
       const registration = await navigator.serviceWorker.ready;
@@ -157,7 +162,9 @@ export class PushNotificationService {
         // timestamp: Date.now(), // Not supported in basic Notification API
       });
     } catch (error) {
-      if (process.env.NODE_ENV === 'development') if (process.env.NODE_ENV === 'development') console.error('Error showing notification:', error);
+      if (process.env.NODE_ENV === 'development')
+        if (process.env.NODE_ENV === 'development')
+          console.error('Error showing notification:', error);
     }
   }
 
@@ -166,7 +173,7 @@ export class PushNotificationService {
     try {
       if (Notification.permission !== 'granted') {
         // if (process.env.NODE_ENV === 'development') console.warn('Notification permission not granted');
-        return;
+        //         return;
       }
 
       const notification = new Notification(payload.title, {
@@ -200,7 +207,9 @@ export class PushNotificationService {
         notification.close();
       }, 10000);
     } catch (error) {
-      if (process.env.NODE_ENV === 'development') if (process.env.NODE_ENV === 'development') console.error('Error showing local notification:', error);
+      if (process.env.NODE_ENV === 'development')
+        if (process.env.NODE_ENV === 'development')
+          console.error('Error showing local notification:', error);
     }
   }
 
@@ -217,7 +226,9 @@ export class PushNotificationService {
 
       // if (process.env.NODE_ENV === 'development') console.log(`📢 Subscribed to topic: ${topic}`);
     } catch (error) {
-      if (process.env.NODE_ENV === 'development') if (process.env.NODE_ENV === 'development') console.error(`Error subscribing to topic ${topic}:`, error);
+      if (process.env.NODE_ENV === 'development')
+        if (process.env.NODE_ENV === 'development')
+          console.error(`Error subscribing to topic ${topic}:`, error);
     }
   }
 
@@ -232,7 +243,9 @@ export class PushNotificationService {
 
       // if (process.env.NODE_ENV === 'development') console.log(`📢 Unsubscribed from topic: ${topic}`);
     } catch (error) {
-      if (process.env.NODE_ENV === 'development') if (process.env.NODE_ENV === 'development') console.error(`Error unsubscribing from topic ${topic}:`, error);
+      if (process.env.NODE_ENV === 'development')
+        if (process.env.NODE_ENV === 'development')
+          console.error(`Error unsubscribing from topic ${topic}:`, error);
     }
   }
 
@@ -255,7 +268,9 @@ export class PushNotificationService {
 
       // if (process.env.NODE_ENV === 'development') console.log('🔔 Notification preferences updated');
     } catch (error) {
-      if (process.env.NODE_ENV === 'development') if (process.env.NODE_ENV === 'development') console.error('Error updating notification preferences:', error);
+      if (process.env.NODE_ENV === 'development')
+        if (process.env.NODE_ENV === 'development')
+          console.error('Error updating notification preferences:', error);
     }
   }
 
@@ -271,7 +286,9 @@ export class PushNotificationService {
 
       // if (process.env.NODE_ENV === 'development') console.log('🔕 Push notifications disabled');
     } catch (error) {
-      if (process.env.NODE_ENV === 'development') if (process.env.NODE_ENV === 'development') console.error('Error disabling push notifications:', error);
+      if (process.env.NODE_ENV === 'development')
+        if (process.env.NODE_ENV === 'development')
+          console.error('Error disabling push notifications:', error);
     }
   }
 
@@ -292,18 +309,18 @@ export class PushNotificationService {
     switch (action) {
       case 'view_order':
         window.location.href = `/orders/${data.orderId}`;
-        break;
+      //         break;
       case 'view_message':
         window.location.href = `/messages/${data.senderId}`;
-        break;
+      //         break;
       case 'view_product':
         window.location.href = `/products/${data.productId}`;
-        break;
+      //         break;
       case 'dismiss':
-        // Just close the notification
-        break;
+      // Just close the notification
+      //         break;
       default:
-        // if (process.env.NODE_ENV === 'development') console.log('Unknown notification action:', action);
+      // if (process.env.NODE_ENV === 'development') console.log('Unknown notification action:', action);
     }
   }
 

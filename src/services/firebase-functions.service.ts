@@ -3,7 +3,6 @@
  * Handles all backend operations and automated processes
  */
 
-import { httpsCallable, Functions, connectFunctionsEmulator } from 'firebase/functions';
 import { functions } from '../config/firebase.config';
 
 // Connect to emulators in development
@@ -93,7 +92,9 @@ export class FirebaseFunctionsService {
       await sendEmail(data);
       // if (process.env.NODE_ENV === 'development') console.log('Email notification sent successfully');
     } catch (error) {
-      if (process.env.NODE_ENV === 'development') if (process.env.NODE_ENV === 'development') console.error('Error sending email notification:', error);
+      if (process.env.NODE_ENV === 'development')
+        if (process.env.NODE_ENV === 'development')
+          console.error('Error sending email notification:', error);
       throw new Error('Failed to send email notification');
     }
   }
@@ -107,7 +108,9 @@ export class FirebaseFunctionsService {
       await processApproval(data);
       // if (process.env.NODE_ENV === 'development') console.log('Vendor approval processed successfully');
     } catch (error) {
-      if (process.env.NODE_ENV === 'development') if (process.env.NODE_ENV === 'development') console.error('Error processing vendor approval:', error);
+      if (process.env.NODE_ENV === 'development')
+        if (process.env.NODE_ENV === 'development')
+          console.error('Error processing vendor approval:', error);
       throw new Error('Failed to process vendor approval');
     }
   }
@@ -121,7 +124,9 @@ export class FirebaseFunctionsService {
       await sendOrderNotification(data);
       // if (process.env.NODE_ENV === 'development') console.log('Order notification sent successfully');
     } catch (error) {
-      if (process.env.NODE_ENV === 'development') if (process.env.NODE_ENV === 'development') console.error('Error sending order notification:', error);
+      if (process.env.NODE_ENV === 'development')
+        if (process.env.NODE_ENV === 'development')
+          console.error('Error sending order notification:', error);
       throw new Error('Failed to send order notification');
     }
   }
@@ -135,7 +140,9 @@ export class FirebaseFunctionsService {
       await sendSystemNotification(data);
       // if (process.env.NODE_ENV === 'development') console.log('System notification sent successfully');
     } catch (error) {
-      if (process.env.NODE_ENV === 'development') if (process.env.NODE_ENV === 'development') console.error('Error sending system notification:', error);
+      if (process.env.NODE_ENV === 'development')
+        if (process.env.NODE_ENV === 'development')
+          console.error('Error sending system notification:', error);
       throw new Error('Failed to send system notification');
     }
   }
@@ -152,7 +159,9 @@ export class FirebaseFunctionsService {
       await generateReport({ reportType, dateRange });
       // if (process.env.NODE_ENV === 'development') console.log('Analytics report generated successfully');
     } catch (error) {
-      if (process.env.NODE_ENV === 'development') if (process.env.NODE_ENV === 'development') console.error('Error generating analytics report:', error);
+      if (process.env.NODE_ENV === 'development')
+        if (process.env.NODE_ENV === 'development')
+          console.error('Error generating analytics report:', error);
       throw new Error('Failed to generate analytics report');
     }
   }
@@ -166,7 +175,9 @@ export class FirebaseFunctionsService {
       await processWebhook(webhookData);
       // if (process.env.NODE_ENV === 'development') console.log('Payment webhook processed successfully');
     } catch (error) {
-      if (process.env.NODE_ENV === 'development') if (process.env.NODE_ENV === 'development') console.error('Error processing payment webhook:', error);
+      if (process.env.NODE_ENV === 'development')
+        if (process.env.NODE_ENV === 'development')
+          console.error('Error processing payment webhook:', error);
       throw new Error('Failed to process payment webhook');
     }
   }
@@ -180,7 +191,9 @@ export class FirebaseFunctionsService {
       await backupDb({ backupType });
       // if (process.env.NODE_ENV === 'development') console.log('Database backup initiated successfully');
     } catch (error) {
-      if (process.env.NODE_ENV === 'development') if (process.env.NODE_ENV === 'development') console.error('Error initiating database backup:', error);
+      if (process.env.NODE_ENV === 'development')
+        if (process.env.NODE_ENV === 'development')
+          console.error('Error initiating database backup:', error);
       throw new Error('Failed to initiate database backup');
     }
   }
@@ -194,7 +207,9 @@ export class FirebaseFunctionsService {
       await cleanup();
       // if (process.env.NODE_ENV === 'development') console.log('Data cleanup completed successfully');
     } catch (error) {
-      if (process.env.NODE_ENV === 'development') if (process.env.NODE_ENV === 'development') console.error('Error during data cleanup:', error);
+      if (process.env.NODE_ENV === 'development')
+        if (process.env.NODE_ENV === 'development')
+          console.error('Error during data cleanup:', error);
       throw new Error('Failed to cleanup expired data');
     }
   }
@@ -211,7 +226,9 @@ export class FirebaseFunctionsService {
       await bulkOp({ operation, data });
       // if (process.env.NODE_ENV === 'development') console.log('Bulk operation completed successfully');
     } catch (error) {
-      if (process.env.NODE_ENV === 'development') if (process.env.NODE_ENV === 'development') console.error('Error during bulk operation:', error);
+      if (process.env.NODE_ENV === 'development')
+        if (process.env.NODE_ENV === 'development')
+          console.error('Error during bulk operation:', error);
       throw new Error('Failed to process bulk operation');
     }
   }
@@ -229,7 +246,9 @@ export class FirebaseFunctionsService {
       const result = await healthCheck();
       return result.data as any;
     } catch (error) {
-      if (process.env.NODE_ENV === 'development') if (process.env.NODE_ENV === 'development') console.error('Error during health check:', error);
+      if (process.env.NODE_ENV === 'development')
+        if (process.env.NODE_ENV === 'development')
+          console.error('Error during health check:', error);
       return {
         status: 'unhealthy',
         services: {},

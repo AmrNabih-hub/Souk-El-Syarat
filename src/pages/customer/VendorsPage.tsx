@@ -1,6 +1,6 @@
-import React, { useState, useEffect } from 'react';
+import React from 'react';
 import { Link } from 'react-router-dom';
-import { motion } from 'framer-motion';
+
 import {
   MapPinIcon,
   PhoneIcon,
@@ -12,9 +12,9 @@ import {
   MagnifyingGlassIcon,
   FunnelIcon,
 } from '@heroicons/react/24/outline';
-import { StarIcon as StarSolid } from '@heroicons/react/24/solid';
+
 import { useAppStore } from '@/stores/appStore';
-import { SampleVendorsService } from '@/services/sample-vendors.service';
+
 import { Vendor } from '@/types';
 import LoadingSpinner from '@/components/ui/LoadingSpinner';
 import clsx from 'clsx';
@@ -22,7 +22,7 @@ import clsx from 'clsx';
 const VendorCard: React.FC<{ vendor: Vendor }> = ({ vendor }) => {
   const { language } = useAppStore();
 
-  const businessTypeIcons: Record<string, React.ComponentType<Record<string, never>>> = {
+  const businessTypeIcons: Record<string, React.React.ComponentType<Record<string, never>>> = {
     dealership: BuildingStorefrontIcon,
     parts_supplier: CogIcon,
     service_center: WrenchScrewdriverIcon,
