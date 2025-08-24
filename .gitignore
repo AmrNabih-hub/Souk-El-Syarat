@@ -70,3 +70,13 @@ out/
 # Misc
 *.tgz
 *.tar.gz
+
+# Core dumps and system files
+core
+core.*
+*.core
+
+# Core dumps and system files
+core
+core.*
+*.core
