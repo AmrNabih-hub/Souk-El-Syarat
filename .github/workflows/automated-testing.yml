@@ -230,6 +230,8 @@ jobs:
     runs-on: ubuntu-latest
     needs: [unit-tests, integration-tests, e2e-tests, mobile-tests, performance-tests, security-tests]
     timeout-minutes: 10
+    env:
+      SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
     
     steps:
       - name: 📥 Checkout code
@@ -261,7 +263,7 @@ jobs:
           retention-days: 30
 
       - name: 📧 Send test report (if configured)
-        if: ${{ secrets.SLACK_WEBHOOK_URL }}
+        if: env.SLACK_WEBHOOK_URL != ''
         uses: 8398a7/action-slack@v3
         with:
           status: ${{ job.status }}
