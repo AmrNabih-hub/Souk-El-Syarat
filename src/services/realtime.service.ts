@@ -3,6 +3,7 @@
  * Handles real-time updates using Firebase Realtime Database
  */
 
+import { db, realtimeDb } from '@/config/firebase.config';
 import {
   collection,
   query,

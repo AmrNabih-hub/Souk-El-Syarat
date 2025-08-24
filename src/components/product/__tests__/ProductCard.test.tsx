@@ -3,9 +3,40 @@
  * Comprehensive unit testing for ProductCard component
  */
 
-import { screen, fireEvent, waitFor } from '@testing-library/react';
+import React from 'react';
+import { render, screen, fireEvent, waitFor } from '@testing-library/react';
+import { vi, describe, it, expect, beforeEach } from 'vitest';
 
 import ProductCard from '../ProductCard';
+import { Product } from '@/types';
+
+// Create mock product function
+const createMockProduct = (): Product => ({
+  id: 'test-product-1',
+  name: 'Test Car',
+  description: 'A test car for testing',
+  price: 25000,
+  originalPrice: 30000,
+  images: ['test-image.jpg'],
+  category: 'sedan',
+  condition: 'used',
+  year: 2020,
+  mileage: 50000,
+  fuelType: 'petrol',
+  transmission: 'automatic',
+  bodyType: 'sedan',
+  color: 'black',
+  engineSize: 2.0,
+  doors: 4,
+  seats: 5,
+  vendorId: 'vendor-1',
+  vendorName: 'Test Vendor',
+  location: 'Cairo',
+  status: 'active',
+  featured: false,
+  createdAt: new Date(),
+  updatedAt: new Date(),
+});
 
 // Mock stores
 vi.mock('@/stores/appStore', () => ({

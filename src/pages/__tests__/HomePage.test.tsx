@@ -3,7 +3,9 @@
  * Integration testing for the main landing page
  */
 
-import { screen, fireEvent, waitFor } from '@testing-library/react';
+import React from 'react';
+import { render, screen, fireEvent, waitFor } from '@testing-library/react';
+import { vi, describe, it, expect, beforeEach } from 'vitest';
 
 import HomePage from '../HomePage';
 
@@ -14,6 +16,28 @@ const mockUseAppStore = vi.fn(() => ({
 
 vi.mock('@/stores/appStore', () => ({
   useAppStore: mockUseAppStore,
+}));
+
+// Mock React Router
+vi.mock('react-router-dom', () => ({
+  Link: ({ children, to, className, ...props }: any) => (
+    <a href={to} className={className} {...props}>
+      {children}
+    </a>
+  ),
+  useNavigate: () => vi.fn(),
+  BrowserRouter: ({ children }: any) => <div>{children}</div>,
+}));
+
+// Mock Motion (Framer Motion)
+vi.mock('framer-motion', () => ({
+  motion: {
+    div: ({ children, ...props }: any) => <div {...props}>{children}</div>,
+    section: ({ children, ...props }: any) => <section {...props}>{children}</section>,
+    h1: ({ children, ...props }: any) => <h1 {...props}>{children}</h1>,
+    p: ({ children, ...props }: any) => <p {...props}>{children}</p>,
+    button: ({ children, ...props }: any) => <button {...props}>{children}</button>,
+  },
 }));
 
 // Mock services

@@ -3,7 +3,7 @@
  * Handles all types of notifications with real-time delivery
  */
 
-
+import { db } from '@/config/firebase.config';
 import { Notification, NotificationType } from '@/types';
 import { 
   collection, 
@@ -276,41 +276,9 @@ export class NotificationService {
     return NotificationService.getInstance().subscribeToUserNotifications(userId, callback);
   }
 
-  subscribeToUserNotifications(userId: string, callback: (notifications: Notification[]) => void) {
-    const q = query(
-      this.notificationsCollection,
-      where('userId', '==', userId),
-      orderBy('createdAt', 'desc')
-    );
-    
-    return onSnapshot(q, (snapshot) => {
-      const notifications = snapshot.docs.map(doc => {
-        const data = doc.data();
-        return {
-          id: doc.id,
-          ...(data as any),
-          createdAt: data.createdAt.toDate() || new Date(),
-        } as Notification;
-      });
-      callback(notifications);
-    });
-  }
-
   // Subscribe to unread notification count
   static subscribeToUnreadCount(userId: string, callback: (count: number) => void) {
     return NotificationService.getInstance().subscribeToUnreadCount(userId, callback);
-  }
-
-  subscribeToUnreadCount(userId: string, callback: (count: number) => void) {
-    const q = query(
-      this.notificationsCollection,
-      where('userId', '==', userId),
-      where('read', '==', false)
-    );
-    
-    return onSnapshot(q, (snapshot) => {
-      callback(snapshot.size);
-    });
   }
 
   // Mark notification as read
@@ -318,46 +286,9 @@ export class NotificationService {
     return await NotificationService.getInstance().markAsRead(notificationId);
   }
 
-  async markAsRead(notificationId: string): Promise<void> {
-    try {
-      const notificationRef = doc(this.notificationsCollection, notificationId);
-      await updateDoc(notificationRef, {
-        read: true,
-        updatedAt: serverTimestamp()
-      });
-    } catch (error) {
-      if (process.env.NODE_ENV === 'development') console.error('Error marking notification as read:', error);
-      throw new Error('Failed to mark notification as read');
-    }
-  }
-
   // Mark all notifications as read for a user
   static async markAllAsRead(userId: string): Promise<void> {
     return await NotificationService.getInstance().markAllAsRead(userId);
-  }
-
-  async markAllAsRead(userId: string): Promise<void> {
-    try {
-      const q = query(
-        this.notificationsCollection,
-        where('userId', '==', userId),
-        where('read', '==', false)
-      );
-      const snapshot = await getDocs(q);
-      
-      const batch = writeBatch(db);
-      snapshot.docs.forEach(doc => {
-        batch.update(doc.ref, {
-          read: true,
-          updatedAt: serverTimestamp()
-        });
-      });
-      
-      await batch.commit();
-    } catch (error) {
-      if (process.env.NODE_ENV === 'development') console.error('Error marking all notifications as read:', error);
-      throw new Error('Failed to mark all notifications as read');
-    }
   }
 
   // Additional static methods for compatibility
