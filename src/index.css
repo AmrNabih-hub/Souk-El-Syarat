@@ -1,0 +1,346 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* Global Styles */
+@layer base {
+  html {
+    font-family: 'Cairo', 'Inter', system-ui, sans-serif;
+  }
+
+  body {
+    @apply bg-neutral-50 text-neutral-900 antialiased;
+    font-feature-settings: 'cv02', 'cv03', 'cv04', 'cv11';
+  }
+
+  * {
+    @apply border-neutral-200;
+  }
+
+  /* RTL Support */
+  [dir='rtl'] {
+    direction: rtl;
+  }
+
+  [dir='ltr'] {
+    direction: ltr;
+  }
+
+  /* Scrollbar Styles */
+  ::-webkit-scrollbar {
+    @apply w-2 h-2;
+  }
+
+  ::-webkit-scrollbar-track {
+    @apply bg-neutral-100 rounded-full;
+  }
+
+  ::-webkit-scrollbar-thumb {
+    @apply bg-neutral-300 rounded-full hover:bg-neutral-400;
+  }
+
+  /* Firefox Scrollbar */
+  * {
+    scrollbar-width: thin;
+    scrollbar-color: #d4d4d4 #f5f5f5;
+  }
+}
+
+/* Component Styles */
+@layer components {
+  /* Button Variants */
+  .btn {
+    @apply inline-flex items-center justify-center rounded-lg font-medium transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed;
+  }
+
+  .btn-primary {
+    @apply bg-primary-500 text-white hover:bg-primary-600 focus:ring-primary-500 shadow-md hover:shadow-lg transform hover:scale-105;
+  }
+
+  .btn-secondary {
+    @apply bg-secondary-500 text-white hover:bg-secondary-600 focus:ring-secondary-500 shadow-md hover:shadow-lg transform hover:scale-105;
+  }
+
+  .btn-outline {
+    @apply border-2 border-primary-500 text-primary-500 hover:bg-primary-500 hover:text-white focus:ring-primary-500;
+  }
+
+  .btn-ghost {
+    @apply text-neutral-600 hover:bg-neutral-100 focus:ring-neutral-500;
+  }
+
+  .btn-sm {
+    @apply px-3 py-1.5 text-sm;
+  }
+
+  .btn-md {
+    @apply px-4 py-2 text-base;
+  }
+
+  .btn-lg {
+    @apply px-6 py-3 text-lg;
+  }
+
+  /* Card Styles */
+  .card {
+    @apply bg-white rounded-xl shadow-sm border border-neutral-200 overflow-hidden;
+  }
+
+  .card-hover {
+    @apply transition-all duration-300 hover:shadow-lg hover:shadow-primary-500/10 hover:-translate-y-1;
+  }
+
+  .card-glow {
+    @apply shadow-glow hover:shadow-glow-lg transition-shadow duration-300;
+  }
+
+  /* Input Styles */
+  .input {
+    @apply block w-full rounded-lg border-neutral-300 bg-white px-3 py-2 text-neutral-900 placeholder-neutral-500 focus:border-primary-500 focus:ring-1 focus:ring-primary-500 disabled:opacity-50 disabled:cursor-not-allowed;
+  }
+
+  .input-error {
+    @apply border-red-500 focus:border-red-500 focus:ring-red-500;
+  }
+
+  /* Badge Styles */
+  .badge {
+    @apply inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-medium;
+  }
+
+  .badge-success {
+    @apply bg-success-100 text-success-800;
+  }
+
+  .badge-warning {
+    @apply bg-yellow-100 text-yellow-800;
+  }
+
+  .badge-error {
+    @apply bg-red-100 text-red-800;
+  }
+
+  .badge-info {
+    @apply bg-secondary-100 text-secondary-800;
+  }
+
+  /* Loading Spinner */
+  .spinner {
+    @apply animate-spin rounded-full border-2 border-neutral-300 border-t-primary-500;
+  }
+
+  /* Gradient Text */
+  .gradient-text {
+    @apply bg-gradient-to-r from-primary-500 to-secondary-500 bg-clip-text text-transparent;
+  }
+
+  /* Floating Elements */
+  .floating {
+    @apply animate-float;
+  }
+
+  /* Glow Effect */
+  .glow-effect {
+    @apply animate-glow;
+  }
+
+  /* Glass Morphism */
+  .glass {
+    @apply backdrop-blur-sm bg-white/80 border border-white/20;
+  }
+
+  .glass-dark {
+    @apply backdrop-blur-sm bg-neutral-900/80 border border-white/10;
+  }
+}
+
+/* Utility Classes */
+@layer utilities {
+  /* Text Direction Utilities */
+  .text-start {
+    text-align: start;
+  }
+
+  .text-end {
+    text-align: end;
+  }
+
+  /* Custom Animations */
+  .animate-fade-in {
+    animation: fadeIn 0.5s ease-in-out;
+  }
+
+  .animate-fade-in-up {
+    animation: fadeInUp 0.6s ease-out;
+  }
+
+  .animate-scale-in {
+    animation: scaleIn 0.3s ease-out;
+  }
+
+  .animate-slide-in-right {
+    animation: slideInRight 0.4s ease-out;
+  }
+
+  .animate-slide-in-left {
+    animation: slideInLeft 0.4s ease-out;
+  }
+
+  /* Custom Shadows */
+  .shadow-primary {
+    box-shadow:
+      0 4px 6px -1px rgb(245 158 11 / 0.1),
+      0 2px 4px -1px rgb(245 158 11 / 0.06);
+  }
+
+  .shadow-secondary {
+    box-shadow:
+      0 4px 6px -1px rgb(14 165 233 / 0.1),
+      0 2px 4px -1px rgb(14 165 233 / 0.06);
+  }
+
+  /* Responsive Typography */
+  .text-responsive-xs {
+    @apply text-xs sm:text-sm;
+  }
+
+  .text-responsive-sm {
+    @apply text-sm sm:text-base;
+  }
+
+  .text-responsive-base {
+    @apply text-base sm:text-lg;
+  }
+
+  .text-responsive-lg {
+    @apply text-lg sm:text-xl;
+  }
+
+  .text-responsive-xl {
+    @apply text-xl sm:text-2xl;
+  }
+
+  .text-responsive-2xl {
+    @apply text-2xl sm:text-3xl;
+  }
+
+  .text-responsive-3xl {
+    @apply text-3xl sm:text-4xl;
+  }
+
+  /* Layout Utilities */
+  .safe-top {
+    padding-top: env(safe-area-inset-top);
+  }
+
+  .safe-bottom {
+    padding-bottom: env(safe-area-inset-bottom);
+  }
+
+  .safe-left {
+    padding-left: env(safe-area-inset-left);
+  }
+
+  .safe-right {
+    padding-right: env(safe-area-inset-right);
+  }
+}
+
+/* Custom Animations for Egyptian Theme */
+@keyframes papyrusFlow {
+  0%,
+  100% {
+    transform: translateY(0px) rotate(0deg);
+    filter: hue-rotate(0deg);
+  }
+  33% {
+    transform: translateY(-10px) rotate(1deg);
+    filter: hue-rotate(10deg);
+  }
+  66% {
+    transform: translateY(5px) rotate(-1deg);
+    filter: hue-rotate(-10deg);
+  }
+}
+
+@keyframes goldShimmer {
+  0% {
+    background-position: -200% 0;
+  }
+  100% {
+    background-position: 200% 0;
+  }
+}
+
+.animate-papyrus-flow {
+  animation: papyrusFlow 4s ease-in-out infinite;
+}
+
+.animate-gold-shimmer {
+  background: linear-gradient(90deg, transparent, rgba(245, 158, 11, 0.4), transparent);
+  background-size: 200% 100%;
+  animation: goldShimmer 2s infinite;
+}
+
+/* Product Card Hover Effects */
+.product-card {
+  @apply transition-all duration-300 ease-in-out;
+
+  &:hover {
+    @apply transform -translate-y-2 shadow-2xl;
+
+    .product-image {
+      @apply scale-110;
+    }
+
+    .product-overlay {
+      @apply opacity-100;
+    }
+  }
+}
+
+.product-image {
+  @apply transition-transform duration-300 ease-in-out;
+}
+
+.product-overlay {
+  @apply opacity-0 transition-opacity duration-300 ease-in-out;
+}
+
+/* Egyptian Cultural Elements */
+.hieroglyph-border {
+  background-image: url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%23f59e0b' fill-opacity='0.1'%3E%3Cpath d='M30 30c0-16.569 13.431-30 30-30v60c-16.569 0-30-13.431-30-30z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E");
+}
+
+.pyramid-pattern {
+  background-image: linear-gradient(
+    135deg,
+    transparent 25%,
+    rgba(245, 158, 11, 0.1) 25%,
+    rgba(245, 158, 11, 0.1) 50%,
+    transparent 50%,
+    transparent 75%,
+    rgba(245, 158, 11, 0.1) 75%
+  );
+  background-size: 20px 20px;
+}
+
+/* Loading States */
+.loading-skeleton {
+  @apply animate-pulse bg-neutral-200 rounded;
+}
+
+.loading-shimmer {
+  background: linear-gradient(90deg, #f5f5f5 25%, #e5e5e5 50%, #f5f5f5 75%);
+  background-size: 200% 100%;
+  animation: shimmer 1.5s infinite;
+}
+
+@keyframes shimmer {
+  0% {
+    background-position: -200% 0;
+  }
+  100% {
+    background-position: 200% 0;
+  }
+}

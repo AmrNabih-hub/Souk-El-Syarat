@@ -1,0 +1,594 @@
+# 📊 **MONITORING & ALERTING AUTOMATION**
+# Real-time Platform Monitoring for Souk El-Sayarat
+# Enhanced with Senior Developer Best Practices
+
+name: 📊 Monitoring & Alerts
+
+on:
+  schedule:
+    # Run monitoring checks every 15 minutes
+    - cron: '*/15 * * * *'
+  workflow_dispatch:
+    inputs:
+      alert_level:
+        description: 'Alert Level'
+        required: true
+        default: 'info'
+        type: choice
+        options:
+          - info
+          - warning
+          - critical
+      environment:
+        description: 'Environment to monitor'
+        required: true
+        default: 'production'
+        type: choice
+        options:
+          - staging
+          - production
+
+# Global environment variables with proper validation
+env:
+  MONITORING_INTERVAL: 15
+  ALERT_THRESHOLD_RESPONSE_TIME: 2000
+  ALERT_THRESHOLD_ERROR_RATE: 5
+  ALERT_THRESHOLD_UPTIME: 99
+  MAX_RETRIES: 3
+  TIMEOUT_SECONDS: 30
+
+jobs:
+  # 🔍 **HEALTH MONITORING**
+  health-check:
+    name: 🔍 Platform Health Check
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    outputs:
+      health-status: ${{ steps.health.outputs.status }}
+      response-time: ${{ steps.health.outputs.response_time }}
+      uptime: ${{ steps.health.outputs.uptime }}
+      last-check: ${{ steps.health.outputs.last_check }}
+    steps:
+      - name: 🔍 Check Platform Health
+        id: health
+        run: |
+          # Production Health Check with proper error handling
+          set -euo pipefail
+          
+          # Validate required secrets
+          if [ -z "${{ secrets.FIREBASE_PROJECT_ID }}" ]; then
+            echo "❌ Error: FIREBASE_PROJECT_ID secret is not set"
+            exit 1
+          fi
+          
+          PROD_URL="https://${{ secrets.FIREBASE_PROJECT_ID }}.web.app"
+          echo "🔍 Monitoring URL: $PROD_URL"
+          
+          # Measure response time with retry logic
+          START_TIME=$(date +%s%N)
+          
+          # Try multiple times with exponential backoff
+          for attempt in $(seq 1 ${{ env.MAX_RETRIES }}); do
+            HTTP_CODE=$(curl -s -o /dev/null -w "%{http_code}" --max-time ${{ env.TIMEOUT_SECONDS }} "$PROD_URL/health" || echo "000")
+            
+            if [ "$HTTP_CODE" != "000" ] && [ "$HTTP_CODE" != "" ]; then
+              break
+            fi
+            
+            if [ $attempt -lt ${{ env.MAX_RETRIES }} ]; then
+              echo "⚠️ Attempt $attempt failed, retrying in $((2 ** attempt)) seconds..."
+              sleep $((2 ** attempt))
+            fi
+          done
+          
+          END_TIME=$(date +%s%N)
+          RESPONSE_TIME=$(( (END_TIME - START_TIME) / 1000000 ))
+          
+          # Set outputs
+          echo "response_time=$RESPONSE_TIME" >> $GITHUB_OUTPUT
+          echo "last_check=$(date -u +%Y-%m-%dT%H:%M:%SZ)" >> $GITHUB_OUTPUT
+          
+          # Check if site is healthy
+          if [ "$HTTP_CODE" = "200" ]; then
+            echo "status=healthy" >> $GITHUB_OUTPUT
+            echo "uptime=100" >> $GITHUB_OUTPUT
+          else
+            echo "status=unhealthy" >> $GITHUB_OUTPUT
+            echo "uptime=0" >> $GITHUB_OUTPUT
+          fi
+          
+          echo "🔍 Health Check Results:"
+          echo "  Status: $([ "$HTTP_CODE" = "200" ] && echo "✅ Healthy" || echo "❌ Unhealthy")"
+          echo "  Response Time: ${RESPONSE_TIME}ms"
+          echo "  HTTP Code: $HTTP_CODE"
+          echo "  Timestamp: $(date -u)"
+
+      - name: 🚨 Alert on Health Issues
+        if: steps.health.outputs.status == 'unhealthy'
+        uses: 8398a7/action-slack@v3
+        with:
+          status: failure
+          channel: '#alerts'
+          webhook_url: ${{ secrets.SLACK_WEBHOOK }}
+          message: |
+            🚨 **CRITICAL ALERT: Platform Health Issue**
+            
+            🔍 **Details:**
+            - Status: ❌ Unhealthy
+            - Response Time: ${{ steps.health.outputs.response_time }}ms
+            - Uptime: ${{ steps.health.outputs.uptime }}%
+            - Last Check: ${{ steps.health.outputs.last_check }}
+            - Environment: ${{ github.event.inputs.environment || 'production' }}
+            
+            🛠️ **Action Required:** Immediate investigation needed
+            
+            🔗 **Dashboard:** https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}
+
+  # ⚡ **PERFORMANCE MONITORING**
+  performance-monitor:
+    name: ⚡ Performance Monitoring
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    needs: health-check
+    if: needs.health-check.outputs.health-status == 'healthy'
+    outputs:
+      avg-response-time: ${{ steps.performance.outputs.avg_response_time }}
+      lighthouse-score: ${{ steps.performance.outputs.lighthouse_score }}
+      performance-status: ${{ steps.performance.outputs.performance_status }}
+    steps:
+      - name: ⚡ Performance Metrics Collection
+        id: performance
+        run: |
+          set -euo pipefail
+          
+          # Validate required secrets
+          if [ -z "${{ secrets.FIREBASE_PROJECT_ID }}" ]; then
+            echo "❌ Error: FIREBASE_PROJECT_ID secret is not set"
+            exit 1
+          fi
+          
+          PROD_URL="https://${{ secrets.FIREBASE_PROJECT_ID }}.web.app"
+          
+          # Collect multiple performance metrics
+          echo "🔄 Collecting performance metrics..."
+          
+          # Response time test (multiple samples)
+          TOTAL_TIME=0
+          SAMPLES=5
+          SUCCESSFUL_SAMPLES=0
+          
+          for i in $(seq 1 $SAMPLES); do
+            echo "  📊 Sample $i/$SAMPLES..."
+            START_TIME=$(date +%s%N)
+            
+            if curl -s --max-time ${{ env.TIMEOUT_SECONDS }} "$PROD_URL" > /dev/null; then
+              END_TIME=$(date +%s%N)
+              SAMPLE_TIME=$(( (END_TIME - START_TIME) / 1000000 ))
+              TOTAL_TIME=$(( TOTAL_TIME + SAMPLE_TIME ))
+              SUCCESSFUL_SAMPLES=$(( SUCCESSFUL_SAMPLES + 1 ))
+              echo "    ✅ Sample $i: ${SAMPLE_TIME}ms"
+            else
+              echo "    ❌ Sample $i: Failed"
+            fi
+            
+            # Small delay between samples
+            sleep 1
+          done
+          
+          if [ $SUCCESSFUL_SAMPLES -gt 0 ]; then
+            AVG_RESPONSE_TIME=$(( TOTAL_TIME / SUCCESSFUL_SAMPLES ))
+            echo "avg_response_time=$AVG_RESPONSE_TIME" >> $GITHUB_OUTPUT
+            
+            # Determine performance status
+            if [ $AVG_RESPONSE_TIME -le 1000 ]; then
+              echo "performance_status=excellent" >> $GITHUB_OUTPUT
+            elif [ $AVG_RESPONSE_TIME -le 2000 ]; then
+              echo "performance_status=good" >> $GITHUB_OUTPUT
+            elif [ $AVG_RESPONSE_TIME -le 3000 ]; then
+              echo "performance_status=acceptable" >> $GITHUB_OUTPUT
+            else
+              echo "performance_status=poor" >> $GITHUB_OUTPUT
+            fi
+          else
+            echo "avg_response_time=0" >> $GITHUB_OUTPUT
+            echo "performance_status=failed" >> $GITHUB_OUTPUT
+          fi
+          
+          # Page Load Speed Test (Lighthouse API)
+          echo "  🔍 Running Lighthouse performance test..."
+          LIGHTHOUSE_SCORE=$(curl -s --max-time 30 "https://www.googleapis.com/pagespeedinights/v5/runPagespeed?url=$PROD_URL&strategy=mobile" | jq -r '.lighthouseResult.categories.performance.score * 100' 2>/dev/null || echo "0")
+          
+          if [ "$LIGHTHOUSE_SCORE" = "null" ] || [ "$LIGHTHOUSE_SCORE" = "" ]; then
+            LIGHTHOUSE_SCORE=0
+          fi
+          
+          echo "lighthouse_score=$LIGHTHOUSE_SCORE" >> $GITHUB_OUTPUT
+          
+          echo "⚡ Performance Results:"
+          echo "  Successful Samples: $SUCCESSFUL_SAMPLES/$SAMPLES"
+          echo "  Average Response Time: ${AVG_RESPONSE_TIME}ms"
+          echo "  Lighthouse Score: ${LIGHTHOUSE_SCORE}/100"
+          echo "  Performance Status: $([ "$AVG_RESPONSE_TIME" != "0" ] && echo "$([ $AVG_RESPONSE_TIME -le 1000 ] && echo "Excellent" || echo "$([ $AVG_RESPONSE_TIME -le 2000 ] && echo "Good" || echo "$([ $AVG_RESPONSE_TIME -le 3000 ] && echo "Acceptable" || echo "Poor")")")" || echo "Failed")"
+
+      - name: 🚨 Performance Alert
+        if: steps.performance.outputs.avg_response_time > env.ALERT_THRESHOLD_RESPONSE_TIME
+        uses: 8398a7/action-slack@v3
+        with:
+          status: warning
+          channel: '#alerts'
+          webhook_url: ${{ secrets.SLACK_WEBHOOK }}
+          message: |
+            ⚠️ **PERFORMANCE ALERT: Slow Response Time**
+            
+            📊 **Metrics:**
+            - Average Response Time: ${{ steps.performance.outputs.avg_response_time }}ms
+            - Threshold: ${{ env.ALERT_THRESHOLD_RESPONSE_TIME }}ms
+            - Lighthouse Score: ${{ steps.performance.outputs.lighthouse_score }}/100
+            - Performance Status: ${{ steps.performance.outputs.performance_status }}
+            - Environment: ${{ github.event.inputs.environment || 'production' }}
+            
+            🔧 **Recommendation:** Performance optimization needed
+            
+            🔗 **Dashboard:** https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}
+
+  # 🔒 **SECURITY MONITORING**
+  security-monitor:
+    name: 🔒 Security Monitoring
+    runs-on: ubuntu-latest
+    timeout-minutes: 8
+    outputs:
+      security-score: ${{ steps.security.outputs.security_score }}
+      missing-headers: ${{ steps.security.outputs.missing_headers }}
+      security-status: ${{ steps.security.outputs.security_status }}
+    steps:
+      - name: 📥 Checkout Code
+        uses: actions/checkout@v4
+
+      - name: 🔒 Security Headers Check
+        id: security
+        run: |
+          set -euo pipefail
+          
+          # Validate required secrets
+          if [ -z "${{ secrets.FIREBASE_PROJECT_ID }}" ]; then
+            echo "❌ Error: FIREBASE_PROJECT_ID secret is not set"
+            exit 1
+          fi
+          
+          PROD_URL="https://${{ secrets.FIREBASE_PROJECT_ID }}.web.app"
+          
+          echo "🔒 Checking security headers for: $PROD_URL"
+          
+          # Check security headers with timeout
+          HEADERS=$(curl -s -I --max-time ${{ env.TIMEOUT_SECONDS }} "$PROD_URL")
+          
+          # Check for important security headers
+          CSP_HEADER=$(echo "$HEADERS" | grep -i "content-security-policy" || echo "MISSING")
+          HSTS_HEADER=$(echo "$HEADERS" | grep -i "strict-transport-security" || echo "MISSING")
+          XFRAME_HEADER=$(echo "$HEADERS" | grep -i "x-frame-options" || echo "MISSING")
+          XCONTENT_HEADER=$(echo "$HEADERS" | grep -i "x-content-type-options" || echo "MISSING")
+          REFERRER_HEADER=$(echo "$HEADERS" | grep -i "referrer-policy" || echo "MISSING")
+          
+          echo "🔒 Security Headers Analysis:"
+          echo "  Content-Security-Policy: $([ "$CSP_HEADER" != "MISSING" ] && echo "✅ Present" || echo "❌ Missing")"
+          echo "  Strict-Transport-Security: $([ "$HSTS_HEADER" != "MISSING" ] && echo "✅ Present" || echo "❌ Missing")"
+          echo "  X-Frame-Options: $([ "$XFRAME_HEADER" != "MISSING" ] && echo "✅ Present" || echo "❌ Missing")"
+          echo "  X-Content-Type-Options: $([ "$XCONTENT_HEADER" != "MISSING" ] && echo "✅ Present" || echo "❌ Missing")"
+          echo "  Referrer-Policy: $([ "$REFERRER_HEADER" != "MISSING" ] && echo "✅ Present" || echo "❌ Missing")"
+          
+          # Calculate security score and missing headers
+          MISSING_HEADERS=0
+          [ "$CSP_HEADER" = "MISSING" ] && MISSING_HEADERS=$((MISSING_HEADERS + 1))
+          [ "$HSTS_HEADER" = "MISSING" ] && MISSING_HEADERS=$((MISSING_HEADERS + 1))
+          [ "$XFRAME_HEADER" = "MISSING" ] && MISSING_HEADERS=$((MISSING_HEADERS + 1))
+          [ "$XCONTENT_HEADER" = "MISSING" ] && MISSING_HEADERS=$((MISSING_HEADERS + 1))
+          [ "$REFERRER_HEADER" = "MISSING" ] && MISSING_HEADERS=$((MISSING_HEADERS + 1))
+          
+          SECURITY_SCORE=$(( 100 - (MISSING_HEADERS * 20) ))
+          [ $SECURITY_SCORE -lt 0 ] && SECURITY_SCORE=0
+          
+          echo "missing_headers=$MISSING_HEADERS" >> $GITHUB_OUTPUT
+          echo "security_score=$SECURITY_SCORE" >> $GITHUB_OUTPUT
+          
+          # Determine security status
+          if [ $SECURITY_SCORE -ge 80 ]; then
+            echo "security_status=excellent" >> $GITHUB_OUTPUT
+          elif [ $SECURITY_SCORE -ge 60 ]; then
+            echo "security_status=good" >> $GITHUB_OUTPUT
+          elif [ $SECURITY_SCORE -ge 40 ]; then
+            echo "security_status=fair" >> $GITHUB_OUTPUT
+          else
+            echo "security_status=poor" >> $GITHUB_OUTPUT
+          fi
+          
+          echo "🔒 Security Score: $SECURITY_SCORE/100"
+          echo "🔒 Missing Headers: $MISSING_HEADERS"
+          echo "🔒 Security Status: $([ $SECURITY_SCORE -ge 80 ] && echo "Excellent" || echo "$([ $SECURITY_SCORE -ge 60 ] && echo "Good" || echo "$([ $SECURITY_SCORE -ge 40 ] && echo "Fair" || echo "Poor")")")"
+
+      - name: 🚨 Security Alert
+        if: steps.security.outputs.missing_headers > 0
+        uses: 8398a7/action-slack@v3
+        with:
+          status: warning
+          channel: '#security'
+          webhook_url: ${{ secrets.SLACK_WEBHOOK }}
+          message: |
+            🔒 **SECURITY ALERT: Missing Security Headers**
+            
+            🚨 **Issue:** ${{ steps.security.outputs.missing_headers }} security header(s) missing
+            📊 **Security Score:** ${{ steps.security.outputs.security_score }}/100
+            🛡️ **Security Status:** ${{ steps.security.outputs.security_status }}
+            🌐 **Environment:** ${{ github.event.inputs.environment || 'production' }}
+            
+            🛡️ **Action Required:** Review and implement missing security headers
+            
+            🔗 **Dashboard:** https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}
+
+  # 📊 **ANALYTICS MONITORING**
+  analytics-monitor:
+    name: 📊 Analytics Monitoring
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    outputs:
+      daily-users: ${{ steps.analytics.outputs.daily_users }}
+      conversion-rate: ${{ steps.analytics.outputs.conversion_rate }}
+      analytics-status: ${{ steps.analytics.outputs.analytics_status }}
+    steps:
+      - name: 📊 Collect Analytics Data
+        id: analytics
+        run: |
+          set -euo pipefail
+          
+          echo "📊 Collecting analytics data..."
+          
+          # Mock data - replace with real analytics API calls
+          # In production, integrate with Google Analytics, Firebase Analytics, etc.
+          DAILY_USERS=$((RANDOM % 1000 + 500))
+          CONVERSION_RATE=$((RANDOM % 20 + 5))
+          
+          echo "daily_users=$DAILY_USERS" >> $GITHUB_OUTPUT
+          echo "conversion_rate=$CONVERSION_RATE" >> $GITHUB_OUTPUT
+          
+          # Determine analytics status based on metrics
+          if [ $DAILY_USERS -ge 800 ] && [ $CONVERSION_RATE -ge 15 ]; then
+            echo "analytics_status=excellent" >> $GITHUB_OUTPUT
+          elif [ $DAILY_USERS -ge 600 ] && [ $CONVERSION_RATE -ge 10 ]; then
+            echo "analytics_status=good" >> $GITHUB_OUTPUT
+          elif [ $DAILY_USERS -ge 400 ] && [ $CONVERSION_RATE -ge 5 ]; then
+            echo "analytics_status=fair" >> $GITHUB_OUTPUT
+          else
+            echo "analytics_status=poor" >> $GITHUB_OUTPUT
+          fi
+          
+          echo "📊 Analytics Results:"
+          echo "  Daily Users: $DAILY_USERS"
+          echo "  Conversion Rate: ${CONVERSION_RATE}%"
+          echo "  Analytics Status: $([ $DAILY_USERS -ge 800 ] && echo "Excellent" || echo "$([ $DAILY_USERS -ge 600 ] && echo "Good" || echo "$([ $DAILY_USERS -ge 400 ] && echo "Fair" || echo "Poor")")")"
+
+      - name: 📧 Analytics Report
+        if: github.event.schedule == '0 9 * * *'  # Daily report at 9 AM
+        uses: 8398a7/action-slack@v3
+        with:
+          status: success
+          channel: '#analytics'
+          webhook_url: ${{ secrets.SLACK_WEBHOOK }}
+          message: |
+            📊 **Daily Analytics Report**
+            
+            📈 **Metrics:**
+            - Daily Users: ${{ steps.analytics.outputs.daily_users }}
+            - Conversion Rate: ${{ steps.analytics.outputs.conversion_rate }}%
+            - Analytics Status: ${{ steps.analytics.outputs.analytics_status }}
+            - Environment: ${{ github.event.inputs.environment || 'production' }}
+            
+            📅 **Date:** $(date -u +%Y-%m-%d)
+
+  # 💾 **BACKUP MONITORING**
+  backup-monitor:
+    name: 💾 Backup Monitoring
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    outputs:
+      backup-status: ${{ steps.backup.outputs.backup_status }}
+      last-backup: ${{ steps.backup.outputs.last_backup }}
+      backup-size: ${{ steps.backup.outputs.backup_size }}
+    steps:
+      - name: 💾 Check Backup Status
+        id: backup
+        run: |
+          set -euo pipefail
+          
+          echo "💾 Checking backup status..."
+          
+          # Mock backup check - replace with actual backup verification
+          # In production, check Firebase backup status, database backups, etc.
+          BACKUP_STATUS="success"
+          LAST_BACKUP=$(date -u +%Y-%m-%dT%H:%M:%SZ)
+          BACKUP_SIZE="2.5GB"
+          
+          echo "backup_status=$BACKUP_STATUS" >> $GITHUB_OUTPUT
+          echo "last_backup=$LAST_BACKUP" >> $GITHUB_OUTPUT
+          echo "backup_size=$BACKUP_SIZE" >> $GITHUB_OUTPUT
+          
+          echo "💾 Backup Status:"
+          echo "  Status: ✅ $BACKUP_STATUS"
+          echo "  Last Backup: $LAST_BACKUP"
+          echo "  Size: $BACKUP_SIZE"
+
+      - name: 📧 Backup Report
+        if: github.event.schedule == '0 2 * * *'  # Daily backup report at 2 AM
+        uses: 8398a7/action-slack@v3
+        with:
+          status: success
+          channel: '#backups'
+          webhook_url: ${{ secrets.SLACK_WEBHOOK }}
+          message: |
+            🔄 **Backup Status Report**
+            
+            ✅ **Status:** ${{ steps.backup.outputs.backup_status }}
+            📅 **Last Backup:** ${{ steps.backup.outputs.last_backup }}
+            💾 **Size:** ${{ steps.backup.outputs.backup_size }}
+            🌐 **Environment:** ${{ github.event.inputs.environment || 'production' }}
+
+  # 📱 **UPTIME MONITORING**
+  uptime-monitor:
+    name: 📱 Uptime Monitoring
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    strategy:
+      matrix:
+        endpoint: [
+          { name: "Homepage", path: "/" },
+          { name: "Login", path: "/login" },
+          { name: "Dashboard", path: "/admin" },
+          { name: "API Health", path: "/health" }
+        ]
+    outputs:
+      uptime-status: ${{ steps.uptime.outputs.status }}
+      response-time: ${{ steps.uptime.outputs.response_time }}
+    steps:
+      - name: 📱 Check Endpoint - ${{ matrix.endpoint.name }}
+        id: uptime
+        run: |
+          set -euo pipefail
+          
+          # Validate required secrets
+          if [ -z "${{ secrets.FIREBASE_PROJECT_ID }}" ]; then
+            echo "❌ Error: FIREBASE_PROJECT_ID secret is not set"
+            exit 1
+          fi
+          
+          PROD_URL="https://${{ secrets.FIREBASE_PROJECT_ID }}.web.app"
+          ENDPOINT_URL="${PROD_URL}${{ matrix.endpoint.path }}"
+          
+          echo "🔍 Checking: ${{ matrix.endpoint.name }}"
+          echo "🌐 URL: $ENDPOINT_URL"
+          
+          # Measure response time
+          START_TIME=$(date +%s%N)
+          HTTP_CODE=$(curl -s -o /dev/null -w "%{http_code}" --max-time ${{ env.TIMEOUT_SECONDS }} "$ENDPOINT_URL" || echo "000")
+          END_TIME=$(date +%s%N)
+          RESPONSE_TIME=$(( (END_TIME - START_TIME) / 1000000 ))
+          
+          echo "response_time=$RESPONSE_TIME" >> $GITHUB_OUTPUT
+          
+          if [ "$HTTP_CODE" = "200" ] || [ "$HTTP_CODE" = "302" ]; then
+            echo "status=up" >> $GITHUB_OUTPUT
+            echo "✅ ${{ matrix.endpoint.name }}: UP (HTTP $HTTP_CODE) - ${RESPONSE_TIME}ms"
+          else
+            echo "status=down" >> $GITHUB_OUTPUT
+            echo "❌ ${{ matrix.endpoint.name }}: DOWN (HTTP $HTTP_CODE) - ${RESPONSE_TIME}ms"
+          fi
+
+      - name: 🚨 Uptime Alert
+        if: steps.uptime.outputs.status == 'down'
+        uses: 8398a7/action-slack@v3
+        with:
+          status: failure
+          channel: '#alerts'
+          webhook_url: ${{ secrets.SLACK_WEBHOOK }}
+          message: |
+            🚨 **UPTIME ALERT: Endpoint Down**
+            
+            ❌ **Endpoint:** ${{ matrix.endpoint.name }}
+            🌐 **URL:** https://${{ secrets.FIREBASE_PROJECT_ID }}.web.app${{ matrix.endpoint.path }}
+            ⏰ **Time:** $(date -u)
+            🚀 **Response Time:** ${{ steps.uptime.outputs.response_time }}ms
+            🌐 **Environment:** ${{ github.event.inputs.environment || 'production' }}
+            
+            🛠️ **Action Required:** Immediate investigation needed
+            
+            🔗 **Dashboard:** https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}
+
+  # 📊 **MONITORING SUMMARY**
+  monitoring-summary:
+    name: 📊 Monitoring Summary
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    needs: [health-check, performance-monitor, security-monitor, analytics-monitor, backup-monitor, uptime-monitor]
+    if: always()
+    outputs:
+      overall-status: ${{ steps.summary.outputs.overall_status }}
+      summary-report: ${{ steps.summary.outputs.summary_report }}
+    steps:
+      - name: 📊 Generate Monitoring Report
+        id: summary
+        run: |
+          set -euo pipefail
+          
+          echo "📊 **Platform Monitoring Summary**"
+          echo "Generated: $(date -u)"
+          echo "Environment: ${{ github.event.inputs.environment || 'production' }}"
+          echo ""
+          
+          # Collect all statuses
+          HEALTH_STATUS="${{ needs.health-check.outputs.health-status || 'unknown' }}"
+          PERFORMANCE_STATUS="${{ needs.performance-monitor.outputs.performance-status || 'unknown' }}"
+          SECURITY_STATUS="${{ needs.security-monitor.outputs.security-status || 'unknown' }}"
+          ANALYTICS_STATUS="${{ needs.analytics-monitor.outputs.analytics-status || 'unknown' }}"
+          
+          echo "🔍 **Health Status:** $HEALTH_STATUS"
+          echo "⚡ **Performance Status:** $PERFORMANCE_STATUS"
+          echo "🔒 **Security Status:** $SECURITY_STATUS"
+          echo "📈 **Analytics Status:** $ANALYTICS_STATUS"
+          echo ""
+          
+          # Determine overall status
+          if [ "$HEALTH_STATUS" = "healthy" ] && [ "$PERFORMANCE_STATUS" != "poor" ] && [ "$SECURITY_STATUS" != "poor" ]; then
+            OVERALL_STATUS="operational"
+            echo "✅ **Overall Status:** OPERATIONAL"
+          else
+            OVERALL_STATUS="degraded"
+            echo "⚠️ **Overall Status:** DEGRADED"
+          fi
+          
+          echo "overall_status=$OVERALL_STATUS" >> $GITHUB_OUTPUT
+          
+          # Generate summary report
+          SUMMARY_REPORT="Platform Status: $OVERALL_STATUS | Health: $HEALTH_STATUS | Performance: $PERFORMANCE_STATUS | Security: $SECURITY_STATUS"
+          echo "summary_report=$SUMMARY_REPORT" >> $GITHUB_OUTPUT
+          
+          echo "✅ **All monitoring checks completed**"
+
+      - name: 📧 Daily Summary Report
+        if: github.event.schedule == '0 8 * * *'  # Only send daily summary at 8 AM
+        uses: 8398a7/action-slack@v3
+        with:
+          status: custom
+          channel: '#monitoring'
+          webhook_url: ${{ secrets.SLACK_WEBHOOK }}
+          custom_payload: |
+            {
+              "text": "📊 **Daily Monitoring Summary**",
+              "blocks": [
+                {
+                  "type": "section",
+                  "text": {
+                    "type": "mrkdwn",
+                    "text": "📊 **Daily Platform Monitoring Summary**\n\n🔍 **Health:** ${{ needs.health-check.outputs.health-status }}\n⚡ **Performance:** ${{ needs.performance-monitor.outputs.performance-status }}\n🔒 **Security:** ${{ needs.security-monitor.outputs.security-status }}\n📈 **Analytics:** ${{ needs.analytics-monitor.outputs.analytics-status }}\n\n📊 **Overall Status:** ${{ steps.summary.outputs.overall_status }}\n🌐 **Environment:** ${{ github.event.inputs.environment || 'production' }}\n\n✅ All systems monitored"
+                  }
+                }
+              ]
+            }
+
+      - name: 📧 Critical Issues Summary
+        if: steps.summary.outputs.overall_status == 'degraded'
+        uses: 8398a7/action-slack@v3
+        with:
+          status: failure
+          channel: '#critical-alerts'
+          webhook_url: ${{ secrets.SLACK_WEBHOOK }}
+          message: |
+            🚨 **CRITICAL MONITORING SUMMARY**
+            
+            ⚠️ **Overall Status:** DEGRADED
+            
+            📊 **Component Status:**
+            - Health: ${{ needs.health-check.outputs.health-status }}
+            - Performance: ${{ needs.performance-monitor.outputs.performance-status }}
+            - Security: ${{ needs.security-monitor.outputs.security-status }}
+            - Analytics: ${{ needs.analytics-monitor.outputs.analytics-status }}
+            
+            🛠️ **Action Required:** Review all degraded components
+            
+            🔗 **Dashboard:** https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}

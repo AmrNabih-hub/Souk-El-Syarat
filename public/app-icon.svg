@@ -1,0 +1,144 @@
+<svg width="512" height="512" viewBox="0 0 512 512" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <!-- Premium Background with Subtle Texture -->
+  <defs>
+    <radialGradient id="backgroundGradient" cx="50%" cy="30%" r="70%">
+      <stop offset="0%" style="stop-color:#1a1a1a;stop-opacity:1" />
+      <stop offset="70%" style="stop-color:#2d2d2d;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#0a0a0a;stop-opacity:1" />
+    </radialGradient>
+    
+    <!-- Luxury Gold Accent -->
+    <linearGradient id="goldAccent" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#d4af37;stop-opacity:1" />
+      <stop offset="50%" style="stop-color:#ffd700;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#b8860b;stop-opacity:1" />
+    </linearGradient>
+    
+    <!-- Premium Car Gradient -->
+    <linearGradient id="carGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#4a5568;stop-opacity:1" />
+      <stop offset="50%" style="stop-color:#718096;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#2d3748;stop-opacity:1" />
+    </linearGradient>
+    
+    <!-- Sophisticated Glass Effect -->
+    <linearGradient id="glassGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#e2e8f0;stop-opacity:0.9" />
+      <stop offset="50%" style="stop-color:#cbd5e0;stop-opacity:0.7" />
+      <stop offset="100%" style="stop-color:#a0aec0;stop-opacity:0.5" />
+    </linearGradient>
+    
+    <!-- Wheel Gradient -->
+    <radialGradient id="wheelGradient" cx="50%" cy="30%" r="70%">
+      <stop offset="0%" style="stop-color:#4a5568;stop-opacity:1" />
+      <stop offset="70%" style="stop-color:#2d3748;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#1a202c;stop-opacity:1" />
+    </radialGradient>
+    
+    <!-- Brand Ring -->
+    <linearGradient id="brandRing" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#d4af37;stop-opacity:0.8" />
+      <stop offset="100%" style="stop-color:#ffd700;stop-opacity:0.6" />
+    </linearGradient>
+  </defs>
+  
+  <!-- Main Background -->
+  <circle cx="256" cy="256" r="256" fill="url(#backgroundGradient)"/>
+  
+  <!-- Subtle Geometric Pattern -->
+  <g opacity="0.03">
+    <path d="M128 128L192 64L256 128L192 192Z" fill="#ffffff"/>
+    <path d="M320 128L384 64L448 128L384 192Z" fill="#ffffff"/>
+    <path d="M128 320L192 256L256 320L192 384Z" fill="#ffffff"/>
+    <path d="M320 320L384 256L448 320L384 384Z" fill="#ffffff"/>
+  </g>
+  
+  <!-- Luxury Car Silhouette -->
+  <g transform="translate(256,280)">
+    <!-- Main Car Body - Luxury Sedan Profile -->
+    <path d="M-140 15 Q-130 -15 -100 -35 L-40 -40 Q0 -42 40 -40 L100 -35 Q130 -15 140 15 L140 35 Q135 45 125 50 L100 50 L95 40 L85 35 L-85 35 L-95 40 L-100 50 L-125 50 Q-135 45 -140 35 Z" fill="url(#carGradient)" stroke="url(#goldAccent)" stroke-width="1"/>
+    
+    <!-- Windshield and Windows -->
+    <path d="M-110 5 Q-95 -25 -60 -32 L-20 -35 Q0 -36 20 -35 L60 -32 Q95 -25 110 5 L110 20 Q105 25 95 25 L-95 25 Q-105 25 -110 20 Z" fill="url(#glassGradient)" opacity="0.9"/>
+    
+    <!-- Premium Wheels -->
+    <circle cx="-80" cy="45" r="22" fill="url(#wheelGradient)" stroke="url(#goldAccent)" stroke-width="2"/>
+    <circle cx="80" cy="45" r="22" fill="url(#wheelGradient)" stroke="url(#goldAccent)" stroke-width="2"/>
+    
+    <!-- Wheel Centers -->
+    <circle cx="-80" cy="45" r="12" fill="#1a202c"/>
+    <circle cx="80" cy="45" r="12" fill="#1a202c"/>
+    
+    <!-- Luxury Details -->
+    <rect x="-8" y="-35" width="16" height="8" rx="4" fill="url(#goldAccent)" opacity="0.8"/>
+    <rect x="-60" y="15" width="120" height="2" rx="1" fill="url(#goldAccent)" opacity="0.6"/>
+    
+    <!-- Headlight -->
+    <ellipse cx="-125" cy="20" rx="8" ry="12" fill="url(#glassGradient)"/>
+    <ellipse cx="125" cy="20" rx="8" ry="12" fill="url(#glassGradient)"/>
+  </g>
+  
+  <!-- Brand Circle -->
+  <circle cx="256" cy="180" r="60" fill="none" stroke="url(#brandRing)" stroke-width="3" opacity="0.8"/>
+  <circle cx="256" cy="180" r="50" fill="rgba(26,32,44,0.9)" stroke="url(#goldAccent)" stroke-width="1"/>
+  
+  <!-- Sophisticated Typography -->
+  <text x="256" y="170" text-anchor="middle" fill="url(#goldAccent)" font-family="serif" font-size="28" font-weight="300" letter-spacing="2px">سوق</text>
+  <text x="256" y="195" text-anchor="middle" fill="#cbd5e0" font-family="sans-serif" font-size="11" font-weight="400" letter-spacing="3px">SYARAT</text>
+  
+  <!-- Subtle Corner Elements -->
+  <g opacity="0.4">
+    <path d="M50 50 L100 50 L100 55 L55 55 L55 100 L50 100 Z" fill="url(#goldAccent)"/>
+    <path d="M462 50 L412 50 L412 55 L457 55 L457 100 L462 100 Z" fill="url(#goldAccent)"/>
+    <path d="M50 462 L100 462 L100 457 L55 457 L55 412 L50 412 Z" fill="url(#goldAccent)"/>
+    <path d="M462 462 L412 462 L412 457 L457 457 L457 412 L462 412 Z" fill="url(#goldAccent)"/>
+  </g>
+  
+  <!-- Premium Finish Ring -->
+  <circle cx="256" cy="256" r="254" fill="none" stroke="url(#goldAccent)" stroke-width="2" opacity="0.3"/>
+  
+  <!-- Gradients -->
+  <defs>
+    <linearGradient id="gradient1" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#fbbf24;stop-opacity:1" />
+      <stop offset="50%" style="stop-color:#f59e0b;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#d97706;stop-opacity:1" />
+    </linearGradient>
+    
+    <linearGradient id="gradient2" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#fbbf24;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#d97706;stop-opacity:1" />
+    </linearGradient>
+    
+    <linearGradient id="carGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#1f2937;stop-opacity:1" />
+      <stop offset="50%" style="stop-color:#374151;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#1f2937;stop-opacity:1" />
+    </linearGradient>
+    
+    <linearGradient id="windowGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#60a5fa;stop-opacity:0.8" />
+      <stop offset="100%" style="stop-color:#3b82f6;stop-opacity:0.6" />
+    </linearGradient>
+    
+    <linearGradient id="wheelGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#6b7280;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#374151;stop-opacity:1" />
+    </linearGradient>
+    
+    <linearGradient id="pyramidGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#fcd34d;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#f59e0b;stop-opacity:1" />
+    </linearGradient>
+    
+    <linearGradient id="textBg" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#ffffff;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#f3f4f6;stop-opacity:1" />
+    </linearGradient>
+    
+    <linearGradient id="strokeGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#fbbf24;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#f59e0b;stop-opacity:1" />
+    </linearGradient>
+  </defs>
+</svg>

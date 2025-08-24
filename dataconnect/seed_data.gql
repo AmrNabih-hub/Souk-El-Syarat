@@ -1,0 +1,36 @@
+mutation SeedDatabase @auth(level: USER) {
+  user_insertMany(data: [
+    {
+      email: "test1@example.com",
+      passwordHash: "passwordhash1",
+      role: "customer",
+      createdAt: "2024-01-01T00:00:00Z"
+    },
+    {
+      email: "test2@example.com",
+      passwordHash: "passwordhash2",
+      role: "vendor",
+      createdAt: "2024-01-01T00:00:00Z"
+    }
+  ])
+  productListing_insertMany(data: [
+    {
+      title: "Product 1",
+      description: "Description 1",
+      category: "Category 1",
+      currency: "USD",
+      price: 10.0,
+      isAvailable: true,
+      createdAt: "2024-01-01T00:00:00Z"
+    },
+    {
+      title: "Product 2",
+      description: "Description 2",
+      category: "Category 2",
+      currency: "USD",
+      price: 20.0,
+      isAvailable: true,
+      createdAt: "2024-01-01T00:00:00Z"
+    }
+  ])
+}
