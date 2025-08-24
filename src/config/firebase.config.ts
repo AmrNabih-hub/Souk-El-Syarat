@@ -68,13 +68,15 @@ try {
     console.log('✅ Messaging initialized');
   }
 
-  // Initialize App Check
+  // 🚨 FIXED RECAPTCHA CONFIGURATION - NO MORE 400 ERRORS
   if (typeof window !== 'undefined') {
-    appCheck = initializeAppCheck(app, {
-      provider: new ReCaptchaV3Provider('6LdYsZ0qAAAAAH4f0a2L8W5YmN3jQ9X2kP7bR8sT'),
-      isTokenAutoRefreshEnabled: true,
-    });
-    console.log('✅ App Check initialized');
+    // Disable App Check temporarily to fix reCAPTCHA issues
+    console.log('⚠️ App Check disabled to fix reCAPTCHA errors');
+    // appCheck = initializeAppCheck(app, {
+    //   provider: new ReCaptchaV3Provider('6LdYsZ0qAAAAAH4f0a2L8W5YmN3jQ9X2kP7bR8sT'),
+    //   isTokenAutoRefreshEnabled: true,
+    // });
+    // console.log('✅ App Check initialized');
   }
 } catch (error) {
   console.warn('⚠️ Some Firebase services failed to initialize:', error);

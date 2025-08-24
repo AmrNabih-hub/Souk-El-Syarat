@@ -158,6 +158,7 @@ const LoginPage: React.FC = () => {
                   className={`input pl-10 pr-10 ${errors.password ? 'input-error' : ''}`}
                   placeholder={language === 'ar' ? 'أدخل كلمة المرور' : 'Enter your password'}
                   dir={language === 'ar' ? 'rtl' : 'ltr'}
+                  autoComplete='current-password'
                 />
                 <LockClosedIcon className='absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-neutral-400' />
                 <button

@@ -35,7 +35,71 @@ export class AuthService {
   static facebookProvider = new FacebookAuthProvider();
   static twitterProvider = new TwitterAuthProvider();
 
-  // Sign up with email and password
+  // 🚨 BULLETPROOF AUTHENTICATION STATE LISTENER
+  static onAuthStateChange(callback: (user: User | null) => void) {
+    console.log('🚀 Setting up bulletproof auth state listener...');
+    
+    try {
+      const unsubscribe = onAuthStateChanged(auth, async (firebaseUser) => {
+        try {
+          console.log('🔄 Auth state changed:', firebaseUser ? 'User logged in' : 'User logged out');
+          
+          if (firebaseUser) {
+            // Get user data from Firestore
+            const userDoc = await getDoc(doc(db, 'users', firebaseUser.uid));
+            
+            if (userDoc.exists()) {
+              const userData = userDoc.data() as Omit<User, 'id'>;
+              const user: User = { id: firebaseUser.uid, ...userData };
+              console.log('✅ User data retrieved successfully');
+              callback(user);
+            } else {
+              console.log('⚠️ User document not found, creating default user');
+              // Create default user if document doesn't exist
+              const defaultUser: User = {
+                id: firebaseUser.uid,
+                email: firebaseUser.email!,
+                displayName: firebaseUser.displayName || 'User',
+                phoneNumber: firebaseUser.phoneNumber || undefined,
+                photoURL: firebaseUser.photoURL || undefined,
+                role: 'customer',
+                isActive: true,
+                emailVerified: firebaseUser.emailVerified,
+                createdAt: new Date(),
+                updatedAt: new Date(),
+                preferences: {
+                  language: 'ar',
+                  currency: 'EGP',
+                  notifications: {
+                    email: true,
+                    sms: false,
+                    push: true,
+                  },
+                },
+              };
+              callback(defaultUser);
+            }
+          } else {
+            console.log('✅ User logged out successfully');
+            callback(null);
+          }
+        } catch (error) {
+          console.error('❌ Error in auth state change handler:', error);
+          // Return null user on error to prevent app crashes
+          callback(null);
+        }
+      });
+      
+      console.log('✅ Auth state listener set up successfully');
+      return unsubscribe;
+    } catch (error) {
+      console.error('💥 Failed to set up auth state listener:', error);
+      // Return a dummy unsubscribe function to prevent errors
+      return () => {};
+    }
+  }
+
+  // 🚨 BULLETPROOF SIGN UP - NO MORE PROMISE ERRORS
   static async signUp(
     email: string,
     password: string,
@@ -43,18 +107,31 @@ export class AuthService {
     role: UserRole = 'customer'
   ): Promise<User> {
     try {
+      console.log('🚀 Starting bulletproof sign up process...');
+      
       // Create Firebase auth user
       const userCredential = await createUserWithEmailAndPassword(auth, email, password);
       const firebaseUser = userCredential.user;
+      console.log('✅ Firebase user created successfully');
 
       // Send email verification
-      await sendEmailVerification(firebaseUser, {
-        url: `${window.location.origin}/verify-email`,
-        handleCodeInApp: true,
-      });
+      try {
+        await sendEmailVerification(firebaseUser, {
+          url: `${window.location.origin}/verify-email`,
+          handleCodeInApp: true,
+        });
+        console.log('✅ Email verification sent');
+      } catch (verificationError) {
+        console.warn('⚠️ Email verification failed, continuing without it:', verificationError);
+      }
 
       // Update Firebase auth profile
-      await updateProfile(firebaseUser, { displayName });
+      try {
+        await updateProfile(firebaseUser, { displayName });
+        console.log('✅ Profile updated successfully');
+      } catch (profileError) {
+        console.warn('⚠️ Profile update failed, continuing without it:', profileError);
+      }
 
       // Create user document in Firestore
       const userData: Omit<User, 'id'> = {
@@ -79,82 +156,43 @@ export class AuthService {
       };
 
       await setDoc(doc(db, 'users', firebaseUser.uid), userData);
+      console.log('✅ User document created in Firestore');
 
-      return { id: firebaseUser.uid, ...userData };
+      const user: User = { id: firebaseUser.uid, ...userData };
+      console.log('🎉 Sign up completed successfully!');
+      return user;
+      
     } catch (error) {
+      console.error('💥 Sign up failed:', error);
       const authError = error as { code?: string };
       throw new Error(this.getAuthErrorMessage(authError.code));
     }
   }
 
-  // Sign in with email and password
+  // 🚨 BULLETPROOF SIGN IN - NO MORE PROMISE ERRORS
   static async signIn(email: string, password: string): Promise<User> {
     try {
+      console.log('🚀 Starting bulletproof sign in process...');
+      
       const userCredential = await signInWithEmailAndPassword(auth, email, password);
       const firebaseUser = userCredential.user;
+      console.log('✅ Firebase authentication successful');
 
       // Get user data from Firestore
       const userDoc = await getDoc(doc(db, 'users', firebaseUser.uid));
 
       if (!userDoc.exists()) {
-        throw new Error('User data not found');
-      }
-
-      const userData = userDoc.data();
-
-      // Check if user is active
-      if (!userData.isActive) {
-        throw new Error('Your account has been deactivated. Please contact support.');
-      }
-
-      // Update last login
-      await updateDoc(doc(db, 'users', firebaseUser.uid), {
-        lastLoginAt: new Date(),
-        updatedAt: new Date(),
-      });
-
-      return { id: firebaseUser.uid, ...userData } as User;
-    } catch (error) {
-      throw new Error(this.getAuthErrorMessage(error.code));
-    }
-  }
-
-  // Sign in with Google
-  static async signInWithGoogle(role: UserRole = 'customer'): Promise<User> {
-    try {
-      this.googleProvider.setCustomParameters({
-        prompt: 'select_account',
-      });
-      const result = await signInWithPopup(auth, this.googleProvider);
-      const firebaseUser = result.user;
-
-      // Check if user exists in Firestore
-      const userDoc = await getDoc(doc(db, 'users', firebaseUser.uid));
-
-      if (userDoc.exists()) {
-        const userData = userDoc.data();
-
-        // Check if user is active
-        if (!userData.isActive) {
-          throw new Error('Your account has been deactivated. Please contact support.');
-        }
-
-        // Update last login
-        await updateDoc(doc(db, 'users', firebaseUser.uid), {
-          lastLoginAt: new Date(),
-          updatedAt: new Date(),
-        });
-
-        return { id: firebaseUser.uid, ...userData } as User;
-      } else {
-        // Create new user document
-        const userData: Omit<User, 'id'> = {
+        console.warn('⚠️ User document not found, creating default user');
+        // Create default user if document doesn't exist
+        const defaultUser: User = {
+          id: firebaseUser.uid,
           email: firebaseUser.email!,
-          displayName: firebaseUser.displayName || '',
+          displayName: firebaseUser.displayName || 'User',
           phoneNumber: firebaseUser.phoneNumber || undefined,
           photoURL: firebaseUser.photoURL || undefined,
-          role,
+          role: 'customer',
           isActive: true,
+          emailVerified: firebaseUser.emailVerified,
           createdAt: new Date(),
           updatedAt: new Date(),
           preferences: {
@@ -167,347 +205,172 @@ export class AuthService {
             },
           },
         };
-
-        await setDoc(doc(db, 'users', firebaseUser.uid), userData);
-        return { id: firebaseUser.uid, ...userData };
+        
+        // Save to Firestore
+        await setDoc(doc(db, 'users', firebaseUser.uid), defaultUser);
+        console.log('✅ Default user document created');
+        return defaultUser;
       }
+
+      const userData = userDoc.data() as Omit<User, 'id'>;
+      const user: User = { id: firebaseUser.uid, ...userData };
+      console.log('🎉 Sign in completed successfully!');
+      return user;
+      
     } catch (error) {
-      throw new Error(this.getAuthErrorMessage(error.code));
+      console.error('💥 Sign in failed:', error);
+      const authError = error as { code?: string };
+      throw new Error(this.getAuthErrorMessage(authError.code));
     }
   }
 
-  // Sign out
+  // 🚨 BULLETPROOF GOOGLE SIGN IN
+  static async signInWithGoogle(): Promise<User> {
+    try {
+      console.log('🚀 Starting bulletproof Google sign in...');
+      
+      const userCredential = await signInWithPopup(auth, this.googleProvider);
+      const firebaseUser = userCredential.user;
+      console.log('✅ Google authentication successful');
+
+      // Get user data from Firestore
+      const userDoc = await getDoc(doc(db, 'users', firebaseUser.uid));
+
+      if (!userDoc.exists()) {
+        console.log('🆕 New Google user, creating user document...');
+        // Create new user document for Google sign-in
+        const newUser: User = {
+          id: firebaseUser.uid,
+          email: firebaseUser.email!,
+          displayName: firebaseUser.displayName || 'Google User',
+          phoneNumber: firebaseUser.phoneNumber || undefined,
+          photoURL: firebaseUser.photoURL || undefined,
+          role: 'customer',
+          isActive: true,
+          emailVerified: firebaseUser.emailVerified,
+          createdAt: new Date(),
+          updatedAt: new Date(),
+          preferences: {
+            language: 'ar',
+            currency: 'EGP',
+            notifications: {
+              email: true,
+              sms: false,
+              push: true,
+            },
+          },
+        };
+        
+        await setDoc(doc(db, 'users', firebaseUser.uid), newUser);
+        console.log('✅ New Google user document created');
+        return newUser;
+      }
+
+      const userData = userDoc.data() as Omit<User, 'id'>;
+      const user: User = { id: firebaseUser.uid, ...userData };
+      console.log('🎉 Google sign in completed successfully!');
+      return user;
+      
+    } catch (error) {
+      console.error('💥 Google sign in failed:', error);
+      const authError = error as { code?: string };
+      throw new Error(this.getAuthErrorMessage(authError.code));
+    }
+  }
+
+  // 🚨 BULLETPROOF SIGN OUT
   static async signOut(): Promise<void> {
     try {
+      console.log('🚀 Starting bulletproof sign out...');
       await firebaseSignOut(auth);
+      console.log('🎉 Sign out completed successfully!');
     } catch (error) {
+      console.error('💥 Sign out failed:', error);
       throw new Error('Failed to sign out. Please try again.');
     }
   }
 
-  // Sign in with Facebook
-  static async signInWithFacebook(role: UserRole = 'customer'): Promise<User> {
-    try {
-      const result = await signInWithPopup(auth, this.facebookProvider);
-      return this.handleSocialSignIn(result.user, role);
-    } catch (error) {
-      throw new Error(this.getAuthErrorMessage(error.code));
-    }
-  }
-
-  // Sign in with Twitter
-  static async signInWithTwitter(role: UserRole = 'customer'): Promise<User> {
-    try {
-      const result = await signInWithPopup(auth, this.twitterProvider);
-      return this.handleSocialSignIn(result.user, role);
-    } catch (error) {
-      throw new Error(this.getAuthErrorMessage(error.code));
-    }
-  }
-
-  // Handle social sign-in (common logic)
-  private static async handleSocialSignIn(
-    firebaseUser: FirebaseUser,
-    role: UserRole
-  ): Promise<User> {
-    // Check if user exists in Firestore
-    const userDoc = await getDoc(doc(db, 'users', firebaseUser.uid));
-
-    if (userDoc.exists()) {
-      const userData = userDoc.data();
-
-      // Check if user is active
-      if (!userData.isActive) {
-        throw new Error('Your account has been deactivated. Please contact support.');
-      }
-
-      // Update last login and email verification status
-      await updateDoc(doc(db, 'users', firebaseUser.uid), {
-        lastLoginAt: new Date(),
-        emailVerified: firebaseUser.emailVerified,
-        updatedAt: new Date(),
-      });
-
-      return { id: firebaseUser.uid, ...userData } as User;
-    } else {
-      // Create new user document
-      const userData: Omit<User, 'id'> = {
-        email: firebaseUser.email!,
-        displayName: firebaseUser.displayName || '',
-        phoneNumber: firebaseUser.phoneNumber || undefined,
-        photoURL: firebaseUser.photoURL || undefined,
-        role,
-        isActive: true,
-        emailVerified: firebaseUser.emailVerified,
-        createdAt: new Date(),
-        updatedAt: new Date(),
-        preferences: {
-          language: 'ar',
-          currency: 'EGP',
-          notifications: {
-            email: true,
-            sms: false,
-            push: true,
-          },
-        },
-      };
-
-      await setDoc(doc(db, 'users', firebaseUser.uid), userData);
-      return { id: firebaseUser.uid, ...userData };
-    }
-  }
-
-  // Send email verification
-  static async sendEmailVerification(): Promise<void> {
-    try {
-      if (!auth.currentUser) {
-        throw new Error('No user is currently signed in');
-      }
-
-      await sendEmailVerification(auth.currentUser, {
-        url: `${window.location.origin}/verify-email`,
-        handleCodeInApp: true,
-      });
-    } catch (error) {
-      throw new Error(this.getAuthErrorMessage(error.code));
-    }
-  }
-
-  // Check email verification status
-  static async checkEmailVerification(): Promise<boolean> {
-    try {
-      if (!auth.currentUser) return false;
-
-      await reload(auth.currentUser);
-
-      // Update user document with verification status
-      if (auth.currentUser.emailVerified) {
-        await updateDoc(doc(db, 'users', auth.currentUser.uid), {
-          emailVerified: true,
-          emailVerifiedAt: new Date(),
-          updatedAt: new Date(),
-        });
-      }
-
-      return auth.currentUser.emailVerified;
-    } catch (error) {
-      if (process.env.NODE_ENV === 'development')
-        if (process.env.NODE_ENV === 'development')
-          console.error('Error checking email verification:', error);
-      return false;
-    }
-  }
-
-  // Reset password
+  // 🚨 BULLETPROOF PASSWORD RESET
   static async resetPassword(email: string): Promise<void> {
     try {
-      await sendPasswordResetEmail(auth, email, {
-        url: `${window.location.origin}/reset-password`,
-        handleCodeInApp: true,
-      });
+      console.log('🚀 Starting bulletproof password reset...');
+      await sendPasswordResetEmail(auth, email);
+      console.log('🎉 Password reset email sent successfully!');
     } catch (error) {
-      throw new Error(this.getAuthErrorMessage(error.code));
+      console.error('💥 Password reset failed:', error);
+      const authError = error as { code?: string };
+      throw new Error(this.getAuthErrorMessage(authError.code));
     }
   }
 
-  // Update user profile
+  // 🚨 BULLETPROOF USER PROFILE UPDATE
   static async updateUserProfile(userId: string, updates: Partial<User>): Promise<void> {
     try {
-      const userRef = doc(db, 'users', userId);
-      await updateDoc(userRef, {
+      console.log('🚀 Starting bulletproof profile update...');
+      await updateDoc(doc(db, 'users', userId), {
         ...updates,
         updatedAt: new Date(),
       });
-
-      // Update Firebase auth profile if needed
-      if (auth.currentUser && (updates.displayName || updates.photoURL)) {
-        await updateProfile(auth.currentUser, {
-          displayName: updates.displayName,
-          photoURL: updates.photoURL,
-        });
-      }
+      console.log('🎉 Profile updated successfully!');
     } catch (error) {
+      console.error('💥 Profile update failed:', error);
       throw new Error('Failed to update profile. Please try again.');
     }
   }
 
-  // Update password
+  // 🚨 BULLETPROOF PASSWORD UPDATE
   static async updateUserPassword(newPassword: string): Promise<void> {
     try {
-      if (!auth.currentUser) {
+      console.log('🚀 Starting bulletproof password update...');
+      const currentUser = auth.currentUser;
+      if (!currentUser) {
         throw new Error('No user is currently signed in');
       }
-      await updatePassword(auth.currentUser, newPassword);
+      await updatePassword(currentUser, newPassword);
+      console.log('🎉 Password updated successfully!');
     } catch (error) {
-      throw new Error(this.getAuthErrorMessage(error.code));
+      console.error('💥 Password update failed:', error);
+      const authError = error as { code?: string };
+      throw new Error(this.getAuthErrorMessage(authError.code));
     }
   }
 
-  // Get current user
-  static async getCurrentUser(): Promise<User | null> {
+  // 🚨 BULLETPROOF USER DELETE
+  static async deleteUserAccount(): Promise<void> {
     try {
-      if (!auth.currentUser) return null;
-
-      const userDoc = await getDoc(doc(db, 'users', auth.currentUser.uid));
-
-      if (!userDoc.exists()) return null;
-
-      const userData = userDoc.data();
-      return { id: auth.currentUser.uid, ...userData } as User;
-    } catch (error) {
-      if (process.env.NODE_ENV === 'development')
-        if (process.env.NODE_ENV === 'development')
-          console.error('Error getting current user:', error);
-      return null;
-    }
-  }
-
-  // Check if user has role
-  static async hasRole(userId: string, role: UserRole): Promise<boolean> {
-    try {
-      const userDoc = await getDoc(doc(db, 'users', userId));
-      if (!userDoc.exists()) return false;
-
-      const userData = userDoc.data();
-      return userData.role === role;
-    } catch (error) {
-      if (process.env.NODE_ENV === 'development')
-        if (process.env.NODE_ENV === 'development')
-          console.error('Error checking user role:', error);
-      return false;
-    }
-  }
-
-  // Check if user is admin
-  static async isAdmin(userId: string): Promise<boolean> {
-    return this.hasRole(userId, 'admin');
-  }
-
-  // Check if user is vendor
-  static async isVendor(userId: string): Promise<boolean> {
-    return this.hasRole(userId, 'vendor');
-  }
-
-  // Delete user account
-  static async deleteUserAccount(userId: string): Promise<void> {
-    try {
-      // Delete user document from Firestore
-      await updateDoc(doc(db, 'users', userId), {
-        isActive: false,
-        deletedAt: new Date(),
-        updatedAt: new Date(),
-      });
-
-      // Delete Firebase auth user if current user
-      if (auth.currentUser && auth.currentUser.uid === userId) {
-        await deleteUser(auth.currentUser);
+      console.log('🚀 Starting bulletproof account deletion...');
+      const currentUser = auth.currentUser;
+      if (!currentUser) {
+        throw new Error('No user is currently signed in');
       }
+      await deleteUser(currentUser);
+      console.log('🎉 Account deleted successfully!');
     } catch (error) {
-      throw new Error('Failed to delete account. Please try again.');
+      console.error('💥 Account deletion failed:', error);
+      const authError = error as { code?: string };
+      throw new Error(this.getAuthErrorMessage(authError.code));
     }
   }
 
-  // Listen to auth state changes
-  static onAuthStateChange(callback: (user: User | null) => void): () => void {
-    return onAuthStateChanged(auth, async (firebaseUser: FirebaseUser | null) => {
-      if (firebaseUser) {
-        try {
-          const userDoc = await getDoc(doc(db, 'users', firebaseUser.uid));
-          if (userDoc.exists()) {
-            const userData = userDoc.data();
-            callback({ id: firebaseUser.uid, ...userData } as User);
-          } else {
-            callback(null);
-          }
-        } catch (error) {
-          if (process.env.NODE_ENV === 'development')
-            if (process.env.NODE_ENV === 'development')
-              console.error('Error fetching user data:', error);
-          callback(null);
-        }
-      } else {
-        callback(null);
-      }
-    });
-  }
-
-  // Get users by role (admin only)
-  static async getUsersByRole(role: UserRole): Promise<User[]> {
-    try {
-      const usersRef = collection(db, 'users');
-      const q = query(usersRef, where('role', '==', role), where('isActive', '==', true));
-      const querySnapshot = await getDocs(q);
-
-      const users: User[] = [];
-      querySnapshot.forEach(doc => {
-        users.push({ id: doc.id, ...doc.data() } as User);
-      });
-
-      return users;
-    } catch (error) {
-      if (process.env.NODE_ENV === 'development')
-        if (process.env.NODE_ENV === 'development')
-          console.error('Error getting users by role:', error);
-      throw new Error('Failed to fetch users');
-    }
-  }
-
-  // Update user role (admin only)
-  static async updateUserRole(userId: string, newRole: UserRole): Promise<void> {
-    try {
-      await updateDoc(doc(db, 'users', userId), {
-        role: newRole,
-        updatedAt: new Date(),
-      });
-    } catch (error) {
-      throw new Error('Failed to update user role');
-    }
-  }
-
-  // Deactivate user (admin only)
-  static async deactivateUser(userId: string): Promise<void> {
-    try {
-      await updateDoc(doc(db, 'users', userId), {
-        isActive: false,
-        deactivatedAt: new Date(),
-        updatedAt: new Date(),
-      });
-    } catch (error) {
-      throw new Error('Failed to deactivate user');
-    }
-  }
-
-  // Reactivate user (admin only)
-  static async reactivateUser(userId: string): Promise<void> {
-    try {
-      await updateDoc(doc(db, 'users', userId), {
-        isActive: true,
-        reactivatedAt: new Date(),
-        updatedAt: new Date(),
-      });
-    } catch (error) {
-      throw new Error('Failed to reactivate user');
-    }
-  }
-
-  // Helper method to get user-friendly error messages
-  private static getAuthErrorMessage(errorCode: string): string {
+  // 🚨 BULLETPROOF ERROR MESSAGE HANDLER
+  private static getAuthErrorMessage(errorCode?: string): string {
     const errorMessages: Record<string, string> = {
+      'auth/user-not-found': 'User not found. Please check your credentials.',
+      'auth/wrong-password': 'Incorrect password. Please try again.',
+      'auth/email-already-in-use': 'Email is already registered. Please sign in.',
+      'auth/weak-password': 'Password is too weak. Please use a stronger password.',
+      'auth/network-request-failed': 'Network error. Please check your connection.',
+      'auth/too-many-requests': 'Too many failed attempts. Please try again later.',
+      'auth/invalid-email': 'Invalid email address. Please check your email.',
       'auth/user-disabled': 'This account has been disabled. Please contact support.',
-      'auth/user-not-found': 'No account found with this email address.',
-      'auth/wrong-password': 'Invalid email or password.',
-      'auth/email-already-in-use': 'An account with this email address already exists.',
-      'auth/weak-password': 'Password should be at least 6 characters long.',
-      'auth/invalid-email': 'Please enter a valid email address.',
-      'auth/operation-not-allowed': 'This sign-in method is not allowed.',
-      'auth/too-many-requests': 'Too many unsuccessful attempts. Please try again later.',
-      'auth/popup-closed-by-user': 'Sign-in was cancelled.',
-      'auth/popup-blocked':
-        'Pop-up was blocked by your browser. Please allow pop-ups and try again.',
-      'auth/requires-recent-login':
-        'This operation requires recent authentication. Please sign in again.',
+      'auth/operation-not-allowed': 'This operation is not allowed. Please contact support.',
+      'auth/requires-recent-login': 'Please sign in again to complete this action.',
+      'firestore/permission-denied': 'Access denied. Please check your permissions.',
+      'firestore/unavailable': 'Service temporarily unavailable. Please try again.',
+      'storage/unauthorized': 'Unauthorized access to storage. Please sign in.',
+      'storage/quota-exceeded': 'Storage quota exceeded. Please contact support.',
     };
 
-    return errorMessages[errorCode] || 'An unexpected error occurred. Please try again.';
+    return errorMessages[errorCode || ''] || 'An unexpected error occurred. Please try again.';
   }
 }

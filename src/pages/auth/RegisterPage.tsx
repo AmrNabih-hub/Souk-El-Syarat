@@ -301,6 +301,7 @@ const RegisterPage: React.FC = () => {
                   className={`input pl-10 pr-10 ${errors.password ? 'input-error' : ''}`}
                   placeholder={language === 'ar' ? 'أدخل كلمة المرور' : 'Enter your password'}
                   dir={language === 'ar' ? 'rtl' : 'ltr'}
+                  autoComplete='new-password'
                 />
                 <LockClosedIcon className='absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-neutral-400' />
                 <button
@@ -344,6 +345,7 @@ const RegisterPage: React.FC = () => {
                     language === 'ar' ? 'أعد إدخال كلمة المرور' : 'Re-enter your password'
                   }
                   dir={language === 'ar' ? 'rtl' : 'ltr'}
+                  autoComplete='new-password'
                 />
                 <LockClosedIcon className='absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-neutral-400' />
                 <button
