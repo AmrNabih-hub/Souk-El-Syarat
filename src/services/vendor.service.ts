@@ -16,7 +16,7 @@ import {
 } from 'firebase/firestore';
 import { ref, uploadBytes, getDownloadURL, deleteObject } from 'firebase/storage';
 
-import { db, storage } from '@/services/firebase';
+import { db, storage } from '@/config/firebase.config';
 import { Vendor, VendorStatus, BusinessType, VendorApplication } from '@/types';
 
 export interface VendorApplicationData {

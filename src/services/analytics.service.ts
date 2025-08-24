@@ -13,7 +13,7 @@ import {
   increment,
   runTransaction,
 } from 'firebase/firestore';
-import { db } from './firebase';
+import { db } from '@/config/firebase.config';
 
 export interface AnalyticsEvent {
   id: string;

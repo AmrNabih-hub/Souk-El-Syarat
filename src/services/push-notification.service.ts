@@ -1,10 +1,10 @@
-import { db } from '@/services/firebase';
+import { db } from '@/config/firebase.config';
 /**
  * Push Notification Service for Souk El-Sayarat
  * Handles Firebase Cloud Messaging for real-time notifications
  */
 
-import { messaging } from '@/services/firebase';
+import { messaging } from '@/config/firebase.config';
 import { getToken, onMessage } from 'firebase/messaging';
 import { doc, updateDoc } from 'firebase/firestore';
 

@@ -17,7 +17,7 @@ import {
 } from 'firebase/firestore';
 import { ref, deleteObject, uploadBytes, getDownloadURL } from 'firebase/storage';
 
-import { db, storage } from '@/services/firebase';
+import { db, storage } from '@/config/firebase.config';
 import {
   Product,
   CarProduct,
