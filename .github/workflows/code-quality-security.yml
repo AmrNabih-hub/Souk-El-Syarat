@@ -169,10 +169,6 @@ jobs:
         uses: gitleaks/gitleaks-action@v2
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        with:
-          config-path: .gitleaks.toml
-          format: sarif
-          output: gitleaks-results.sarif
 
       - name: 💾 Upload secrets scan reports
         uses: actions/upload-artifact@v4
@@ -180,7 +176,6 @@ jobs:
           name: secrets-scan-reports
           path: |
             trufflehog-results.json
-            gitleaks-results.sarif
           retention-days: 30
 
   dast-scan:
@@ -199,13 +194,13 @@ jobs:
 
       - name: 📦 Install OWASP ZAP
         run: |
-          wget https://github.com/zaproxy/zaproxy/releases/download/v2.14.0/ZAP_2.14.0_Linux.tar.gz
-          tar -xzf ZAP_2.14.0_Linux.tar.gz
+          wget https://github.com/zaproxy/zaproxy/releases/download/v2.15.0/ZAP_2.15.0_Linux.tar.gz
+          tar -xzf ZAP_2.15.0_Linux.tar.gz
 
       - name: 🔍 Run OWASP ZAP scan
         continue-on-error: true
         run: |
-          ./ZAP_2.14.0/zap.sh -cmd -autorun zap.conf -dir zap-results || echo "⚠️ ZAP scan completed with issues"
+          ./ZAP_2.15.0/zap.sh -cmd -autorun zap.conf -dir zap-results || echo "⚠️ ZAP scan completed with issues"
 
       - name: 💾 Upload DAST reports
         uses: actions/upload-artifact@v4
@@ -262,6 +257,7 @@ jobs:
 
       - name: 📥 Download all security reports
         uses: actions/download-artifact@v4
+        continue-on-error: true
         with:
           path: security-reports/
 
