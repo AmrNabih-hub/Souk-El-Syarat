@@ -451,6 +451,31 @@ async function updateBusinessMetrics() {
 }
 
 /**
+ * Health check endpoint for App Hosting
+ */
+exports.healthCheck = onCall(async (request) => {
+  try {
+    // Test database connection
+    await db.collection('health').doc('check').get();
+    
+    return {
+      status: 'healthy',
+      timestamp: new Date().toISOString(),
+      services: {
+        firestore: 'connected',
+        functions: 'running',
+        auth: 'available'
+      },
+      version: '1.0.0',
+      environment: process.env.NODE_ENV || 'development'
+    };
+  } catch (error) {
+    console.error('Health check failed:', error);
+    throw new HttpsError('internal', 'Health check failed');
+  }
+});
+
+/**
  * Helper function to update real-time stats
  */
 async function updateRealTimeStats() {

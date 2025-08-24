@@ -83,6 +83,27 @@
       }
     ]
   },
+  "apphosting": {
+    "backends": [
+      {
+        "name": "souk-el-sayarat-backend",
+        "region": "europe-west4",
+        "source": {
+          "repository": "https://github.com/AmrNabih-hub/Souk-El-Syarat",
+          "branch": "main",
+          "rootDir": "functions"
+        },
+        "runtime": "nodejs18",
+        "env": {
+          "NODE_ENV": "production"
+        },
+        "scaling": {
+          "minInstances": 0,
+          "maxInstances": 10
+        }
+      }
+    ]
+  },
   "storage": {
     "rules": "storage.rules"
   },

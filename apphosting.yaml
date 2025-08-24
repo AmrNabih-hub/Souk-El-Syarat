@@ -1,68 +1,39 @@
-# Firebase App Hosting Configuration
-# Professional configuration for Souk El-Syarat production deployment
+# 🚨 BULLETPROOF APP HOSTING CONFIGURATION
+# Souk El-Syarat Marketplace Backend Services
 
-# Runtime configuration
-runtime:
-  nodejs: 20
-
-# Build configuration
-build:
-  installCommand: npm ci --production=false --silent
-  buildCommand: npm run build:deploy
-
-# Environment variables
-env:
-  - variable: NODE_ENV
-    value: production
-    availability: 
-      - BUILD
-      - RUNTIME
-      
-  - variable: CI
-    value: "true"
-    availability:
-      - BUILD
-
-# Static file serving configuration  
-serve:
-  staticFiles:
-    - source: dist
-      destination: /
-      
-# Health check configuration
-healthCheck:
-  path: /
-  
-# Performance configuration
-performance:
-  # Enable compression
-  compression: true
-  # Cache static assets for 1 year
-  staticAssetsCacheTTL: 31536000
-  # Cache HTML files for 1 hour
-  htmlCacheTTL: 3600
-
-# Security configuration
-security:
-  # Enable HTTPS redirect
-  httpsRedirect: true
-  # Security headers
-  headers:
-    - key: X-Content-Type-Options
-      value: nosniff
-    - key: X-Frame-Options  
-      value: DENY
-    - key: X-XSS-Protection
-      value: "1; mode=block"
-    - key: Strict-Transport-Security
-      value: max-age=31536000; includeSubDomains
-
-# Resource limits
-resources:
-  memory: 1Gi
-  cpu: 1
-
-# Scaling configuration
-scaling:
-  minInstances: 1
-  maxInstances: 10
+apiVersion: v1
+kind: Backend
+metadata:
+  name: souk-el-sayarat-backend
+  region: europe-west4
+spec:
+  source:
+    repository: https://github.com/AmrNabih-hub/Souk-El-Syarat
+    branch: main
+    rootDir: functions
+  runtime: nodejs18
+  env:
+    - name: NODE_ENV
+      value: production
+    - name: FIREBASE_PROJECT_ID
+      value: souk-el-syarat
+  scaling:
+    minInstances: 0
+    maxInstances: 10
+    concurrency: 80
+  resources:
+    cpu: 1
+    memory: 512Mi
+  timeout: 60s
+  secrets:
+    - name: FIREBASE_SERVICE_ACCOUNT
+      secretName: firebase-service-account
+  healthCheck:
+    path: /health
+    initialDelay: 10s
+    period: 30s
+    timeout: 5s
+    failureThreshold: 3
+  rolloutPolicy:
+    type: immediate
+    trafficPercentage: 100
