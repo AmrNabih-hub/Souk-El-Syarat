@@ -4,6 +4,7 @@ import { getFirestore, connectFirestoreEmulator } from 'firebase/firestore';
 import { getStorage, connectStorageEmulator } from 'firebase/storage';
 import { getFunctions, connectFunctionsEmulator } from 'firebase/functions';
 import { getAnalytics } from 'firebase/analytics';
+import { getMessaging, isSupported } from 'firebase/messaging';
 
 // Firebase configuration
 const firebaseConfig = {
@@ -25,6 +26,20 @@ export const auth = getAuth(app);
 export const db = getFirestore(app);
 export const storage = getStorage(app);
 export const functions = getFunctions(app);
+
+// Initialize Messaging (only in browsers that support it)
+let messaging: any = null;
+if (typeof window !== 'undefined') {
+  isSupported().then(supported => {
+    if (supported) {
+      messaging = getMessaging(app);
+    }
+  }).catch(() => {
+    // Messaging not supported in this browser
+    messaging = null;
+  });
+}
+export { messaging };
 
 // Initialize Analytics (only in production)
 export const analytics =

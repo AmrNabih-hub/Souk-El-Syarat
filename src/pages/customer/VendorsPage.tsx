@@ -17,7 +17,7 @@ import {
 import { useAppStore } from '@/stores/appStore';
 
 import { Vendor } from '@/types';
-import { SampleVendorsService } from '@/services/vendor.service';
+import { SampleVendorsService } from '@/services/sample-vendors.service';
 import { StarSolid } from '@/components/ui/CustomIcons';
 import LoadingSpinner from '@/components/ui/LoadingSpinner';
 import clsx from 'clsx';
