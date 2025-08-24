@@ -168,44 +168,50 @@ export const useRealtimeStore = create<RealtimeState>()(
 
     // Cleanup all listeners
     cleanup: () => {
-      // if (process.env.NODE_ENV === 'development') console.log('🧹 Cleaning up real-time services');
-
-      // Clean up all listeners
-      get().listeners.forEach((unsubscribe, key) => {
-        try {
-          unsubscribe();
-          // if (process.env.NODE_ENV === 'development') console.log(`✅ Cleaned up listener: ${key}`);
-        } catch (error) {
-          if (process.env.NODE_ENV === 'development')
-            if (process.env.NODE_ENV === 'development')
-              console.error(`❌ Error cleaning up listener ${key}:`, error);
+      try {
+        // Safe cleanup with error handling
+        const store = get();
+        
+        // Clean up all listeners safely
+        if (store.listeners && typeof store.listeners.forEach === 'function') {
+          store.listeners.forEach((unsubscribe, key) => {
+            try {
+              if (typeof unsubscribe === 'function') {
+                unsubscribe();
+              }
+            } catch (error) {
+              // Silent error handling in production
+            }
+          });
+          
+          // Clear listeners map safely
+          if (typeof store.listeners.clear === 'function') {
+            store.listeners.clear();
+          }
         }
-      });
 
-      // Clear listeners map
-      get().listeners.clear();
-
-      // Clean up RealtimeService listeners
-      RealtimeService.cleanup();
-
-      // Reset state
-      set({
-        currentUserPresence: null,
-        onlineUsers: {},
-        activeChats: {},
-        unreadMessages: {},
-        typingUsers: {},
-        notifications: [],
-        unreadNotifications: 0,
-        orders: [],
-        orderUpdates: {},
-        vendorProducts: [],
-        productUpdates: {},
-        liveAnalytics: null,
-        activityFeed: [],
-        isConnected: false,
-        isInitialized: false,
-      });
+        // Reset state safely
+        set({
+          currentUserPresence: null,
+          onlineUsers: {},
+          activeChats: {},
+          unreadMessages: {},
+          typingUsers: {},
+          notifications: [],
+          unreadNotifications: 0,
+          orders: [],
+          orderUpdates: {},
+          vendorProducts: [],
+          productUpdates: {},
+          liveAnalytics: null,
+          activityFeed: [],
+          isConnected: false,
+          isInitialized: false,
+          listeners: new Map(),
+        });
+      } catch (error) {
+        // Silent error handling in production - prevent crashes
+      }
     },
 
     // Presence actions

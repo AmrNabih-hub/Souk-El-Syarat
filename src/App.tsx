@@ -11,7 +11,7 @@ import { AuthService } from '@/services/auth.service';
 // Layout Components
 import Navbar from '@/components/layout/Navbar';
 import Footer from '@/components/layout/Footer';
-import LoadingSpinner from '@/components/ui/LoadingSpinner';
+
 
 // Lazy load pages for better performance
 const HomePage = React.lazy(() => import('@/pages/HomePage'));
@@ -40,9 +40,28 @@ const ProtectedRoute: React.FC<{
 
   if (isLoading) {
     return (
-      <div className='min-h-screen flex items-center justify-center'>
-        <LoadingSpinner size='lg' />
-      </div>
+      <motion.div
+        className='min-h-screen flex items-center justify-center bg-gradient-to-br from-primary-50 to-secondary-50'
+        initial={{ x: -100, opacity: 0 }}
+        animate={{ x: 0, opacity: 1 }}
+        transition={{ duration: 0.5, ease: 'easeInOut' }}
+      >
+        <motion.div
+          className='text-center'
+          animate={{
+            x: [-15, 15, -15],
+          }}
+          transition={{
+            duration: 2,
+            repeat: Infinity,
+            ease: 'easeInOut'
+          }}
+        >
+          <div className='text-3xl font-bold text-primary-600 mb-2'>
+            🔐 جاري التحقق...
+          </div>
+        </motion.div>
+      </motion.div>
     );
   }
 
@@ -188,12 +207,30 @@ function App() {
           <Suspense
             fallback={
               <motion.div
-                className='min-h-screen flex items-center justify-center'
-                initial={{ opacity: 0 }}
-                animate={{ opacity: 1 }}
-                exit={{ opacity: 0 }}
+                className='min-h-screen flex items-center justify-center bg-gradient-to-br from-primary-50 to-secondary-50'
+                initial={{ x: -100, opacity: 0 }}
+                animate={{ x: 0, opacity: 1 }}
+                exit={{ x: 100, opacity: 0 }}
+                transition={{ duration: 0.5, ease: 'easeInOut' }}
               >
-                <LoadingSpinner size='lg' />
+                <motion.div
+                  className='text-center'
+                  animate={{
+                    x: [-20, 20, -20],
+                  }}
+                  transition={{
+                    duration: 2,
+                    repeat: Infinity,
+                    ease: 'easeInOut'
+                  }}
+                >
+                  <div className='text-4xl font-bold text-primary-600 mb-2'>
+                    سوق السيارات
+                  </div>
+                  <div className='text-lg text-secondary-600'>
+                    جاري التحميل...
+                  </div>
+                </motion.div>
               </motion.div>
             }
           >
