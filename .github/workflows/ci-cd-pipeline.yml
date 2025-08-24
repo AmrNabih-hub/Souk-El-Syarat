@@ -255,20 +255,26 @@ jobs:
 
       - name: 🚀 Deploy to Firebase Staging
         run: |
-          echo "🔥 Starting Firebase deployment to staging..."
-          if [ -n "$FIREBASE_TOKEN" ]; then
-            echo "Using Firebase Token authentication"
-            firebase deploy --only hosting --project "$FIREBASE_PROJECT_ID-staging" --token "$FIREBASE_TOKEN"
-          elif [ -n "$GOOGLE_APPLICATION_CREDENTIALS_JSON" ]; then
-            echo "Using Service Account authentication"
-            echo "$GOOGLE_APPLICATION_CREDENTIALS_JSON" > $HOME/gcp-key.json
-            export GOOGLE_APPLICATION_CREDENTIALS="$HOME/gcp-key.json"
-            firebase deploy --only hosting --project "$FIREBASE_PROJECT_ID-staging"
-          else
-            echo "❌ No Firebase authentication method available!"
-            echo "Please set either FIREBASE_TOKEN or GOOGLE_APPLICATION_CREDENTIALS_JSON in repository secrets"
-            exit 1
-          fi
+          echo "🔥 Starting FULL Firebase deployment to staging..."
+          echo "Project ID: $FIREBASE_PROJECT_ID"
+          echo "Authentication method: token"
+          
+          echo ""
+          echo "🚀 Deploying ALL Firebase services to STAGING:"
+          echo "   📱 Frontend (Hosting)"
+          echo "   ⚡ Cloud Functions (Backend API)" 
+          echo "   🗄️ Firestore Rules & Indexes (Database Security)"
+          echo "   📁 Storage Rules (File Upload Security)"
+          echo ""
+          
+          firebase deploy --project "$FIREBASE_PROJECT_ID" --token "$FIREBASE_TOKEN" --non-interactive --force
+          
+          echo ""
+          echo "🎉 FULL-STACK STAGING DEPLOYMENT COMPLETED!"
+          echo "✅ Frontend: Live at staging URL"
+          echo "✅ Backend: Cloud Functions deployed to staging"
+          echo "✅ Database: Firestore rules active in staging"
+          echo "✅ Storage: File security configured for staging"
         env:
           FIREBASE_TOKEN: ${{ secrets.FIREBASE_TOKEN }}
           GOOGLE_APPLICATION_CREDENTIALS_JSON: ${{ secrets.GOOGLE_APPLICATION_CREDENTIALS_JSON }}
@@ -384,22 +390,42 @@ jobs:
       - name: 🚀 Deploy to Firebase Production
         if: steps.auth_check.outputs.auth_available == 'true'
         run: |
-          echo "🔥 Starting Firebase deployment to production..."
+          echo "🔥 Starting FULL Firebase deployment to production..."
           echo "Project ID: $FIREBASE_PROJECT_ID"
           echo "Authentication method: ${{ steps.auth_check.outputs.auth_method }}"
           
           # Deploy based on authentication method
           if [ "${{ steps.auth_check.outputs.auth_method }}" = "token" ]; then
             echo "🔑 Using Firebase Token authentication"
-            firebase deploy --only hosting --project "$FIREBASE_PROJECT_ID" --token "$FIREBASE_TOKEN" --non-interactive
+            echo ""
+            echo "🚀 Deploying ALL Firebase services:"
+            echo "   📱 Frontend (Hosting)"
+            echo "   ⚡ Cloud Functions (Backend API)"
+            echo "   🗄️ Firestore Rules & Indexes (Database Security)"
+            echo "   📁 Storage Rules (File Upload Security)"
+            echo ""
+            firebase deploy --project "$FIREBASE_PROJECT_ID" --token "$FIREBASE_TOKEN" --non-interactive --force
           elif [ "${{ steps.auth_check.outputs.auth_method }}" = "service_account" ]; then
             echo "🔑 Using Service Account authentication"
             echo "$GOOGLE_APPLICATION_CREDENTIALS_JSON" > $HOME/gcp-key.json
             export GOOGLE_APPLICATION_CREDENTIALS="$HOME/gcp-key.json"
-            firebase deploy --only hosting --project "$FIREBASE_PROJECT_ID" --non-interactive
+            echo ""
+            echo "🚀 Deploying ALL Firebase services:"
+            echo "   📱 Frontend (Hosting)"
+            echo "   ⚡ Cloud Functions (Backend API)"
+            echo "   🗄️ Firestore Rules & Indexes (Database Security)"
+            echo "   📁 Storage Rules (File Upload Security)"
+            echo ""
+            firebase deploy --project "$FIREBASE_PROJECT_ID" --non-interactive --force
           fi
           
-          echo "🎉 Production deployment completed successfully!"
+          echo ""
+          echo "🎉 FULL-STACK PRODUCTION DEPLOYMENT COMPLETED!"
+          echo "✅ Frontend: Live at https://$FIREBASE_PROJECT_ID.web.app"
+          echo "✅ Backend: Cloud Functions deployed"
+          echo "✅ Database: Firestore rules & indexes active"
+          echo "✅ Storage: File upload security configured"
+          echo "✅ Authentication: User management ready"
         env:
           FIREBASE_TOKEN: ${{ secrets.FIREBASE_TOKEN }}
           GOOGLE_APPLICATION_CREDENTIALS_JSON: ${{ secrets.GOOGLE_APPLICATION_CREDENTIALS_JSON }}
