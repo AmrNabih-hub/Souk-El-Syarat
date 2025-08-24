@@ -1,10 +1,11 @@
-import React, { useState, useCallback } from 'react';
+import React, { useState, useRef } from 'react';
 import { motion } from 'framer-motion';
 import { useForm } from 'react-hook-form';
 import { yupResolver } from '@hookform/resolvers/yup';
 import * as yup from 'yup';
 import { useDropzone } from 'react-dropzone';
-import { CameraIcon, XMarkIcon, TrashIcon, PlusIcon } from '@heroicons/react/24/outline';
+import { CloudArrowUpIcon, CheckCircleIcon } from '@heroicons/react/24/outline';
+import { EgyptianSpinnerSmall } from '../ui/EgyptianSpinner';
 import { useAppStore } from '@/stores/appStore';
 import { useAuthStore } from '@/stores/authStore';
 import { ProductService } from '@/services/product.service';
@@ -82,17 +83,14 @@ const UsedCarSellingForm: React.FC = () => {
     },
   });
 
-  const onDrop = useCallback(
-    (acceptedFiles: File[]) => {
-      const newImages = [...uploadedImages, ...acceptedFiles].slice(0, 10);
-      setUploadedImages(newImages);
-      setValue('images', newImages);
+  const onDrop = (acceptedFiles: File[]) => {
+    const newImages = [...uploadedImages, ...acceptedFiles].slice(0, 10);
+    setUploadedImages(newImages);
+    setValue('images', newImages);
 
-      const newPreviewUrls = newImages.map(file => URL.createObjectURL(file));
-      setImagePreviewUrls(newPreviewUrls);
-    },
-    [uploadedImages, setValue]
-  );
+    const newPreviewUrls = newImages.map(file => URL.createObjectURL(file));
+    setImagePreviewUrls(newPreviewUrls);
+  };
 
   const { getRootProps, getInputProps, isDragActive } = useDropzone({
     onDrop,
@@ -460,7 +458,7 @@ const UsedCarSellingForm: React.FC = () => {
             }`}
           >
             <input {...getInputProps()} />
-            <CameraIcon className='mx-auto h-12 w-12 text-gray-400 mb-4' />
+            <CloudArrowUpIcon className='mx-auto h-12 w-12 text-gray-400 mb-4' />
             <p className='text-lg font-medium text-gray-900 mb-2'>
               {isDragActive
                 ? language === 'ar'

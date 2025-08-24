@@ -1,7 +1,13 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
-import { motion } from 'framer-motion';
-import { StarIcon, ArrowRightIcon, CheckBadgeIcon } from '@heroicons/react/24/outline';
+import { motion, AnimatePresence } from 'framer-motion';
+import { 
+  ShoppingCartIcon, 
+  StarIcon, 
+  UserGroupIcon, 
+  TruckIcon,
+  CheckBadgeIcon 
+} from '@heroicons/react/24/outline';
 import {
   LuxuryCarIcon,
   PremiumEngineIcon,

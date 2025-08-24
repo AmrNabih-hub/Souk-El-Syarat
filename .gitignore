@@ -70,16 +70,8 @@ out/
 # Misc
 *.tgz
 *.tar.gz
-<<<<<<< Current (Your changes)
-=======
 
 # Core dumps and system files
 core
 core.*
 *.core
-
-# Core dumps and system files
-core
-core.*
-*.core
->>>>>>> Incoming (Background Agent changes)

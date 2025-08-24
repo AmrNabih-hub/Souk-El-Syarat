@@ -1,10 +1,11 @@
 /**
- * Test Setup File for Souk El-Sayarat
- * Configures the testing environment and global mocks
+ * Enhanced Test Setup for Souk El-Syarat
+ * Professional-grade testing environment configuration
  */
 
+import React from 'react';
+import { beforeEach, afterEach, vi } from 'vitest';
 import '@testing-library/jest-dom';
-import { vi } from 'vitest';
 
 // Mock Firebase modules
 vi.mock('firebase/app', () => ({
