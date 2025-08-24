@@ -347,10 +347,15 @@ export class RealtimeService {
   }
 
   // Cleanup real-time listeners
-  cleanup(): void {
+  static cleanup(): void {
     // This method is called when the service is no longer needed
     // Individual listeners should be cleaned up by the components using them
     // if (process.env.NODE_ENV === 'development') console.log('🧹 Realtime service cleanup completed');
+  }
+  
+  // Instance cleanup method
+  cleanup(): void {
+    RealtimeService.cleanup();
   }
 }
 

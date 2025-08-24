@@ -201,12 +201,12 @@ const VendorCard: React.FC<{ vendor: Vendor }> = ({ vendor }) => {
 
 const VendorsPage: React.FC = () => {
   const { language } = useAppStore();
-  const [vendors, setVendors] = useState<Vendor[]>([]);
-  const [filteredVendors, setFilteredVendors] = useState<Vendor[]>([]);
-  const [isLoading, setIsLoading] = useState(true);
-  const [searchQuery, setSearchQuery] = useState('');
-  const [selectedType, setSelectedType] = useState<string>('all');
-  const [sortBy, setSortBy] = useState<'rating' | 'sales' | 'products'>('rating');
+  const [vendors, setVendors] = React.useState<Vendor[]>([]);
+  const [filteredVendors, setFilteredVendors] = React.useState<Vendor[]>([]);
+  const [isLoading, setIsLoading] = React.useState(true);
+  const [searchQuery, setSearchQuery] = React.useState('');
+  const [selectedType, setSelectedType] = React.useState<string>('all');
+  const [sortBy, setSortBy] = React.useState<'rating' | 'sales' | 'products'>('rating');
 
   useEffect(() => {
     // Simulate loading

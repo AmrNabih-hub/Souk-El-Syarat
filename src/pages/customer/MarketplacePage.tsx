@@ -67,14 +67,14 @@ const MarketplacePage: React.FC = () => {
         ...sampleProducts,
         {
           ...sampleProducts[0],
-          id: 'car-2',
+          id: 'car-marketplace-2',
           title: 'BMW X5 2019 - فل أوبشن',
           description: 'BMW X5 2019 بحالة ممتازة، فل أوبشن، جلد، فتحة سقف، نافيجيشن.',
           price: 850000,
           originalPrice: 950000,
           images: [
             {
-              id: 'car-2-img-1',
+              id: 'car-marketplace-2-img-1',
               url: 'https://images.unsplash.com/photo-1555215695-3004980ad54e?w=800&h=600&fit=crop',
               alt: 'BMW X5 2019',
               isPrimary: true,
