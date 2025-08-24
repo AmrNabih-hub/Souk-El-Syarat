@@ -309,27 +309,85 @@ jobs:
             exit 1
           fi
 
-      - name: 🔥 Setup Firebase CLI
+      - name: 🔑 Check Firebase Authentication
+        id: auth_check
         run: |
+          echo "🔍 Checking Firebase authentication methods..."
+          
+          # Check for Firebase Token
+          if [ -n "$FIREBASE_TOKEN" ] && [ -n "$FIREBASE_PROJECT_ID" ]; then
+            echo "✅ FIREBASE_TOKEN and PROJECT_ID are available"
+            echo "auth_available=true" >> $GITHUB_OUTPUT
+            echo "auth_method=token" >> $GITHUB_OUTPUT
+          elif [ -n "$GOOGLE_APPLICATION_CREDENTIALS_JSON" ] && [ -n "$FIREBASE_PROJECT_ID" ]; then
+            echo "✅ GOOGLE_APPLICATION_CREDENTIALS_JSON and PROJECT_ID are available"
+            echo "auth_available=true" >> $GITHUB_OUTPUT
+            echo "auth_method=service_account" >> $GITHUB_OUTPUT
+          else
+            echo "⚠️ Firebase authentication not configured"
+            echo "auth_available=false" >> $GITHUB_OUTPUT
+          fi
+        env:
+          FIREBASE_TOKEN: ${{ secrets.FIREBASE_TOKEN }}
+          GOOGLE_APPLICATION_CREDENTIALS_JSON: ${{ secrets.GOOGLE_APPLICATION_CREDENTIALS_JSON }}
+          FIREBASE_PROJECT_ID: ${{ secrets.FIREBASE_PROJECT_ID }}
+
+      - name: 📋 Firebase Setup Instructions
+        if: steps.auth_check.outputs.auth_available == 'false'
+        run: |
+          echo "🚨 FIREBASE AUTHENTICATION NOT CONFIGURED"
+          echo "=========================================="
+          echo ""
+          echo "Your CI/CD pipeline is working, but Firebase deployment is skipped"
+          echo "because authentication secrets are not configured."
+          echo ""
+          echo "🔧 TO ENABLE FIREBASE DEPLOYMENT:"
+          echo ""
+          echo "1. 📖 Read the setup guide: FIREBASE_SETUP.md"
+          echo "2. 🔑 Configure GitHub repository secrets:"
+          echo ""
+          echo "   Option A - Firebase Token (Recommended):"
+          echo "   • FIREBASE_TOKEN (get with: firebase login:ci)"
+          echo "   • FIREBASE_PROJECT_ID (your Firebase project ID)"
+          echo ""
+          echo "   Option B - Service Account:"
+          echo "   • GOOGLE_APPLICATION_CREDENTIALS_JSON (service account JSON)"
+          echo "   • FIREBASE_PROJECT_ID (your Firebase project ID)"
+          echo ""
+          echo "3. 🚀 Push a new commit to trigger deployment"
+          echo ""
+          echo "📍 Repository Settings → Secrets and variables → Actions"
+          echo "📚 Full guide: https://github.com/AmrNabih-hub/Souk-El-Syarat/blob/main/FIREBASE_SETUP.md"
+          echo ""
+          echo "⏭️ Skipping Firebase deployment for now..."
+
+      - name: 🔥 Setup Firebase CLI
+        if: steps.auth_check.outputs.auth_available == 'true'
+        run: |
+          echo "📦 Installing Firebase CLI..."
           npm install -g firebase-tools@latest
           firebase --version
+          echo "✅ Firebase CLI installed successfully"
 
       - name: 🚀 Deploy to Firebase Production
+        if: steps.auth_check.outputs.auth_available == 'true'
         run: |
           echo "🔥 Starting Firebase deployment to production..."
-          if [ -n "$FIREBASE_TOKEN" ]; then
-            echo "Using Firebase Token authentication"
-            firebase deploy --only hosting --project "$FIREBASE_PROJECT_ID" --token "$FIREBASE_TOKEN"
-          elif [ -n "$GOOGLE_APPLICATION_CREDENTIALS_JSON" ]; then
-            echo "Using Service Account authentication"
+          echo "Project ID: $FIREBASE_PROJECT_ID"
+          echo "Authentication method: ${{ steps.auth_check.outputs.auth_method }}"
+          
+          # Deploy based on authentication method
+          if [ "${{ steps.auth_check.outputs.auth_method }}" = "token" ]; then
+            echo "🔑 Using Firebase Token authentication"
+            firebase deploy --only hosting --project "$FIREBASE_PROJECT_ID" --token "$FIREBASE_TOKEN" --non-interactive
+          elif [ "${{ steps.auth_check.outputs.auth_method }}" = "service_account" ]; then
+            echo "🔑 Using Service Account authentication"
             echo "$GOOGLE_APPLICATION_CREDENTIALS_JSON" > $HOME/gcp-key.json
             export GOOGLE_APPLICATION_CREDENTIALS="$HOME/gcp-key.json"
-            firebase deploy --only hosting --project "$FIREBASE_PROJECT_ID"
-          else
-            echo "❌ No Firebase authentication method available!"
-            echo "Please set either FIREBASE_TOKEN or GOOGLE_APPLICATION_CREDENTIALS_JSON in repository secrets"
-            exit 1
+            firebase deploy --only hosting --project "$FIREBASE_PROJECT_ID" --non-interactive
           fi
+          
+          echo "🎉 Production deployment completed successfully!"
         env:
           FIREBASE_TOKEN: ${{ secrets.FIREBASE_TOKEN }}
           GOOGLE_APPLICATION_CREDENTIALS_JSON: ${{ secrets.GOOGLE_APPLICATION_CREDENTIALS_JSON }}
