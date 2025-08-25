@@ -200,23 +200,27 @@ export class PerformanceMonitor {
   }
 
   private setupMemoryMonitoring(): void {
-    if ('memory' in performance) {
+    // Safe memory monitoring without dynamic execution
+    const perfWithMemory = performance as { memory?: { usedJSHeapSize: number } };
+    if (perfWithMemory.memory && typeof perfWithMemory.memory === 'object') {
       setInterval(() => {
-        const memory = (performance as any).memory;
-        this.recordMetric('memoryUsage', memory.usedJSHeapSize);
+        const memoryInfo = perfWithMemory.memory;
+        if (memoryInfo && typeof memoryInfo.usedJSHeapSize === 'number') {
+          this.recordMetric('memoryUsage', memoryInfo.usedJSHeapSize);
         
-        // Alert on high memory usage
-        if (memory.usedJSHeapSize > this.budget.memoryUsage) {
+          // Alert on high memory usage
+          if (memoryInfo.usedJSHeapSize > this.budget.memoryUsage) {
           this.recordAlert({
             id: `high-memory-${Date.now()}`,
             metric: 'memoryUsage',
             threshold: this.budget.memoryUsage,
-            actualValue: memory.usedJSHeapSize,
+            actualValue: memoryInfo.usedJSHeapSize,
             severity: 'high',
             timestamp: new Date(),
             userAgent: navigator.userAgent,
             url: window.location.href,
           });
+          }
         }
       }, 30000); // Check every 30 seconds
     }
@@ -383,7 +387,7 @@ export class PerformanceMonitor {
   }
 
   // API Performance Tracking
-  public trackApiCall(url: string, options?: RequestInit): Promise<Response> {
+  public trackApiCall(url: string, options?: Record<string, unknown>): Promise<Response> {
     const startTime = performance.now();
     
     return fetch(url, options).then(response => {
@@ -455,7 +459,7 @@ export function usePerformanceMonitor() {
   const monitor = PerformanceMonitor.getInstance();
   
   const trackRoute = (routeName: string) => monitor.trackRouteChange(routeName);
-  const trackApi = (url: string, options?: RequestInit) => monitor.trackApiCall(url, options);
+  const trackApi = (url: string, options?: Record<string, unknown>) => monitor.trackApiCall(url, options);
   const getMetrics = () => monitor.getMetrics();
   const getScore = () => monitor.getPerformanceScore();
   const getReport = () => monitor.generateReport();

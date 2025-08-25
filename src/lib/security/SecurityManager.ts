@@ -3,7 +3,7 @@
  * Advanced security monitoring, threat detection, and protection systems
  */
 
-import { ErrorHandler } from '../errors';
+// Security manager with comprehensive threat detection
 
 // Security Types
 export enum ThreatLevel {

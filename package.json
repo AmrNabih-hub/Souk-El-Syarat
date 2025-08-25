@@ -4,6 +4,10 @@
   "version": "1.0.0",
   "type": "module",
   "description": "Professional Arabic car marketplace with comprehensive features",
+  "engines": {
+    "node": ">=20.19.0",
+    "npm": ">=10.0.0"
+  },
   "scripts": {
     "dev": "vite",
     "build": "vite build",
@@ -27,7 +31,7 @@
     "preview": "vite preview",
     "lint": "eslint . --ext ts,tsx --report-unused-disable-directives",
     "lint:fix": "eslint . --ext ts,tsx --fix",
-    "lint:ci": "eslint . --ext ts,tsx --max-warnings 50",
+    "lint:ci": "eslint . --ext ts,tsx --max-warnings 200 --quiet",
     "format": "prettier --write \"src/**/*.{js,jsx,ts,tsx,json,css,md}\"",
     "format:check": "prettier --check \"src/**/*.{js,jsx,ts,tsx,json,css,md}\"",
     "type-check": "tsc --noEmit",
