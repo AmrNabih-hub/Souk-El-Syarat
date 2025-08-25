@@ -14,6 +14,7 @@ import {
   XMarkIcon,
 } from '@heroicons/react/24/outline';
 import { useAppStore } from '@/stores/appStore';
+import RealDataService, { RealCar } from '@/services/real-data.service';
 import toast from 'react-hot-toast';
 
 interface Vehicle {
@@ -288,12 +289,44 @@ const MarketplacePage: React.FC = () => {
   const egyptianCities = ['القاهرة', 'الجيزة', 'الإسكندرية', 'الشيخ زايد', 'القاهرة الجديدة', 'المعادي', 'المنصورة', 'طنطا', 'الزقازيق', 'أسوان'];
   const years = ['2023', '2022', '2021', '2020', '2019', '2018', '2017', '2016', '2015'];
 
+  // Convert RealCar to Vehicle format
+  const convertRealCarsToVehicles = (realCars: RealCar[]): Vehicle[] => {
+    return realCars.map(car => ({
+      id: car.id,
+      title: car.title,
+      price: RealDataService.formatEGP(car.price),
+      originalPrice: car.originalPrice ? RealDataService.formatEGP(car.originalPrice) : undefined,
+      location: car.location,
+      image: car.images[0] || '/placeholder-car.jpg',
+      vendor: car.seller.name,
+      rating: car.seller.rating,
+      reviewCount: Math.floor(car.views / 10), // Simulate review count from views
+      specs: {
+        year: car.year.toString(),
+        fuel: car.fuelType === 'gasoline' ? 'بنزين' : car.fuelType === 'diesel' ? 'ديزل' : 'هايبرد',
+        transmission: car.transmission === 'automatic' ? 'أوتوماتيك' : car.transmission === 'manual' ? 'يدوي' : 'CVT',
+        mileage: `${car.mileage.toLocaleString()} كم`,
+        engine: car.specifications?.engine || '',
+        color: car.color
+      },
+      features: car.features,
+      condition: car.condition === 'new' ? 'new' : car.condition === 'certified' ? 'excellent' : 'used',
+      verified: car.seller.verified,
+      discount: car.originalPrice ? RealDataService.getDiscountPercentage(car.originalPrice, car.price) : undefined,
+      type: car.bodyType as 'sedan' | 'suv' | 'hatchback' | 'coupe' | 'pickup' | 'van',
+      brand: car.make,
+      model: car.model
+    }));
+  };
+
   useEffect(() => {
-    // Simulate loading
+    // Load real data
     setIsLoading(true);
     setTimeout(() => {
-      setVehicles(mockVehicles);
-      setFilteredVehicles(mockVehicles);
+      const realCars = RealDataService.getRealCars();
+      const convertedVehicles = convertRealCarsToVehicles(realCars);
+      setVehicles(convertedVehicles);
+      setFilteredVehicles(convertedVehicles);
       setIsLoading(false);
     }, 1000);
   }, []);

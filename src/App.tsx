@@ -98,6 +98,12 @@ const MessagesPage = React.lazy(() =>
   }))
 );
 
+const EnhancedMarketplace = React.lazy(() => 
+  import('@/pages/EnhancedMarketplace').catch(() => ({ 
+    default: () => <div className="p-8 text-center">السوق المحسن غير متاح حالياً</div> 
+  }))
+);
+
 // Dashboard pages
 const AdminDashboard = React.lazy(() => 
   import('@/pages/admin/AdminDashboard').catch(() => ({ 
@@ -276,6 +282,15 @@ function App() {
                   element={
                     <SafePage>
                       <MarketplacePage />
+                    </SafePage>
+                  }
+                />
+
+                <Route
+                  path="/enhanced-marketplace"
+                  element={
+                    <SafePage>
+                      <EnhancedMarketplace />
                     </SafePage>
                   }
                 />
