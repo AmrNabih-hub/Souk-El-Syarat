@@ -1,0 +1,180 @@
+{
+  "project": {
+    "name": "Souk El-Syarat",
+    "id": "souk-el-syarat",
+    "description": "Egyptian Automotive Marketplace"
+  },
+  "environments": {
+    "production": {
+      "firebaseProject": "souk-el-syarat",
+      "url": "https://souk-el-syarat.firebaseapp.com",
+      "branch": "main",
+      "buildCommand": "npm run build:production",
+      "requiresApproval": true,
+      "notifications": {
+        "slack": true,
+        "discord": true,
+        "email": true
+      },
+      "healthCheck": {
+        "enabled": true,
+        "endpoints": ["/", "/api/health"],
+        "timeout": 30000
+      },
+      "rollback": {
+        "automatic": true,
+        "onFailure": true,
+        "keepVersions": 5
+      }
+    },
+    "staging": {
+      "firebaseProject": "souk-el-syarat-staging",
+      "url": "https://souk-el-syarat-staging.firebaseapp.com",
+      "branch": "develop",
+      "buildCommand": "npm run build",
+      "requiresApproval": false,
+      "notifications": {
+        "slack": false,
+        "discord": true,
+        "email": false
+      },
+      "healthCheck": {
+        "enabled": true,
+        "endpoints": ["/"],
+        "timeout": 20000
+      },
+      "rollback": {
+        "automatic": false,
+        "onFailure": false,
+        "keepVersions": 3
+      }
+    },
+    "development": {
+      "firebaseProject": "souk-el-syarat-dev",
+      "url": "https://souk-el-syarat-dev.firebaseapp.com",
+      "branch": "feature/*",
+      "buildCommand": "npm run build",
+      "requiresApproval": false,
+      "notifications": {
+        "slack": false,
+        "discord": false,
+        "email": false
+      },
+      "healthCheck": {
+        "enabled": false,
+        "endpoints": [],
+        "timeout": 10000
+      },
+      "rollback": {
+        "automatic": false,
+        "onFailure": false,
+        "keepVersions": 1
+      }
+    }
+  },
+  "deployment": {
+    "strategy": "blue-green",
+    "timeout": 600000,
+    "retries": 3,
+    "retryDelay": 5000,
+    "parallelism": 1,
+    "cache": {
+      "enabled": true,
+      "maxAge": 31536000,
+      "sMaxAge": 86400
+    }
+  },
+  "monitoring": {
+    "performance": {
+      "enabled": true,
+      "thresholds": {
+        "lcp": 2500,
+        "fid": 100,
+        "cls": 0.1,
+        "ttfb": 600
+      }
+    },
+    "errors": {
+      "enabled": true,
+      "sampleRate": 1.0,
+      "ignorePatterns": ["ResizeObserver", "Non-Error promise rejection"]
+    },
+    "analytics": {
+      "enabled": true,
+      "trackingId": "G-46RKPHQLVB"
+    }
+  },
+  "security": {
+    "headers": {
+      "contentSecurityPolicy": "default-src 'self'; script-src 'self' 'unsafe-inline' https://www.googletagmanager.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com; img-src 'self' data: https: blob:; connect-src 'self' https: wss:;",
+      "xFrameOptions": "DENY",
+      "xContentTypeOptions": "nosniff",
+      "xXssProtection": "1; mode=block",
+      "strictTransportSecurity": "max-age=31536000; includeSubDomains; preload",
+      "referrerPolicy": "strict-origin-when-cross-origin"
+    },
+    "rateLimit": {
+      "enabled": true,
+      "maxRequests": 100,
+      "windowMs": 60000
+    }
+  },
+  "notifications": {
+    "channels": {
+      "slack": {
+        "enabled": false,
+        "webhookUrl": "${SLACK_WEBHOOK}",
+        "channel": "#deployments",
+        "username": "Deploy Bot"
+      },
+      "discord": {
+        "enabled": false,
+        "webhookUrl": "${DISCORD_WEBHOOK}",
+        "username": "Souk El-Syarat Deploy"
+      },
+      "email": {
+        "enabled": false,
+        "recipients": ["admin@souk-el-syarat.com"],
+        "from": "noreply@souk-el-syarat.com"
+      }
+    },
+    "events": {
+      "onStart": true,
+      "onSuccess": true,
+      "onFailure": true,
+      "onRollback": true
+    }
+  },
+  "backup": {
+    "enabled": true,
+    "location": "./backups",
+    "maxBackups": 10,
+    "compress": true
+  },
+  "testing": {
+    "preDeployment": {
+      "enabled": true,
+      "commands": [
+        "npm run lint:ci",
+        "npm run type-check:ci",
+        "npm run test:ci"
+      ]
+    },
+    "postDeployment": {
+      "enabled": true,
+      "commands": [
+        "npm run test:e2e",
+        "npm run lighthouse"
+      ]
+    }
+  },
+  "optimization": {
+    "minify": true,
+    "compress": true,
+    "imageOptimization": true,
+    "lazyLoading": true,
+    "codeSpitting": true,
+    "treeShaking": true,
+    "sourceMaps": false
+  }
+}

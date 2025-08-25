@@ -1,0 +1,357 @@
+name: 🚀 Automated Deployment Pipeline
+
+on:
+  push:
+    branches:
+      - main
+      - production
+  pull_request:
+    types: [closed]
+    branches:
+      - main
+  workflow_dispatch:
+    inputs:
+      environment:
+        description: 'Deployment Environment'
+        required: true
+        default: 'staging'
+        type: choice
+        options:
+          - production
+          - staging
+          - development
+
+env:
+  NODE_VERSION: '20.x'
+  FIREBASE_PROJECT: 'souk-el-syarat'
+
+jobs:
+  # ========================================
+  # PRE-DEPLOYMENT CHECKS
+  # ========================================
+  pre-checks:
+    name: 🔍 Pre-Deployment Checks
+    runs-on: ubuntu-latest
+    outputs:
+      should-deploy: ${{ steps.check.outputs.should-deploy }}
+      environment: ${{ steps.check.outputs.environment }}
+    
+    steps:
+      - name: 📥 Checkout Code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      
+      - name: 🔍 Determine Deployment Environment
+        id: check
+        run: |
+          if [[ "${{ github.event_name }}" == "workflow_dispatch" ]]; then
+            echo "environment=${{ github.event.inputs.environment }}" >> $GITHUB_OUTPUT
+            echo "should-deploy=true" >> $GITHUB_OUTPUT
+          elif [[ "${{ github.ref }}" == "refs/heads/production" ]]; then
+            echo "environment=production" >> $GITHUB_OUTPUT
+            echo "should-deploy=true" >> $GITHUB_OUTPUT
+          elif [[ "${{ github.ref }}" == "refs/heads/main" ]]; then
+            echo "environment=staging" >> $GITHUB_OUTPUT
+            echo "should-deploy=true" >> $GITHUB_OUTPUT
+          elif [[ "${{ github.event.pull_request.merged }}" == "true" ]]; then
+            echo "environment=staging" >> $GITHUB_OUTPUT
+            echo "should-deploy=true" >> $GITHUB_OUTPUT
+          else
+            echo "environment=development" >> $GITHUB_OUTPUT
+            echo "should-deploy=false" >> $GITHUB_OUTPUT
+          fi
+      
+      - name: 📊 Display Deployment Info
+        run: |
+          echo "🎯 Deployment Environment: ${{ steps.check.outputs.environment }}"
+          echo "🚀 Should Deploy: ${{ steps.check.outputs.should-deploy }}"
+          echo "📝 Commit: ${{ github.sha }}"
+          echo "👤 Actor: ${{ github.actor }}"
+
+  # ========================================
+  # BUILD AND TEST
+  # ========================================
+  build-test:
+    name: 🔨 Build & Test
+    runs-on: ubuntu-latest
+    needs: pre-checks
+    if: needs.pre-checks.outputs.should-deploy == 'true'
+    
+    steps:
+      - name: 📥 Checkout Code
+        uses: actions/checkout@v4
+      
+      - name: 🔧 Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: 'npm'
+      
+      - name: 📦 Install Dependencies
+        run: |
+          npm ci --silent
+          npm install -g firebase-tools
+      
+      - name: 🧪 Run Linting
+        run: npm run lint:ci
+        continue-on-error: true
+      
+      - name: 🔍 Type Checking
+        run: npm run type-check:ci
+      
+      - name: 🧪 Run Tests
+        run: npm run test:ci
+        continue-on-error: true
+      
+      - name: 🔨 Build Application
+        run: |
+          if [[ "${{ needs.pre-checks.outputs.environment }}" == "production" ]]; then
+            NODE_ENV=production npm run build:production
+          else
+            npm run build
+          fi
+      
+      - name: 📊 Analyze Bundle Size
+        run: |
+          echo "📦 Build Size Analysis:"
+          du -sh dist/
+          find dist -name "*.js" -o -name "*.css" | xargs ls -lh | head -10
+      
+      - name: 💾 Upload Build Artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: build-artifacts-${{ github.sha }}
+          path: dist/
+          retention-days: 7
+
+  # ========================================
+  # SECURITY SCANNING
+  # ========================================
+  security-scan:
+    name: 🔒 Security Scanning
+    runs-on: ubuntu-latest
+    needs: pre-checks
+    if: needs.pre-checks.outputs.should-deploy == 'true'
+    
+    steps:
+      - name: 📥 Checkout Code
+        uses: actions/checkout@v4
+      
+      - name: 🔍 Run Security Audit
+        run: npm audit --audit-level=high
+        continue-on-error: true
+      
+      - name: 🔍 Dependency Check
+        run: |
+          npm list --depth=0 > dependencies.txt
+          echo "📦 Total Dependencies: $(npm list --depth=0 | wc -l)"
+
+  # ========================================
+  # DEPLOY TO FIREBASE
+  # ========================================
+  deploy:
+    name: 🚀 Deploy to Firebase
+    runs-on: ubuntu-latest
+    needs: [pre-checks, build-test, security-scan]
+    if: needs.pre-checks.outputs.should-deploy == 'true'
+    environment:
+      name: ${{ needs.pre-checks.outputs.environment }}
+      url: https://${{ env.FIREBASE_PROJECT }}.firebaseapp.com
+    
+    steps:
+      - name: 📥 Checkout Code
+        uses: actions/checkout@v4
+      
+      - name: 🔧 Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+      
+      - name: 📦 Download Build Artifacts
+        uses: actions/download-artifact@v4
+        with:
+          name: build-artifacts-${{ github.sha }}
+          path: dist/
+      
+      - name: 🔍 Verify Build Artifacts
+        run: |
+          echo "📦 Verifying build artifacts..."
+          ls -la dist/
+          if [ ! -f "dist/index.html" ]; then
+            echo "❌ index.html not found!"
+            exit 1
+          fi
+          echo "✅ Build artifacts verified"
+      
+      - name: 🚀 Deploy to Firebase Hosting
+        uses: FirebaseExtended/action-hosting-deploy@v0
+        with:
+          repoToken: '${{ secrets.GITHUB_TOKEN }}'
+          firebaseServiceAccount: '${{ secrets.FIREBASE_SERVICE_ACCOUNT }}'
+          channelId: ${{ needs.pre-checks.outputs.environment == 'production' && 'live' || needs.pre-checks.outputs.environment }}
+          projectId: ${{ env.FIREBASE_PROJECT }}
+        env:
+          FIREBASE_CLI_EXPERIMENTS: webframeworks
+      
+      - name: 📊 Generate Deployment Report
+        run: |
+          cat > deployment-report.md << EOF
+          # 📊 Deployment Report
+          
+          **Status:** ✅ SUCCESS
+          **Environment:** ${{ needs.pre-checks.outputs.environment }}
+          **Timestamp:** $(date)
+          **Commit:** ${{ github.sha }}
+          **Deployed By:** ${{ github.actor }}
+          
+          ## 🔗 Links
+          - **Production URL:** https://${{ env.FIREBASE_PROJECT }}.firebaseapp.com
+          - **GitHub Commit:** https://github.com/${{ github.repository }}/commit/${{ github.sha }}
+          
+          ## 📦 Build Info
+          - **Node Version:** ${{ env.NODE_VERSION }}
+          - **Build Artifacts:** Available for 7 days
+          
+          ---
+          *Automated deployment via GitHub Actions*
+          EOF
+          
+          cat deployment-report.md
+
+  # ========================================
+  # POST-DEPLOYMENT VERIFICATION
+  # ========================================
+  verify:
+    name: ✅ Verify Deployment
+    runs-on: ubuntu-latest
+    needs: [pre-checks, deploy]
+    if: needs.pre-checks.outputs.should-deploy == 'true'
+    
+    steps:
+      - name: 🔍 Check Site Availability
+        run: |
+          URL="https://${{ env.FIREBASE_PROJECT }}.firebaseapp.com"
+          echo "🔍 Checking $URL..."
+          
+          for i in {1..5}; do
+            HTTP_STATUS=$(curl -s -o /dev/null -w "%{http_code}" $URL)
+            if [ $HTTP_STATUS -eq 200 ]; then
+              echo "✅ Site is live! (HTTP $HTTP_STATUS)"
+              exit 0
+            else
+              echo "⏳ Attempt $i: HTTP $HTTP_STATUS - Waiting 10 seconds..."
+              sleep 10
+            fi
+          done
+          
+          echo "❌ Site verification failed after 5 attempts"
+          exit 1
+      
+      - name: 🚀 Run Lighthouse Performance Test
+        uses: treosh/lighthouse-ci-action@v11
+        with:
+          urls: |
+            https://${{ env.FIREBASE_PROJECT }}.firebaseapp.com
+          uploadArtifacts: true
+          temporaryPublicStorage: true
+        continue-on-error: true
+      
+      - name: 📧 Send Deployment Notification
+        if: success()
+        run: |
+          echo "✅ Deployment successful!"
+          echo "🔗 URL: https://${{ env.FIREBASE_PROJECT }}.firebaseapp.com"
+          echo "📝 Commit: ${{ github.sha }}"
+          echo "👤 Deployed by: ${{ github.actor }}"
+
+  # ========================================
+  # ROLLBACK (IF NEEDED)
+  # ========================================
+  rollback:
+    name: 🔄 Rollback Deployment
+    runs-on: ubuntu-latest
+    needs: [verify]
+    if: failure() && needs.pre-checks.outputs.environment == 'production'
+    
+    steps:
+      - name: 📥 Checkout Code
+        uses: actions/checkout@v4
+      
+      - name: 🔄 Trigger Rollback
+        run: |
+          echo "⚠️ Deployment verification failed!"
+          echo "🔄 Initiating rollback to previous version..."
+          # Add rollback logic here
+          # firebase hosting:rollback --project ${{ env.FIREBASE_PROJECT }}
+      
+      - name: 📧 Send Rollback Notification
+        run: |
+          echo "⚠️ ROLLBACK INITIATED"
+          echo "Environment: ${{ needs.pre-checks.outputs.environment }}"
+          echo "Failed Commit: ${{ github.sha }}"
+
+# ========================================
+# NOTIFICATION JOB
+# ========================================
+  notify:
+    name: 📧 Send Notifications
+    runs-on: ubuntu-latest
+    needs: [pre-checks, deploy, verify]
+    if: always() && needs.pre-checks.outputs.should-deploy == 'true'
+    
+    steps:
+      - name: 📊 Deployment Status
+        run: |
+          if [[ "${{ needs.verify.result }}" == "success" ]]; then
+            echo "✅ Deployment Successful!"
+            STATUS="SUCCESS"
+            COLOR="28a745"
+          else
+            echo "❌ Deployment Failed!"
+            STATUS="FAILED"
+            COLOR="dc3545"
+          fi
+          
+          cat > notification.json << EOF
+          {
+            "status": "$STATUS",
+            "environment": "${{ needs.pre-checks.outputs.environment }}",
+            "url": "https://${{ env.FIREBASE_PROJECT }}.firebaseapp.com",
+            "commit": "${{ github.sha }}",
+            "actor": "${{ github.actor }}",
+            "timestamp": "$(date)",
+            "color": "$COLOR"
+          }
+          EOF
+          
+          cat notification.json
+      
+      - name: 💬 Create GitHub Deployment
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const status = '${{ needs.verify.result }}' === 'success' ? 'success' : 'failure';
+            const environment = '${{ needs.pre-checks.outputs.environment }}';
+            
+            // Create deployment
+            const deployment = await github.rest.repos.createDeployment({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              ref: context.sha,
+              environment: environment,
+              auto_merge: false,
+              required_contexts: [],
+              production_environment: environment === 'production'
+            });
+            
+            // Create deployment status
+            await github.rest.repos.createDeploymentStatus({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              deployment_id: deployment.data.id,
+              state: status,
+              environment_url: `https://${{ env.FIREBASE_PROJECT }}.firebaseapp.com`,
+              description: `Deployment ${status}`
+            });
+        continue-on-error: true

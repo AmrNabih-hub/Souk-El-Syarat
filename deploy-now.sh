@@ -1,37 +1,32 @@
 #!/bin/bash
 
-# 🚀 ONE-CLICK IMMEDIATE DEPLOYMENT
-# Souk El-Syarat Marketplace - Deploy Now!
+# 🚀 ONE-CLICK DEPLOYMENT SCRIPT
+# Quick deployment with minimal configuration
 
 set -e
 
-echo "🚀🚀🚀 ONE-CLICK IMMEDIATE DEPLOYMENT STARTING 🚀🚀🚀"
-echo "=================================================="
-echo "⏰ URGENT: Deploying immediately for app deadline!"
-echo ""
+# Colors
+GREEN='\033[0;32m'
+YELLOW='\033[1;33m'
+RED='\033[0;31m'
+NC='\033[0m'
 
-# Make scripts executable
-chmod +x deploy-immediate.sh
-chmod +x deploy-fullstack.sh
+echo -e "${GREEN}🚀 SOUK EL-SYARAT - QUICK DEPLOY${NC}"
+echo "=================================="
 
-# Check if we should use immediate or full deployment
-if [ "$1" = "--full" ]; then
-    echo "🔄 Using full deployment with quality checks..."
-    ./deploy-fullstack.sh
-else
-    echo "⚡ Using immediate deployment (fastest mode)..."
-    ./deploy-immediate.sh
+# Check if Firebase CLI is installed
+if ! command -v firebase &> /dev/null; then
+    echo -e "${YELLOW}Installing Firebase CLI...${NC}"
+    npm install -g firebase-tools
 fi
 
-echo ""
-echo "🎉🎉🎉 DEPLOYMENT COMPLETED! 🎉🎉🎉"
-echo "=================================================="
-echo "Your Souk El-Syarat Marketplace is now LIVE!"
-echo "Ready for production traffic immediately!"
-echo ""
-echo "Next steps:"
-echo "1. Test the live application"
-echo "2. Monitor for any issues"
-echo "3. Share the live URL with stakeholders"
-echo ""
-echo "🚀 SUCCESS! Your app deadline has been met! 🎉"
+# Build the application
+echo -e "${YELLOW}Building application...${NC}"
+npm run build
+
+# Deploy to Firebase
+echo -e "${YELLOW}Deploying to Firebase...${NC}"
+firebase deploy --only hosting --project souk-el-syarat
+
+echo -e "${GREEN}✅ Deployment complete!${NC}"
+echo -e "${GREEN}🌐 URL: https://souk-el-syarat.firebaseapp.com${NC}"
