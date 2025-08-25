@@ -79,6 +79,12 @@ const SellCarPage = React.lazy(() =>
   }))
 );
 
+const WishlistPage = React.lazy(() => 
+  import('@/pages/customer/WishlistPage').catch(() => ({ 
+    default: () => <div className="p-8 text-center">قائمة المفضلة غير متاحة حالياً</div> 
+  }))
+);
+
 // Dashboard pages
 const AdminDashboard = React.lazy(() => 
   import('@/pages/admin/AdminDashboard').catch(() => ({ 
@@ -351,6 +357,17 @@ function App() {
                     <ProtectedRoute>
                       <SafePage>
                         <SellCarPage />
+                      </SafePage>
+                    </ProtectedRoute>
+                  }
+                />
+
+                <Route
+                  path="/wishlist"
+                  element={
+                    <ProtectedRoute>
+                      <SafePage>
+                        <WishlistPage />
                       </SafePage>
                     </ProtectedRoute>
                   }
