@@ -7,6 +7,9 @@ import { useAppStore } from '@/stores/appStore';
 import { useRealtimeStore } from '@/stores/realtimeStore';
 import { PushNotificationService } from '@/services/push-notification.service';
 import { AuthService } from '@/services/auth.service';
+import { performanceMonitor } from '@/services/performance-monitor.service';
+import { errorRecovery } from '@/services/error-recovery.service';
+import { cacheManager } from '@/services/cache-manager.service';
 
 // Layout Components
 import Navbar from '@/components/layout/Navbar';
@@ -106,6 +109,25 @@ function App() {
   const { setUser, setLoading, user } = useAuthStore();
   const { language, theme } = useAppStore();
   const { initialize: initializeRealtime, cleanup: cleanupRealtime } = useRealtimeStore();
+
+  // Initialize performance monitoring and error recovery
+  useEffect(() => {
+    // Start performance monitoring
+    performanceMonitor.optimizePerformance();
+    
+    // Preload critical data
+    cacheManager.preloadCriticalData().catch(error => {
+      console.error('Failed to preload critical data:', error);
+    });
+    
+    // Register global error recovery
+    errorRecovery.registerErrorHandler('app', (error, context) => ({
+      retry: { attempts: 2, delay: 1000, backoff: 'exponential' },
+      notification: { user: true, admin: context.severity === 'critical' }
+    }));
+    
+    console.log('🚀 Application services initialized');
+  }, []);
 
   // Set up authentication state listener
   useEffect(() => {
