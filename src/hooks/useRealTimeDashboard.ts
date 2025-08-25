@@ -5,7 +5,17 @@ import { OrderService, Order } from '@/services/order.service';
 import { AnalyticsService, BusinessMetrics, RealTimeStats } from '@/services/analytics.service';
 import { ProcessOrchestratorService } from '@/services/process-orchestrator.service';
 import { MessagingService } from '@/services/messaging.service';
+import { OrderStatus } from '@/types';
 import { useAuthStore } from '@/stores/authStore';
+
+// Temporary conversation interface until proper messaging system is implemented
+interface Conversation {
+  id: string;
+  participants: string[];
+  lastMessage?: string;
+  lastMessageAt?: Date;
+  unread: boolean;
+}
 
 export interface DashboardData {
   notifications: Notification[];
