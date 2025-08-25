@@ -147,46 +147,98 @@ const HomePage: React.FC = () => {
             >
               <div className='relative'>
                 {/* Hero Image Carousel */}
-                <div className='w-full h-96 rounded-2xl overflow-hidden relative'>
+                <div className='w-full h-96 rounded-2xl overflow-hidden relative shadow-2xl'>
                   <motion.div
                     className='flex w-full h-full'
                     animate={{ x: [0, -100, -200, -300, 0] }}
                     transition={{
-                      duration: 15,
+                      duration: 20,
                       repeat: Infinity,
                       ease: 'easeInOut',
                       times: [0, 0.25, 0.5, 0.75, 1],
                     }}
                   >
-                    {/* Car Image 1 */}
-                    <div className='min-w-full h-full bg-gradient-to-br from-blue-500 to-purple-600 flex items-center justify-center'>
-                      <div className='text-center text-white'>
-                        <h3 className='text-2xl font-bold mb-2'>Luxury Cars</h3>
-                        <p className='text-lg opacity-90'>Premium Selection</p>
+                    {/* Slide 1: Car Sales */}
+                    <div className='min-w-full h-full relative overflow-hidden'>
+                      <div className='absolute inset-0 bg-gradient-to-r from-black/70 via-black/50 to-black/30 z-10'></div>
+                      <img
+                        src='https://images.unsplash.com/photo-1549317661-bd32c8ce0db2?w=800&h=600&fit=crop'
+                        alt='سيارات مستعملة للبيع في مصر'
+                        className='w-full h-full object-cover'
+                        loading='lazy'
+                      />
+                      <div className='absolute inset-0 flex items-center justify-center z-20'>
+                        <div className='text-center text-white p-6'>
+                          <h3 className='text-3xl font-bold mb-3 drop-shadow-lg'>بيع وشراء السيارات</h3>
+                          <p className='text-lg opacity-90 mb-4 drop-shadow-md'>أفضل الأسعار في السوق المصري</p>
+                          <div className='flex items-center justify-center gap-2 text-sm'>
+                            <span className='bg-green-500 px-3 py-1 rounded-full'>✓ ضمان</span>
+                            <span className='bg-blue-500 px-3 py-1 rounded-full'>✓ معتمد</span>
+                          </div>
+                        </div>
                       </div>
                     </div>
 
-                    {/* Car Image 2 */}
-                    <div className='min-w-full h-full bg-gradient-to-br from-green-500 to-teal-600 flex items-center justify-center'>
-                      <div className='text-center text-white'>
-                        <h3 className='text-2xl font-bold mb-2'>Family Cars</h3>
-                        <p className='text-lg opacity-90'>Safe & Reliable</p>
+                    {/* Slide 2: Auto Parts */}
+                    <div className='min-w-full h-full relative overflow-hidden'>
+                      <div className='absolute inset-0 bg-gradient-to-r from-black/70 via-black/50 to-black/30 z-10'></div>
+                      <img
+                        src='https://images.unsplash.com/photo-1486262715619-67b85e0b08d3?w=800&h=600&fit=crop'
+                        alt='قطع غيار السيارات الأصلية'
+                        className='w-full h-full object-cover'
+                        loading='lazy'
+                      />
+                      <div className='absolute inset-0 flex items-center justify-center z-20'>
+                        <div className='text-center text-white p-6'>
+                          <h3 className='text-3xl font-bold mb-3 drop-shadow-lg'>قطع الغيار الأصلية</h3>
+                          <p className='text-lg opacity-90 mb-4 drop-shadow-md'>من المصنع مباشرة لسيارتك</p>
+                          <div className='flex items-center justify-center gap-2 text-sm'>
+                            <span className='bg-yellow-500 px-3 py-1 rounded-full'>⭐ جودة عالية</span>
+                            <span className='bg-purple-500 px-3 py-1 rounded-full'>🔧 متوافقة</span>
+                          </div>
+                        </div>
                       </div>
                     </div>
 
-                    {/* Car Image 3 */}
-                    <div className='min-w-full h-full bg-gradient-to-br from-orange-500 to-red-600 flex items-center justify-center'>
-                      <div className='text-center text-white'>
-                        <h3 className='text-2xl font-bold mb-2'>Sports Cars</h3>
-                        <p className='text-lg opacity-90'>High Performance</p>
+                    {/* Slide 3: Auto Services */}
+                    <div className='min-w-full h-full relative overflow-hidden'>
+                      <div className='absolute inset-0 bg-gradient-to-r from-black/70 via-black/50 to-black/30 z-10'></div>
+                      <img
+                        src='https://images.unsplash.com/photo-1619642751034-765dfdf7c58e?w=800&h=600&fit=crop'
+                        alt='مراكز خدمة السيارات في مصر'
+                        className='w-full h-full object-cover'
+                        loading='lazy'
+                      />
+                      <div className='absolute inset-0 flex items-center justify-center z-20'>
+                        <div className='text-center text-white p-6'>
+                          <h3 className='text-3xl font-bold mb-3 drop-shadow-lg'>خدمات السيارات</h3>
+                          <p className='text-lg opacity-90 mb-4 drop-shadow-md'>صيانة احترافية وخدمة متميزة</p>
+                          <div className='flex items-center justify-center gap-2 text-sm'>
+                            <span className='bg-red-500 px-3 py-1 rounded-full'>🔧 صيانة</span>
+                            <span className='bg-indigo-500 px-3 py-1 rounded-full'>🏆 احترافية</span>
+                          </div>
+                        </div>
                       </div>
                     </div>
 
-                    {/* Car Image 4 */}
-                    <div className='min-w-full h-full bg-gradient-to-br from-indigo-500 to-blue-600 flex items-center justify-center'>
-                      <div className='text-center text-white'>
-                        <h3 className='text-2xl font-bold mb-2'>Electric Cars</h3>
-                        <p className='text-lg opacity-90'>Future Ready</p>
+                    {/* Slide 4: Trusted Vendors */}
+                    <div className='min-w-full h-full relative overflow-hidden'>
+                      <div className='absolute inset-0 bg-gradient-to-r from-black/70 via-black/50 to-black/30 z-10'></div>
+                      <img
+                        src='https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=800&h=600&fit=crop'
+                        alt='تجار السيارات الموثوقين في مصر'
+                        className='w-full h-full object-cover'
+                        loading='lazy'
+                      />
+                      <div className='absolute inset-0 flex items-center justify-center z-20'>
+                        <div className='text-center text-white p-6'>
+                          <h3 className='text-3xl font-bold mb-3 drop-shadow-lg'>تجار موثوقون</h3>
+                          <p className='text-lg opacity-90 mb-4 drop-shadow-md'>شبكة من أفضل التجار في مصر</p>
+                          <div className='flex items-center justify-center gap-2 text-sm'>
+                            <span className='bg-green-500 px-3 py-1 rounded-full'>✅ موثق</span>
+                            <span className='bg-orange-500 px-3 py-1 rounded-full'>🤝 شراكة</span>
+                          </div>
+                        </div>
                       </div>
                     </div>
                   </motion.div>
