@@ -546,21 +546,6 @@ const AdminDashboard: React.FC = () => {
             </div>
 
           </motion.div>
-
-          {/* Recent Applications */}
-            {applications.length > 0 && (
-              <div>
-                <h2 className='text-xl font-bold text-neutral-900 mb-4'>
-                  {language === 'ar' ? 'طلبات التجار الحديثة' : 'Recent Applications'}
-                </h2>
-                <div className='grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4'>
-                  {applications.slice(0, 3).map(application => (
-                    <ApplicationCard key={application.id} application={application} />
-                  ))}
-                </div>
-              </div>
-            )}
-          </motion.div>
         )}
 
         {activeTab === 'applications' && (
