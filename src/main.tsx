@@ -6,6 +6,7 @@ import { Toaster } from 'react-hot-toast';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 
 import App from './App';
+import ErrorBoundary from './components/ErrorBoundary';
 import './index.css';
 
 // 🚨 BULLETPROOF REACT INITIALIZATION
@@ -56,43 +57,47 @@ try {
   
   root.render(
     <React.StrictMode>
-      <QueryClientProvider client={queryClient}>
-        <BrowserRouter>
-          <App />
-          <Toaster
-            position='top-center'
-            toastOptions={{
-              duration: 4000,
-              style: {
-                background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
-                color: '#fff',
-                borderRadius: '12px',
-                boxShadow: '0 10px 25px rgba(0,0,0,0.2)',
-                padding: '16px',
-                fontSize: '14px',
-              },
-              success: {
-                iconTheme: {
-                  primary: '#22c55e',
-                  secondary: '#fff',
-                },
+      <ErrorBoundary>
+        <QueryClientProvider client={queryClient}>
+          <BrowserRouter>
+            <ErrorBoundary>
+              <App />
+            </ErrorBoundary>
+            <Toaster
+              position='top-center'
+              toastOptions={{
+                duration: 4000,
                 style: {
-                  background: 'linear-gradient(135deg, #22c55e 0%, #16a34a 100%)',
+                  background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
+                  color: '#fff',
+                  borderRadius: '12px',
+                  boxShadow: '0 10px 25px rgba(0,0,0,0.2)',
+                  padding: '16px',
+                  fontSize: '14px',
                 },
-              },
-              error: {
-                iconTheme: {
-                  primary: '#ef4444',
-                  secondary: '#fff',
+                success: {
+                  iconTheme: {
+                    primary: '#22c55e',
+                    secondary: '#fff',
+                  },
+                  style: {
+                    background: 'linear-gradient(135deg, #22c55e 0%, #16a34a 100%)',
+                  },
                 },
-                style: {
-                  background: 'linear-gradient(135deg, #ef4444 0%, #dc2626 100%)',
+                error: {
+                  iconTheme: {
+                    primary: '#ef4444',
+                    secondary: '#fff',
+                  },
+                  style: {
+                    background: 'linear-gradient(135deg, #ef4444 0%, #dc2626 100%)',
+                  },
                 },
-              },
-            }}
-          />
-        </BrowserRouter>
-      </QueryClientProvider>
+              }}
+            />
+          </BrowserRouter>
+        </QueryClientProvider>
+      </ErrorBoundary>
     </React.StrictMode>
   );
   

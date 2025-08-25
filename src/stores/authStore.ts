@@ -1,6 +1,6 @@
 import { create } from 'zustand';
 import { User, AuthState } from '@/types';
-import { AuthService } from '@/services/auth.service';
+import { AuthService } from '@/services/auth.service.fixed';
 
 interface AuthStore extends AuthState {
   // Actions
