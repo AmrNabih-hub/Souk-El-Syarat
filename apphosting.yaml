@@ -8,7 +8,7 @@ runtime:
 # Build configuration
 build:
   installCommand: npm ci --production=false --silent
-  buildCommand: npm run build:deploy
+  buildCommand: npm run build:ci
 
 # Environment variables
 env:
