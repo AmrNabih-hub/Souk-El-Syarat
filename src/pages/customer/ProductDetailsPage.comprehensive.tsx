@@ -20,7 +20,7 @@ import {
   WrenchScrewdriverIcon,
   CurrencyDollarIcon,
   CalendarIcon,
-  BeakerIcon,
+  FuelIcon,
   CogIcon,
   SparklesIcon,
 } from '@heroicons/react/24/outline';
@@ -566,7 +566,7 @@ const ProductDetailsPage: React.FC = () => {
                   <div className="font-semibold">{vehicle.specs.year}</div>
                 </div>
                 <div className="text-center p-3 bg-gray-50 rounded-lg">
-                  <BeakerIcon className="w-6 h-6 text-primary-500 mx-auto mb-1" />
+                  <FuelIcon className="w-6 h-6 text-primary-500 mx-auto mb-1" />
                   <div className="text-sm text-gray-600">الوقود</div>
                   <div className="font-semibold">{vehicle.specs.fuel}</div>
                 </div>
