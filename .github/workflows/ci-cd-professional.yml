@@ -1,10 +1,7 @@
-name: 🚀 Professional CI/CD Pipeline - Souk El-Syarat
+name: 🚫 DISABLED - Professional CI/CD Pipeline - Souk El-Syarat
 
 on:
-  push:
-    branches: [main, develop, staging]
-  pull_request:
-    branches: [main, develop]
+  # DISABLED - Use bulletproof-cicd.yml instead
   workflow_dispatch:
     inputs:
       environment:
