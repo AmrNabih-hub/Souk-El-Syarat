@@ -1,0 +1,42 @@
+name: 🧪 Simple Test
+
+on:
+  push:
+    branches: [main, develop]
+  pull_request:
+    branches: [main, develop]
+
+jobs:
+  basic-test:
+    name: 🧪 Basic Test
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    
+    steps:
+    - name: 📥 Checkout
+      uses: actions/checkout@v4
+
+    - name: 📦 Setup Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: '20.x'
+        cache: 'npm'
+
+    - name: 🔧 Install
+      run: npm ci --silent
+
+    - name: 🧪 Test
+      run: npm run test:ci
+
+<<<<<<< Updated upstream
+    - name: ✅ Success
+      run: echo "✅ All tests passed!"
+=======
+<<<<<<< Current (Your changes)
+      - name: 🎉 Test completed
+        run: echo "🎉 All basic tests passed successfully!"
+=======
+    - name: ✅ Success
+      run: echo "✅ All tests passed!"
+>>>>>>> Incoming (Background Agent changes)
+>>>>>>> Stashed changes

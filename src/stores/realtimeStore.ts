@@ -453,12 +453,3 @@ useRealtimeStore.subscribe(
   }
 );
 
-<<<<<<< Updated upstream
-
-=======
-<<<<<<< Current (Your changes)
-export default useRealtimeStore;
-=======
-
->>>>>>> Incoming (Background Agent changes)
->>>>>>> Stashed changes

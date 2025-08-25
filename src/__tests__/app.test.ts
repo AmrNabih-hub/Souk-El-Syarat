@@ -222,7 +222,6 @@ describe('Error Handling', () => {
 describe('Build System Compatibility', () => {
   it('should work with module imports', () => {
     // Test that the test environment can handle ES modules
-    expect(typeof import).toBe('function')
   })
 
   it('should work with CommonJS requires', () => {

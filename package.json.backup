@@ -56,7 +56,7 @@
     "validate:ci": "npm run lint:ci && npm run format:check && npm run type-check:ci && npm run test:coverage",
     "build:emergency": "NODE_ENV=production vite build --mode production --logLevel warn",
     "test:emergency": "vitest run --reporter=basic --coverage=false --run --silent",
-    "lint:emergency": "eslint . --ext ts,tsx --config .eslintrc.emergency.cjs --max-warnings 300 --quiet"
+    "lint:emergency": "eslint . --ext ts,tsx --config .eslintrc.emergency.js --max-warnings 300 --quiet"
   },
   "dependencies": {
     "@dataconnect/generated": "file:dataconnect-generated/js/example-connector",

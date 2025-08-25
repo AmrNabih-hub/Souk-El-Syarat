@@ -229,12 +229,6 @@ try {
     </style>
   `;
   
-<<<<<<< Updated upstream
-=======
-<<<<<<< Current (Your changes)
-  console.log('🆘 Emergency fallback content displayed');
-=======
->>>>>>> Stashed changes
   console.log('🆘 Professional emergency fallback content displayed');
   
   // Auto-retry after 5 seconds
@@ -242,8 +236,4 @@ try {
     console.log('🔄 Attempting automatic recovery...');
     window.location.reload();
   }, 5000);
-<<<<<<< Updated upstream
-=======
->>>>>>> Incoming (Background Agent changes)
->>>>>>> Stashed changes
 }
