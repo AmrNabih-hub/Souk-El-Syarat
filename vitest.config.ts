@@ -31,4 +31,12 @@ export default defineConfig({
   esbuild: {
     target: 'node14'
   },
+<<<<<<< Updated upstream
 })
+=======
+<<<<<<< Current (Your changes)
+});
+=======
+})
+>>>>>>> Incoming (Background Agent changes)
+>>>>>>> Stashed changes
