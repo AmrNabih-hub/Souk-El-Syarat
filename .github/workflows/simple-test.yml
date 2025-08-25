@@ -26,17 +26,7 @@ jobs:
       run: npm ci --silent
 
     - name: 🧪 Test
-      run: npm run test:ci
+      run: npm run test:emergency
 
-<<<<<<< Updated upstream
     - name: ✅ Success
       run: echo "✅ All tests passed!"
-=======
-<<<<<<< Current (Your changes)
-      - name: 🎉 Test completed
-        run: echo "🎉 All basic tests passed successfully!"
-=======
-    - name: ✅ Success
-      run: echo "✅ All tests passed!"
->>>>>>> Incoming (Background Agent changes)
->>>>>>> Stashed changes
