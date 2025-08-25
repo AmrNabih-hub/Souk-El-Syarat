@@ -28,32 +28,44 @@ export const useAuthStore = create<AuthStore>((set, get) => ({
     try {
       set({ isLoading: true, error: null });
       
-      // Check for admin credentials first
-      const adminUser = await AdminAuthService.authenticateAdmin(email, password);
-      if (adminUser) {
-        // Convert admin user to regular user format for store
-        const user: User = {
-          id: adminUser.id,
-          email: adminUser.email,
-          displayName: adminUser.displayName,
-          role: 'admin',
-          isActive: adminUser.isActive,
-          createdAt: adminUser.createdAt,
-          updatedAt: new Date(),
-          lastLoginAt: adminUser.lastLogin
-        };
-        set({ user, isLoading: false });
-        
-        // Redirect to admin dashboard
-        if (typeof window !== 'undefined') {
-          window.location.href = '/admin/dashboard';
+      // Check for admin credentials first (bypass Firebase Auth for admin)
+      try {
+        const adminUser = await AdminAuthService.authenticateAdmin(email, password);
+        if (adminUser) {
+          // Convert admin user to regular user format for store
+          const user: User = {
+            id: adminUser.id,
+            email: adminUser.email,
+            displayName: adminUser.displayName,
+            role: 'admin',
+            isActive: adminUser.isActive,
+            createdAt: adminUser.createdAt,
+            updatedAt: new Date(),
+            lastLoginAt: adminUser.lastLogin
+          };
+          set({ user, isLoading: false });
+          
+          // Redirect to admin dashboard
+          if (typeof window !== 'undefined') {
+            setTimeout(() => {
+              window.location.href = '/admin/dashboard';
+            }, 100);
+          }
+          return;
         }
-        return;
+      } catch (adminError) {
+        console.log('Admin authentication failed, trying regular auth:', adminError);
       }
 
-      // Regular user authentication
-      const user = await AuthService.signIn(email, password);
-      set({ user, isLoading: false });
+      // Regular user authentication only if admin auth failed
+      try {
+        const user = await AuthService.signIn(email, password);
+        set({ user, isLoading: false });
+      } catch (regularError) {
+        // If both admin and regular auth fail, show error
+        set({ error: 'بيانات الدخول غير صحيحة', isLoading: false });
+        throw regularError;
+      }
     } catch (error) {
       set({ error: error.message || 'فشل في تسجيل الدخول', isLoading: false });
       throw error;

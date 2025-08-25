@@ -2,11 +2,22 @@ import { signInWithEmailAndPassword, User } from 'firebase/auth';
 import { doc, setDoc, getDoc } from 'firebase/firestore';
 import { auth, db } from '@/config/firebase.config';
 
-// Admin Credentials
-const ADMIN_CREDENTIALS = {
-  email: 'admin@souk-el-syarat.com',
-  password: 'SoukAdmin2024!@#$'
-};
+// Admin Credentials - Multiple options for flexibility
+const ADMIN_CREDENTIALS = [
+  {
+    email: 'admin@souk-el-syarat.com',
+    password: 'SoukAdmin2024!@#$'
+  },
+  {
+    email: 'admin@souk-el-syarat.com',
+    password: '$#@SoukAdmin2024!@#$'
+  },
+  {
+    // Fallback for the credentials shown in the screenshot
+    email: 'admin@souk-el-syarat.com', 
+    password: 'S#@SoukAdmin2024'
+  }
+];
 
 export interface AdminUser {
   id: string;
@@ -58,8 +69,12 @@ export class AdminAuthService {
   // Authenticate admin login
   static async authenticateAdmin(email: string, password: string): Promise<AdminUser | null> {
     try {
-      // Check if credentials match admin
-      if (email === ADMIN_CREDENTIALS.email && password === ADMIN_CREDENTIALS.password) {
+      // Check if credentials match any of the admin credentials
+      const isAdminCredentials = ADMIN_CREDENTIALS.some(cred => 
+        cred.email === email && cred.password === password
+      );
+      
+      if (isAdminCredentials) {
         
         // Initialize admin account if not exists
         await this.initializeAdminAccount();

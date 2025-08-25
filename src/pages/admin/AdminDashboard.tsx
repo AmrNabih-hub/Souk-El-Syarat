@@ -21,9 +21,9 @@ import {
 import { useAppStore } from '@/stores/appStore';
 import { useAuthStore } from '@/stores/authStore';
 import { AdminAuthService } from '@/services/admin-auth.service';
+import { VendorManagementService, VendorApplication } from '@/services/vendor-management.service';
 
-import { VendorApplication, Vendor } from '@/types';
-import { VendorService } from '@/services/vendor.service';
+import { Vendor } from '@/types';
 import { EgyptianLoader, LoadingSpinner } from '@/components/ui/CustomIcons';
 import toast from 'react-hot-toast';
 
