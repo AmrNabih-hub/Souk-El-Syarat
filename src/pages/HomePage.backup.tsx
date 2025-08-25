@@ -10,7 +10,6 @@ import {
   ShieldCheckIcon,
   TruckIcon,
 } from '@heroicons/react/24/outline';
-import ServicesSection from '@/components/services/ServicesSection';
 
 const HomePage: React.FC = () => {
   const features = {
@@ -713,9 +712,6 @@ const HomePage: React.FC = () => {
           </motion.div>
         </div>
       </section>
-
-      {/* Premium Automotive Services Section */}
-      <ServicesSection />
     </div>
   );
 };

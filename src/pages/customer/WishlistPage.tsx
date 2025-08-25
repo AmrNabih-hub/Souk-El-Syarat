@@ -1,506 +1,588 @@
 import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
-
 import {
-  ShoppingCartIcon,
+  HeartIcon,
   TrashIcon,
-  ArrowLeftIcon,
   EyeIcon,
+  PhoneIcon,
+  StarIcon,
+  MapPinIcon,
   ShareIcon,
+  ShoppingCartIcon,
+  FunnelIcon,
+  MagnifyingGlassIcon,
 } from '@heroicons/react/24/outline';
-
-import { useAppStore } from '@/stores/appStore';
 import { useAuthStore } from '@/stores/authStore';
-
-import { Product } from '@/types';
-import { ProductService } from '@/services/product.service';
-
-import { EgyptianLoader, HeartSolid } from '@/components/ui/CustomIcons';
-import ProductDetailModal from '@/components/product/ProductDetailModal';
+import { useAppStore } from '@/stores/appStore';
 import toast from 'react-hot-toast';
 
+interface WishlistItem {
+  id: string;
+  carId: string;
+  title: string;
+  price: string;
+  originalPrice?: string;
+  location: string;
+  image: string;
+  vendor: {
+    name: string;
+    phone: string;
+    verified: boolean;
+  };
+  specs: {
+    year: string;
+    fuel: string;
+    transmission: string;
+    mileage: string;
+  };
+  rating: number;
+  reviewCount: number;
+  condition: 'new' | 'used' | 'excellent';
+  addedAt: string;
+  isAvailable: boolean;
+}
+
 const WishlistPage: React.FC = () => {
-  const { language, favorites, removeFromFavorites, addToCart } = useAppStore();
   const { user } = useAuthStore();
-  const [products, setProducts] = useState<Record<string, Product>>({});
+  const { language, removeFromFavorites } = useAppStore();
+  const [wishlistItems, setWishlistItems] = useState<WishlistItem[]>([]);
+  const [filteredItems, setFilteredItems] = useState<WishlistItem[]>([]);
   const [isLoading, setIsLoading] = useState(true);
-  const [selectedProduct, setSelectedProduct] = useState<Product | null>(null);
-  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [searchQuery, setSearchQuery] = useState('');
+  const [sortBy, setSortBy] = useState('newest');
+  const [filterBy, setFilterBy] = useState('all');
+
+  // Mock wishlist data - In real app, fetch from Firebase
+  const mockWishlistItems: WishlistItem[] = [
+    {
+      id: '1',
+      carId: '1',
+      title: 'تويوتا كامري 2021 - فل كامل',
+      price: '285,000',
+      originalPrice: '320,000',
+      location: 'الجيزة',
+      image: 'https://images.unsplash.com/photo-1621007947382-bb3c3994e3fb?w=400&h=300&fit=crop',
+      vendor: {
+        name: 'شركة الأمان للسيارات',
+        phone: '01012345678',
+        verified: true,
+      },
+      specs: {
+        year: '2021',
+        fuel: 'بنزين',
+        transmission: 'أوتوماتيك',
+        mileage: '45,000 كم',
+      },
+      rating: 4.8,
+      reviewCount: 156,
+      condition: 'excellent',
+      addedAt: '2024-01-15T10:30:00Z',
+      isAvailable: true,
+    },
+    {
+      id: '2',
+      carId: '2',
+      title: 'مرسيدس E200 2020 - حالة ممتازة',
+      price: '450,000',
+      originalPrice: '520,000',
+      location: 'القاهرة الجديدة',
+      image: 'https://images.unsplash.com/photo-1606016937473-509d8ff3b4a9?w=400&h=300&fit=crop',
+      vendor: {
+        name: 'معرض الفخامة للسيارات',
+        phone: '01098765432',
+        verified: true,
+      },
+      specs: {
+        year: '2020',
+        fuel: 'بنزين',
+        transmission: 'أوتوماتيك',
+        mileage: '32,000 كم',
+      },
+      rating: 4.9,
+      reviewCount: 89,
+      condition: 'excellent',
+      addedAt: '2024-01-12T14:20:00Z',
+      isAvailable: true,
+    },
+    {
+      id: '3',
+      carId: '3',
+      title: 'BMW X3 2022 - جديدة بالضمان',
+      price: '680,000',
+      location: 'الشيخ زايد',
+      image: 'https://images.unsplash.com/photo-1617788138017-80ad40651399?w=400&h=300&fit=crop',
+      vendor: {
+        name: 'وكيل BMW المعتمد',
+        phone: '01122334455',
+        verified: true,
+      },
+      specs: {
+        year: '2022',
+        fuel: 'بنزين',
+        transmission: 'أوتوماتيك',
+        mileage: '5,000 كم',
+      },
+      rating: 5.0,
+      reviewCount: 45,
+      condition: 'new',
+      addedAt: '2024-01-08T09:15:00Z',
+      isAvailable: false, // Car sold
+    },
+  ];
 
   useEffect(() => {
-    if (!user) {
-      setIsLoading(false);
-      //       return;
-    }
-    loadWishlistProducts();
-  }, [favorites, user]);
-
-  const loadWishlistProducts = async () => {
-    try {
+    if (user) {
       setIsLoading(true);
-
-      // Get all sample products for demo
-      const sampleProducts = ProductService.getSampleProducts();
-      const productMap: Record<string, Product> = {};
-
-      // Add more sample products
-      const allProducts = [
-        ...sampleProducts,
-        {
-          ...sampleProducts[0],
-          id: 'car-2',
-          title: 'BMW X5 2019 - فل أوبشن',
-          price: 850000,
-          originalPrice: 950000,
-          images: [
-            {
-              id: 'car-2-img-1',
-              url: 'https://images.unsplash.com/photo-1555215695-3004980ad54e?w=800&h=600&fit=crop',
-              alt: 'BMW X5 2019',
-              isPrimary: true,
-              order: 0,
-            },
-          ],
-        },
-        {
-          ...sampleProducts[1],
-          id: 'part-2',
-          title: 'فرامل سيراميك عالية الأداء',
-          price: 450,
-          images: [
-            {
-              id: 'part-2-img-1',
-              url: 'https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=800&h=600&fit=crop',
-              alt: 'Ceramic Brake Pads',
-              isPrimary: true,
-              order: 0,
-            },
-          ],
-        },
-      ];
-
-      allProducts.forEach(product => {
-        productMap[product.id] = product;
-      });
-
-      setProducts(productMap);
-    } catch (error) {
-      if (process.env.NODE_ENV === 'development')
-        if (process.env.NODE_ENV === 'development')
-          console.error('Error loading wishlist products:', error);
-      toast.error(language === 'ar' ? 'خطأ في تحميل المنتجات' : 'Error loading products');
-    } finally {
-      setIsLoading(false);
+      // Simulate API call
+      setTimeout(() => {
+        setWishlistItems(mockWishlistItems);
+        setFilteredItems(mockWishlistItems);
+        setIsLoading(false);
+      }, 1000);
     }
-  };
+  }, [user]);
 
-  const handleRemoveFromWishlist = (productId: string) => {
-    removeFromFavorites(productId);
-    toast.success(language === 'ar' ? 'تم حذف المنتج من المفضلة' : 'Product removed from wishlist');
-  };
+  useEffect(() => {
+    let filtered = [...wishlistItems];
 
-  const handleAddToCart = (productId: string, quantity: number = 1) => {
-    const product = products[productId];
-    if (!product) return;
-
-    if (product.category === 'services') {
-      toast(language === 'ar' ? 'قريباً - حجز الخدمات' : 'Coming Soon - Service Booking', {
-        icon: 'ℹ️',
-      });
-      //       return;
+    // Apply search filter
+    if (searchQuery) {
+      filtered = filtered.filter(item =>
+        item.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        item.vendor.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        item.location.toLowerCase().includes(searchQuery.toLowerCase())
+      );
     }
 
-    addToCart({ productId, quantity });
-    toast.success(language === 'ar' ? 'تم إضافة المنتج للسلة' : 'Product added to cart');
+    // Apply availability filter
+    if (filterBy === 'available') {
+      filtered = filtered.filter(item => item.isAvailable);
+    } else if (filterBy === 'unavailable') {
+      filtered = filtered.filter(item => !item.isAvailable);
+    }
+
+    // Apply sorting
+    switch (sortBy) {
+      case 'newest':
+        filtered.sort((a, b) => new Date(b.addedAt).getTime() - new Date(a.addedAt).getTime());
+        break;
+      case 'price_low':
+        filtered.sort((a, b) => parseInt(a.price.replace(/,/g, '')) - parseInt(b.price.replace(/,/g, '')));
+        break;
+      case 'price_high':
+        filtered.sort((a, b) => parseInt(b.price.replace(/,/g, '')) - parseInt(a.price.replace(/,/g, '')));
+        break;
+      default:
+        break;
+    }
+
+    setFilteredItems(filtered);
+  }, [wishlistItems, searchQuery, sortBy, filterBy]);
+
+  const handleRemoveFromWishlist = (itemId: string, carId: string) => {
+    setWishlistItems(prev => prev.filter(item => item.id !== itemId));
+    removeFromFavorites(carId);
+    toast.success('تم إزالة السيارة من المفضلة');
   };
 
-  const handleViewProduct = (product: Product) => {
-    setSelectedProduct(product);
-    setIsModalOpen(true);
+  const handleAddToCart = (item: WishlistItem) => {
+    if (!item.isAvailable) {
+      toast.error('هذه السيارة غير متاحة حالياً');
+      return;
+    }
+    toast.success(`تم إضافة ${item.title} إلى السلة`);
   };
 
-  const handleShare = async (product: Product) => {
-    if (navigator.share) {
-      try {
+  const handleContactVendor = (phone: string, carTitle: string) => {
+    window.open(`tel:${phone}`);
+    toast.success(`الاتصال بالتاجر بخصوص ${carTitle}`);
+  };
+
+  const handleShare = async (item: WishlistItem) => {
+    try {
+      if (navigator.share) {
         await navigator.share({
-          title: product.title,
-          text: product.description,
-          url: window.location.origin + `/product/${product.id}`,
+          title: item.title,
+          text: `اكتشف هذه السيارة الرائعة: ${item.title}`,
+          url: `${window.location.origin}/product/${item.carId}`,
         });
-      } catch (error) {
-        // if (process.env.NODE_ENV === 'development') console.log('Error sharing:', error);
+      } else {
+        navigator.clipboard.writeText(`${window.location.origin}/product/${item.carId}`);
+        toast.success('تم نسخ رابط السيارة');
       }
-    } else {
-      // Fallback to copying URL
-      const url = window.location.origin + `/product/${product.id}`;
-      navigator.clipboard.writeText(url);
-      toast.success(language === 'ar' ? 'تم نسخ الرابط' : 'Link copied to clipboard');
+    } catch (error) {
+      navigator.clipboard.writeText(`${window.location.origin}/product/${item.carId}`);
+      toast.success('تم نسخ رابط السيارة');
     }
   };
 
-  const formatPrice = (price: number) => {
-    return new Intl.NumberFormat(language === 'ar' ? 'ar-EG' : 'en-US', {
-      style: 'currency',
-      currency: 'EGP',
-      minimumFractionDigits: 0,
-    }).format(price);
+  const clearWishlist = () => {
+    setWishlistItems([]);
+    setFilteredItems([]);
+    toast.success('تم مسح جميع المفضلة');
   };
-
-  const favoriteProducts = favorites.map(id => products[id]).filter(Boolean);
 
   if (!user) {
     return (
-      <div className='min-h-screen bg-neutral-50'>
-        <div className='max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12'>
-          <motion.div
-            className='text-center py-20'
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
+      <div className="min-h-screen flex items-center justify-center bg-gray-50">
+        <motion.div
+          className="text-center bg-white p-8 rounded-xl shadow-lg"
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+        >
+          <HeartIcon className="w-16 h-16 text-gray-400 mx-auto mb-4" />
+          <h2 className="text-2xl font-bold text-gray-900 mb-4">يجب تسجيل الدخول أولاً</h2>
+          <p className="text-gray-600 mb-6">تحتاج إلى تسجيل الدخول لعرض قائمة المفضلة</p>
+          <motion.a
+            href="/login"
+            className="inline-flex items-center px-6 py-3 bg-primary-500 hover:bg-primary-600 text-white font-medium rounded-lg"
+            whileHover={{ scale: 1.05 }}
+            whileTap={{ scale: 0.95 }}
           >
-            <div className='text-8xl mb-6'>🔒</div>
-            <h2 className='text-3xl font-bold text-neutral-900 mb-4'>
-              {language === 'ar' ? 'يجب تسجيل الدخول' : 'Login Required'}
-            </h2>
-            <p className='text-xl text-neutral-600 mb-8'>
-              {language === 'ar'
-                ? 'سجل دخولك لعرض قائمة المفضلة'
-                : 'Please login to view your wishlist'}
-            </p>
-            <Link to='/login' className='btn btn-primary btn-lg'>
-              {language === 'ar' ? 'تسجيل الدخول' : 'Login'}
-            </Link>
-          </motion.div>
-        </div>
+            تسجيل الدخول
+          </motion.a>
+        </motion.div>
       </div>
     );
   }
 
   if (isLoading) {
     return (
-      <div className='min-h-screen bg-neutral-50'>
-        {/* Header */}
-        <div className='bg-white border-b border-neutral-200'>
-          <div className='max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6'>
-            <div className='flex items-center justify-between'>
-              <div>
-                <h1 className='text-3xl font-bold text-neutral-900 flex items-center'>
-                  <HeartSolid className='w-8 h-8 mr-3 text-red-500' />
-                  {language === 'ar' ? 'قائمة المفضلة' : 'My Wishlist'}
-                </h1>
-                <p className='text-neutral-600 mt-1'>
-                  {language === 'ar' ? 'جاري تحميل المفضلة...' : 'Loading wishlist...'}
-                </p>
-              </div>
-            </div>
-          </div>
-        </div>
-
-        {/* Loading Content */}
-        <div className='max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8'>
-          <div className='flex justify-center items-center py-20'>
-            <EgyptianLoader size='lg' text={language === 'ar' ? 'جاري التحميل...' : 'Loading...'} />
-          </div>
-        </div>
-      </div>
-    );
-  }
-
-  if (favoriteProducts.length === 0) {
-    return (
-      <div className='min-h-screen bg-neutral-50'>
-        <div className='max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12'>
-          <motion.div
-            className='text-center py-20'
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-          >
-            <div className='text-8xl mb-6'>💝</div>
-            <h2 className='text-3xl font-bold text-neutral-900 mb-4'>
-              {language === 'ar' ? 'لا توجد منتجات في المفضلة' : 'No items in your wishlist'}
-            </h2>
-            <p className='text-xl text-neutral-600 mb-8'>
-              {language === 'ar'
-                ? 'ابدأ بإضافة المنتجات التي تعجبك لقائمة المفضلة'
-                : 'Start adding products you love to your wishlist'}
-            </p>
-            <Link to='/marketplace' className='btn btn-primary btn-lg'>
-              <ArrowLeftIcon className='w-5 h-5 mr-2' />
-              {language === 'ar' ? 'تصفح المنتجات' : 'Browse Products'}
-            </Link>
-          </motion.div>
-        </div>
+      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+        <motion.div
+          className="text-center"
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+        >
+          <div className="w-16 h-16 border-4 border-primary-500 border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
+          <h2 className="text-xl font-semibold text-gray-900 mb-2">جاري تحميل المفضلة...</h2>
+          <p className="text-gray-600">يرجى الانتظار لحظات</p>
+        </motion.div>
       </div>
     );
   }
 
   return (
-    <>
-      <div className='min-h-screen bg-neutral-50'>
+    <div className="min-h-screen bg-gray-50 py-8">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         {/* Header */}
-        <div className='bg-white border-b border-neutral-200'>
-          <div className='max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6'>
-            <div className='flex items-center justify-between'>
-              <div>
-                <h1 className='text-3xl font-bold text-neutral-900 flex items-center'>
-                  <HeartSolid className='w-8 h-8 mr-3 text-red-500' />
-                  {language === 'ar' ? 'قائمة المفضلة' : 'My Wishlist'}
-                </h1>
-                <p className='text-neutral-600 mt-1'>
-                  {language === 'ar'
-                    ? `${favoriteProducts.length} منتج في المفضلة`
-                    : `${favoriteProducts.length} items in your wishlist`}
-                </p>
-              </div>
+        <motion.div
+          className="text-center mb-8"
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+        >
+          <h1 className="text-4xl font-bold text-gray-900 mb-4 flex items-center justify-center">
+            <HeartIcon className="w-8 h-8 text-red-500 mr-3 fill-current" />
+            قائمة المفضلة
+          </h1>
+          <p className="text-xl text-gray-600">
+            {filteredItems.length > 0 
+              ? `لديك ${filteredItems.length} سيارة في قائمة المفضلة`
+              : 'قائمة المفضلة فارغة'}
+          </p>
+        </motion.div>
 
-              <Link to='/marketplace' className='btn btn-outline'>
-                <ArrowLeftIcon className='w-4 h-4 mr-2' />
-                {language === 'ar' ? 'متابعة التسوق' : 'Continue Shopping'}
-              </Link>
-            </div>
-          </div>
-        </div>
-
-        <div className='max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8'>
-          <motion.div
-            className='grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6'
-            layout
-          >
-            <AnimatePresence>
-              {favoriteProducts.map(product => {
-                const primaryImage = product.images.find(img => img.isPrimary) || product.images[0];
-
-                return (
-                  <motion.div
-                    key={product.id}
-                    className='bg-white rounded-xl border border-neutral-200 overflow-hidden shadow-sm hover:shadow-md transition-shadow group'
-                    initial={{ opacity: 0, scale: 0.9 }}
-                    animate={{ opacity: 1, scale: 1 }}
-                    exit={{ opacity: 0, scale: 0.9 }}
-                    layout
-                    whileHover={{ y: -4 }}
+        {wishlistItems.length > 0 && (
+          <>
+            {/* Search and Filters */}
+            <motion.div
+              className="bg-white rounded-xl shadow-lg p-6 mb-8"
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.1 }}
+            >
+              <div className="flex flex-col md:flex-row space-y-4 md:space-y-0 md:space-x-4 md:space-x-reverse">
+                <div className="flex-1 relative">
+                  <MagnifyingGlassIcon className="absolute right-3 top-3 w-5 h-5 text-gray-400" />
+                  <input
+                    type="text"
+                    placeholder="البحث في المفضلة..."
+                    value={searchQuery}
+                    onChange={(e) => setSearchQuery(e.target.value)}
+                    className="w-full pr-12 pl-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500"
+                  />
+                </div>
+                
+                <div className="flex items-center space-x-4 space-x-reverse">
+                  <select
+                    value={filterBy}
+                    onChange={(e) => setFilterBy(e.target.value)}
+                    className="px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500"
                   >
-                    {/* Image Section */}
-                    <div className='relative aspect-[4/3] overflow-hidden bg-neutral-100'>
-                      {/* Discount Badge */}
-                      {product.originalPrice && product.originalPrice > product.price && (
-                        <div className='absolute top-3 left-3 z-10 bg-red-500 text-white px-2 py-1 rounded-full text-xs font-bold'>
-                          -
-                          {Math.round(
-                            ((product.originalPrice - product.price) / product.originalPrice) * 100
-                          )}
-                          %
-                        </div>
-                      )}
+                    <option value="all">جميع السيارات</option>
+                    <option value="available">المتاحة فقط</option>
+                    <option value="unavailable">غير المتاحة</option>
+                  </select>
 
-                      {/* Favorite Badge */}
-                      <div className='absolute top-3 right-3 z-10'>
-                        <button
-                          onClick={() => handleRemoveFromWishlist(product.id)}
-                          className='p-2 bg-white/90 backdrop-blur-sm rounded-full shadow-sm hover:bg-white transition-colors'
-                        >
-                          <HeartSolid className='w-5 h-5 text-red-500' />
-                        </button>
-                      </div>
+                  <select
+                    value={sortBy}
+                    onChange={(e) => setSortBy(e.target.value)}
+                    className="px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500"
+                  >
+                    <option value="newest">الأحدث إضافة</option>
+                    <option value="price_low">السعر: الأقل أولاً</option>
+                    <option value="price_high">السعر: الأعلى أولاً</option>
+                  </select>
 
-                      <img
-                        src={primaryImage?.url}
-                        alt={product.title}
-                        className='w-full h-full object-cover group-hover:scale-105 transition-transform duration-300'
-                      />
+                  {wishlistItems.length > 0 && (
+                    <motion.button
+                      onClick={clearWishlist}
+                      className="px-4 py-3 bg-red-500 hover:bg-red-600 text-white rounded-lg font-medium"
+                      whileHover={{ scale: 1.05 }}
+                      whileTap={{ scale: 0.95 }}
+                    >
+                      مسح الكل
+                    </motion.button>
+                  )}
+                </div>
+              </div>
+            </motion.div>
 
-                      {/* Hover Overlay */}
-                      <div className='absolute inset-0 bg-black/20 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center space-x-2'>
-                        <motion.button
-                          onClick={() => handleViewProduct(product)}
-                          className='bg-white text-neutral-900 p-2 rounded-full shadow-lg hover:bg-neutral-100 transition-colors'
-                          whileHover={{ scale: 1.1 }}
-                          whileTap={{ scale: 0.9 }}
-                        >
-                          <EyeIcon className='w-5 h-5' />
-                        </motion.button>
-
-                        <motion.button
-                          onClick={() => handleShare(product)}
-                          className='bg-white text-neutral-900 p-2 rounded-full shadow-lg hover:bg-neutral-100 transition-colors'
-                          whileHover={{ scale: 1.1 }}
-                          whileTap={{ scale: 0.9 }}
-                        >
-                          <ShareIcon className='w-5 h-5' />
-                        </motion.button>
-                      </div>
-                    </div>
-
-                    {/* Content Section */}
-                    <div className='p-4 space-y-3'>
-                      <div>
-                        <h3 className='font-semibold text-neutral-900 line-clamp-2 mb-1'>
-                          {product.title}
-                        </h3>
-
-                        {/* Category Badge */}
-                        <span
-                          className={`inline-block px-2 py-1 text-xs rounded-full font-medium ${
-                            product.category === 'cars'
-                              ? 'bg-blue-100 text-blue-800'
-                              : product.category === 'parts'
-                                ? 'bg-green-100 text-green-800'
-                                : product.category === 'services'
-                                  ? 'bg-purple-100 text-purple-800'
-                                  : 'bg-gray-100 text-gray-800'
-                          }`}
-                        >
-                          {product.category === 'cars' && (language === 'ar' ? 'سيارات' : 'Cars')}
-                          {product.category === 'parts' &&
-                            (language === 'ar' ? 'قطع غيار' : 'Parts')}
-                          {product.category === 'services' &&
-                            (language === 'ar' ? 'خدمات' : 'Services')}
-                          {product.category === 'accessories' &&
-                            (language === 'ar' ? 'إكسسوارات' : 'Accessories')}
-                        </span>
-                      </div>
-
-                      {/* Features */}
-                      {product.features && product.features.length > 0 && (
-                        <div className='flex flex-wrap gap-1'>
-                          {product.features.slice(0, 2).map((feature, index) => (
-                            <span
-                              key={index}
-                              className='px-2 py-1 bg-neutral-100 text-neutral-600 text-xs rounded-full'
-                            >
-                              {feature}
-                            </span>
-                          ))}
-                          {product.features.length > 2 && (
-                            <span className='px-2 py-1 bg-neutral-100 text-neutral-600 text-xs rounded-full'>
-                              +{product.features.length - 2}
-                            </span>
-                          )}
-                        </div>
-                      )}
-
-                      {/* Price */}
-                      <div className='space-y-1'>
-                        <div className='flex items-center space-x-2'>
-                          <span className='text-lg font-bold text-primary-600'>
-                            {formatPrice(product.price)}
-                          </span>
-                          {product.originalPrice && product.originalPrice > product.price && (
-                            <span className='text-sm text-neutral-500 line-through'>
-                              {formatPrice(product.originalPrice)}
-                            </span>
-                          )}
-                        </div>
-
-                        {/* Stock Status */}
-                        <div className='text-xs'>
-                          {product.inStock ? (
-                            <span className='text-green-600'>
-                              {language === 'ar' ? 'متوفر' : 'In Stock'}
+            {/* Wishlist Items */}
+            {filteredItems.length > 0 ? (
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                <AnimatePresence>
+                  {filteredItems.map((item, index) => (
+                    <motion.div
+                      key={item.id}
+                      className="bg-white rounded-xl shadow-lg overflow-hidden hover:shadow-xl transition-all duration-300"
+                      initial={{ opacity: 0, y: 20 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      exit={{ opacity: 0, scale: 0.8 }}
+                      transition={{ delay: index * 0.1 }}
+                      layout
+                    >
+                      <div className="relative">
+                        <img
+                          src={item.image}
+                          alt={item.title}
+                          className="w-full h-48 object-cover"
+                        />
+                        
+                        {/* Status Badge */}
+                        <div className="absolute top-4 right-4">
+                          {!item.isAvailable ? (
+                            <span className="bg-red-500 text-white text-xs px-2 py-1 rounded-full font-medium">
+                              غير متاح
                             </span>
                           ) : (
-                            <span className='text-red-600'>
-                              {language === 'ar' ? 'غير متوفر' : 'Out of Stock'}
+                            <span className={`text-white text-xs px-2 py-1 rounded-full font-medium ${
+                              item.condition === 'new' ? 'bg-blue-500' : 
+                              item.condition === 'excellent' ? 'bg-green-500' : 'bg-orange-500'
+                            }`}>
+                              {item.condition === 'new' ? 'جديد' : 
+                               item.condition === 'excellent' ? 'ممتاز' : 'مستعمل'}
                             </span>
                           )}
                         </div>
-                      </div>
 
-                      {/* Action Buttons */}
-                      <div className='flex space-x-2'>
-                        {product.category !== 'services' && product.inStock ? (
-                          <motion.button
-                            onClick={() => handleAddToCart(product.id)}
-                            className='flex-1 bg-primary-500 text-white py-2 px-4 rounded-lg text-sm font-medium hover:bg-primary-600 transition-colors flex items-center justify-center'
-                            whileHover={{ scale: 1.02 }}
-                            whileTap={{ scale: 0.98 }}
-                          >
-                            <ShoppingCartIcon className='w-4 h-4 mr-1' />
-                            {language === 'ar' ? 'أضف للسلة' : 'Add to Cart'}
-                          </motion.button>
-                        ) : (
-                          <motion.button
-                            onClick={() => handleViewProduct(product)}
-                            className='flex-1 bg-primary-500 text-white py-2 px-4 rounded-lg text-sm font-medium hover:bg-primary-600 transition-colors flex items-center justify-center'
-                            whileHover={{ scale: 1.02 }}
-                            whileTap={{ scale: 0.98 }}
-                          >
-                            <EyeIcon className='w-4 h-4 mr-1' />
-                            {language === 'ar' ? 'عرض التفاصيل' : 'View Details'}
-                          </motion.button>
+                        {/* Verified Badge */}
+                        {item.vendor.verified && (
+                          <div className="absolute top-4 left-4">
+                            <span className="bg-green-500 text-white text-xs px-2 py-1 rounded-full font-medium">
+                              ✓ موثق
+                            </span>
+                          </div>
                         )}
 
-                        <motion.button
-                          onClick={() => handleRemoveFromWishlist(product.id)}
-                          className='p-2 border border-neutral-300 rounded-lg text-neutral-400 hover:text-red-500 hover:border-red-300 transition-colors'
-                          whileHover={{ scale: 1.05 }}
-                          whileTap={{ scale: 0.95 }}
-                        >
-                          <TrashIcon className='w-4 h-4' />
-                        </motion.button>
+                        {/* Discount Badge */}
+                        {item.originalPrice && (
+                          <div className="absolute bottom-4 right-4 bg-red-500 text-white px-2 py-1 rounded-full text-xs font-bold">
+                            خصم {Math.round((1 - parseInt(item.price.replace(/,/g, '')) / parseInt(item.originalPrice.replace(/,/g, ''))) * 100)}%
+                          </div>
+                        )}
                       </div>
-                    </div>
-                  </motion.div>
-                );
-              })}
-            </AnimatePresence>
-          </motion.div>
 
-          {/* Quick Actions */}
+                      <div className="p-6">
+                        {/* Car Info */}
+                        <div className="mb-4">
+                          <h3 className="text-lg font-bold text-gray-900 mb-1 line-clamp-2">
+                            {item.title}
+                          </h3>
+                          <div className="flex items-center space-x-2 space-x-reverse text-sm text-gray-600 mb-2">
+                            <MapPinIcon className="w-4 h-4" />
+                            <span>{item.location}</span>
+                            <span>•</span>
+                            <span>{item.vendor.name}</span>
+                          </div>
+                          <div className="flex items-center space-x-1 space-x-reverse text-sm">
+                            <StarIcon className="w-4 h-4 text-yellow-400 fill-current" />
+                            <span className="font-semibold">{item.rating}</span>
+                            <span className="text-gray-500">({item.reviewCount} تقييم)</span>
+                          </div>
+                        </div>
+
+                        {/* Price */}
+                        <div className="mb-4">
+                          <div className="flex items-baseline space-x-2 space-x-reverse">
+                            <span className="text-2xl font-bold text-primary-600">
+                              {item.price} جنيه
+                            </span>
+                            {item.originalPrice && (
+                              <span className="text-sm text-gray-500 line-through">
+                                {item.originalPrice} جنيه
+                              </span>
+                            )}
+                          </div>
+                        </div>
+
+                        {/* Specs */}
+                        <div className="grid grid-cols-2 gap-2 mb-4 p-3 bg-gray-50 rounded-lg text-sm">
+                          <div className="text-center">
+                            <div className="text-xs text-gray-500">السنة</div>
+                            <div className="font-semibold">{item.specs.year}</div>
+                          </div>
+                          <div className="text-center">
+                            <div className="text-xs text-gray-500">الوقود</div>
+                            <div className="font-semibold">{item.specs.fuel}</div>
+                          </div>
+                          <div className="text-center">
+                            <div className="text-xs text-gray-500">ناقل الحركة</div>
+                            <div className="font-semibold">{item.specs.transmission}</div>
+                          </div>
+                          <div className="text-center">
+                            <div className="text-xs text-gray-500">المسافة</div>
+                            <div className="font-semibold">{item.specs.mileage}</div>
+                          </div>
+                        </div>
+
+                        {/* Added Date */}
+                        <div className="text-xs text-gray-500 mb-4">
+                          أضيف في {new Date(item.addedAt).toLocaleDateString('ar-EG', {
+                            year: 'numeric',
+                            month: 'long',
+                            day: 'numeric'
+                          })}
+                        </div>
+
+                        {/* Action Buttons */}
+                        <div className="flex space-x-2 space-x-reverse mb-3">
+                          <Link
+                            to={`/product/${item.carId}`}
+                            className="flex-1 bg-primary-500 hover:bg-primary-600 text-white py-2 px-4 rounded-lg font-medium text-center transition-colors"
+                          >
+                            <div className="flex items-center justify-center space-x-1 space-x-reverse">
+                              <EyeIcon className="w-4 h-4" />
+                              <span>عرض التفاصيل</span>
+                            </div>
+                          </Link>
+                          
+                          {item.isAvailable && (
+                            <motion.button
+                              onClick={() => handleAddToCart(item)}
+                              className="px-4 py-2 bg-green-500 hover:bg-green-600 text-white rounded-lg transition-colors"
+                              whileHover={{ scale: 1.05 }}
+                              whileTap={{ scale: 0.95 }}
+                            >
+                              <ShoppingCartIcon className="w-4 h-4" />
+                            </motion.button>
+                          )}
+                        </div>
+
+                        <div className="flex items-center justify-between">
+                          <div className="flex space-x-2 space-x-reverse">
+                            <motion.button
+                              onClick={() => handleContactVendor(item.vendor.phone, item.title)}
+                              className="px-3 py-1 border border-primary-500 text-primary-500 hover:bg-primary-50 rounded text-sm transition-colors"
+                              whileHover={{ scale: 1.05 }}
+                              whileTap={{ scale: 0.95 }}
+                            >
+                              <div className="flex items-center space-x-1 space-x-reverse">
+                                <PhoneIcon className="w-3 h-3" />
+                                <span>اتصال</span>
+                              </div>
+                            </motion.button>
+                            
+                            <motion.button
+                              onClick={() => handleShare(item)}
+                              className="px-3 py-1 border border-gray-300 text-gray-600 hover:bg-gray-50 rounded text-sm transition-colors"
+                              whileHover={{ scale: 1.05 }}
+                              whileTap={{ scale: 0.95 }}
+                            >
+                              <ShareIcon className="w-3 h-3" />
+                            </motion.button>
+                          </div>
+
+                          <motion.button
+                            onClick={() => handleRemoveFromWishlist(item.id, item.carId)}
+                            className="px-3 py-1 bg-red-500 hover:bg-red-600 text-white rounded text-sm transition-colors"
+                            whileHover={{ scale: 1.05 }}
+                            whileTap={{ scale: 0.95 }}
+                          >
+                            <div className="flex items-center space-x-1 space-x-reverse">
+                              <TrashIcon className="w-3 h-3" />
+                              <span>حذف</span>
+                            </div>
+                          </motion.button>
+                        </div>
+                      </div>
+                    </motion.div>
+                  ))}
+                </AnimatePresence>
+              </div>
+            ) : (
+              <motion.div
+                className="text-center py-16 bg-white rounded-xl shadow-lg"
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+              >
+                <HeartIcon className="w-16 h-16 text-gray-400 mx-auto mb-4" />
+                <h3 className="text-xl font-semibold text-gray-900 mb-2">
+                  لا توجد نتائج مطابقة للبحث
+                </h3>
+                <p className="text-gray-600 mb-6">جرب تعديل معايير البحث أو الفلاتر</p>
+                <motion.button
+                  onClick={() => {
+                    setSearchQuery('');
+                    setFilterBy('all');
+                  }}
+                  className="px-6 py-3 bg-primary-500 hover:bg-primary-600 text-white rounded-lg font-medium"
+                  whileHover={{ scale: 1.05 }}
+                  whileTap={{ scale: 0.95 }}
+                >
+                  مسح الفلاتر
+                </motion.button>
+              </motion.div>
+            )}
+          </>
+        )}
+
+        {/* Empty State */}
+        {wishlistItems.length === 0 && (
           <motion.div
-            className='mt-12 text-center'
+            className="text-center py-20 bg-white rounded-xl shadow-lg"
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.3 }}
           >
-            <div className='bg-white rounded-xl border border-neutral-200 p-8 shadow-sm'>
-              <h3 className='text-xl font-semibold text-neutral-900 mb-4'>
-                {language === 'ar' ? 'إجراءات سريعة' : 'Quick Actions'}
-              </h3>
-
-              <div className='flex flex-col sm:flex-row justify-center space-y-3 sm:space-y-0 sm:space-x-4'>
-                <button
-                  onClick={() => {
-                    favoriteProducts.forEach(product => {
-                      if (product.category !== 'services' && product.inStock) {
-                        handleAddToCart(product.id);
-                      }
-                    });
-                  }}
-                  className='btn btn-primary'
+            <HeartIcon className="w-24 h-24 text-gray-300 mx-auto mb-6" />
+            <h3 className="text-2xl font-bold text-gray-900 mb-4">قائمة المفضلة فارغة</h3>
+            <p className="text-gray-600 mb-8 max-w-2xl mx-auto">
+              ابدأ في إضافة السيارات التي تعجبك إلى قائمة المفضلة لتتمكن من العودة إليها لاحقاً ومقارنتها.
+            </p>
+            <div className="flex flex-col sm:flex-row gap-4 justify-center">
+              <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}>
+                <Link
+                  to="/marketplace"
+                  className="inline-flex items-center px-8 py-4 bg-primary-500 hover:bg-primary-600 text-white font-medium rounded-lg"
                 >
-                  <ShoppingCartIcon className='w-5 h-5 mr-2' />
-                  {language === 'ar' ? 'إضافة الكل للسلة' : 'Add All to Cart'}
-                </button>
-
-                <Link to='/marketplace' className='btn btn-outline'>
-                  <ArrowLeftIcon className='w-5 h-5 mr-2' />
-                  {language === 'ar' ? 'تصفح المزيد' : 'Browse More'}
+                  تصفح السيارات المتاحة
                 </Link>
-              </div>
+              </motion.div>
+              
+              <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}>
+                <Link
+                  to="/vendors"
+                  className="inline-flex items-center px-8 py-4 border border-primary-500 text-primary-500 hover:bg-primary-50 font-medium rounded-lg"
+                >
+                  اكتشف التجار المعتمدين
+                </Link>
+              </motion.div>
             </div>
           </motion.div>
-        </div>
+        )}
       </div>
-
-      {/* Product Detail Modal */}
-      {selectedProduct && (
-        <ProductDetailModal
-          product={selectedProduct}
-          isOpen={isModalOpen}
-          onClose={() => {
-            setIsModalOpen(false);
-            setSelectedProduct(null);
-          }}
-          onAddToCart={handleAddToCart}
-          onToggleFavorite={(productId, isFav) => {
-            if (!isFav) {
-              handleRemoveFromWishlist(productId);
-            }
-          }}
-        />
-      )}
-    </>
+    </div>
   );
 };
 

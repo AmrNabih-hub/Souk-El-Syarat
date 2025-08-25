@@ -73,6 +73,12 @@ const ProfilePage = React.lazy(() =>
   }))
 );
 
+const SellCarPage = React.lazy(() => 
+  import('@/pages/customer/SellCarPage').catch(() => ({ 
+    default: () => <div className="p-8 text-center">صفحة بيع السيارة غير متاحة حالياً</div> 
+  }))
+);
+
 // Dashboard pages
 const AdminDashboard = React.lazy(() => 
   import('@/pages/admin/AdminDashboard').catch(() => ({ 
@@ -334,6 +340,17 @@ function App() {
                     <ProtectedRoute>
                       <SafePage>
                         <ProfilePage />
+                      </SafePage>
+                    </ProtectedRoute>
+                  }
+                />
+
+                <Route
+                  path="/sell-car"
+                  element={
+                    <ProtectedRoute>
+                      <SafePage>
+                        <SellCarPage />
                       </SafePage>
                     </ProtectedRoute>
                   }
