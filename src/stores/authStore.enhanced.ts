@@ -3,6 +3,7 @@ import { User } from '@/types';
 import { AdminAuthService } from '@/services/admin-auth.service';
 import { VendorManagementService } from '@/services/vendor-management.service';
 import EnhancedAuthService from '@/services/auth.service.enhanced';
+import ErrorHandlerService from '@/services/error-handler.service';
 import toast from 'react-hot-toast';
 
 interface AuthState {
@@ -162,16 +163,26 @@ export const useEnhancedAuthStore = create<AuthState & AuthActions>((set, get) =
         
       } catch (firebaseError) {
         console.error('❌ All authentication methods failed:', firebaseError);
-        const errorMessage = firebaseError.message || 'فشل في تسجيل الدخول. يرجى التحقق من بيانات الدخول.';
-        set({ error: errorMessage, isLoading: false });
-        toast.error(errorMessage);
+        const appError = ErrorHandlerService.handleError(
+          firebaseError,
+          'sign_in_firebase',
+          undefined,
+          true,
+          'ar'
+        );
+        set({ error: appError.messageAr, isLoading: false });
       }
 
     } catch (error) {
       console.error('💥 Unexpected error during sign in:', error);
-      const errorMessage = error.message || 'حدث خطأ غير متوقع. يرجى المحاولة مرة أخرى.';
-      set({ error: errorMessage, isLoading: false });
-      toast.error(errorMessage);
+      const appError = ErrorHandlerService.handleError(
+        error,
+        'sign_in_general',
+        undefined,
+        true,
+        'ar'
+      );
+      set({ error: appError.messageAr, isLoading: false });
     }
   },
 
@@ -199,9 +210,14 @@ export const useEnhancedAuthStore = create<AuthState & AuthActions>((set, get) =
       
     } catch (error) {
       console.error('❌ Sign up error:', error);
-      const errorMessage = error.message || 'فشل في إنشاء الحساب. يرجى المحاولة مرة أخرى.';
-      set({ error: errorMessage, isLoading: false });
-      toast.error(errorMessage);
+      const appError = ErrorHandlerService.handleError(
+        error,
+        'sign_up',
+        undefined,
+        true,
+        'ar'
+      );
+      set({ error: appError.messageAr, isLoading: false });
     }
   },
 
@@ -227,8 +243,14 @@ export const useEnhancedAuthStore = create<AuthState & AuthActions>((set, get) =
       
     } catch (error) {
       console.error('❌ Sign out error:', error);
-      set({ error: 'فشل في تسجيل الخروج', isLoading: false });
-      toast.error('فشل في تسجيل الخروج');
+      const appError = ErrorHandlerService.handleError(
+        error,
+        'sign_out',
+        undefined,
+        true,
+        'ar'
+      );
+      set({ error: appError.messageAr, isLoading: false });
     }
   },
 
@@ -244,9 +266,14 @@ export const useEnhancedAuthStore = create<AuthState & AuthActions>((set, get) =
       
     } catch (error) {
       console.error('Reset password error:', error);
-      const errorMessage = error.message || 'فشل في إرسال رسالة إعادة تعيين كلمة المرور';
-      set({ error: errorMessage, isLoading: false });
-      toast.error(errorMessage);
+      const appError = ErrorHandlerService.handleError(
+        error,
+        'reset_password',
+        undefined,
+        true,
+        'ar'
+      );
+      set({ error: appError.messageAr, isLoading: false });
     }
   },
 
