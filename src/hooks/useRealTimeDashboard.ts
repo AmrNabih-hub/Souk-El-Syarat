@@ -1,4 +1,4 @@
-import React, { useState, useCallback, useEffect } from 'react';
+import { useState, useCallback, useEffect } from 'react';
 
 import { NotificationService } from '@/services/notification.service';
 import { OrderService, Order } from '@/services/order.service';
@@ -6,6 +6,7 @@ import { AnalyticsService, BusinessMetrics, RealTimeStats } from '@/services/ana
 import { ProcessOrchestratorService } from '@/services/process-orchestrator.service';
 import { MessagingService } from '@/services/messaging.service';
 import { useAuthStore } from '@/stores/authStore';
+import { Notification, Conversation, OrderStatus } from '@/types';
 
 export interface DashboardData {
   notifications: Notification[];
@@ -22,7 +23,7 @@ export interface DashboardData {
 export interface DashboardActions {
   markNotificationAsRead: (notificationId: string) => Promise<void>;
   markAllNotificationsAsRead: () => Promise<void>;
-  updateOrderStatus: (orderId: string, status: unknown, notes?: string) => Promise<void>;
+  updateOrderStatus: (orderId: string, status: OrderStatus, notes?: string) => Promise<void>;
   sendMessage: (conversationId: string, content: string) => Promise<void>;
   markMessagesAsRead: (conversationId: string) => Promise<void>;
   refreshData: () => Promise<void>;

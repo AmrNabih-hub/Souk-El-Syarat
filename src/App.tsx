@@ -12,6 +12,8 @@ import { AuthService } from '@/services/auth.service';
 import Navbar from '@/components/layout/Navbar';
 import Footer from '@/components/layout/Footer';
 import LoadingScreen from '@/components/ui/LoadingScreen';
+import RobustLoadingScreen from '@/components/ui/RobustLoadingScreen';
+import ErrorBoundary from '@/components/ErrorBoundary';
 
 // Lazy load pages for better performance
 const HomePage = React.lazy(() => import('@/pages/HomePage'));
@@ -168,13 +170,16 @@ function App() {
   }, [language, theme]);
 
   return (
-    <div className='min-h-screen bg-gradient-to-br from-primary-50 via-white to-secondary-50 transition-all duration-500'>
-      <Navbar />
+    <ErrorBoundary>
+      <div className='min-h-screen bg-gradient-to-br from-primary-50 via-white to-secondary-50 transition-all duration-500'>
+        <ErrorBoundary fallback={<div className="h-16 bg-white shadow-sm" />}>
+          <Navbar />
+        </ErrorBoundary>
 
-      <main className='flex-1'>
-        <AnimatePresence mode='wait'>
-          <Suspense fallback={<LoadingScreen />}>
-            <Routes>
+        <main className='flex-1'>
+          <AnimatePresence mode='wait'>
+            <Suspense fallback={<RobustLoadingScreen />}>
+              <Routes>
               {/* Public Routes */}
               <Route
                 path='/'
@@ -184,11 +189,13 @@ function App() {
                     initial='initial'
                     animate='animate'
                     exit='exit'
-                  >
-                    <HomePage />
-                  </motion.div>
-                }
-              />
+                                      >
+                      <ErrorBoundary>
+                        <HomePage />
+                      </ErrorBoundary>
+                    </motion.div>
+                  }
+                />
 
               <Route
                 path='/marketplace'
@@ -413,8 +420,11 @@ function App() {
         </AnimatePresence>
       </main>
 
-      <Footer />
+      <ErrorBoundary fallback={<div className="bg-neutral-100 p-4 text-center text-sm text-neutral-600">Footer temporarily unavailable</div>}>
+        <Footer />
+      </ErrorBoundary>
     </div>
+    </ErrorBoundary>
   );
 }
 
