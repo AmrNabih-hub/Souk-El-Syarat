@@ -252,6 +252,16 @@ export class VendorManagementService {
   // Authenticate vendor login
   static async authenticateVendor(email: string, password: string): Promise<VendorUser | null> {
     try {
+      // First check hardcoded test vendor accounts
+      const testVendors = this.getTestVendorAccounts();
+      const testVendor = testVendors.find(v => v.email === email && v.password === password);
+      
+      if (testVendor) {
+        console.log('✅ Test vendor authenticated:', testVendor.displayName);
+        return testVendor;
+      }
+
+      // Then check database for real vendor accounts
       const q = query(
         collection(db, 'users'),
         where('email', '==', email),
@@ -262,6 +272,7 @@ export class VendorManagementService {
       const querySnapshot = await getDocs(q);
       
       if (querySnapshot.empty) {
+        console.log('❌ No vendor found with email:', email);
         return null;
       }
 
@@ -270,6 +281,7 @@ export class VendorManagementService {
 
       // In a real app, you would hash and compare passwords properly
       if (vendorData.password === password) {
+        console.log('✅ Database vendor authenticated:', vendorData.displayName);
         return {
           ...vendorData,
           id: vendorDoc.id,
@@ -277,11 +289,118 @@ export class VendorManagementService {
         };
       }
 
+      console.log('❌ Password mismatch for vendor:', email);
       return null;
     } catch (error) {
       console.error('Error authenticating vendor:', error);
       return null;
     }
+  }
+
+  // Get test vendor accounts for immediate testing
+  private static getTestVendorAccounts(): VendorUser[] {
+    return [
+      {
+        id: 'test-vendor-1',
+        email: 'vendor1@alamancar.com',
+        password: 'VendorTest123!',
+        displayName: 'أحمد محمد علي',
+        role: 'vendor',
+        isActive: true,
+        createdAt: new Date(),
+        applicationId: 'test-app-1',
+        vendorProfile: {
+          businessName: 'معرض الأمان للسيارات الفاخرة',
+          businessType: 'dealership',
+          location: 'شارع الهرم، الجيزة',
+          phone: '01012345678',
+          specialties: ['سيارات فاخرة', 'سيارات مستعملة', 'تمويل'],
+          rating: 4.8,
+          totalSales: 245,
+          joinDate: new Date()
+        }
+      },
+      {
+        id: 'test-vendor-2',
+        email: 'vendor2@carservice.com',
+        password: 'VendorTest456!',
+        displayName: 'محمود حسن الشافعي',
+        role: 'vendor',
+        isActive: true,
+        createdAt: new Date(),
+        applicationId: 'test-app-2',
+        vendorProfile: {
+          businessName: 'مركز خدمة السيارات المتطور',
+          businessType: 'service_center',
+          location: 'مدينة نصر، القاهرة',
+          phone: '01098765432',
+          specialties: ['صيانة عامة', 'إصلاح محركات', 'فحص دوري'],
+          rating: 4.6,
+          totalSales: 180,
+          joinDate: new Date()
+        }
+      },
+      {
+        id: 'test-vendor-3',
+        email: 'vendor3@parts-egypt.com',
+        password: 'VendorTest789!',
+        displayName: 'فاطمة أحمد عبدالله',
+        role: 'vendor',
+        isActive: true,
+        createdAt: new Date(),
+        applicationId: 'test-app-3',
+        vendorProfile: {
+          businessName: 'شركة قطع الغيار الأصلية',
+          businessType: 'parts_store',
+          location: 'الإسكندرية',
+          phone: '01155443322',
+          specialties: ['قطع غيار أصلية', 'إطارات', 'بطاريات'],
+          rating: 4.9,
+          totalSales: 320,
+          joinDate: new Date()
+        }
+      },
+      {
+        id: 'test-vendor-4',
+        email: 'vendor4@cairocars.com',
+        password: 'VendorCairo123!',
+        displayName: 'محمد عبدالرحمن',
+        role: 'vendor',
+        isActive: true,
+        createdAt: new Date(),
+        applicationId: 'test-app-4',
+        vendorProfile: {
+          businessName: 'معرض القاهرة للسيارات الحديثة',
+          businessType: 'dealership',
+          location: 'وسط القاهرة',
+          phone: '01123456789',
+          specialties: ['سيارات حديثة', 'تمويل', 'خدما ما بعد البيع'],
+          rating: 4.7,
+          totalSales: 195,
+          joinDate: new Date()
+        }
+      },
+      {
+        id: 'test-vendor-5',
+        email: 'vendor5@luxcars.com',
+        password: 'VendorLux456!',
+        displayName: 'سارة أحمد حسن',
+        role: 'vendor',
+        isActive: true,
+        createdAt: new Date(),
+        applicationId: 'test-app-5',
+        vendorProfile: {
+          businessName: 'معرض السيارات الفاخرة المتميزة',
+          businessType: 'dealership',
+          location: 'الزمالك، القاهرة',
+          phone: '01087654321',
+          specialties: ['سيارات فاخرة', 'سيارات كلاسيكية', 'خدمة VIP'],
+          rating: 4.9,
+          totalSales: 128,
+          joinDate: new Date()
+        }
+      }
+    ];
   }
 
   // Get vendor statistics for admin dashboard

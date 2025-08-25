@@ -3,6 +3,7 @@ import { Routes, Route, Navigate } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 
 import { useAuthStore } from '@/stores/authStore';
+import { useEnhancedAuthStore } from '@/stores/authStore.enhanced';
 import { useAppStore } from '@/stores/appStore';
 import { AuthService } from '@/services/auth.service.fixed';
 
