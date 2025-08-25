@@ -545,24 +545,9 @@ const AdminDashboard: React.FC = () => {
               </div>
             </div>
 
-            <StatCard
-              title={language === 'ar' ? 'إجمالي الطلبات' : 'Total Orders'}
-                value={stats?.totalOrders || 0}
-                icon={<ShoppingBagIcon className='w-6 h-6 text-indigo-600' />}
-                color='bg-indigo-100'
-                trend={22}
-              />
+          </motion.div>
 
-              <StatCard
-                title={language === 'ar' ? 'الإيرادات الشهرية' : 'Monthly Revenue'}
-                value={`${stats?.monthlyRevenue?.toLocaleString() || 0} ${language === 'ar' ? 'ج.م' : 'EGP'}`}
-                icon={<CurrencyDollarIcon className='w-6 h-6 text-green-600' />}
-                color='bg-green-100'
-                trend={18}
-              />
-            </div>
-
-            {/* Recent Applications */}
+          {/* Recent Applications */}
             {applications.length > 0 && (
               <div>
                 <h2 className='text-xl font-bold text-neutral-900 mb-4'>

@@ -10,7 +10,9 @@ import {
   ShieldCheckIcon,
   TruckIcon,
 } from '@heroicons/react/24/outline';
-import ServicesSection from '@/components/services/ServicesSection';
+import CarServicesGrid from '@/components/services/CarServicesGrid';
+import PartsAccessoriesStore from '@/components/parts/PartsAccessoriesStore';
+import toast from 'react-hot-toast';
 
 const HomePage: React.FC = () => {
   const features = {
@@ -714,8 +716,11 @@ const HomePage: React.FC = () => {
         </div>
       </section>
 
-      {/* Premium Automotive Services Section */}
-      <ServicesSection />
+      {/* Car Services Grid - 8 Automotive Services */}
+      <CarServicesGrid />
+      
+      {/* Parts & Accessories Store */}
+      <PartsAccessoriesStore />
     </div>
   );
 };

@@ -85,6 +85,18 @@ const WishlistPage = React.lazy(() =>
   }))
 );
 
+const OrdersPage = React.lazy(() => 
+  import('@/pages/customer/OrdersPage').catch(() => ({ 
+    default: () => <div className="p-8 text-center">صفحة الطلبات غير متاحة حالياً</div> 
+  }))
+);
+
+const MessagesPage = React.lazy(() => 
+  import('@/pages/customer/MessagesPage').catch(() => ({ 
+    default: () => <div className="p-8 text-center">صفحة الرسائل غير متاحة حالياً</div> 
+  }))
+);
+
 // Dashboard pages
 const AdminDashboard = React.lazy(() => 
   import('@/pages/admin/AdminDashboard').catch(() => ({ 
@@ -364,6 +376,39 @@ function App() {
 
                 <Route
                   path="/wishlist"
+                  element={
+                    <ProtectedRoute>
+                      <SafePage>
+                        <WishlistPage />
+                      </SafePage>
+                    </ProtectedRoute>
+                  }
+                />
+
+                <Route
+                  path="/orders"
+                  element={
+                    <ProtectedRoute>
+                      <SafePage>
+                        <OrdersPage />
+                      </SafePage>
+                    </ProtectedRoute>
+                  }
+                />
+
+                <Route
+                  path="/messages" 
+                  element={
+                    <ProtectedRoute>
+                      <SafePage>
+                        <MessagesPage />
+                      </SafePage>
+                    </ProtectedRoute>
+                  }
+                />
+
+                <Route
+                  path="/favorites"
                   element={
                     <ProtectedRoute>
                       <SafePage>
