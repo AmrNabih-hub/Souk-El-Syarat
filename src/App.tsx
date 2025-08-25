@@ -104,6 +104,24 @@ const EnhancedMarketplace = React.lazy(() =>
   }))
 );
 
+const CheckoutPage = React.lazy(() => 
+  import('@/pages/CheckoutPage').catch(() => ({ 
+    default: () => <div className="p-8 text-center">صفحة الدفع غير متاحة حالياً</div> 
+  }))
+);
+
+const OrderSuccessPage = React.lazy(() => 
+  import('@/pages/OrderSuccessPage').catch(() => ({ 
+    default: () => <div className="p-8 text-center">صفحة تأكيد الطلب غير متاحة حالياً</div> 
+  }))
+);
+
+const BookingPage = React.lazy(() => 
+  import('@/pages/BookingPage').catch(() => ({ 
+    default: () => <div className="p-8 text-center">صفحة الحجز غير متاحة حالياً</div> 
+  }))
+);
+
 // Dashboard pages
 const AdminDashboard = React.lazy(() => 
   import('@/pages/admin/AdminDashboard').catch(() => ({ 
@@ -281,16 +299,43 @@ function App() {
                   path="/marketplace"
                   element={
                     <SafePage>
-                      <MarketplacePage />
+                      <EnhancedMarketplace />
                     </SafePage>
                   }
                 />
 
                 <Route
-                  path="/enhanced-marketplace"
+                  path="/checkout"
                   element={
                     <SafePage>
-                      <EnhancedMarketplace />
+                      <CheckoutPage />
+                    </SafePage>
+                  }
+                />
+
+                <Route
+                  path="/booking"
+                  element={
+                    <SafePage>
+                      <BookingPage />
+                    </SafePage>
+                  }
+                />
+
+                <Route
+                  path="/order-success"
+                  element={
+                    <SafePage>
+                      <OrderSuccessPage />
+                    </SafePage>
+                  }
+                />
+
+                <Route
+                  path="/booking-success"
+                  element={
+                    <SafePage>
+                      <OrderSuccessPage />
                     </SafePage>
                   }
                 />

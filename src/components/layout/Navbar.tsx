@@ -71,7 +71,6 @@ const Navbar: React.FC = () => {
   const navigationItems = [
     { name: 'الرئيسية', href: '/', nameEn: 'Home' },
     { name: 'السوق', href: '/marketplace', nameEn: 'Marketplace' },
-    { name: 'السوق المحسن 🚀', href: '/enhanced-marketplace', nameEn: 'Enhanced Market 🚀', isNew: true },
     { name: 'التجار', href: '/vendors', nameEn: 'Vendors' },
     { name: 'طلب كونك تاجر', href: '/vendor/apply', nameEn: 'Become a Vendor' },
   ];

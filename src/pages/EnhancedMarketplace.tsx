@@ -103,15 +103,25 @@ const EnhancedMarketplace: React.FC = () => {
     setFavorites(newFavorites);
   };
 
-  const addToCart = (itemId: string) => {
+  const addToCart = (itemId: string, itemType: 'car' | 'service' | 'part') => {
     const newCart = new Set(cart);
     if (!newCart.has(itemId)) {
       newCart.add(itemId);
       setCart(newCart);
       toast.success('تم الإضافة للسلة', { icon: '🛒' });
+      
+      // Redirect to checkout for immediate purchase
+      setTimeout(() => {
+        window.location.href = `/checkout?item=${itemId}&type=${itemType}&qty=1`;
+      }, 1000);
     } else {
       toast.error('العنصر موجود بالسلة بالفعل');
     }
+  };
+
+  const bookService = (serviceId: string) => {
+    // Redirect to booking page
+    window.location.href = `/booking?service=${serviceId}`;
   };
 
   const contactSeller = (sellerPhone: string, itemTitle: string) => {
@@ -427,21 +437,21 @@ const EnhancedMarketplace: React.FC = () => {
           <span className="text-sm text-gray-600">{service.provider.location}</span>
         </div>
 
-        {/* Action Button */}
-        <motion.button
-          onClick={() => addToCart(service.id)}
-          disabled={service.availability === 'unavailable'}
-          className={`w-full py-3 rounded-lg font-medium transition-colors flex items-center justify-center gap-2 ${
-            service.availability === 'unavailable'
-              ? 'bg-gray-300 text-gray-500 cursor-not-allowed'
-              : 'bg-primary-600 hover:bg-primary-700 text-white'
-          }`}
-          whileHover={service.availability !== 'unavailable' ? { scale: 1.02 } : {}}
-          whileTap={service.availability !== 'unavailable' ? { scale: 0.98 } : {}}
-        >
-          <CalendarIcon className="w-4 h-4" />
-          <span>احجز الآن</span>
-        </motion.button>
+                      {/* Action Button */}
+              <motion.button
+                onClick={() => bookService(service.id)}
+                disabled={service.availability === 'unavailable'}
+                className={`w-full py-3 rounded-lg font-medium transition-colors flex items-center justify-center gap-2 ${
+                  service.availability === 'unavailable'
+                    ? 'bg-gray-300 text-gray-500 cursor-not-allowed'
+                    : 'bg-primary-600 hover:bg-primary-700 text-white'
+                }`}
+                whileHover={service.availability !== 'unavailable' ? { scale: 1.02 } : {}}
+                whileTap={service.availability !== 'unavailable' ? { scale: 0.98 } : {}}
+              >
+                <CalendarIcon className="w-4 h-4" />
+                <span>احجز الآن</span>
+              </motion.button>
       </div>
     </motion.div>
   );
@@ -563,7 +573,7 @@ const EnhancedMarketplace: React.FC = () => {
         {/* Action Buttons */}
         <div className="flex gap-2">
           <motion.button
-            onClick={() => addToCart(part.id)}
+            onClick={() => addToCart(part.id, 'part')}
             disabled={!part.inStock}
             className={`flex-1 py-3 rounded-lg font-medium transition-colors flex items-center justify-center gap-2 ${
               !part.inStock

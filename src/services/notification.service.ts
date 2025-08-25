@@ -1,31 +1,44 @@
-/**
- * Enhanced Notification Service for Souk El-Sayarat
- * Handles all types of notifications with real-time delivery
- */
-
+import { doc, collection, addDoc, updateDoc, onSnapshot, query, where, orderBy, Timestamp } from 'firebase/firestore';
 import { db } from '@/config/firebase.config';
-import { Notification, NotificationType } from '@/types';
-import { 
-  collection, 
-  doc, 
-  addDoc, 
-  updateDoc, 
-  deleteDoc, 
-  getDocs, 
-  getDoc, 
-  query, 
-  where, 
-  orderBy, 
-  limit, 
-  onSnapshot,
-  writeBatch,
-  serverTimestamp,
-  Timestamp
-} from 'firebase/firestore';
+import toast from 'react-hot-toast';
 
-export class NotificationService {
+export interface Notification {
+  id: string;
+  userId: string;
+  type: 'order' | 'booking' | 'payment' | 'general' | 'promotion';
+  title: string;
+  titleEn?: string;
+  message: string;
+  messageEn?: string;
+  icon: string;
+  isRead: boolean;
+  priority: 'low' | 'medium' | 'high' | 'urgent';
+  actionUrl?: string;
+  metadata?: {
+    orderId?: string;
+    bookingId?: string;
+    amount?: number;
+    itemName?: string;
+    [key: string]: any;
+  };
+  createdAt: Date;
+  expiresAt?: Date;
+}
+
+export interface NotificationPreferences {
+  userId: string;
+  emailNotifications: boolean;
+  pushNotifications: boolean;
+  smsNotifications: boolean;
+  orderUpdates: boolean;
+  bookingReminders: boolean;
+  promotions: boolean;
+  newsletter: boolean;
+}
+
+class NotificationService {
   private static instance: NotificationService;
-  private notificationsCollection = collection(db, 'notifications');
+  private subscribers: Map<string, (notifications: Notification[]) => void> = new Map();
 
   static getInstance(): NotificationService {
     if (!NotificationService.instance) {
@@ -34,303 +47,331 @@ export class NotificationService {
     return NotificationService.instance;
   }
 
-  // Create notification
-  async createNotification(notification: Omit<Notification, 'id' | 'createdAt' | 'updatedAt'>): Promise<string> {
-    try {
-      const docRef = await addDoc(this.notificationsCollection, {
-        ...notification,
-        createdAt: serverTimestamp(),
-        updatedAt: serverTimestamp(),
+  // Real-time notification listener
+  subscribeToUserNotifications(userId: string, callback: (notifications: Notification[]) => void) {
+    const q = query(
+      collection(db, 'notifications'),
+      where('userId', '==', userId),
+      orderBy('createdAt', 'desc')
+    );
+
+    const unsubscribe = onSnapshot(q, (snapshot) => {
+      const notifications: Notification[] = [];
+      snapshot.forEach((doc) => {
+        const data = doc.data();
+        notifications.push({
+          id: doc.id,
+          userId: data.userId,
+          type: data.type,
+          title: data.title,
+          titleEn: data.titleEn,
+          message: data.message,
+          messageEn: data.messageEn,
+          icon: data.icon,
+          isRead: data.isRead || false,
+          priority: data.priority || 'medium',
+          actionUrl: data.actionUrl,
+          metadata: data.metadata,
+          createdAt: data.createdAt?.toDate() || new Date(),
+          expiresAt: data.expiresAt?.toDate()
+        });
       });
+
+      callback(notifications);
+
+      // Show toast for new high priority notifications
+      const newHighPriorityNotifications = notifications.filter(
+        n => !n.isRead && (n.priority === 'high' || n.priority === 'urgent')
+      );
+
+      newHighPriorityNotifications.slice(0, 1).forEach(notification => {
+        const toastOptions = {
+          duration: notification.priority === 'urgent' ? 8000 : 5000,
+          position: 'top-right' as const,
+          style: {
+            background: notification.priority === 'urgent' ? '#DC2626' : '#059669',
+            color: 'white',
+            fontFamily: 'Cairo, sans-serif'
+          }
+        };
+
+        toast(`${notification.icon} ${notification.title}\n${notification.message}`, toastOptions);
+      });
+    });
+
+    this.subscribers.set(userId, callback);
+    return unsubscribe;
+  }
+
+  // Send notification
+  async sendNotification(notification: Omit<Notification, 'id' | 'createdAt'>): Promise<string> {
+    try {
+      const docRef = await addDoc(collection(db, 'notifications'), {
+        ...notification,
+        createdAt: Timestamp.now(),
+        expiresAt: notification.expiresAt ? Timestamp.fromDate(notification.expiresAt) : null
+      });
+
+      // Send real-time notification for immediate display
+      this.sendRealtimeNotification(notification);
+
       return docRef.id;
     } catch (error) {
-      if (process.env.NODE_ENV === 'development') console.error('Error creating notification:', error);
-      throw new Error('Failed to create notification');
+      console.error('Error sending notification:', error);
+      throw error;
     }
   }
 
-  // Get user notifications
-  async getUserNotifications(userId: string): Promise<Notification[]> {
-    try {
-      const q = query(
-        this.notificationsCollection,
-        where('userId', '==', userId),
-        orderBy('createdAt', 'desc')
-      );
-      const snapshot = await getDocs(q);
-      return snapshot.docs.map(doc => {
-        const data = doc.data();
-        return {
-          id: doc.id,
-          ...(data as any),
-          createdAt: data.createdAt.toDate() || new Date(),
-        } as Notification;
-      });
-    } catch (error) {
-      if (process.env.NODE_ENV === 'development') console.error('Error getting user notifications:', error);
-      throw new Error('Failed to get user notifications');
+  // Send real-time notification (in-app)
+  private sendRealtimeNotification(notification: Omit<Notification, 'id' | 'createdAt'>) {
+    // For immediate feedback without waiting for Firestore
+    const callback = this.subscribers.get(notification.userId);
+    if (callback) {
+      // This would trigger the callback with updated notifications
+      // In a real implementation, you might use WebSockets or Server-Sent Events
     }
   }
 
   // Mark notification as read
   async markAsRead(notificationId: string): Promise<void> {
     try {
-      const docRef = doc(this.notificationsCollection, notificationId);
-      await updateDoc(docRef, {
-        read: true,
-        updatedAt: serverTimestamp()
+      const notificationRef = doc(db, 'notifications', notificationId);
+      await updateDoc(notificationRef, {
+        isRead: true
       });
     } catch (error) {
-      if (process.env.NODE_ENV === 'development') if (process.env.NODE_ENV === 'development') console.error('Error marking notification as read:', error);
-      throw new Error('Failed to mark notification as read');
+      console.error('Error marking notification as read:', error);
+      throw error;
     }
-  }
-
-  // Mark all notifications as read for user
-  async markAllAsRead(userId: string): Promise<void> {
-    try {
-      const q = query(
-        this.notificationsCollection,
-        where('userId', '==', userId),
-        where('read', '==', false)
-      );
-      const snapshot = await getDocs(q);
-      const batch = writeBatch(db);
-      
-      snapshot.docs.forEach(doc => {
-        batch.update(doc.ref, {
-          read: true,
-          updatedAt: serverTimestamp()
-        });
-      });
-      
-      await batch.commit();
-    } catch (error) {
-      if (process.env.NODE_ENV === 'development') if (process.env.NODE_ENV === 'development') console.error('Error marking all notifications as read:', error);
-      throw new Error('Failed to mark all notifications as read');
-    }
-  }
-
-  // Delete notification
-  async deleteNotification(notificationId: string): Promise<void> {
-    try {
-      const docRef = doc(this.notificationsCollection, notificationId);
-      await deleteDoc(docRef);
-    } catch (error) {
-      if (process.env.NODE_ENV === 'development') if (process.env.NODE_ENV === 'development') console.error('Error deleting notification:', error);
-      throw new Error('Failed to delete notification');
-    }
-  }
-
-  // Subscribe to user notifications (real-time)
-  subscribeToUserNotifications(userId: string, callback: (notifications: Notification[]) => void) {
-    const q = query(
-      this.notificationsCollection,
-      where('userId', '==', userId),
-      orderBy('createdAt', 'desc')
-    );
-    
-    return onSnapshot(q, (snapshot) => {
-      const notifications = snapshot.docs.map(doc => {
-        const data = doc.data();
-        return {
-          id: doc.id,
-          ...(data as any),
-          createdAt: data.createdAt.toDate() || new Date(),
-        } as Notification;
-      });
-      callback(notifications);
-    });
-  }
-
-  // Subscribe to unread count (real-time)
-  subscribeToUnreadCount(userId: string, callback: (count: number) => void) {
-    const q = query(
-      this.notificationsCollection,
-      where('userId', '==', userId),
-      where('read', '==', false)
-    );
-    
-    return onSnapshot(q, (snapshot) => {
-      callback(snapshot.size);
-    });
-  }
-
-  // Send templated notification
-  async sendTemplatedNotification(
-    userId: string, 
-    template: string, 
-    language: 'en' | 'ar', 
-    data: Record<string, any>
-  ): Promise<string> {
-    const templates = {
-      order_confirmed: {
-        en: 'Your order has been confirmed! Order ID: {orderId}',
-        ar: 'تم تأكيد طلبك! رقم الطلب: {orderId}'
-      },
-      order_shipped: {
-        en: 'Your order has been shipped! Tracking: {trackingNumber}',
-        ar: 'تم شحن طلبك! رقم التتبع: {trackingNumber}'
-      },
-      order_delivered: {
-        en: 'Your order has been delivered!',
-        ar: 'تم تسليم طلبك!'
-      },
-      vendor_approved: {
-        en: 'Congratulations! Your vendor application has been approved!',
-        ar: 'تهانينا! تمت الموافقة على طلب البائع الخاص بك!'
-      },
-      vendor_rejected: {
-        en: 'Your vendor application has been reviewed. Please check for updates.',
-        ar: 'تم مراجعة طلب البائع الخاص بك. يرجى التحقق من التحديثات.'
-      }
-    };
-
-    const templateText = templates[template as keyof typeof templates]?.[language] || template;
-    let message = templateText;
-    
-    // Replace placeholders with actual data
-    Object.entries(data).forEach(([key, value]) => {
-      message = message.replace(`{${key}}`, value);
-    });
-
-    return this.createNotification({
-      userId,
-      type: 'system' as NotificationType,
-      title: language === 'ar' ? 'إشعار النظام' : 'System Notification',
-      message,
-      read: false,
-      data
-    });
-  }
-
-  // Get notification by ID
-  async getNotification(notificationId: string): Promise<Notification | null> {
-    try {
-      const docRef = doc(this.notificationsCollection, notificationId);
-      const docSnap = await getDoc(docRef);
-      
-      if (docSnap.exists()) {
-        return {
-          id: docSnap.id,
-          ...docSnap.data()
-        } as Notification;
-      }
-      return null;
-    } catch (error) {
-      if (process.env.NODE_ENV === 'development') if (process.env.NODE_ENV === 'development') console.error('Error getting notification:', error);
-      throw new Error('Failed to get notification');
-    }
-  }
-
-  // Get notifications by type
-  async getNotificationsByType(userId: string, type: NotificationType): Promise<Notification[]> {
-    try {
-      const q = query(
-        this.notificationsCollection,
-        where('userId', '==', userId),
-        where('type', '==', type),
-        orderBy('createdAt', 'desc')
-      );
-      const snapshot = await getDocs(q);
-      return snapshot.docs.map(doc => {
-        const data = doc.data();
-        return {
-          id: doc.id,
-          ...(data as any),
-          createdAt: data.createdAt.toDate() || new Date(),
-        } as Notification;
-      });
-    } catch (error) {
-      if (process.env.NODE_ENV === 'development') console.error('Error getting notifications by type:', error);
-      throw new Error('Failed to get notifications by type');
-    }
-  }
-
-  // Get recent notifications
-  async getRecentNotifications(userId: string, limitCount: number = 10): Promise<Notification[]> {
-    try {
-      const q = query(
-        this.notificationsCollection,
-        where('userId', '==', userId),
-        orderBy('createdAt', 'desc'),
-        limit(limitCount)
-      );
-      const snapshot = await getDocs(q);
-      return snapshot.docs.map(doc => {
-        const data = doc.data();
-        return {
-          id: doc.id,
-          ...(data as any),
-          createdAt: data.createdAt.toDate() || new Date(),
-        } as Notification;
-      });
-    } catch (error) {
-      if (process.env.NODE_ENV === 'development') console.error('Error getting recent notifications:', error);
-      throw new Error('Failed to get recent notifications');
-    }
-  }
-
-  // Subscribe to user notifications with real-time updates
-  static subscribeToUserNotifications(userId: string, callback: (notifications: Notification[]) => void) {
-    return NotificationService.getInstance().subscribeToUserNotifications(userId, callback);
-  }
-
-  // Subscribe to unread notification count
-  static subscribeToUnreadCount(userId: string, callback: (count: number) => void) {
-    return NotificationService.getInstance().subscribeToUnreadCount(userId, callback);
-  }
-
-  // Mark notification as read
-  static async markAsRead(notificationId: string): Promise<void> {
-    return await NotificationService.getInstance().markAsRead(notificationId);
   }
 
   // Mark all notifications as read for a user
-  static async markAllAsRead(userId: string): Promise<void> {
-    return await NotificationService.getInstance().markAllAsRead(userId);
+  async markAllAsRead(userId: string): Promise<void> {
+    try {
+      const q = query(
+        collection(db, 'notifications'),
+        where('userId', '==', userId),
+        where('isRead', '==', false)
+      );
+
+      const snapshot = await q.get();
+      const batch = db.batch();
+
+      snapshot.docs.forEach((doc) => {
+        batch.update(doc.ref, { isRead: true });
+      });
+
+      await batch.commit();
+    } catch (error) {
+      console.error('Error marking all notifications as read:', error);
+      throw error;
+    }
   }
 
-  // Additional static methods for compatibility
-  static async sendVendorApprovalNotification(vendorId: string, status: string, message: string) {
-    const instance = NotificationService.getInstance();
-    return await instance.createNotification({
-      userId: vendorId,
-      title: 'Vendor Application Update',
-      message: `Your vendor application has been ${status}. ${message}`,
-      type: 'vendor_application',
-      read: false,
-    });
-  }
-
-  static async sendSystemNotification(notification: { title: string; message: string; userId: string }) {
-    const instance = NotificationService.getInstance();
-    return await instance.createNotification({
-      ...notification,
-      type: 'system',
-      read: false,
-    });
-  }
-
-  static async sendTemplatedNotification(userId: string, template: string, language: string, data: Record<string, unknown>) {
-    const instance = NotificationService.getInstance();
-    return await instance.createNotification({
+  // Predefined notification templates
+  static createOrderConfirmationNotification(userId: string, orderId: string, itemName: string, amount: number): Omit<Notification, 'id' | 'createdAt'> {
+    return {
       userId,
-      title: `Notification (${language})`,
-      message: `Template: ${template}`,
-      type: 'system',
-      read: false,
-      data,
-    });
+      type: 'order',
+      title: 'تم تأكيد طلبك',
+      titleEn: 'Order Confirmed',
+      message: `تم تأكيد طلبك ${orderId} بنجاح! ${itemName}`,
+      messageEn: `Your order ${orderId} has been confirmed! ${itemName}`,
+      icon: '✅',
+      isRead: false,
+      priority: 'high',
+      actionUrl: `/order-success?orderId=${orderId}`,
+      metadata: {
+        orderId,
+        itemName,
+        amount
+      }
+    };
   }
 
-  static async createNotification(notification: Omit<Notification, 'id' | 'createdAt' | 'updatedAt'>) {
-    const instance = NotificationService.getInstance();
-    return await instance.createNotification(notification);
+  static createBookingConfirmationNotification(userId: string, bookingId: string, serviceName: string, date: string, time: string): Omit<Notification, 'id' | 'createdAt'> {
+    return {
+      userId,
+      type: 'booking',
+      title: 'تم تأكيد حجزك',
+      titleEn: 'Booking Confirmed',
+      message: `تم تأكيد حجز ${serviceName} في ${date} الساعة ${time}`,
+      messageEn: `Your booking for ${serviceName} on ${date} at ${time} has been confirmed`,
+      icon: '📅',
+      isRead: false,
+      priority: 'high',
+      actionUrl: `/booking-success?bookingId=${bookingId}`,
+      metadata: {
+        bookingId,
+        serviceName,
+        date,
+        time
+      }
+    };
+  }
+
+  static createBookingReminderNotification(userId: string, bookingId: string, serviceName: string): Omit<Notification, 'id' | 'createdAt'> {
+    return {
+      userId,
+      type: 'booking',
+      title: 'تذكير بموعدك',
+      titleEn: 'Appointment Reminder',
+      message: `لديك موعد ${serviceName} غداً`,
+      messageEn: `You have an appointment for ${serviceName} tomorrow`,
+      icon: '⏰',
+      isRead: false,
+      priority: 'medium',
+      actionUrl: `/booking-success?bookingId=${bookingId}`,
+      metadata: {
+        bookingId,
+        serviceName
+      }
+    };
+  }
+
+  static createOrderStatusUpdateNotification(userId: string, orderId: string, status: string, itemName: string): Omit<Notification, 'id' | 'createdAt'> {
+    const statusMessages = {
+      processing: { ar: 'جاري تجهيز طلبك', en: 'Your order is being processed' },
+      shipped: { ar: 'تم شحن طلبك', en: 'Your order has been shipped' },
+      delivered: { ar: 'تم توصيل طلبك', en: 'Your order has been delivered' },
+      cancelled: { ar: 'تم إلغاء طلبك', en: 'Your order has been cancelled' }
+    };
+
+    const statusMessage = statusMessages[status] || { ar: 'تم تحديث حالة طلبك', en: 'Your order status has been updated' };
+
+    return {
+      userId,
+      type: 'order',
+      title: statusMessage.ar,
+      titleEn: statusMessage.en,
+      message: `${itemName} - ${statusMessage.ar}`,
+      messageEn: `${itemName} - ${statusMessage.en}`,
+      icon: status === 'delivered' ? '🚚' : status === 'cancelled' ? '❌' : '📦',
+      isRead: false,
+      priority: status === 'cancelled' ? 'high' : 'medium',
+      actionUrl: `/order-success?orderId=${orderId}`,
+      metadata: {
+        orderId,
+        itemName,
+        status
+      }
+    };
+  }
+
+  static createPromotionNotification(userId: string, title: string, message: string, actionUrl?: string): Omit<Notification, 'id' | 'createdAt'> {
+    return {
+      userId,
+      type: 'promotion',
+      title,
+      message,
+      icon: '🎉',
+      isRead: false,
+      priority: 'low',
+      actionUrl,
+      expiresAt: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000) // 7 days
+    };
+  }
+
+  // Get notification preferences
+  async getNotificationPreferences(userId: string): Promise<NotificationPreferences | null> {
+    try {
+      const prefsRef = doc(db, 'notificationPreferences', userId);
+      const prefsSnap = await prefsRef.get();
+      
+      if (prefsSnap.exists()) {
+        return prefsSnap.data() as NotificationPreferences;
+      }
+      
+      return null;
+    } catch (error) {
+      console.error('Error getting notification preferences:', error);
+      return null;
+    }
+  }
+
+  // Update notification preferences
+  async updateNotificationPreferences(preferences: NotificationPreferences): Promise<void> {
+    try {
+      const prefsRef = doc(db, 'notificationPreferences', preferences.userId);
+      await updateDoc(prefsRef, preferences);
+    } catch (error) {
+      console.error('Error updating notification preferences:', error);
+      throw error;
+    }
+  }
+
+  // Cleanup expired notifications
+  async cleanupExpiredNotifications(): Promise<void> {
+    try {
+      const now = Timestamp.now();
+      const q = query(
+        collection(db, 'notifications'),
+        where('expiresAt', '<=', now)
+      );
+
+      const snapshot = await q.get();
+      const batch = db.batch();
+
+      snapshot.docs.forEach((doc) => {
+        batch.delete(doc.ref);
+      });
+
+      await batch.commit();
+      console.log(`Cleaned up ${snapshot.size} expired notifications`);
+    } catch (error) {
+      console.error('Error cleaning up expired notifications:', error);
+    }
+  }
+
+  // Browser notification permission and display
+  async requestNotificationPermission(): Promise<NotificationPermission> {
+    if (!('Notification' in window)) {
+      console.log('This browser does not support notifications');
+      return 'denied';
+    }
+
+    if (Notification.permission === 'granted') {
+      return 'granted';
+    }
+
+    if (Notification.permission !== 'denied') {
+      const permission = await Notification.requestPermission();
+      return permission;
+    }
+
+    return Notification.permission;
+  }
+
+  async showBrowserNotification(notification: Notification): Promise<void> {
+    if (Notification.permission === 'granted') {
+      const browserNotification = new Notification(notification.title, {
+        body: notification.message,
+        icon: '/favicon.ico',
+        tag: notification.id,
+        requireInteraction: notification.priority === 'urgent'
+      });
+
+      browserNotification.onclick = () => {
+        window.focus();
+        if (notification.actionUrl) {
+          window.location.href = notification.actionUrl;
+        }
+        browserNotification.close();
+      };
+
+      // Auto close after 5 seconds for non-urgent notifications
+      if (notification.priority !== 'urgent') {
+        setTimeout(() => {
+          browserNotification.close();
+        }, 5000);
+      }
+    }
+  }
+
+  // Unsubscribe from notifications
+  unsubscribe(userId: string): void {
+    this.subscribers.delete(userId);
   }
 }
 
-// Export singleton instance
-export const notificationService = NotificationService.getInstance();
-
-// Types imported from @/types
+export default NotificationService;

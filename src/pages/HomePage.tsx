@@ -719,7 +719,7 @@ const HomePage: React.FC = () => {
       {/* Car Services Grid - 8 Automotive Services */}
                 <CarServicesGrid />
 
-          {/* Enhanced Marketplace Promotion */}
+          {/* Marketplace Promotion */}
           <motion.section
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
@@ -734,7 +734,7 @@ const HomePage: React.FC = () => {
                 className="mb-8"
               >
                 <h2 className="text-4xl font-bold text-gray-900 mb-4">
-                  🚀 السوق المحسن الجديد
+                  السوق المصري للسيارات
                 </h2>
                 <p className="text-xl text-gray-600 max-w-3xl mx-auto mb-8">
                   اكتشف تجربة التسوق المتطورة مع البيانات الحقيقية، التفاعل المباشر، والخدمات الاحترافية
@@ -837,12 +837,12 @@ const HomePage: React.FC = () => {
                 whileTap={{ scale: 0.95 }}
               >
                 <Link 
-                  to="/enhanced-marketplace"
+                  to="/marketplace"
                   className="inline-block"
                 >
                   <div className="bg-gradient-to-r from-blue-600 to-indigo-700 hover:from-blue-700 hover:to-indigo-800 text-white px-12 py-4 rounded-2xl text-xl font-bold shadow-2xl hover:shadow-3xl transition-all duration-300 transform">
                     <span className="flex items-center justify-center gap-3">
-                      <span>🚀 ادخل السوق المحسن الآن</span>
+                      <span>ادخل السوق الآن</span>
                       <ArrowRightIcon className="w-6 h-6" />
                     </span>
                   </div>
