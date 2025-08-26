@@ -80,22 +80,27 @@ const EnhancedNavbar: React.FC = () => {
   const handleLanguageToggle = () => {
     try {
       const newLanguage = language === 'ar' ? 'en' : 'ar';
-      console.log('🌐 Changing language from', language, 'to', newLanguage);
+      console.log('🌐 Language toggle clicked - Current:', language, 'New:', newLanguage);
+      
+      // Call the AppStore function
       setLanguage(newLanguage);
       
-      toast.success(
-        newLanguage === 'en' 
-          ? '🇺🇸 Language changed to English' 
-          : '🇪🇬 تم تغيير اللغة للعربية',
-        { 
-          duration: 3000,
-          style: {
-            fontSize: '14px',
-            fontWeight: '600',
-          }
+      // Show success toast
+      const message = newLanguage === 'en' 
+        ? '🇺🇸 Language changed to English' 
+        : '🇪🇬 تم تغيير اللغة للعربية';
+        
+      toast.success(message, { 
+        duration: 3000,
+        style: {
+          fontSize: '14px',
+          fontWeight: '600',
+          direction: newLanguage === 'ar' ? 'rtl' : 'ltr'
         }
-      );
+      });
+      
       console.log('✅ Language successfully changed to:', newLanguage);
+      console.log('📊 Current AppStore language state:', useAppStore.getState().language);
     } catch (error) {
       console.error('❌ Error changing language:', error);
       toast.error('حدث خطأ في تغيير اللغة / Language change failed');
@@ -105,22 +110,28 @@ const EnhancedNavbar: React.FC = () => {
   const handleThemeToggle = () => {
     try {
       const newTheme = theme === 'light' ? 'dark' : 'light';
-      console.log('🎨 Changing theme from', theme, 'to', newTheme);
+      console.log('🎨 Theme toggle clicked - Current:', theme, 'New:', newTheme);
+      
+      // Call the AppStore function
       setTheme(newTheme);
       
-      toast.success(
-        newTheme === 'dark' 
-          ? (language === 'ar' ? '🌙 تم تفعيل الوضع المظلم' : '🌙 Dark mode activated')
-          : (language === 'ar' ? '☀️ تم تفعيل الوضع المضيء' : '☀️ Light mode activated'),
-        { 
-          duration: 3000,
-          style: {
-            fontSize: '14px',
-            fontWeight: '600',
-          }
+      // Show success toast
+      const message = newTheme === 'dark' 
+        ? (language === 'ar' ? '🌙 تم تفعيل الوضع المظلم' : '🌙 Dark mode activated')
+        : (language === 'ar' ? '☀️ تم تفعيل الوضع المضيء' : '☀️ Light mode activated');
+        
+      toast.success(message, { 
+        duration: 3000,
+        style: {
+          fontSize: '14px',
+          fontWeight: '600',
+          direction: language === 'ar' ? 'rtl' : 'ltr'
         }
-      );
+      });
+      
       console.log('✅ Theme successfully changed to:', newTheme);
+      console.log('📊 Current AppStore theme state:', useAppStore.getState().theme);
+      console.log('📊 Document classes:', document.documentElement.className);
     } catch (error) {
       console.error('❌ Error changing theme:', error);
       toast.error('حدث خطأ في تغيير الثيم / Theme change failed');
@@ -267,7 +278,7 @@ const EnhancedNavbar: React.FC = () => {
 
             {user ? (
               <>
-                {/* Wishlist - Enhanced */}
+                {/* Wishlist - Enhanced with Better Visibility */}
                 <motion.div 
                   whileHover={{ scale: 1.05 }} 
                   whileTap={{ scale: 0.95 }}
@@ -281,16 +292,16 @@ const EnhancedNavbar: React.FC = () => {
                     <HeartIcon className='w-5 h-5 group-hover:text-red-500 transition-colors' />
                     {favorites.length > 0 && (
                       <motion.span
-                        className='absolute -top-1 -right-1 min-w-[18px] h-[18px] bg-red-500 text-white text-xs rounded-full flex items-center justify-center font-bold shadow-lg border-2 border-white z-20'
+                        className='absolute -top-2 -right-2 min-w-[20px] h-[20px] bg-gradient-to-r from-red-500 to-red-600 text-white text-xs rounded-full flex items-center justify-center font-extrabold shadow-lg border-2 border-white z-30'
                         initial={{ scale: 0 }}
                         animate={{ scale: 1 }}
-                        transition={{ type: 'spring', stiffness: 300 }}
+                        transition={{ type: 'spring', stiffness: 400 }}
                         style={{ 
-                          fontSize: '9px', 
+                          fontSize: '10px', 
                           lineHeight: '1',
-                          transform: 'translate(2px, -2px)',
-                          minWidth: '18px',
-                          height: '18px'
+                          minWidth: '20px',
+                          height: '20px',
+                          boxShadow: '0 4px 12px rgba(239, 68, 68, 0.4)'
                         }}
                       >
                         {favorites.length > 99 ? '99+' : favorites.length}
@@ -299,7 +310,7 @@ const EnhancedNavbar: React.FC = () => {
                   </Link>
                 </motion.div>
 
-                {/* Cart - Enhanced */}
+                {/* Cart - Enhanced with Better Visibility */}
                 <motion.div 
                   whileHover={{ scale: 1.05 }} 
                   whileTap={{ scale: 0.95 }}
@@ -313,16 +324,16 @@ const EnhancedNavbar: React.FC = () => {
                     <ShoppingCartIcon className='w-5 h-5 group-hover:text-blue-600 transition-colors' />
                     {getCartItemsCount() > 0 && (
                       <motion.span
-                        className='absolute -top-1 -right-1 min-w-[18px] h-[18px] bg-blue-500 text-white text-xs rounded-full flex items-center justify-center font-bold shadow-lg border-2 border-white z-20'
+                        className='absolute -top-2 -right-2 min-w-[20px] h-[20px] bg-gradient-to-r from-blue-500 to-blue-600 text-white text-xs rounded-full flex items-center justify-center font-extrabold shadow-lg border-2 border-white z-30'
                         initial={{ scale: 0 }}
                         animate={{ scale: 1 }}
-                        transition={{ type: 'spring', stiffness: 300 }}
+                        transition={{ type: 'spring', stiffness: 400 }}
                         style={{ 
-                          fontSize: '9px', 
+                          fontSize: '10px', 
                           lineHeight: '1',
-                          transform: 'translate(2px, -2px)',
-                          minWidth: '18px',
-                          height: '18px'
+                          minWidth: '20px',
+                          height: '20px',
+                          boxShadow: '0 4px 12px rgba(59, 130, 246, 0.4)'
                         }}
                       >
                         {getCartItemsCount() > 99 ? '99+' : getCartItemsCount()}
