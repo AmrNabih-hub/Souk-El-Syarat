@@ -17,7 +17,7 @@ import {
 } from '@heroicons/react/24/outline';
 
 import { useAppStore } from '@/stores/appStore';
-import { useUnifiedAuthStore } from '@/stores/authStore.unified.enhanced';
+import { useMasterAuthStore } from '@/stores/authStore.master';
 import clsx from 'clsx';
 import toast from 'react-hot-toast';
 
@@ -32,7 +32,7 @@ const EnhancedNavbar: React.FC = () => {
 
   const navigate = useNavigate();
   const location = useLocation();
-  const { user, signOut } = useUnifiedAuthStore();
+  const { user, signOut } = useMasterAuthStore();
   const { 
     language, 
     theme, 
