@@ -3,6 +3,7 @@ import { User, AuthState } from '@/types';
 import { AuthService } from '@/services/auth.service.fixed';
 import { AdminAuthService } from '@/services/admin-auth.service';
 import { useAppStore } from './appStore';
+import { useRealtimeStore } from './realtimeStore';
 
 interface AuthStore extends AuthState {
   // Additional state
@@ -55,7 +56,10 @@ export const useAuthStore = create<AuthStore>((set, get) => ({
           
           // Initialize real-time sync for admin
           await useAppStore.getState().initializeRealtimeSync(user.id);
-          console.log('✅ Admin signed in and real-time sync initialized');
+          await useRealtimeStore.getState().initializeRealtimeServices(user.id, 'admin');
+          localStorage.setItem('currentUserRole', 'admin');
+          localStorage.setItem('currentUserName', user.displayName);
+          console.log('✅ Admin signed in with full real-time system initialized');
           return;
         }
       } catch (adminError) {
@@ -66,9 +70,12 @@ export const useAuthStore = create<AuthStore>((set, get) => ({
       const user = await AuthService.signIn(email, password);
       set({ user, isLoading: false, authChecked: true });
       
-      // Initialize real-time sync for regular user
+      // Initialize complete real-time system for regular user
       await useAppStore.getState().initializeRealtimeSync(user.id);
-      console.log('✅ User signed in and real-time sync initialized');
+      await useRealtimeStore.getState().initializeRealtimeServices(user.id, user.role);
+      localStorage.setItem('currentUserRole', user.role);
+      localStorage.setItem('currentUserName', user.displayName);
+      console.log('✅ User signed in with complete real-time system initialized');
       
     } catch (error) {
       console.error('Sign in error:', error);
@@ -86,9 +93,12 @@ export const useAuthStore = create<AuthStore>((set, get) => ({
       const user = await AuthService.signUp(email, password, displayName);
       set({ user, isLoading: false, authChecked: true });
       
-      // Initialize real-time sync for new user
+      // Initialize complete real-time system for new user
       await useAppStore.getState().initializeRealtimeSync(user.id);
-      console.log('✅ User signed up and real-time sync initialized');
+      await useRealtimeStore.getState().initializeRealtimeServices(user.id, user.role);
+      localStorage.setItem('currentUserRole', user.role);
+      localStorage.setItem('currentUserName', user.displayName);
+      console.log('✅ User signed up with complete real-time system initialized');
       
     } catch (error) {
       console.error('Sign up error:', error);
@@ -106,9 +116,12 @@ export const useAuthStore = create<AuthStore>((set, get) => ({
       const user = await AuthService.signInWithGoogle();
       set({ user, isLoading: false, authChecked: true });
       
-      // Initialize real-time sync for Google user
+      // Initialize complete real-time system for Google user
       await useAppStore.getState().initializeRealtimeSync(user.id);
-      console.log('✅ Google user signed in and real-time sync initialized');
+      await useRealtimeStore.getState().initializeRealtimeServices(user.id, user.role);
+      localStorage.setItem('currentUserRole', user.role);
+      localStorage.setItem('currentUserName', user.displayName);
+      console.log('✅ Google user signed in with complete real-time system initialized');
       
     } catch (error) {
       console.error('Google sign in error:', error);
@@ -124,9 +137,12 @@ export const useAuthStore = create<AuthStore>((set, get) => ({
     try {
       set({ isLoading: true, error: null });
       
-      // Disconnect real-time sync before signing out
+      // Disconnect all real-time services before signing out
       useAppStore.getState().disconnectRealtimeSync();
-      console.log('🔌 Real-time sync disconnected');
+      useRealtimeStore.getState().disconnectAllServices();
+      localStorage.removeItem('currentUserRole');
+      localStorage.removeItem('currentUserName');
+      console.log('🔌 All real-time services disconnected');
       
       await AuthService.signOut();
       set({ user: null, isLoading: false, authChecked: true });
@@ -175,13 +191,19 @@ export const useAuthStore = create<AuthStore>((set, get) => ({
   setUser: (user: User | null) => {
     set({ user });
     
-    // Handle real-time sync based on user state
+    // Handle all real-time services based on user state
     if (user) {
-      // Initialize sync for existing user
+      // Initialize all real-time services for existing user
       useAppStore.getState().initializeRealtimeSync(user.id);
+      useRealtimeStore.getState().initializeRealtimeServices(user.id, user.role);
+      localStorage.setItem('currentUserRole', user.role);
+      localStorage.setItem('currentUserName', user.displayName);
     } else {
-      // Disconnect sync when user is cleared
+      // Disconnect all services when user is cleared
       useAppStore.getState().disconnectRealtimeSync();
+      useRealtimeStore.getState().disconnectAllServices();
+      localStorage.removeItem('currentUserRole');
+      localStorage.removeItem('currentUserName');
     }
   },
 
@@ -208,20 +230,30 @@ export const useAuthStore = create<AuthStore>((set, get) => ({
           isInitialized: true 
         });
         
-        // Handle real-time sync transitions
+        // Handle all real-time services transitions
         if (!wasAuthenticated && isNowAuthenticated) {
-          // User just logged in - initialize sync
-          console.log('🔄 User authenticated - initializing real-time sync');
+          // User just logged in - initialize all services
+          console.log('🔄 User authenticated - initializing complete real-time system');
           useAppStore.getState().initializeRealtimeSync(user!.id);
+          useRealtimeStore.getState().initializeRealtimeServices(user!.id, user!.role);
+          localStorage.setItem('currentUserRole', user!.role);
+          localStorage.setItem('currentUserName', user!.displayName);
         } else if (wasAuthenticated && !isNowAuthenticated) {
-          // User just logged out - disconnect sync
-          console.log('🔌 User logged out - disconnecting real-time sync');
+          // User just logged out - disconnect all services
+          console.log('🔌 User logged out - disconnecting all real-time services');
           useAppStore.getState().disconnectRealtimeSync();
+          useRealtimeStore.getState().disconnectAllServices();
+          localStorage.removeItem('currentUserRole');
+          localStorage.removeItem('currentUserName');
         } else if (isNowAuthenticated && currentUser?.id !== user!.id) {
-          // Different user logged in - reinitialize sync
-          console.log('🔄 Different user - reinitializing real-time sync');
+          // Different user logged in - reinitialize all services
+          console.log('🔄 Different user - reinitializing complete real-time system');
           useAppStore.getState().disconnectRealtimeSync();
+          useRealtimeStore.getState().disconnectAllServices();
           useAppStore.getState().initializeRealtimeSync(user!.id);
+          useRealtimeStore.getState().initializeRealtimeServices(user!.id, user!.role);
+          localStorage.setItem('currentUserRole', user!.role);
+          localStorage.setItem('currentUserName', user!.displayName);
         }
       });
     } catch (error) {
