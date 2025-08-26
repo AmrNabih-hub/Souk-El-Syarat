@@ -3,6 +3,7 @@ import { Routes, Route, Navigate } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 
 import { useAppStore } from '@/stores/appStore';
+import { useAuthStore } from '@/stores/authStore';
 
 // Layout Components
 import Navbar from '@/components/layout/Navbar';
@@ -161,7 +162,16 @@ const NotFoundPage = () => (
 );
 
 const App: React.FC = () => {
-  const { theme, language } = useAppStore();
+  const { theme, language, syncStatus, isOnline } = useAppStore();
+  const { initializeAuth, isInitialized } = useAuthStore();
+
+  // Initialize authentication and real-time services
+  useEffect(() => {
+    if (!isInitialized) {
+      console.log('🚀 Initializing app with real-time capabilities...');
+      initializeAuth();
+    }
+  }, [isInitialized, initializeAuth]);
 
   // Safe document setup with enhanced error handling
   useEffect(() => {
@@ -176,12 +186,14 @@ const App: React.FC = () => {
       console.log('✅ Document properties set successfully:', { 
         direction: document.documentElement.dir, 
         language: document.documentElement.lang,
-        theme: document.documentElement.className || 'light'
+        theme: document.documentElement.className || 'light',
+        syncStatus,
+        isOnline
       });
     } catch (error) {
       console.error('❌ Error setting document properties:', error);
     }
-  }, [theme, language]);
+  }, [theme, language, syncStatus, isOnline]);
 
   return (
     <ErrorBoundary>

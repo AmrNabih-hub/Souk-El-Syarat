@@ -25,29 +25,40 @@ const CarServicesGrid: React.FC = () => {
   // Use real services data
   const services = realCarServices.slice(0, 8); // Show first 8 services
 
-  // Add to cart functionality
-  const handleAddToCart = (service: typeof realCarServices[0]) => {
-    addToCart({
-      productId: service.id,
-      name: service.title,
-      price: parseFloat(service.price.replace(/[^\d]/g, '')),
-      image: service.image,
-      category: 'service',
-      quantity: 1
-    });
-    toast.success(`تم إضافة ${service.title} إلى السلة`);
+  // Enhanced add to cart functionality with real-time sync
+  const handleAddToCart = async (service: typeof realCarServices[0]) => {
+    try {
+      await addToCart({
+        productId: service.id,
+        name: service.title,
+        price: parseFloat(service.price.replace(/[^\d]/g, '')),
+        image: service.image,
+        category: 'service',
+        quantity: 1,
+        addedAt: new Date()
+      });
+      toast.success(`تم إضافة ${service.title} إلى السلة`);
+    } catch (error) {
+      console.error('Failed to add to cart:', error);
+      toast.error('فشل في إضافة المنتج إلى السلة');
+    }
   };
 
-  // Add to wishlist functionality
-  const handleToggleFavorite = (service: typeof realCarServices[0]) => {
+  // Enhanced wishlist functionality with real-time sync
+  const handleToggleFavorite = async (service: typeof realCarServices[0]) => {
     const isCurrentlyFavorite = isFavorite(service.id);
     
-    if (isCurrentlyFavorite) {
-      removeFromFavorites(service.id);
-      toast.success(`تم إزالة ${service.title} من المفضلة`);
-    } else {
-      addToFavorites(service.id);
-      toast.success(`تم إضافة ${service.title} إلى المفضلة`);
+    try {
+      if (isCurrentlyFavorite) {
+        await removeFromFavorites(service.id);
+        toast.success(`تم إزالة ${service.title} من المفضلة`);
+      } else {
+        await addToFavorites(service.id);
+        toast.success(`تم إضافة ${service.title} إلى المفضلة`);
+      }
+    } catch (error) {
+      console.error('Failed to update favorites:', error);
+      toast.error('فشل في تحديث المفضلة');
     }
   };
 

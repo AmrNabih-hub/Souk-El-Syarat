@@ -340,13 +340,23 @@ export interface AppState {
   currency: 'EGP' | 'USD';
   cartItems: CartItem[];
   favorites: string[];
-  recentlyViewed: string[];
+  
+  // Real-time sync state
+  isOnline: boolean;
+  syncStatus: 'idle' | 'syncing' | 'synced' | 'error';
+  lastSyncTime: Date | null;
+  unsubscribeCallbacks: (() => void)[];
 }
 
 export interface CartItem {
   productId: string;
+  name: string;
+  price: number;
+  image: string;
   quantity: number;
+  category?: string;
   selectedOptions?: Record<string, string>;
+  addedAt?: Date;
 }
 
 // API Response Types

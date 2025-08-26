@@ -23,6 +23,7 @@ import {
 
 import { useAppStore } from '@/stores/appStore';
 import { useAuthStore } from '@/stores/authStore';
+import SyncStatusIndicator from '@/components/ui/SyncStatusIndicator';
 import clsx from 'clsx';
 import toast from 'react-hot-toast';
 
@@ -40,7 +41,7 @@ const Navbar: React.FC = () => {
   
   // Real authentication state
   const { user, signOut, isLoading: authLoading } = useAuthStore();
-  const { language, theme, setLanguage, setTheme, getCartItemsCount, favorites } = useAppStore();
+  const { language, theme, setLanguage, setTheme, getCartItemsCount, favorites, syncStatus, isOnline } = useAppStore();
 
   // Get role-based profile information
   const getUserProfileInfo = () => {
@@ -345,6 +346,9 @@ const Navbar: React.FC = () => {
                     )}
                   </Link>
                 </motion.div>
+
+                {/* Real-time Sync Status Indicator */}
+                <SyncStatusIndicator size="sm" />
 
                 {/* Enhanced User Menu with Role-based Styling */}
                 <div className='relative' ref={userMenuRef}>
