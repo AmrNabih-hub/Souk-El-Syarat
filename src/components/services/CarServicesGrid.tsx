@@ -20,7 +20,7 @@ import { useAppStore } from '@/stores/appStore';
 
 const CarServicesGrid: React.FC = () => {
   const [selectedService, setSelectedService] = useState<string | null>(null);
-  const { addToCart, toggleFavorite, favorites, getCartItemsCount } = useAppStore();
+  const { addToCart, addToFavorites, removeFromFavorites, isFavorite, favorites, getCartItemsCount } = useAppStore();
 
   // Use real services data
   const services = realCarServices.slice(0, 8); // Show first 8 services
@@ -28,7 +28,7 @@ const CarServicesGrid: React.FC = () => {
   // Add to cart functionality
   const handleAddToCart = (service: typeof realCarServices[0]) => {
     addToCart({
-      id: service.id,
+      productId: service.id,
       name: service.title,
       price: parseFloat(service.price.replace(/[^\d]/g, '')),
       image: service.image,
@@ -40,16 +40,15 @@ const CarServicesGrid: React.FC = () => {
 
   // Add to wishlist functionality
   const handleToggleFavorite = (service: typeof realCarServices[0]) => {
-    toggleFavorite({
-      id: service.id,
-      name: service.title,
-      price: parseFloat(service.price.replace(/[^\d]/g, '')),
-      image: service.image,
-      category: 'service'
-    });
+    const isCurrentlyFavorite = isFavorite(service.id);
     
-    const isFavorite = favorites.some(fav => fav.id === service.id);
-    toast.success(isFavorite ? `تم إزالة ${service.title} من المفضلة` : `تم إضافة ${service.title} إلى المفضلة`);
+    if (isCurrentlyFavorite) {
+      removeFromFavorites(service.id);
+      toast.success(`تم إزالة ${service.title} من المفضلة`);
+    } else {
+      addToFavorites(service.id);
+      toast.success(`تم إضافة ${service.title} إلى المفضلة`);
+    }
   };
 
   // Get icon for service based on title
@@ -197,11 +196,11 @@ const CarServicesGrid: React.FC = () => {
                       whileHover={{ scale: 1.05 }}
                       whileTap={{ scale: 0.95 }}
                     >
-                      {favorites.some(fav => fav.id === service.id) ? (
-                        <HeartSolidIcon className="w-4 h-4 text-red-500" />
-                      ) : (
-                        <HeartIcon className="w-4 h-4 text-gray-400 hover:text-red-500" />
-                      )}
+                                             {isFavorite(service.id) ? (
+                         <HeartSolidIcon className="w-4 h-4 text-red-500" />
+                       ) : (
+                         <HeartIcon className="w-4 h-4 text-gray-400 hover:text-red-500" />
+                       )}
                     </motion.button>
                   </div>
 
