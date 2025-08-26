@@ -44,30 +44,31 @@ jobs:
         run: npm ci
 
       - name: 🔍 Run linting
-        continue-on-error: true
         run: npm run lint:ci
 
       - name: 🎨 Check formatting
-        continue-on-error: true
         run: npm run format:check
 
       - name: 🧪 Run TypeScript check
-        continue-on-error: true
         run: npm run type-check:ci
 
       - name: 🧪 Run unit tests
-        continue-on-error: true
         run: npm run test:unit
 
       - name: 🧪 Run integration tests
-        continue-on-error: true
         run: npm run test:integration
 
+      - name: 🧪 Run E2E tests
+        run: |
+          npx playwright install --with-deps
+          npx playwright test
+        timeout-minutes: 15
+
       - name: 📊 Run coverage
-        continue-on-error: true
         run: npm run test:coverage
 
       - name: 💾 Upload test results
+        if: always() # Always upload artifacts, even if tests fail
         uses: actions/upload-artifact@v4
         with:
           name: test-results
