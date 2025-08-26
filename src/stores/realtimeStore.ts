@@ -6,7 +6,7 @@
 import { create } from 'zustand';
 import { subscribeWithSelector } from 'zustand/middleware';
 
-import { PushNotificationService } from '@/services/push-notification.service';
+// import { PushNotificationService } from '@/services/push-notification.service';
 import { RealtimeService } from '@/services/realtime.service';
 import { AuthService } from '@/services/auth.service';
 
@@ -115,8 +115,8 @@ export const useRealtimeStore = create<RealtimeState>()(
         // Initialize Firebase real-time services
         await RealtimeService.initializeForUser(userId);
 
-        // Initialize push notifications
-        await PushNotificationService.initialize(userId);
+        // Initialize push notifications - DISABLED TO FIX MESSAGING ERROR
+        // await PushNotificationService.initialize(userId);
 
         // Set up presence
         await get().setUserOnline(userId, window.location.pathname);
