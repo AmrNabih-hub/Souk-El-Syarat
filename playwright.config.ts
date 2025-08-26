@@ -7,7 +7,7 @@ import { defineConfig, devices } from '@playwright/test';
  * @see https://playwright.dev/docs/test-configuration
  */
 export default defineConfig({
-  testDir: './src/tests/e2e',
+  testDir: './e2e',
   
   /* Run tests in files in parallel */
   fullyParallel: true,
@@ -32,7 +32,7 @@ export default defineConfig({
   /* Shared settings for all the projects below. See https://playwright.dev/docs/api/class-testoptions. */
   use: {
     /* Base URL to use in actions like `await page.goto('/')`. */
-    baseURL: 'http://localhost:4173',
+    baseURL: 'http://localhost:5173',
     
     /* Collect trace when retrying the failed test. See https://playwright.dev/docs/trace-viewer */
     trace: 'on-first-retry',
@@ -96,20 +96,35 @@ export default defineConfig({
 
   /* Run your local dev server before starting the tests */
   webServer: {
-    command: 'npm run preview',
-    url: 'http://localhost:4173',
+    command: 'npm run dev',
+    url: 'http://localhost:5173',
     reuseExistingServer: !process.env.CI,
-    timeout: 120000,
+    timeout: 120 * 1000,
   },
   
   /* Global setup and teardown */
-  globalSetup: './src/tests/e2e/global-setup.ts',
-  globalTeardown: './src/tests/e2e/global-teardown.ts',
+  // globalSetup: './src/tests/e2e/global-setup.ts',
+  // globalTeardown: './src/tests/e2e/global-teardown.ts',
   
   /* Test timeout */
-  timeout: 60000,
+  timeout: 60 * 1000,
   expect: {
+    /**
+     * Maximum time expect() should wait for the condition to be met.
+     * For example in `await expect(locator).toHaveText();`
+     */
     timeout: 10000,
+    /**
+     * Configuration for visual regression testing.
+     * @see https://playwright.dev/docs/test-snapshots
+     */
+    toHaveScreenshot: {
+      // An acceptable ratio of pixels that could be different, between 0 and 1.
+      maxDiffPixelRatio: 0.1,
+    },
+    // To be concise, let's inline `toHaveScreenshot` options into `expect`.
+    // An acceptable amount of pixels that could be different.
+    // maxDiffPixels: 10,
   },
   
   /* Output directory for test results */

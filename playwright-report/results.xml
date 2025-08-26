@@ -1,0 +1,68 @@
+<testsuites id="" name="" tests="8" failures="0" skipped="0" errors="0" time="47.561371">
+<testsuite name="homepage.spec.ts" timestamp="2025-08-26T17:47:13.734Z" hostname="chromium" tests="1" failures="0" skipped="0" time="11.931" errors="0">
+<testcase name="Homepage Visual Tests › it should match the homepage snapshot" classname="homepage.spec.ts" time="11.931">
+</testcase>
+</testsuite>
+<testsuite name="homepage.spec.ts" timestamp="2025-08-26T17:47:13.734Z" hostname="firefox" tests="1" failures="0" skipped="0" time="24.134" errors="0">
+<testcase name="Homepage Visual Tests › it should match the homepage snapshot" classname="homepage.spec.ts" time="24.134">
+<system-out>
+<![CDATA[C:\Users\GM\Desktop\Souk El-Sayarat\e2e\homepage.spec.ts-snapshots\homepage-firefox-win32.png is re-generated, writing actual.
+]]>
+</system-out>
+</testcase>
+</testsuite>
+<testsuite name="homepage.spec.ts" timestamp="2025-08-26T17:47:13.734Z" hostname="webkit" tests="1" failures="0" skipped="0" time="21.424" errors="0">
+<testcase name="Homepage Visual Tests › it should match the homepage snapshot" classname="homepage.spec.ts" time="21.424">
+<system-out>
+<![CDATA[A snapshot doesn't exist at C:\Users\GM\Desktop\Souk El-Sayarat\e2e\homepage.spec.ts-snapshots\homepage-webkit-win32.png, writing actual.
+
+[[ATTACHMENT|..\e2e\homepage.spec.ts-snapshots\homepage-webkit-win32.png]]
+]]>
+</system-out>
+<system-err>
+<![CDATA[
+Warning: attachment ..\test-results\homepage-Homepage-Visual-T-7f962-match-the-homepage-snapshot-webkit\homepage-actual.png is missing]]>
+</system-err>
+</testcase>
+</testsuite>
+<testsuite name="homepage.spec.ts" timestamp="2025-08-26T17:47:13.734Z" hostname="mobile" tests="1" failures="0" skipped="0" time="11.49" errors="0">
+<testcase name="Homepage Visual Tests › it should match the homepage snapshot" classname="homepage.spec.ts" time="11.49">
+<system-out>
+<![CDATA[A snapshot doesn't exist at C:\Users\GM\Desktop\Souk El-Sayarat\e2e\homepage.spec.ts-snapshots\homepage-mobile-win32.png, writing actual.
+
+[[ATTACHMENT|..\e2e\homepage.spec.ts-snapshots\homepage-mobile-win32.png]]
+]]>
+</system-out>
+<system-err>
+<![CDATA[
+Warning: attachment ..\test-results\homepage-Homepage-Visual-T-7f962-match-the-homepage-snapshot-mobile\homepage-actual.png is missing]]>
+</system-err>
+</testcase>
+</testsuite>
+<testsuite name="homepage.spec.ts" timestamp="2025-08-26T17:47:13.734Z" hostname="mobile-safari" tests="1" failures="0" skipped="0" time="12.434" errors="0">
+<testcase name="Homepage Visual Tests › it should match the homepage snapshot" classname="homepage.spec.ts" time="12.434">
+<system-out>
+<![CDATA[A snapshot doesn't exist at C:\Users\GM\Desktop\Souk El-Sayarat\e2e\homepage.spec.ts-snapshots\homepage-mobile-safari-win32.png, writing actual.
+
+[[ATTACHMENT|..\e2e\homepage.spec.ts-snapshots\homepage-mobile-safari-win32.png]]
+]]>
+</system-out>
+<system-err>
+<![CDATA[
+Warning: attachment ..\test-results\homepage-Homepage-Visual-T-7f962-match-the-homepage-snapshot-mobile-safari\homepage-actual.png is missing]]>
+</system-err>
+</testcase>
+</testsuite>
+<testsuite name="homepage.spec.ts" timestamp="2025-08-26T17:47:13.734Z" hostname="Microsoft Edge" tests="1" failures="0" skipped="0" time="9.757" errors="0">
+<testcase name="Homepage Visual Tests › it should match the homepage snapshot" classname="homepage.spec.ts" time="9.757">
+</testcase>
+</testsuite>
+<testsuite name="homepage.spec.ts" timestamp="2025-08-26T17:47:13.734Z" hostname="Google Chrome" tests="1" failures="0" skipped="0" time="6.61" errors="0">
+<testcase name="Homepage Visual Tests › it should match the homepage snapshot" classname="homepage.spec.ts" time="6.61">
+</testcase>
+</testsuite>
+<testsuite name="homepage.spec.ts" timestamp="2025-08-26T17:47:13.734Z" hostname="tablet" tests="1" failures="0" skipped="0" time="5.843" errors="0">
+<testcase name="Homepage Visual Tests › it should match the homepage snapshot" classname="homepage.spec.ts" time="5.843">
+</testcase>
+</testsuite>
+</testsuites>

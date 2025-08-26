@@ -1,0 +1,531 @@
+{
+  "config": {
+    "configFile": "C:\\Users\\GM\\Desktop\\Souk El-Sayarat\\playwright.config.ts",
+    "rootDir": "C:/Users/GM/Desktop/Souk El-Sayarat/e2e",
+    "forbidOnly": false,
+    "fullyParallel": true,
+    "globalSetup": null,
+    "globalTeardown": null,
+    "globalTimeout": 0,
+    "grep": {},
+    "grepInvert": null,
+    "maxFailures": 0,
+    "metadata": {
+      "actualWorkers": 4
+    },
+    "preserveOutput": "failures-only",
+    "reporter": [
+      [
+        "html",
+        null
+      ],
+      [
+        "json",
+        {
+          "outputFile": "playwright-report/results.json"
+        }
+      ],
+      [
+        "junit",
+        {
+          "outputFile": "playwright-report/results.xml"
+        }
+      ]
+    ],
+    "reportSlowTests": {
+      "max": 5,
+      "threshold": 300000
+    },
+    "quiet": false,
+    "projects": [
+      {
+        "outputDir": "C:/Users/GM/Desktop/Souk El-Sayarat/test-results",
+        "repeatEach": 1,
+        "retries": 0,
+        "metadata": {
+          "actualWorkers": 4
+        },
+        "id": "chromium",
+        "name": "chromium",
+        "testDir": "C:/Users/GM/Desktop/Souk El-Sayarat/e2e",
+        "testIgnore": [],
+        "testMatch": [
+          "**/*.@(spec|test).?(c|m)[jt]s?(x)"
+        ],
+        "timeout": 60000
+      },
+      {
+        "outputDir": "C:/Users/GM/Desktop/Souk El-Sayarat/test-results",
+        "repeatEach": 1,
+        "retries": 0,
+        "metadata": {
+          "actualWorkers": 4
+        },
+        "id": "firefox",
+        "name": "firefox",
+        "testDir": "C:/Users/GM/Desktop/Souk El-Sayarat/e2e",
+        "testIgnore": [],
+        "testMatch": [
+          "**/*.@(spec|test).?(c|m)[jt]s?(x)"
+        ],
+        "timeout": 60000
+      },
+      {
+        "outputDir": "C:/Users/GM/Desktop/Souk El-Sayarat/test-results",
+        "repeatEach": 1,
+        "retries": 0,
+        "metadata": {
+          "actualWorkers": 4
+        },
+        "id": "webkit",
+        "name": "webkit",
+        "testDir": "C:/Users/GM/Desktop/Souk El-Sayarat/e2e",
+        "testIgnore": [],
+        "testMatch": [
+          "**/*.@(spec|test).?(c|m)[jt]s?(x)"
+        ],
+        "timeout": 60000
+      },
+      {
+        "outputDir": "C:/Users/GM/Desktop/Souk El-Sayarat/test-results",
+        "repeatEach": 1,
+        "retries": 0,
+        "metadata": {
+          "actualWorkers": 4
+        },
+        "id": "mobile",
+        "name": "mobile",
+        "testDir": "C:/Users/GM/Desktop/Souk El-Sayarat/e2e",
+        "testIgnore": [],
+        "testMatch": [
+          "**/*.@(spec|test).?(c|m)[jt]s?(x)"
+        ],
+        "timeout": 60000
+      },
+      {
+        "outputDir": "C:/Users/GM/Desktop/Souk El-Sayarat/test-results",
+        "repeatEach": 1,
+        "retries": 0,
+        "metadata": {
+          "actualWorkers": 4
+        },
+        "id": "mobile-safari",
+        "name": "mobile-safari",
+        "testDir": "C:/Users/GM/Desktop/Souk El-Sayarat/e2e",
+        "testIgnore": [],
+        "testMatch": [
+          "**/*.@(spec|test).?(c|m)[jt]s?(x)"
+        ],
+        "timeout": 60000
+      },
+      {
+        "outputDir": "C:/Users/GM/Desktop/Souk El-Sayarat/test-results",
+        "repeatEach": 1,
+        "retries": 0,
+        "metadata": {
+          "actualWorkers": 4
+        },
+        "id": "Microsoft Edge",
+        "name": "Microsoft Edge",
+        "testDir": "C:/Users/GM/Desktop/Souk El-Sayarat/e2e",
+        "testIgnore": [],
+        "testMatch": [
+          "**/*.@(spec|test).?(c|m)[jt]s?(x)"
+        ],
+        "timeout": 60000
+      },
+      {
+        "outputDir": "C:/Users/GM/Desktop/Souk El-Sayarat/test-results",
+        "repeatEach": 1,
+        "retries": 0,
+        "metadata": {
+          "actualWorkers": 4
+        },
+        "id": "Google Chrome",
+        "name": "Google Chrome",
+        "testDir": "C:/Users/GM/Desktop/Souk El-Sayarat/e2e",
+        "testIgnore": [],
+        "testMatch": [
+          "**/*.@(spec|test).?(c|m)[jt]s?(x)"
+        ],
+        "timeout": 60000
+      },
+      {
+        "outputDir": "C:/Users/GM/Desktop/Souk El-Sayarat/test-results",
+        "repeatEach": 1,
+        "retries": 0,
+        "metadata": {
+          "actualWorkers": 4
+        },
+        "id": "tablet",
+        "name": "tablet",
+        "testDir": "C:/Users/GM/Desktop/Souk El-Sayarat/e2e",
+        "testIgnore": [],
+        "testMatch": [
+          "**/*.@(spec|test).?(c|m)[jt]s?(x)"
+        ],
+        "timeout": 60000
+      }
+    ],
+    "shard": null,
+    "updateSnapshots": "changed",
+    "updateSourceMethod": "patch",
+    "version": "1.55.0",
+    "workers": 4,
+    "webServer": {
+      "command": "npm run dev",
+      "url": "http://localhost:5173",
+      "reuseExistingServer": true,
+      "timeout": 120000
+    }
+  },
+  "suites": [
+    {
+      "title": "homepage.spec.ts",
+      "file": "homepage.spec.ts",
+      "column": 0,
+      "line": 0,
+      "specs": [],
+      "suites": [
+        {
+          "title": "Homepage Visual Tests",
+          "file": "homepage.spec.ts",
+          "line": 3,
+          "column": 6,
+          "specs": [
+            {
+              "title": "it should match the homepage snapshot",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 60000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium",
+                  "projectName": "chromium",
+                  "results": [
+                    {
+                      "workerIndex": 0,
+                      "parallelIndex": 0,
+                      "status": "passed",
+                      "duration": 11931,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2025-08-26T17:47:16.578Z",
+                      "annotations": [],
+                      "attachments": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "84e7eb052e8cbae1c9f0-0163818e5c45f29da540",
+              "file": "homepage.spec.ts",
+              "line": 4,
+              "column": 3
+            },
+            {
+              "title": "it should match the homepage snapshot",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 60000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "firefox",
+                  "projectName": "firefox",
+                  "results": [
+                    {
+                      "workerIndex": 1,
+                      "parallelIndex": 1,
+                      "status": "passed",
+                      "duration": 24134,
+                      "errors": [],
+                      "stdout": [
+                        {
+                          "text": "C:\\Users\\GM\\Desktop\\Souk El-Sayarat\\e2e\\homepage.spec.ts-snapshots\\homepage-firefox-win32.png is re-generated, writing actual.\n"
+                        }
+                      ],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2025-08-26T17:47:16.582Z",
+                      "annotations": [],
+                      "attachments": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "84e7eb052e8cbae1c9f0-462c8cc7ce4d5cce229a",
+              "file": "homepage.spec.ts",
+              "line": 4,
+              "column": 3
+            },
+            {
+              "title": "it should match the homepage snapshot",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 60000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "webkit",
+                  "projectName": "webkit",
+                  "results": [
+                    {
+                      "workerIndex": 2,
+                      "parallelIndex": 2,
+                      "status": "passed",
+                      "duration": 21424,
+                      "errors": [],
+                      "stdout": [
+                        {
+                          "text": "A snapshot doesn't exist at C:\\Users\\GM\\Desktop\\Souk El-Sayarat\\e2e\\homepage.spec.ts-snapshots\\homepage-webkit-win32.png, writing actual.\n"
+                        }
+                      ],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2025-08-26T17:47:16.717Z",
+                      "annotations": [],
+                      "attachments": [
+                        {
+                          "name": "homepage-expected.png",
+                          "contentType": "image/png",
+                          "path": "C:\\Users\\GM\\Desktop\\Souk El-Sayarat\\e2e\\homepage.spec.ts-snapshots\\homepage-webkit-win32.png"
+                        },
+                        {
+                          "name": "homepage-actual.png",
+                          "contentType": "image/png",
+                          "path": "C:\\Users\\GM\\Desktop\\Souk El-Sayarat\\test-results\\homepage-Homepage-Visual-T-7f962-match-the-homepage-snapshot-webkit\\homepage-actual.png"
+                        }
+                      ]
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "84e7eb052e8cbae1c9f0-54433e469065a9416210",
+              "file": "homepage.spec.ts",
+              "line": 4,
+              "column": 3
+            },
+            {
+              "title": "it should match the homepage snapshot",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 60000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "mobile",
+                  "projectName": "mobile",
+                  "results": [
+                    {
+                      "workerIndex": 3,
+                      "parallelIndex": 3,
+                      "status": "passed",
+                      "duration": 11490,
+                      "errors": [],
+                      "stdout": [
+                        {
+                          "text": "A snapshot doesn't exist at C:\\Users\\GM\\Desktop\\Souk El-Sayarat\\e2e\\homepage.spec.ts-snapshots\\homepage-mobile-win32.png, writing actual.\n"
+                        }
+                      ],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2025-08-26T17:47:16.772Z",
+                      "annotations": [],
+                      "attachments": [
+                        {
+                          "name": "homepage-expected.png",
+                          "contentType": "image/png",
+                          "path": "C:\\Users\\GM\\Desktop\\Souk El-Sayarat\\e2e\\homepage.spec.ts-snapshots\\homepage-mobile-win32.png"
+                        },
+                        {
+                          "name": "homepage-actual.png",
+                          "contentType": "image/png",
+                          "path": "C:\\Users\\GM\\Desktop\\Souk El-Sayarat\\test-results\\homepage-Homepage-Visual-T-7f962-match-the-homepage-snapshot-mobile\\homepage-actual.png"
+                        }
+                      ]
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "84e7eb052e8cbae1c9f0-23ebe130c3937582b7a2",
+              "file": "homepage.spec.ts",
+              "line": 4,
+              "column": 3
+            },
+            {
+              "title": "it should match the homepage snapshot",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 60000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "mobile-safari",
+                  "projectName": "mobile-safari",
+                  "results": [
+                    {
+                      "workerIndex": 5,
+                      "parallelIndex": 0,
+                      "status": "passed",
+                      "duration": 12434,
+                      "errors": [],
+                      "stdout": [
+                        {
+                          "text": "A snapshot doesn't exist at C:\\Users\\GM\\Desktop\\Souk El-Sayarat\\e2e\\homepage.spec.ts-snapshots\\homepage-mobile-safari-win32.png, writing actual.\n"
+                        }
+                      ],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2025-08-26T17:47:36.156Z",
+                      "annotations": [],
+                      "attachments": [
+                        {
+                          "name": "homepage-expected.png",
+                          "contentType": "image/png",
+                          "path": "C:\\Users\\GM\\Desktop\\Souk El-Sayarat\\e2e\\homepage.spec.ts-snapshots\\homepage-mobile-safari-win32.png"
+                        },
+                        {
+                          "name": "homepage-actual.png",
+                          "contentType": "image/png",
+                          "path": "C:\\Users\\GM\\Desktop\\Souk El-Sayarat\\test-results\\homepage-Homepage-Visual-T-7f962-match-the-homepage-snapshot-mobile-safari\\homepage-actual.png"
+                        }
+                      ]
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "84e7eb052e8cbae1c9f0-a29de4a14eb8849409b0",
+              "file": "homepage.spec.ts",
+              "line": 4,
+              "column": 3
+            },
+            {
+              "title": "it should match the homepage snapshot",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 60000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "Microsoft Edge",
+                  "projectName": "Microsoft Edge",
+                  "results": [
+                    {
+                      "workerIndex": 4,
+                      "parallelIndex": 3,
+                      "status": "passed",
+                      "duration": 9757,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2025-08-26T17:47:36.057Z",
+                      "annotations": [],
+                      "attachments": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "84e7eb052e8cbae1c9f0-35eca91e8ae3e21110b8",
+              "file": "homepage.spec.ts",
+              "line": 4,
+              "column": 3
+            },
+            {
+              "title": "it should match the homepage snapshot",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 60000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "Google Chrome",
+                  "projectName": "Google Chrome",
+                  "results": [
+                    {
+                      "workerIndex": 6,
+                      "parallelIndex": 2,
+                      "status": "passed",
+                      "duration": 6610,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2025-08-26T17:47:48.502Z",
+                      "annotations": [],
+                      "attachments": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "84e7eb052e8cbae1c9f0-fdde4da51921a039045d",
+              "file": "homepage.spec.ts",
+              "line": 4,
+              "column": 3
+            },
+            {
+              "title": "it should match the homepage snapshot",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 60000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "tablet",
+                  "projectName": "tablet",
+                  "results": [
+                    {
+                      "workerIndex": 7,
+                      "parallelIndex": 3,
+                      "status": "passed",
+                      "duration": 5843,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2025-08-26T17:47:54.384Z",
+                      "annotations": [],
+                      "attachments": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "84e7eb052e8cbae1c9f0-0211c2444a5f79baf876",
+              "file": "homepage.spec.ts",
+              "line": 4,
+              "column": 3
+            }
+          ]
+        }
+      ]
+    }
+  ],
+  "errors": [],
+  "stats": {
+    "startTime": "2025-08-26T17:47:13.194Z",
+    "duration": 47561.371,
+    "expected": 8,
+    "skipped": 0,
+    "unexpected": 0,
+    "flaky": 0
+  }
+}
