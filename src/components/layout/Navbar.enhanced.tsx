@@ -80,34 +80,50 @@ const EnhancedNavbar: React.FC = () => {
   const handleLanguageToggle = () => {
     try {
       const newLanguage = language === 'ar' ? 'en' : 'ar';
+      console.log('🌐 Changing language from', language, 'to', newLanguage);
       setLanguage(newLanguage);
+      
       toast.success(
-        language === 'ar' 
-          ? 'Language changed to English' 
-          : 'تم تغيير اللغة للعربية',
-        { duration: 2000 }
+        newLanguage === 'en' 
+          ? '🇺🇸 Language changed to English' 
+          : '🇪🇬 تم تغيير اللغة للعربية',
+        { 
+          duration: 3000,
+          style: {
+            fontSize: '14px',
+            fontWeight: '600',
+          }
+        }
       );
-      console.log('Language changed to:', newLanguage);
+      console.log('✅ Language successfully changed to:', newLanguage);
     } catch (error) {
-      console.error('Error changing language:', error);
-      toast.error('حدث خطأ في تغيير اللغة');
+      console.error('❌ Error changing language:', error);
+      toast.error('حدث خطأ في تغيير اللغة / Language change failed');
     }
   };
 
   const handleThemeToggle = () => {
     try {
       const newTheme = theme === 'light' ? 'dark' : 'light';
+      console.log('🎨 Changing theme from', theme, 'to', newTheme);
       setTheme(newTheme);
+      
       toast.success(
         newTheme === 'dark' 
-          ? (language === 'ar' ? 'تم تفعيل الوضع المظلم' : 'Dark mode activated')
-          : (language === 'ar' ? 'تم تفعيل الوضع المضيء' : 'Light mode activated'),
-        { duration: 2000 }
+          ? (language === 'ar' ? '🌙 تم تفعيل الوضع المظلم' : '🌙 Dark mode activated')
+          : (language === 'ar' ? '☀️ تم تفعيل الوضع المضيء' : '☀️ Light mode activated'),
+        { 
+          duration: 3000,
+          style: {
+            fontSize: '14px',
+            fontWeight: '600',
+          }
+        }
       );
-      console.log('Theme changed to:', newTheme);
+      console.log('✅ Theme successfully changed to:', newTheme);
     } catch (error) {
-      console.error('Error changing theme:', error);
-      toast.error('حدث خطأ في تغيير الثيم');
+      console.error('❌ Error changing theme:', error);
+      toast.error('حدث خطأ في تغيير الثيم / Theme change failed');
     }
   };
 
@@ -265,16 +281,16 @@ const EnhancedNavbar: React.FC = () => {
                     <HeartIcon className='w-5 h-5 group-hover:text-red-500 transition-colors' />
                     {favorites.length > 0 && (
                       <motion.span
-                        className='absolute -top-0.5 -right-0.5 min-w-[20px] h-[20px] bg-red-500 text-white text-xs rounded-full flex items-center justify-center font-bold shadow-lg border-2 border-white z-10'
+                        className='absolute -top-1 -right-1 min-w-[18px] h-[18px] bg-red-500 text-white text-xs rounded-full flex items-center justify-center font-bold shadow-lg border-2 border-white z-20'
                         initial={{ scale: 0 }}
                         animate={{ scale: 1 }}
                         transition={{ type: 'spring', stiffness: 300 }}
                         style={{ 
-                          fontSize: '10px', 
+                          fontSize: '9px', 
                           lineHeight: '1',
-                          left: 'auto',
-                          right: '-2px',
-                          top: '-2px'
+                          transform: 'translate(2px, -2px)',
+                          minWidth: '18px',
+                          height: '18px'
                         }}
                       >
                         {favorites.length > 99 ? '99+' : favorites.length}
@@ -297,16 +313,16 @@ const EnhancedNavbar: React.FC = () => {
                     <ShoppingCartIcon className='w-5 h-5 group-hover:text-blue-600 transition-colors' />
                     {getCartItemsCount() > 0 && (
                       <motion.span
-                        className='absolute -top-0.5 -right-0.5 min-w-[20px] h-[20px] bg-blue-500 text-white text-xs rounded-full flex items-center justify-center font-bold shadow-lg border-2 border-white z-10'
+                        className='absolute -top-1 -right-1 min-w-[18px] h-[18px] bg-blue-500 text-white text-xs rounded-full flex items-center justify-center font-bold shadow-lg border-2 border-white z-20'
                         initial={{ scale: 0 }}
                         animate={{ scale: 1 }}
                         transition={{ type: 'spring', stiffness: 300 }}
                         style={{ 
-                          fontSize: '10px', 
+                          fontSize: '9px', 
                           lineHeight: '1',
-                          left: 'auto',
-                          right: '-2px',
-                          top: '-2px'
+                          transform: 'translate(2px, -2px)',
+                          minWidth: '18px',
+                          height: '18px'
                         }}
                       >
                         {getCartItemsCount() > 99 ? '99+' : getCartItemsCount()}
