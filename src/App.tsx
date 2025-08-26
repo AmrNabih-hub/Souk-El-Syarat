@@ -234,16 +234,40 @@ const App: React.FC = () => {
   const { initializeAuth, authChecked, isLoading, isInitialized } = useMasterAuthStore();
   const { theme, language } = useAppStore();
 
-  // Initialize authentication on app load with enhanced logging
+  // Initialize authentication on app load with enhanced logging and diagnostics
   useEffect(() => {
     console.log('🚀 Starting Enhanced App Initialization...');
     console.log('🔧 Enhanced Auth Store State:', { authChecked, isLoading, isInitialized });
     
-    try {
-      initializeAuth();
-    } catch (error) {
-      console.error('❌ Failed to initialize auth:', error);
-    }
+    const initializeWithDiagnostics = async () => {
+      try {
+        console.log('🔍 Running authentication diagnostics...');
+        
+        // Import and run diagnostics
+        const { default: AuthDebugService } = await import('@/services/auth-debug.service');
+        const debugService = AuthDebugService.getInstance();
+        
+        // Run comprehensive diagnostics
+        const diagnostics = await debugService.runCompleteDiagnostics();
+        debugService.displayDiagnostics(diagnostics);
+        
+        // If there are critical issues, attempt quick fix
+        if (diagnostics.currentIssues.length > 0) {
+          console.log('🔧 Issues detected, attempting quick fix...');
+          await debugService.quickFix();
+        }
+        
+        // Initialize auth after diagnostics
+        initializeAuth();
+        
+      } catch (error) {
+        console.error('❌ Failed to initialize auth with diagnostics:', error);
+        // Fallback to normal initialization
+        initializeAuth();
+      }
+    };
+    
+    initializeWithDiagnostics();
     
     // Cleanup function
     return () => {

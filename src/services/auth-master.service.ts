@@ -563,6 +563,36 @@ class AuthMasterService {
     console.log('👤 CUSTOMER:');
     this.TEST_ACCOUNTS.customer.forEach(acc => console.log(`   📧 ${acc.email} / ${acc.password}`));
   }
+
+  /**
+   * Reinitialize the authentication service
+   */
+  async reinitialize(): Promise<void> {
+    console.log('🔄 Reinitializing AuthMasterService...');
+    
+    try {
+      // Clear any existing listeners
+      if ((window as any).__masterAuthUnsubscribe) {
+        (window as any).__masterAuthUnsubscribe();
+      }
+      
+      // Clear auth callbacks
+      this.authStateCallbacks = [];
+      
+      // Clear localStorage
+      localStorage.removeItem('auth-admin-user');
+      localStorage.removeItem('auth-vendor-user');
+      localStorage.removeItem('auth-customer-user');
+      
+      // Re-setup auth state listening
+      this.setupAuthStateListener();
+      
+      console.log('✅ AuthMasterService reinitialized successfully');
+    } catch (error) {
+      console.error('❌ AuthMasterService reinitialization failed:', error);
+      throw error;
+    }
+  }
 }
 
 export default AuthMasterService.getInstance();

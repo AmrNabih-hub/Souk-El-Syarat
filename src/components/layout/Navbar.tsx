@@ -164,6 +164,18 @@ const Navbar: React.FC = () => {
                   const newTheme = theme === 'light' ? 'dark' : 'light';
                   console.log('🎨 Switching theme from', theme, 'to', newTheme);
                   setTheme(newTheme);
+                  
+                  // Force immediate DOM update
+                  if (typeof window !== 'undefined') {
+                    const root = document.documentElement;
+                    if (newTheme === 'dark') {
+                      root.classList.add('dark');
+                    } else {
+                      root.classList.remove('dark');
+                    }
+                    localStorage.setItem('souk-theme', newTheme);
+                  }
+                  
                   toast.success(
                     newTheme === 'dark' ? 'تم تفعيل الوضع المظلم' : 'تم تفعيل الوضع المضيء',
                     { duration: 2000 }
@@ -173,7 +185,7 @@ const Navbar: React.FC = () => {
                   toast.error('خطأ في تغيير النمط');
                 }
               }}
-              className='p-2 text-neutral-600 hover:text-primary-600 transition-colors bg-neutral-100 hover:bg-neutral-200 rounded-lg'
+              className='p-3 text-neutral-600 hover:text-primary-600 transition-all duration-300 bg-neutral-100 hover:bg-primary-50 rounded-lg shadow-sm hover:shadow-md'
               whileHover={{ scale: 1.1 }}
               whileTap={{ scale: 0.9 }}
               title={theme === 'light' ? 'تفعيل الوضع المظلم' : 'تفعيل الوضع المضيء'}
@@ -192,23 +204,29 @@ const Navbar: React.FC = () => {
                   const newLanguage = language === 'ar' ? 'en' : 'ar';
                   console.log('🌐 Switching language from', language, 'to', newLanguage);
                   setLanguage(newLanguage);
+                  
+                  // Force immediate DOM update
+                  if (typeof window !== 'undefined') {
+                    const root = document.documentElement;
+                    root.setAttribute('lang', newLanguage);
+                    root.setAttribute('dir', newLanguage === 'ar' ? 'rtl' : 'ltr');
+                    localStorage.setItem('souk-language', newLanguage);
+                    
+                    // Also update the HTML tag direction immediately
+                    document.dir = newLanguage === 'ar' ? 'rtl' : 'ltr';
+                  }
+                  
                   toast.success(
                     newLanguage === 'ar' ? 'تم التبديل للعربية' : 'Switched to English',
                     { duration: 2000 }
                   );
-                  
-                  // Force page direction update
-                  setTimeout(() => {
-                    document.documentElement.dir = newLanguage === 'ar' ? 'rtl' : 'ltr';
-                    document.documentElement.lang = newLanguage === 'ar' ? 'ar' : 'en';
-                  }, 100);
                   
                 } catch (error) {
                   console.error('❌ Language toggle error:', error);
                   toast.error('خطأ في تغيير اللغة / Language change error');
                 }
               }}
-              className='p-2 text-neutral-600 hover:text-primary-600 transition-colors bg-neutral-100 hover:bg-neutral-200 rounded-lg'
+              className='p-3 text-neutral-600 hover:text-primary-600 transition-all duration-300 bg-neutral-100 hover:bg-primary-50 rounded-lg shadow-sm hover:shadow-md'
               whileHover={{ scale: 1.1 }}
               whileTap={{ scale: 0.9 }}
               title={language === 'ar' ? 'Switch to English' : 'التبديل للعربية'}
@@ -231,11 +249,11 @@ const Navbar: React.FC = () => {
                     <HeartIcon className='w-5 h-5 group-hover:text-red-500' />
                     {favorites.length > 0 && (
                       <motion.span
-                        className='absolute -top-1 -right-1 min-w-[18px] h-[18px] bg-red-500 text-white text-xs rounded-full flex items-center justify-center font-bold shadow-lg border-2 border-white z-20'
+                        className='absolute -top-2 -right-2 min-w-[20px] h-[20px] bg-red-500 text-white text-xs rounded-full flex items-center justify-center font-bold shadow-xl border-2 border-white z-30'
                         initial={{ scale: 0 }}
                         animate={{ scale: 1 }}
                         transition={{ type: 'spring', stiffness: 300 }}
-                        style={{ fontSize: '10px', lineHeight: '1', fontWeight: 'bold' }}
+                        style={{ fontSize: '11px', lineHeight: '1', fontWeight: 'bold' }}
                       >
                         {favorites.length > 99 ? '99+' : favorites.length}
                       </motion.span>
@@ -253,11 +271,11 @@ const Navbar: React.FC = () => {
                     <ShoppingCartIcon className='w-5 h-5 group-hover:text-primary-600' />
                     {getCartItemsCount() > 0 && (
                       <motion.span
-                        className='absolute -top-1 -right-1 min-w-[18px] h-[18px] bg-primary-500 text-white text-xs rounded-full flex items-center justify-center font-bold shadow-lg border-2 border-white z-20'
+                        className='absolute -top-2 -right-2 min-w-[20px] h-[20px] bg-primary-500 text-white text-xs rounded-full flex items-center justify-center font-bold shadow-xl border-2 border-white z-30'
                         initial={{ scale: 0 }}
                         animate={{ scale: 1 }}
                         transition={{ type: 'spring', stiffness: 300 }}
-                        style={{ fontSize: '10px', lineHeight: '1', fontWeight: 'bold' }}
+                        style={{ fontSize: '11px', lineHeight: '1', fontWeight: 'bold' }}
                       >
                         {getCartItemsCount() > 99 ? '99+' : getCartItemsCount()}
                       </motion.span>
