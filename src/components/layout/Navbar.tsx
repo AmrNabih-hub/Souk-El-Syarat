@@ -16,8 +16,9 @@ import {
 } from '@heroicons/react/24/outline';
 
 import { useAppStore } from '@/stores/appStore';
-import { useUnifiedAuthStore } from '@/stores/authStore.unified.enhanced';
+import { useMasterAuthStore } from '@/stores/authStore.master';
 import clsx from 'clsx';
+import toast from 'react-hot-toast';
 
 const Navbar: React.FC = () => {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
@@ -30,7 +31,7 @@ const Navbar: React.FC = () => {
 
   const navigate = useNavigate();
   const location = useLocation();
-  const { user, signOut } = useUnifiedAuthStore();
+  const { user, signOut } = useMasterAuthStore();
   const { language, theme, setLanguage, setTheme, getCartItemsCount, favorites } = useAppStore();
 
   // Close dropdowns when clicking outside
@@ -163,13 +164,19 @@ const Navbar: React.FC = () => {
                   const newTheme = theme === 'light' ? 'dark' : 'light';
                   console.log('🎨 Switching theme from', theme, 'to', newTheme);
                   setTheme(newTheme);
+                  toast.success(
+                    newTheme === 'dark' ? 'تم تفعيل الوضع المظلم' : 'تم تفعيل الوضع المضيء',
+                    { duration: 2000 }
+                  );
                 } catch (error) {
                   console.error('❌ Theme toggle error:', error);
+                  toast.error('خطأ في تغيير النمط');
                 }
               }}
-              className='p-2 text-neutral-600 hover:text-primary-600 transition-colors'
+              className='p-2 text-neutral-600 hover:text-primary-600 transition-colors bg-neutral-100 hover:bg-neutral-200 rounded-lg'
               whileHover={{ scale: 1.1 }}
               whileTap={{ scale: 0.9 }}
+              title={theme === 'light' ? 'تفعيل الوضع المظلم' : 'تفعيل الوضع المضيء'}
             >
               {theme === 'light' ? (
                 <MoonIcon className='w-5 h-5' />
@@ -185,17 +192,30 @@ const Navbar: React.FC = () => {
                   const newLanguage = language === 'ar' ? 'en' : 'ar';
                   console.log('🌐 Switching language from', language, 'to', newLanguage);
                   setLanguage(newLanguage);
+                  toast.success(
+                    newLanguage === 'ar' ? 'تم التبديل للعربية' : 'Switched to English',
+                    { duration: 2000 }
+                  );
+                  
+                  // Force page direction update
+                  setTimeout(() => {
+                    document.documentElement.dir = newLanguage === 'ar' ? 'rtl' : 'ltr';
+                    document.documentElement.lang = newLanguage === 'ar' ? 'ar' : 'en';
+                  }, 100);
+                  
                 } catch (error) {
                   console.error('❌ Language toggle error:', error);
+                  toast.error('خطأ في تغيير اللغة / Language change error');
                 }
               }}
-              className='p-2 text-neutral-600 hover:text-primary-600 transition-colors'
+              className='p-2 text-neutral-600 hover:text-primary-600 transition-colors bg-neutral-100 hover:bg-neutral-200 rounded-lg'
               whileHover={{ scale: 1.1 }}
               whileTap={{ scale: 0.9 }}
+              title={language === 'ar' ? 'Switch to English' : 'التبديل للعربية'}
             >
               <div className="flex items-center gap-1">
                 <GlobeAltIcon className='w-5 h-5' />
-                <span className="text-xs font-medium">{language === 'ar' ? 'EN' : 'AR'}</span>
+                <span className="text-xs font-bold">{language === 'ar' ? 'EN' : 'AR'}</span>
               </div>
             </motion.button>
 
@@ -211,11 +231,11 @@ const Navbar: React.FC = () => {
                     <HeartIcon className='w-5 h-5 group-hover:text-red-500' />
                     {favorites.length > 0 && (
                       <motion.span
-                        className='absolute -top-2 -right-2 min-w-[20px] h-[20px] bg-red-500 text-white text-xs rounded-full flex items-center justify-center font-bold shadow-lg border-2 border-white z-10'
+                        className='absolute -top-1 -right-1 min-w-[18px] h-[18px] bg-red-500 text-white text-xs rounded-full flex items-center justify-center font-bold shadow-lg border-2 border-white z-20'
                         initial={{ scale: 0 }}
                         animate={{ scale: 1 }}
                         transition={{ type: 'spring', stiffness: 300 }}
-                        style={{ fontSize: '11px', lineHeight: '1' }}
+                        style={{ fontSize: '10px', lineHeight: '1', fontWeight: 'bold' }}
                       >
                         {favorites.length > 99 ? '99+' : favorites.length}
                       </motion.span>
@@ -233,11 +253,11 @@ const Navbar: React.FC = () => {
                     <ShoppingCartIcon className='w-5 h-5 group-hover:text-primary-600' />
                     {getCartItemsCount() > 0 && (
                       <motion.span
-                        className='absolute -top-2 -right-2 min-w-[20px] h-[20px] bg-primary-500 text-white text-xs rounded-full flex items-center justify-center font-bold shadow-lg border-2 border-white z-10'
+                        className='absolute -top-1 -right-1 min-w-[18px] h-[18px] bg-primary-500 text-white text-xs rounded-full flex items-center justify-center font-bold shadow-lg border-2 border-white z-20'
                         initial={{ scale: 0 }}
                         animate={{ scale: 1 }}
                         transition={{ type: 'spring', stiffness: 300 }}
-                        style={{ fontSize: '11px', lineHeight: '1' }}
+                        style={{ fontSize: '10px', lineHeight: '1', fontWeight: 'bold' }}
                       >
                         {getCartItemsCount() > 99 ? '99+' : getCartItemsCount()}
                       </motion.span>

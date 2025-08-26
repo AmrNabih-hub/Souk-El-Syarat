@@ -9,7 +9,7 @@ import * as yup from 'yup';
 import { EyeIcon, EyeSlashIcon, UserIcon, LockClosedIcon } from '@heroicons/react/24/outline';
 
 import { useAppStore } from '@/stores/appStore';
-import { useUnifiedAuthStore } from '@/stores/authStore.unified.enhanced';
+import { useMasterAuthStore } from '@/stores/authStore.master';
 import LoadingSpinner from '@/components/ui/LoadingSpinner';
 import toast from 'react-hot-toast';
 
@@ -29,7 +29,7 @@ const loginSchema = yup.object().shape({
 const LoginPage: React.FC = () => {
   const [showPassword, setShowPassword] = useState(false);
   const navigate = useNavigate();
-  const { signIn, signInWithGoogle, isLoading, error, clearError } = useUnifiedAuthStore();
+  const { signIn, signInWithGoogle, isLoading, error, clearError } = useMasterAuthStore();
   const { language } = useAppStore();
 
   const {

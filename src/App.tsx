@@ -2,7 +2,7 @@ import React, { useEffect, Suspense } from 'react';
 import { Routes, Route, Navigate } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 
-import { useUnifiedAuthStore } from '@/stores/authStore.unified.enhanced';
+import { useMasterAuthStore } from '@/stores/authStore.master';
 import { useAppStore } from '@/stores/appStore';
 
 // Layout Components
@@ -18,8 +18,8 @@ const HomePage = React.lazy(() =>
   }))
 );
 
-const EnhancedLoginPage = React.lazy(() => 
-  import('@/pages/auth/LoginPage.enhanced').catch(() => ({ 
+const SimpleLoginPage = React.lazy(() => 
+  import('@/pages/auth/LoginPage.simple').catch(() => ({ 
     default: () => <div className="p-8 text-center">صفحة تسجيل الدخول غير متاحة</div> 
   }))
 );
@@ -145,7 +145,7 @@ const ProtectedRoute: React.FC<{
   roles?: string[];
   redirectTo?: string;
 }> = ({ children, roles, redirectTo = '/login' }) => {
-  const { user, isLoading, isInitialized } = useUnifiedAuthStore();
+  const { user, isLoading, isInitialized } = useMasterAuthStore();
 
   // Wait for auth system to initialize
   if (!isInitialized || isLoading) {
@@ -173,7 +173,7 @@ const ProtectedRoute: React.FC<{
 const PublicRoute: React.FC<{
   children: React.ReactNode;
 }> = ({ children }) => {
-  const { user, isInitialized, isLoading } = useUnifiedAuthStore();
+  const { user, isInitialized, isLoading } = useMasterAuthStore();
 
   // Wait for auth system to initialize
   if (!isInitialized || isLoading) {
@@ -231,7 +231,7 @@ const NotFoundPage = () => (
 );
 
 const App: React.FC = () => {
-  const { initializeAuth, authChecked, isLoading, isInitialized } = useUnifiedAuthStore();
+  const { initializeAuth, authChecked, isLoading, isInitialized } = useMasterAuthStore();
   const { theme, language } = useAppStore();
 
   // Initialize authentication on app load with enhanced logging
@@ -247,9 +247,9 @@ const App: React.FC = () => {
     
     // Cleanup function
     return () => {
-      if ((window as any).__unifiedAuthUnsubscribe) {
+      if ((window as any).__masterAuthUnsubscribe) {
         console.log('🧹 Cleaning up auth listener...');
-        (window as any).__unifiedAuthUnsubscribe();
+        (window as any).__masterAuthUnsubscribe();
       }
     };
   }, [initializeAuth]);
@@ -378,7 +378,7 @@ const App: React.FC = () => {
                   element={
                     <PublicRoute>
                       <SafePage>
-                        <EnhancedLoginPage />
+                        <SimpleLoginPage />
                       </SafePage>
                     </PublicRoute>
                   }

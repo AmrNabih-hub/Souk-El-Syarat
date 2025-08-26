@@ -9,7 +9,7 @@ import * as yup from 'yup';
 import { EyeIcon, EyeSlashIcon, UserIcon, LockClosedIcon, BugAntIcon } from '@heroicons/react/24/outline';
 
 import { useAppStore } from '@/stores/appStore';
-import { useUnifiedAuthStore } from '@/stores/authStore.unified.enhanced';
+import { useMasterAuthStore } from '@/stores/authStore.master';
 import AuthDebugService from '@/services/auth.debug.service';
 import LoadingSpinner from '@/components/ui/LoadingSpinner';
 import toast from 'react-hot-toast';
@@ -31,7 +31,7 @@ const EnhancedLoginPage: React.FC = () => {
   const [showPassword, setShowPassword] = useState(false);
   const [isDebugMode, setIsDebugMode] = useState(false);
   const navigate = useNavigate();
-  const { signIn, signInWithGoogle, debugLogin, isLoading, error, clearError } = useUnifiedAuthStore();
+  const { signIn, signInWithGoogle, isLoading, error, clearError } = useMasterAuthStore();
   const { language } = useAppStore();
 
   const {
@@ -46,15 +46,10 @@ const EnhancedLoginPage: React.FC = () => {
   const onSubmit = async (data: LoginFormData) => {
     try {
       clearError();
-      console.log('🔐 Login form submitted:', data.email);
+      console.log('🔐 Master Auth: Login form submitted:', data.email);
       
-      if (isDebugMode) {
-        console.log('🔍 Using debug login mode');
-        await debugLogin(data.email, data.password);
-      } else {
-        console.log('🔐 Using regular login mode'); 
-        await signIn(data.email, data.password);
-      }
+      // Master auth service handles all user types automatically
+      await signIn(data.email, data.password);
       
       // Navigation is handled automatically by the auth store
     } catch (error) {
