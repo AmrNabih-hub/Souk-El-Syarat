@@ -1,5 +1,6 @@
 {
   "projects": {
-    "default": "souk-el-syarat"
+    "default": "souk-el-syarat",
+    "staging": "souk-el-syarat"
   }
 }

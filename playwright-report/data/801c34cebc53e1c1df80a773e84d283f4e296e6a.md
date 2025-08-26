@@ -1,0 +1,179 @@
+# Page snapshot
+
+```yaml
+- generic [active] [ref=e1]:
+  - generic [ref=e3]:
+    - navigation [ref=e4]:
+      - generic [ref=e6]:
+        - link "س" [ref=e8] [cursor=pointer]:
+          - /url: /
+          - generic [ref=e10] [cursor=pointer]: س
+        - generic [ref=e11]:
+          - button "تفعيل الوضع المظلم" [ref=e12] [cursor=pointer]:
+            - img [ref=e13] [cursor=pointer]
+          - button "EN" [ref=e15] [cursor=pointer]:
+            - generic [ref=e16] [cursor=pointer]:
+              - img [ref=e17] [cursor=pointer]
+              - generic [ref=e19] [cursor=pointer]: EN
+          - link "دخول" [ref=e21] [cursor=pointer]:
+            - /url: /login
+          - link "تسجيل" [ref=e23] [cursor=pointer]:
+            - /url: /register
+          - button [ref=e24] [cursor=pointer]:
+            - img [ref=e25] [cursor=pointer]
+    - main [ref=e27]:
+      - generic [ref=e29]:
+        - generic [ref=e30]:
+          - generic [ref=e32]: س
+          - heading "تسجيل الدخول" [level=2] [ref=e33]
+          - paragraph [ref=e34]: سوق السيارات المصري
+        - generic [ref=e35]:
+          - heading "🧪 حسابات الاختبار / Test Accounts" [level=3] [ref=e36]
+          - generic [ref=e37]:
+            - 'button "👨‍💼 مدير: admin@souk-el-syarat.com" [ref=e38] [cursor=pointer]':
+              - text: 👨‍💼
+              - strong [ref=e39] [cursor=pointer]: "مدير:"
+              - text: admin@souk-el-syarat.com
+            - 'button "🏪 تاجر: vendor1@souk-el-syarat.com" [ref=e40] [cursor=pointer]':
+              - text: 🏪
+              - strong [ref=e41] [cursor=pointer]: "تاجر:"
+              - text: vendor1@souk-el-syarat.com
+            - 'button "👤 عميل: customer1@souk-el-syarat.com" [ref=e42] [cursor=pointer]':
+              - text: 👤
+              - strong [ref=e43] [cursor=pointer]: "عميل:"
+              - text: customer1@souk-el-syarat.com
+          - paragraph [ref=e44]: اضغط على أي حساب لملء البيانات تلقائياً
+        - generic [ref=e45]: "Firebase: Error (auth/invalid-credential)."
+        - generic [ref=e46]:
+          - generic [ref=e47]:
+            - generic [ref=e48]: البريد الإلكتروني
+            - generic [ref=e49]:
+              - textbox "أدخل البريد الإلكتروني" [ref=e50]: customer1@souk-el-syarat.com
+              - img [ref=e51]
+          - generic [ref=e53]:
+            - generic [ref=e54]: كلمة المرور
+            - generic [ref=e55]:
+              - textbox "أدخل كلمة المرور" [ref=e56]: Customer123456!
+              - img [ref=e57]
+              - button [ref=e59] [cursor=pointer]:
+                - img [ref=e60] [cursor=pointer]
+          - button "تسجيل الدخول" [ref=e63] [cursor=pointer]
+        - generic [ref=e64]:
+          - paragraph [ref=e65]: 🔐 نظام المصادقة الموحد - يدعم جميع أنواع المستخدمين
+          - generic [ref=e66]:
+            - generic [ref=e67]: 👨‍💼 مديرين
+            - generic [ref=e68]: 🏪 تجار
+            - generic [ref=e69]: 👤 عملاء
+    - contentinfo [ref=e70]:
+      - generic [ref=e71]:
+        - generic [ref=e72]:
+          - generic [ref=e73]:
+            - generic [ref=e74]:
+              - generic [ref=e76]: س
+              - generic [ref=e77]:
+                - heading "سوق السيارات" [level=3] [ref=e78]
+                - paragraph [ref=e79]: Souk El-Syarat
+            - paragraph [ref=e80]: منصة التجارة الإلكترونية الرائدة في مصر للسيارات وقطع الغيار والخدمات
+            - generic [ref=e81]:
+              - generic [ref=e82]:
+                - img [ref=e83]
+                - generic [ref=e86]: القاهرة، مصر
+              - generic [ref=e87]:
+                - img [ref=e88]
+                - generic [ref=e90]: +20 10 1234 5678
+              - generic [ref=e91]:
+                - img [ref=e92]
+                - generic [ref=e94]: info@soukel-syarat.com
+              - generic [ref=e95]:
+                - img [ref=e96]
+                - generic [ref=e98]: www.soukel-syarat.com
+          - generic [ref=e99]:
+            - heading "الشركة" [level=4] [ref=e100]
+            - list [ref=e101]:
+              - listitem [ref=e102]:
+                - link "من نحن" [ref=e104] [cursor=pointer]:
+                  - /url: /about
+              - listitem [ref=e105]:
+                - link "اتصل بنا" [ref=e107] [cursor=pointer]:
+                  - /url: /contact
+              - listitem [ref=e108]:
+                - link "الوظائف" [ref=e110] [cursor=pointer]:
+                  - /url: /careers
+              - listitem [ref=e111]:
+                - link "الأخبار" [ref=e113] [cursor=pointer]:
+                  - /url: /news
+          - generic [ref=e114]:
+            - heading "السوق" [level=4] [ref=e115]
+            - list [ref=e116]:
+              - listitem [ref=e117]:
+                - link "سيارات للبيع" [ref=e119] [cursor=pointer]:
+                  - /url: /marketplace?category=cars
+              - listitem [ref=e120]:
+                - link "قطع غيار" [ref=e122] [cursor=pointer]:
+                  - /url: /marketplace?category=parts
+              - listitem [ref=e123]:
+                - link "الخدمات" [ref=e125] [cursor=pointer]:
+                  - /url: /marketplace?category=services
+              - listitem [ref=e126]:
+                - link "التجار المميزين" [ref=e128] [cursor=pointer]:
+                  - /url: /vendors
+          - generic [ref=e129]:
+            - heading "الدعم" [level=4] [ref=e130]
+            - list [ref=e131]:
+              - listitem [ref=e132]:
+                - link "مركز المساعدة" [ref=e134] [cursor=pointer]:
+                  - /url: /help
+              - listitem [ref=e135]:
+                - link "الأسئلة الشائعة" [ref=e137] [cursor=pointer]:
+                  - /url: /faq
+              - listitem [ref=e138]:
+                - link "سياسة الخصوصية" [ref=e140] [cursor=pointer]:
+                  - /url: /privacy
+              - listitem [ref=e141]:
+                - link "الشروط والأحكام" [ref=e143] [cursor=pointer]:
+                  - /url: /terms
+          - generic [ref=e144]:
+            - heading "للتجار" [level=4] [ref=e145]
+            - list [ref=e146]:
+              - listitem [ref=e147]:
+                - link "كن تاجراً" [ref=e149] [cursor=pointer]:
+                  - /url: /vendor/apply
+              - listitem [ref=e150]:
+                - link "مركز البائعين" [ref=e152] [cursor=pointer]:
+                  - /url: /vendor/center
+              - listitem [ref=e153]:
+                - link "دليل البيع" [ref=e155] [cursor=pointer]:
+                  - /url: /selling-guide
+              - listitem [ref=e156]:
+                - link "الرسوم والعمولات" [ref=e158] [cursor=pointer]:
+                  - /url: /fees
+        - generic [ref=e160]:
+          - heading "اشترك في نشرتنا الإخبارية" [level=4] [ref=e161]
+          - paragraph [ref=e162]: احصل على آخر العروض والأخبار من سوق السيارات
+          - generic [ref=e163]:
+            - textbox "أدخل بريدك الإلكتروني" [ref=e164]
+            - button "اشترك" [ref=e165] [cursor=pointer]
+      - generic [ref=e168]:
+        - generic [ref=e169]:
+          - paragraph [ref=e170]: © 2024 سوق السيارات. جميع الحقوق محفوظة
+          - img [ref=e171]
+        - generic [ref=e173]:
+          - paragraph [ref=e174]: "تابعنا على:"
+          - link "Facebook" [ref=e175] [cursor=pointer]:
+            - /url: https://facebook.com/soukel-syarat
+            - img [ref=e176] [cursor=pointer]
+          - link "Instagram" [ref=e178] [cursor=pointer]:
+            - /url: https://instagram.com/soukel-syarat
+            - img [ref=e179] [cursor=pointer]
+          - link "Twitter" [ref=e181] [cursor=pointer]:
+            - /url: https://twitter.com/soukel-syarat
+            - img [ref=e182] [cursor=pointer]
+          - link "LinkedIn" [ref=e184] [cursor=pointer]:
+            - /url: https://linkedin.com/company/soukel-syarat
+            - img [ref=e185] [cursor=pointer]
+          - link "YouTube" [ref=e187] [cursor=pointer]:
+            - /url: https://youtube.com/soukel-syarat
+            - img [ref=e188] [cursor=pointer]
+  - iframe [ref=e191]:
+    
+```

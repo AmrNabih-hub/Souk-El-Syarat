@@ -1,0 +1,1033 @@
+# Page snapshot
+
+```yaml
+- generic [ref=e3]:
+  - navigation [ref=e4]:
+    - generic [ref=e6]:
+      - link "س سوق السيارات Souk El-Syarat" [ref=e8] [cursor=pointer]:
+        - /url: /
+        - generic [ref=e10] [cursor=pointer]: س
+        - generic [ref=e11] [cursor=pointer]:
+          - heading "سوق السيارات" [level=1] [ref=e12] [cursor=pointer]
+          - paragraph [ref=e13] [cursor=pointer]: Souk El-Syarat
+      - generic [ref=e14]:
+        - link "الرئيسية" [ref=e16] [cursor=pointer]:
+          - /url: /
+          - text: الرئيسية
+        - link "السوق" [ref=e19] [cursor=pointer]:
+          - /url: /marketplace
+        - link "التجار" [ref=e21] [cursor=pointer]:
+          - /url: /vendors
+        - link "طلب كونك تاجر" [ref=e23] [cursor=pointer]:
+          - /url: /vendor/apply
+      - generic [ref=e26]:
+        - textbox "ابحث عن سيارة، قطع غيار..." [ref=e27]
+        - img [ref=e28]
+      - generic [ref=e30]:
+        - button "تفعيل الوضع المظلم" [ref=e31] [cursor=pointer]:
+          - img [ref=e32] [cursor=pointer]
+        - button "EN" [ref=e34] [cursor=pointer]:
+          - generic [ref=e35] [cursor=pointer]:
+            - img [ref=e36] [cursor=pointer]
+            - generic [ref=e38] [cursor=pointer]: EN
+        - link "دخول" [ref=e40] [cursor=pointer]:
+          - /url: /login
+        - link "تسجيل" [ref=e42] [cursor=pointer]:
+          - /url: /register
+  - main [ref=e43]:
+    - generic [ref=e44]:
+      - generic [ref=e45]:
+        - img "Premium Exotic Car - Souk El-Syarat" [ref=e48]
+        - generic [ref=e53]:
+          - generic [ref=e54]:
+            - heading "سوق السيارات الأول في مصر" [level=1] [ref=e55]:
+              - generic [ref=e56]: سوق السيارات
+              - generic [ref=e57]: الأول في مصر
+            - paragraph [ref=e58]: اكتشف أفضل السيارات وقطع الغيار والخدمات من تجار موثوقين في جميع أنحاء مصر
+            - generic [ref=e59]:
+              - link "تصفح السوق" [ref=e60] [cursor=pointer]:
+                - /url: /marketplace
+                - text: تصفح السوق
+                - img [ref=e61] [cursor=pointer]
+              - link "كن تاجراً" [ref=e63] [cursor=pointer]:
+                - /url: /vendor/apply
+          - generic [ref=e67]:
+            - generic [ref=e68]:
+              - img "سيارات مستعملة للبيع في مصر" [ref=e70]
+              - generic [ref=e72]:
+                - heading "بيع وشراء السيارات" [level=3] [ref=e73]
+                - paragraph [ref=e74]: أفضل الأسعار في السوق المصري
+                - generic [ref=e75]:
+                  - generic [ref=e76]: ✓ ضمان
+                  - generic [ref=e77]: ✓ معتمد
+            - generic [ref=e78]:
+              - img "قطع غيار السيارات الأصلية" [ref=e80]
+              - generic [ref=e82]:
+                - heading "قطع الغيار الأصلية" [level=3] [ref=e83]
+                - paragraph [ref=e84]: من المصنع مباشرة لسيارتك
+                - generic [ref=e85]:
+                  - generic [ref=e86]: ⭐ جودة عالية
+                  - generic [ref=e87]: 🔧 متوافقة
+            - generic [ref=e88]:
+              - img "مراكز خدمة السيارات في مصر" [ref=e90]
+              - generic [ref=e92]:
+                - heading "خدمات السيارات" [level=3] [ref=e93]
+                - paragraph [ref=e94]: صيانة احترافية وخدمة متميزة
+                - generic [ref=e95]:
+                  - generic [ref=e96]: 🔧 صيانة
+                  - generic [ref=e97]: 🏆 احترافية
+            - generic [ref=e98]:
+              - img "تجار السيارات الموثوقين في مصر" [ref=e100]
+              - generic [ref=e102]:
+                - heading "تجار موثوقون" [level=3] [ref=e103]
+                - paragraph [ref=e104]: شبكة من أفضل التجار في مصر
+                - generic [ref=e105]:
+                  - generic [ref=e106]: ✅ موثق
+                  - generic [ref=e107]: 🤝 شراكة
+      - generic [ref=e117]:
+        - generic [ref=e118]:
+          - generic [ref=e119]: 10,000+
+          - generic [ref=e120]: سيارة متاحة
+        - generic [ref=e121]:
+          - generic [ref=e122]: 500+
+          - generic [ref=e123]: تاجر موثوق
+        - generic [ref=e124]:
+          - generic [ref=e125]: 50,000+
+          - generic [ref=e126]: عميل راضي
+        - generic [ref=e127]:
+          - generic [ref=e128]: "27"
+          - generic [ref=e129]: محافظة
+      - generic [ref=e131]:
+        - generic [ref=e132]:
+          - heading "لماذا سوق السيارات؟" [level=2] [ref=e133]
+          - paragraph [ref=e134]: نقدم لك أفضل تجربة شراء للسيارات في مصر مع ضمان الجودة والثقة
+        - generic [ref=e135]:
+          - generic [ref=e136]:
+            - img [ref=e138]
+            - heading "سيارات فاخرة معتمدة" [level=3] [ref=e140]
+            - paragraph [ref=e141]: مجموعة حصرية من أفخم السيارات المعتمدة من أشهر الماركات العالمية مع ضمان الجودة والأصالة
+          - generic [ref=e142]:
+            - img [ref=e144]
+            - heading "قطع غيار أصلية" [level=3] [ref=e146]
+            - paragraph [ref=e147]: قطع غيار أصلية من المصنع مباشرة مع شهادات الجودة وضمان الأداء المتميز
+          - generic [ref=e148]:
+            - img [ref=e150]
+            - heading "خدمات احترافية" [level=3] [ref=e152]
+            - paragraph [ref=e153]: مراكز خدمة معتمدة بأحدث التقنيات وفنيين متخصصين لضمان أفضل أداء لسيارتك
+          - generic [ref=e154]:
+            - img [ref=e156]
+            - heading "ضمان شامل" [level=3] [ref=e158]
+            - paragraph [ref=e159]: حماية شاملة لاستثمارك مع ضمانات ممتدة وخدمة ما بعد البيع المتميزة
+      - generic [ref=e161]:
+        - generic [ref=e162]:
+          - heading "أفضل البائعين المعتمدين" [level=2] [ref=e163]
+          - paragraph [ref=e164]: تعرف على أفضل البائعين المعتمدين لدينا الذين يقدمون أجود المنتجات والخدمات
+        - generic [ref=e165]:
+          - generic [ref=e166]:
+            - generic [ref=e167]:
+              - img "معرض النخبة للسيارات الفاخرة" [ref=e168]
+              - img [ref=e170]
+            - heading "معرض النخبة للسيارات" [level=3] [ref=e172]
+            - paragraph [ref=e173]: متخصص في BMW، Mercedes، Audi
+            - generic [ref=e174]:
+              - img [ref=e175]
+              - img [ref=e177]
+              - img [ref=e179]
+              - img [ref=e181]
+              - img [ref=e183]
+              - generic [ref=e185]: "4.9"
+            - generic [ref=e186]:
+              - generic [ref=e187]:
+                - generic [ref=e188]: "45"
+                - generic [ref=e189]: منتج
+              - generic [ref=e190]:
+                - generic [ref=e191]: "127"
+                - generic [ref=e192]: تقييم
+            - link "عرض المنتجات" [ref=e193] [cursor=pointer]:
+              - /url: /vendors
+          - generic [ref=e194]:
+            - generic [ref=e195]:
+              - img "تويوتا الشرق الأوسط" [ref=e196]
+              - img [ref=e198]
+            - heading "تويوتا الشرق الأوسط" [level=3] [ref=e200]
+            - paragraph [ref=e201]: الوكيل المعتمد لسيارات تويوتا
+            - generic [ref=e202]:
+              - img [ref=e203]
+              - img [ref=e205]
+              - img [ref=e207]
+              - img [ref=e209]
+              - img [ref=e211]
+              - generic [ref=e213]: "4.8"
+            - generic [ref=e214]:
+              - generic [ref=e215]:
+                - generic [ref=e216]: "32"
+                - generic [ref=e217]: منتج
+              - generic [ref=e218]:
+                - generic [ref=e219]: "89"
+                - generic [ref=e220]: تقييم
+            - link "عرض المنتجات" [ref=e221] [cursor=pointer]:
+              - /url: /vendors
+          - generic [ref=e222]:
+            - generic [ref=e223]:
+              - img "مركز الصفوة VIP" [ref=e224]
+              - img [ref=e226]
+            - heading "مركز الصفوة VIP" [level=3] [ref=e228]
+            - paragraph [ref=e229]: خدمات VIP للسيارات الفاخرة
+            - generic [ref=e230]:
+              - img [ref=e231]
+              - img [ref=e233]
+              - img [ref=e235]
+              - img [ref=e237]
+              - img [ref=e239]
+              - generic [ref=e241]: "4.9"
+            - generic [ref=e242]:
+              - generic [ref=e243]:
+                - generic [ref=e244]: "23"
+                - generic [ref=e245]: خدمة
+              - generic [ref=e246]:
+                - generic [ref=e247]: "78"
+                - generic [ref=e248]: تقييم
+            - link "عرض الخدمات" [ref=e249] [cursor=pointer]:
+              - /url: /vendors
+        - link "عرض جميع البائعين" [ref=e251] [cursor=pointer]:
+          - /url: /vendors
+          - text: عرض جميع البائعين
+          - img [ref=e252] [cursor=pointer]
+      - generic [ref=e256]:
+        - heading "ابدأ رحلتك في عالم السيارات اليوم" [level=2] [ref=e257]
+        - paragraph [ref=e258]: انضم إلى آلاف العملاء الذين وجدوا سياراتهم المثالية معنا
+        - generic [ref=e259]:
+          - link "سجل الآن" [ref=e261] [cursor=pointer]:
+            - /url: /register
+          - link "تصفح السيارات" [ref=e263] [cursor=pointer]:
+            - /url: /marketplace
+      - generic [ref=e265]:
+        - generic [ref=e266]:
+          - heading "مجموعة مختارة من أفخم السيارات" [level=2] [ref=e267]
+          - paragraph [ref=e268]: اكتشف مجموعتنا الحصرية من أرقى السيارات والقطع والخدمات المتميزة
+        - generic [ref=e269]:
+          - generic [ref=e270]:
+            - generic [ref=e271]:
+              - img "Porsche 911 Turbo S" [ref=e272]
+              - generic [ref=e273]: جديد
+              - generic [ref=e274]: ٦% خصم
+            - generic [ref=e275]:
+              - heading "بورش ٩١١ تيربو إس ٢٠٢٤" [level=3] [ref=e276]
+              - paragraph [ref=e277]: محرك تيربو مسطح ٦ أسطوانات بقوة ٦٤٠ حصان
+              - generic [ref=e278]:
+                - generic [ref=e279]:
+                  - generic [ref=e280]: ٤,٥٠٠,٠٠٠ جنيه
+                  - generic [ref=e281]: ٤,٨٠٠,٠٠٠
+                - button "عرض التفاصيل" [ref=e282] [cursor=pointer]
+          - generic [ref=e283]:
+            - generic [ref=e284]:
+              - img "Brembo Brake Kit" [ref=e285]
+              - generic [ref=e286]: متوفر
+            - generic [ref=e287]:
+              - heading "طقم فرامل بريمبو GT" [level=3] [ref=e288]
+              - paragraph [ref=e289]: طقم فرامل احترافي ٦ مكابس لسيارات BMW M
+              - generic [ref=e290]:
+                - generic [ref=e291]:
+                  - generic [ref=e292]: ٤٥,٠٠٠ جنيه
+                  - generic [ref=e293]: ٥٢,٠٠٠
+                - button "أضف للسلة" [ref=e294] [cursor=pointer]
+          - generic [ref=e295]:
+            - generic [ref=e296]:
+              - img "Ceramic Coating Service" [ref=e297]
+              - generic [ref=e298]: خدمة
+            - generic [ref=e299]:
+              - heading "طلاء سيراميك احترافي" [level=3] [ref=e300]
+              - paragraph [ref=e301]: حماية متقدمة للطلاء لمدة ٥ سنوات
+              - generic [ref=e302]:
+                - generic [ref=e303]:
+                  - generic [ref=e304]: ١٥,٠٠٠ جنيه
+                  - generic [ref=e305]: ١٨,٠٠٠
+                - button "احجز الآن" [ref=e306] [cursor=pointer]
+        - link "تصفح جميع المنتجات" [ref=e308] [cursor=pointer]:
+          - /url: /marketplace
+          - text: تصفح جميع المنتجات
+          - img [ref=e309] [cursor=pointer]
+      - generic [ref=e312]:
+        - generic [ref=e313]:
+          - heading "🚗 خدمات السيارات المتكاملة" [level=2] [ref=e314]
+          - paragraph [ref=e315]: قطع غيار أصلية • خدمات صيانة احترافية • إكسسوارات عالية الجودة • حجز فوري
+          - generic [ref=e316]:
+            - generic [ref=e317]:
+              - generic [ref=e318]: "8"
+              - generic [ref=e319]: خدمات متخصصة
+            - generic [ref=e320]:
+              - generic [ref=e321]: 4.8⭐
+              - generic [ref=e322]: متوسط التقييم
+            - generic [ref=e323]:
+              - generic [ref=e324]: 2500+
+              - generic [ref=e325]: عميل راضي
+        - generic [ref=e326]:
+          - generic [ref=e327]:
+            - generic [ref=e328]:
+              - img "غسيل VIP متكامل" [ref=e329]
+              - generic [ref=e330]: متوفر الآن
+              - generic [ref=e331]: خصم 25%
+              - generic [ref=e332]:
+                - img [ref=e333]
+                - generic [ref=e335]: "4.9"
+            - generic [ref=e336]:
+              - generic [ref=e337]:
+                - img [ref=e338]
+                - heading "غسيل VIP متكامل" [level=3] [ref=e340]
+              - paragraph [ref=e341]: غسيل شامل داخلي وخارجي مع تلميع وحماية
+              - generic [ref=e343]:
+                - generic [ref=e344]: 150 جنيه
+                - generic [ref=e345]: 200 جنيه
+              - generic [ref=e346]:
+                - generic [ref=e347]:
+                  - img [ref=e348]
+                  - generic [ref=e350]: غسيل خارجي شامل
+                - generic [ref=e351]:
+                  - img [ref=e352]
+                  - generic [ref=e354]: تنظيف داخلي عميق
+              - generic [ref=e355]:
+                - generic [ref=e356]:
+                  - img [ref=e357]
+                  - generic [ref=e360]: مراكز الغسيل المتطورة
+                - generic [ref=e361]:
+                  - img [ref=e362]
+                  - generic [ref=e364]: 2-3 ساعات
+              - generic [ref=e365]:
+                - button "احجز الآن" [ref=e366] [cursor=pointer]
+                - button [ref=e367] [cursor=pointer]:
+                  - img [ref=e368] [cursor=pointer]
+          - generic [ref=e370]:
+            - generic [ref=e371]:
+              - img "قطع غيار أصلية" [ref=e372]
+              - generic [ref=e373]: متوفر الآن
+              - generic [ref=e374]:
+                - img [ref=e375]
+                - generic [ref=e377]: "4.8"
+            - generic [ref=e378]:
+              - generic [ref=e379]:
+                - img [ref=e380]
+                - heading "قطع غيار أصلية" [level=3] [ref=e382]
+              - paragraph [ref=e383]: قطع غيار أصلية لجميع أنواع السيارات
+              - generic [ref=e386]: 50-5000 جنيه
+              - generic [ref=e387]:
+                - generic [ref=e388]:
+                  - img [ref=e389]
+                  - generic [ref=e391]: قطع أصلية 100%
+                - generic [ref=e392]:
+                  - img [ref=e393]
+                  - generic [ref=e395]: ضمان سنة كاملة
+              - generic [ref=e396]:
+                - generic [ref=e397]:
+                  - img [ref=e398]
+                  - generic [ref=e401]: مؤسسة النجاح للقطع
+                - generic [ref=e402]:
+                  - img [ref=e403]
+                  - generic [ref=e405]: فوري - 3 أيام
+              - generic [ref=e406]:
+                - button "احجز الآن" [ref=e407] [cursor=pointer]
+                - button [ref=e408] [cursor=pointer]:
+                  - img [ref=e409] [cursor=pointer]
+          - generic [ref=e411]:
+            - generic [ref=e412]:
+              - img "صيانة شاملة متقدمة" [ref=e413]
+              - generic [ref=e414]: متوفر الآن
+              - generic [ref=e415]: خصم 23%
+              - generic [ref=e416]:
+                - img [ref=e417]
+                - generic [ref=e419]: "4.9"
+            - generic [ref=e420]:
+              - generic [ref=e421]:
+                - img [ref=e422]
+                - heading "صيانة شاملة متقدمة" [level=3] [ref=e424]
+              - paragraph [ref=e425]: حزمة صيانة كاملة مع فحص كمبيوتر
+              - generic [ref=e427]:
+                - generic [ref=e428]: 500 جنيه
+                - generic [ref=e429]: 650 جنيه
+              - generic [ref=e430]:
+                - generic [ref=e431]:
+                  - img [ref=e432]
+                  - generic [ref=e434]: تغيير الزيت والفلاتر
+                - generic [ref=e435]:
+                  - img [ref=e436]
+                  - generic [ref=e438]: فحص كمبيوتر شامل
+              - generic [ref=e439]:
+                - generic [ref=e440]:
+                  - img [ref=e441]
+                  - generic [ref=e444]: مراكز الخدمة السريعة
+                - generic [ref=e445]:
+                  - img [ref=e446]
+                  - generic [ref=e448]: 3-4 ساعات
+              - generic [ref=e449]:
+                - button "احجز الآن" [ref=e450] [cursor=pointer]
+                - button [ref=e451] [cursor=pointer]:
+                  - img [ref=e452] [cursor=pointer]
+          - generic [ref=e454]:
+            - generic [ref=e455]:
+              - img "حماية نانو سيراميك" [ref=e456]
+              - generic [ref=e457]: متوفر الآن
+              - generic [ref=e458]: خصم 20%
+              - generic [ref=e459]:
+                - img [ref=e460]
+                - generic [ref=e462]: "4.7"
+            - generic [ref=e463]:
+              - generic [ref=e464]:
+                - img [ref=e465]
+                - heading "حماية نانو سيراميك" [level=3] [ref=e467]
+              - paragraph [ref=e468]: حماية متقدمة لطلاء السيارة تدوم 5 سنوات
+              - generic [ref=e470]:
+                - generic [ref=e471]: 1200 جنيه
+                - generic [ref=e472]: 1500 جنيه
+              - generic [ref=e473]:
+                - generic [ref=e474]:
+                  - img [ref=e475]
+                  - generic [ref=e477]: حماية 5 سنوات
+                - generic [ref=e478]:
+                  - img [ref=e479]
+                  - generic [ref=e481]: مقاوم للخدوش
+              - generic [ref=e482]:
+                - generic [ref=e483]:
+                  - img [ref=e484]
+                  - generic [ref=e487]: مراكز الحماية المتخصصة
+                - generic [ref=e488]:
+                  - img [ref=e489]
+                  - generic [ref=e491]: 6-8 ساعات
+              - generic [ref=e492]:
+                - button "احجز الآن" [ref=e493] [cursor=pointer]
+                - button [ref=e494] [cursor=pointer]:
+                  - img [ref=e495] [cursor=pointer]
+          - generic [ref=e497]:
+            - generic [ref=e498]:
+              - img "إطارات وعجلات" [ref=e499]
+              - generic [ref=e500]: متوفر الآن
+              - generic [ref=e501]:
+                - img [ref=e502]
+                - generic [ref=e504]: "4.6"
+            - generic [ref=e505]:
+              - generic [ref=e506]:
+                - img [ref=e507]
+                - heading "إطارات وعجلات" [level=3] [ref=e509]
+              - paragraph [ref=e510]: إطارات عالية الجودة من أفضل الماركات
+              - generic [ref=e513]: 800-2500 جنيه
+              - generic [ref=e514]:
+                - generic [ref=e515]:
+                  - img [ref=e516]
+                  - generic [ref=e518]: ماركات عالمية
+                - generic [ref=e519]:
+                  - img [ref=e520]
+                  - generic [ref=e522]: ضمان الوكيل
+              - generic [ref=e523]:
+                - generic [ref=e524]:
+                  - img [ref=e525]
+                  - generic [ref=e528]: معارض الإطارات
+                - generic [ref=e529]:
+                  - img [ref=e530]
+                  - generic [ref=e532]: 1-2 ساعة
+              - generic [ref=e533]:
+                - button "احجز الآن" [ref=e534] [cursor=pointer]
+                - button [ref=e535] [cursor=pointer]:
+                  - img [ref=e536] [cursor=pointer]
+          - generic [ref=e538]:
+            - generic [ref=e539]:
+              - img "أنظمة صوت وترفيه" [ref=e540]
+              - generic [ref=e541]: متوفر الآن
+              - generic [ref=e542]:
+                - img [ref=e543]
+                - generic [ref=e545]: "4.5"
+            - generic [ref=e546]:
+              - generic [ref=e547]:
+                - img [ref=e548]
+                - heading "أنظمة صوت وترفيه" [level=3] [ref=e550]
+              - paragraph [ref=e551]: تركيب أنظمة صوت وشاشات ترفيه متطورة
+              - generic [ref=e554]: 1500-5000 جنيه
+              - generic [ref=e555]:
+                - generic [ref=e556]:
+                  - img [ref=e557]
+                  - generic [ref=e559]: صوت عالي الدقة
+                - generic [ref=e560]:
+                  - img [ref=e561]
+                  - generic [ref=e563]: شاشة تاتش
+              - generic [ref=e564]:
+                - generic [ref=e565]:
+                  - img [ref=e566]
+                  - generic [ref=e569]: مراكز الترفيه المتطورة
+                - generic [ref=e570]:
+                  - img [ref=e571]
+                  - generic [ref=e573]: 2-4 ساعات
+              - generic [ref=e574]:
+                - button "احجز الآن" [ref=e575] [cursor=pointer]
+                - button [ref=e576] [cursor=pointer]:
+                  - img [ref=e577] [cursor=pointer]
+          - generic [ref=e579]:
+            - generic [ref=e580]:
+              - img "خدمة توصيل VIP" [ref=e581]
+              - generic [ref=e582]: متوفر الآن
+              - generic [ref=e583]:
+                - img [ref=e584]
+                - generic [ref=e586]: "4.8"
+            - generic [ref=e587]:
+              - generic [ref=e588]:
+                - img [ref=e589]
+                - heading "خدمة توصيل VIP" [level=3] [ref=e591]
+              - paragraph [ref=e592]: استلام وتسليم السيارة من والى المنزل
+              - generic [ref=e595]: 200 جنيه
+              - generic [ref=e596]:
+                - generic [ref=e597]:
+                  - img [ref=e598]
+                  - generic [ref=e600]: استلام من المنزل
+                - generic [ref=e601]:
+                  - img [ref=e602]
+                  - generic [ref=e604]: خدمة 24/7
+              - generic [ref=e605]:
+                - generic [ref=e606]:
+                  - img [ref=e607]
+                  - generic [ref=e610]: شركة التوصيل الذكي
+                - generic [ref=e611]:
+                  - img [ref=e612]
+                  - generic [ref=e614]: 30-60 دقيقة
+              - generic [ref=e615]:
+                - button "احجز الآن" [ref=e616] [cursor=pointer]
+                - button [ref=e617] [cursor=pointer]:
+                  - img [ref=e618] [cursor=pointer]
+          - generic [ref=e620]:
+            - generic [ref=e621]:
+              - img "فحص شامل متطور" [ref=e622]
+              - generic [ref=e623]: متوفر الآن
+              - generic [ref=e624]: خصم 28%
+              - generic [ref=e625]:
+                - img [ref=e626]
+                - generic [ref=e628]: "4.7"
+            - generic [ref=e629]:
+              - generic [ref=e630]:
+                - img [ref=e631]
+                - heading "فحص شامل متطور" [level=3] [ref=e633]
+              - paragraph [ref=e634]: فحص إلكتروني شامل بأحدث التقنيات
+              - generic [ref=e636]:
+                - generic [ref=e637]: 180 جنيه
+                - generic [ref=e638]: 250 جنيه
+              - generic [ref=e639]:
+                - generic [ref=e640]:
+                  - img [ref=e641]
+                  - generic [ref=e643]: فحص كمبيوتر متطور
+                - generic [ref=e644]:
+                  - img [ref=e645]
+                  - generic [ref=e647]: تقرير مفصل
+              - generic [ref=e648]:
+                - generic [ref=e649]:
+                  - img [ref=e650]
+                  - generic [ref=e653]: مراكز الفحص المعتمدة
+                - generic [ref=e654]:
+                  - img [ref=e655]
+                  - generic [ref=e657]: 1-2 ساعة
+              - generic [ref=e658]:
+                - button "احجز الآن" [ref=e659] [cursor=pointer]
+                - button [ref=e660] [cursor=pointer]:
+                  - img [ref=e661] [cursor=pointer]
+        - generic [ref=e663]:
+          - heading "🎉 عرض خاص محدود" [level=3] [ref=e664]
+          - paragraph [ref=e665]: احجز أي خدمتين واحصل على خصم 25% + ضمان مجاني لمدة 6 أشهر
+          - generic [ref=e666]:
+            - generic [ref=e667]:
+              - img [ref=e668]
+              - generic [ref=e670]: ضمان شامل
+            - generic [ref=e671]:
+              - img [ref=e672]
+              - generic [ref=e674]: توصيل مجاني
+            - generic [ref=e675]:
+              - img [ref=e676]
+              - generic [ref=e678]: جودة متميزة
+            - generic [ref=e679]:
+              - img [ref=e680]
+              - generic [ref=e682]: خدمة 24/7
+          - button "🔥 احجز الآن واستفد من العرض" [ref=e684] [cursor=pointer]
+      - generic [ref=e686]:
+        - generic [ref=e687]:
+          - heading "السوق المصري للسيارات" [level=2] [ref=e688]
+          - paragraph [ref=e689]: اكتشف تجربة التسوق المتطورة مع البيانات الحقيقية، التفاعل المباشر، والخدمات الاحترافية
+        - generic [ref=e690]:
+          - generic [ref=e691]:
+            - generic [ref=e692]: 🚗
+            - heading "6 سيارات حقيقية" [level=3] [ref=e693]
+            - paragraph [ref=e694]: بيانات حقيقية من السوق المصري مع التفاصيل الكاملة، الصور الفعلية، والأسعار المحدثة
+            - generic [ref=e695]:
+              - generic [ref=e696]: تويوتا كامري
+              - generic [ref=e697]: BMW X3
+          - generic [ref=e698]:
+            - generic [ref=e699]: 🔧
+            - heading "8 خدمات احترافية" [level=3] [ref=e700]
+            - paragraph [ref=e701]: من غسيل وصيانة وحماية بأسعار حقيقية ومقدمي خدمة موثوقين مع إمكانية الحجز المباشر
+            - generic [ref=e702]:
+              - generic [ref=e703]: غسيل VIP
+              - generic [ref=e704]: فيلم حماية
+          - generic [ref=e705]:
+            - generic [ref=e706]: ⚙️
+            - heading "6 قطع غيار أصلية" [level=3] [ref=e707]
+            - paragraph [ref=e708]: قطع غيار من أفضل البراندات العالمية مع الضمان والشحن السريع والأسعار التنافسية
+            - generic [ref=e709]:
+              - generic [ref=e710]: Brembo
+              - generic [ref=e711]: Philips
+        - generic [ref=e712]:
+          - heading "✨ مميزات حصرية" [level=3] [ref=e713]
+          - generic [ref=e714]:
+            - generic [ref=e715]:
+              - generic [ref=e716]: ❤️
+              - heading "المفضلة المباشرة" [level=4] [ref=e717]
+              - paragraph [ref=e718]: حفظ وإدارة المفضلة بنقرة واحدة
+            - generic [ref=e719]:
+              - generic [ref=e720]: 📱
+              - heading "واتساب مباشر" [level=4] [ref=e721]
+              - paragraph [ref=e722]: تواصل فوري مع البائعين
+            - generic [ref=e723]:
+              - generic [ref=e724]: 🛒
+              - heading "سلة التسوق" [level=4] [ref=e725]
+              - paragraph [ref=e726]: حجز الخدمات وشراء القطع
+            - generic [ref=e727]:
+              - generic [ref=e728]: 🔍
+              - heading "بحث متقدم" [level=4] [ref=e729]
+              - paragraph [ref=e730]: فلترة ذكية وبحث سريع
+        - link "ادخل السوق الآن" [ref=e732] [cursor=pointer]:
+          - /url: /marketplace
+          - generic [ref=e734] [cursor=pointer]:
+            - generic [ref=e735] [cursor=pointer]: ادخل السوق الآن
+            - img [ref=e736] [cursor=pointer]
+        - paragraph [ref=e738]: ✨ بيانات حقيقية • تفاعل مباشر • تجربة محسنة • خدمات احترافية • قطع غيار أصلية
+      - generic [ref=e740]:
+        - generic [ref=e741]:
+          - heading "🛠️ متجر قطع الغيار والإكسسوارات" [level=2] [ref=e742]
+          - paragraph [ref=e743]: قطع غيار أصلية من أفضل الماركات العالمية • أسعار تنافسية • توصيل سريع • ضمان معتمد
+        - generic [ref=e744]:
+          - generic [ref=e745]:
+            - generic [ref=e746]:
+              - img [ref=e747]
+              - textbox "ابحث عن قطع الغيار والإكسسوارات..." [ref=e749]
+            - generic [ref=e750]:
+              - button "جميع القطع" [ref=e751] [cursor=pointer]:
+                - img [ref=e752] [cursor=pointer]
+                - generic [ref=e754] [cursor=pointer]: جميع القطع
+              - button "قطع المحرك" [ref=e755] [cursor=pointer]:
+                - img [ref=e756] [cursor=pointer]
+                - generic [ref=e759] [cursor=pointer]: قطع المحرك
+              - button "الفرامل" [ref=e760] [cursor=pointer]:
+                - img [ref=e761] [cursor=pointer]
+                - generic [ref=e763] [cursor=pointer]: الفرامل
+              - button "الفلاتر" [ref=e764] [cursor=pointer]:
+                - img [ref=e765] [cursor=pointer]
+                - generic [ref=e767] [cursor=pointer]: الفلاتر
+              - button "كهربائية" [ref=e768] [cursor=pointer]:
+                - img [ref=e769] [cursor=pointer]
+                - generic [ref=e771] [cursor=pointer]: كهربائية
+              - button "إكسسوارات" [ref=e772] [cursor=pointer]:
+                - img [ref=e773] [cursor=pointer]
+                - generic [ref=e775] [cursor=pointer]: إكسسوارات
+          - generic [ref=e776]:
+            - generic [ref=e777]:
+              - generic [ref=e778]: "8"
+              - generic [ref=e779]: منتج متاح
+            - generic [ref=e780]:
+              - generic [ref=e781]: ✓
+              - generic [ref=e782]: ضمان أصلي
+            - generic [ref=e783]:
+              - generic [ref=e784]: 🚚
+              - generic [ref=e785]: توصيل سريع
+        - generic [ref=e786]:
+          - generic [ref=e787]:
+            - generic [ref=e788]:
+              - img "زيت محرك موبيل 1 (5 لتر)" [ref=e789]
+              - generic [ref=e790]:
+                - generic [ref=e791]: خصم 16%
+                - generic [ref=e792]: متوفر
+              - generic [ref=e794]: Mobil 1
+            - generic [ref=e795]:
+              - heading "زيت محرك موبيل 1 (5 لتر)" [level=3] [ref=e796]
+              - paragraph [ref=e797]: زيت محرك صناعي بالكامل يوفر حماية فائقة للمحرك
+              - generic [ref=e798]:
+                - generic [ref=e799]:
+                  - img [ref=e800]
+                  - img [ref=e802]
+                  - img [ref=e804]
+                  - img [ref=e806]
+                  - img [ref=e808]
+                - generic [ref=e810]: (156 تقييم)
+              - generic [ref=e811]:
+                - generic [ref=e812]:
+                  - img [ref=e813]
+                  - generic [ref=e815]: صناعة ألمانية
+                - generic [ref=e816]:
+                  - img [ref=e817]
+                  - generic [ref=e819]: حماية متقدمة
+              - generic [ref=e821]:
+                - generic [ref=e822]: 320 جنيه
+                - generic [ref=e823]: 380 جنيه
+              - generic [ref=e824]:
+                - button "اشتري الآن" [ref=e825] [cursor=pointer]
+                - button "أضف للسلة" [ref=e826] [cursor=pointer]:
+                  - generic [ref=e827] [cursor=pointer]:
+                    - img [ref=e828] [cursor=pointer]
+                    - text: أضف للسلة
+          - generic [ref=e830]:
+            - generic [ref=e831]:
+              - img "إطارات ميشلان 205/55 R16" [ref=e832]
+              - generic [ref=e833]:
+                - generic [ref=e834]: خصم 14%
+                - generic [ref=e835]: متوفر
+              - generic [ref=e837]: Michelin
+            - generic [ref=e838]:
+              - heading "إطارات ميشلان 205/55 R16" [level=3] [ref=e839]
+              - paragraph [ref=e840]: إطارات عالية الأداء مع تقنية متقدمة للثبات والأمان
+              - generic [ref=e841]:
+                - generic [ref=e842]:
+                  - img [ref=e843]
+                  - img [ref=e845]
+                  - img [ref=e847]
+                  - img [ref=e849]
+                  - img [ref=e851]
+                - generic [ref=e853]: (89 تقييم)
+              - generic [ref=e854]:
+                - generic [ref=e855]:
+                  - img [ref=e856]
+                  - generic [ref=e858]: توفير في الوقود
+                - generic [ref=e859]:
+                  - img [ref=e860]
+                  - generic [ref=e862]: ثبات عالي
+              - generic [ref=e864]:
+                - generic [ref=e865]: 1,200 جنيه
+                - generic [ref=e866]: 1,400 جنيه
+              - generic [ref=e867]:
+                - button "اشتري الآن" [ref=e868] [cursor=pointer]
+                - button "أضف للسلة" [ref=e869] [cursor=pointer]:
+                  - generic [ref=e870] [cursor=pointer]:
+                    - img [ref=e871] [cursor=pointer]
+                    - text: أضف للسلة
+          - generic [ref=e873]:
+            - generic [ref=e874]:
+              - img "بطارية فارتا 70 أمبير" [ref=e875]
+              - generic [ref=e876]:
+                - generic [ref=e877]: خصم 11%
+                - generic [ref=e878]: متوفر
+              - generic [ref=e880]: Varta
+            - generic [ref=e881]:
+              - heading "بطارية فارتا 70 أمبير" [level=3] [ref=e882]
+              - paragraph [ref=e883]: بطارية عالية الأداء مع تقنية متقدمة للشحن السريع
+              - generic [ref=e884]:
+                - generic [ref=e885]:
+                  - img [ref=e886]
+                  - img [ref=e888]
+                  - img [ref=e890]
+                  - img [ref=e892]
+                  - img [ref=e894]
+                - generic [ref=e896]: (124 تقييم)
+              - generic [ref=e897]:
+                - generic [ref=e898]:
+                  - img [ref=e899]
+                  - generic [ref=e901]: تقنية AGM
+                - generic [ref=e902]:
+                  - img [ref=e903]
+                  - generic [ref=e905]: بداية قوية
+              - generic [ref=e907]:
+                - generic [ref=e908]: 850 جنيه
+                - generic [ref=e909]: 950 جنيه
+              - generic [ref=e910]:
+                - button "اشتري الآن" [ref=e911] [cursor=pointer]
+                - button "أضف للسلة" [ref=e912] [cursor=pointer]:
+                  - generic [ref=e913] [cursor=pointer]:
+                    - img [ref=e914] [cursor=pointer]
+                    - text: أضف للسلة
+          - generic [ref=e916]:
+            - generic [ref=e917]:
+              - img "مكابح برامبو سيراميك" [ref=e918]
+              - generic [ref=e919]:
+                - generic [ref=e920]: خصم 18%
+                - generic [ref=e921]: نفذ
+              - generic [ref=e923]: Brembo
+            - generic [ref=e924]:
+              - heading "مكابح برامبو سيراميك" [level=3] [ref=e925]
+              - paragraph [ref=e926]: مكابح سيراميك عالية الأداء للسيارات الرياضية
+              - generic [ref=e927]:
+                - generic [ref=e928]:
+                  - img [ref=e929]
+                  - img [ref=e931]
+                  - img [ref=e933]
+                  - img [ref=e935]
+                  - img [ref=e937]
+                - generic [ref=e939]: (67 تقييم)
+              - generic [ref=e940]:
+                - generic [ref=e941]:
+                  - img [ref=e942]
+                  - generic [ref=e944]: أداء فائق
+                - generic [ref=e945]:
+                  - img [ref=e946]
+                  - generic [ref=e948]: مقاومة الحرارة
+              - generic [ref=e950]:
+                - generic [ref=e951]: 1,800 جنيه
+                - generic [ref=e952]: 2,200 جنيه
+              - generic [ref=e953]:
+                - button "غير متوفر" [disabled] [ref=e954]
+                - button "أضف للسلة" [disabled] [ref=e955]:
+                  - generic [ref=e956]:
+                    - img [ref=e957]
+                    - text: أضف للسلة
+          - generic [ref=e959]:
+            - generic [ref=e960]:
+              - img "فلتر هواء K&N قابل للغسيل" [ref=e961]
+              - generic [ref=e962]:
+                - generic [ref=e963]: خصم 13%
+                - generic [ref=e964]: متوفر
+              - generic [ref=e966]: K&N
+            - generic [ref=e967]:
+              - heading "فلتر هواء K&N قابل للغسيل" [level=3] [ref=e968]
+              - paragraph [ref=e969]: فلتر هواء عالي الأداء قابل للغسيل وإعادة الاستخدام
+              - generic [ref=e970]:
+                - generic [ref=e971]:
+                  - img [ref=e972]
+                  - img [ref=e974]
+                  - img [ref=e976]
+                  - img [ref=e978]
+                  - img [ref=e980]
+                - generic [ref=e982]: (93 تقييم)
+              - generic [ref=e983]:
+                - generic [ref=e984]:
+                  - img [ref=e985]
+                  - generic [ref=e987]: قابل للغسيل
+                - generic [ref=e988]:
+                  - img [ref=e989]
+                  - generic [ref=e991]: تحسين الأداء
+              - generic [ref=e993]:
+                - generic [ref=e994]: 280 جنيه
+                - generic [ref=e995]: 320 جنيه
+              - generic [ref=e996]:
+                - button "اشتري الآن" [ref=e997] [cursor=pointer]
+                - button "أضف للسلة" [ref=e998] [cursor=pointer]:
+                  - generic [ref=e999] [cursor=pointer]:
+                    - img [ref=e1000] [cursor=pointer]
+                    - text: أضف للسلة
+          - generic [ref=e1002]:
+            - generic [ref=e1003]:
+              - img "شمعات إشعال NGK إيريديوم" [ref=e1004]
+              - generic [ref=e1005]:
+                - generic [ref=e1006]: خصم 13%
+                - generic [ref=e1007]: متوفر
+              - generic [ref=e1009]: NGK
+            - generic [ref=e1010]:
+              - heading "شمعات إشعال NGK إيريديوم" [level=3] [ref=e1011]
+              - paragraph [ref=e1012]: شمعات إشعال بتقنية الإيريديوم لأداء محرك متفوق
+              - generic [ref=e1013]:
+                - generic [ref=e1014]:
+                  - img [ref=e1015]
+                  - img [ref=e1017]
+                  - img [ref=e1019]
+                  - img [ref=e1021]
+                  - img [ref=e1023]
+                - generic [ref=e1025]: (78 تقييم)
+              - generic [ref=e1026]:
+                - generic [ref=e1027]:
+                  - img [ref=e1028]
+                  - generic [ref=e1030]: إيريديوم خالص
+                - generic [ref=e1031]:
+                  - img [ref=e1032]
+                  - generic [ref=e1034]: إشعال أقوى
+              - generic [ref=e1036]:
+                - generic [ref=e1037]: 450 جنيه
+                - generic [ref=e1038]: 520 جنيه
+              - generic [ref=e1039]:
+                - button "اشتري الآن" [ref=e1040] [cursor=pointer]
+                - button "أضف للسلة" [ref=e1041] [cursor=pointer]:
+                  - generic [ref=e1042] [cursor=pointer]:
+                    - img [ref=e1043] [cursor=pointer]
+                    - text: أضف للسلة
+          - generic [ref=e1045]:
+            - generic [ref=e1046]:
+              - img "نظام صوت بايونير مع بلوتوث" [ref=e1047]
+              - generic [ref=e1048]:
+                - generic [ref=e1049]: خصم 17%
+                - generic [ref=e1050]: متوفر
+              - generic [ref=e1052]: Pioneer
+            - generic [ref=e1053]:
+              - heading "نظام صوت بايونير مع بلوتوث" [level=3] [ref=e1054]
+              - paragraph [ref=e1055]: نظام صوت متطور مع تقنية البلوتوث وجودة صوت فائقة
+              - generic [ref=e1056]:
+                - generic [ref=e1057]:
+                  - img [ref=e1058]
+                  - img [ref=e1060]
+                  - img [ref=e1062]
+                  - img [ref=e1064]
+                  - img [ref=e1066]
+                - generic [ref=e1068]: (112 تقييم)
+              - generic [ref=e1069]:
+                - generic [ref=e1070]:
+                  - img [ref=e1071]
+                  - generic [ref=e1073]: بلوتوث 5.0
+                - generic [ref=e1074]:
+                  - img [ref=e1075]
+                  - generic [ref=e1077]: صوت عالي الوضوح
+              - generic [ref=e1079]:
+                - generic [ref=e1080]: 1,500 جنيه
+                - generic [ref=e1081]: 1,800 جنيه
+              - generic [ref=e1082]:
+                - button "اشتري الآن" [ref=e1083] [cursor=pointer]
+                - button "أضف للسلة" [ref=e1084] [cursor=pointer]:
+                  - generic [ref=e1085] [cursor=pointer]:
+                    - img [ref=e1086] [cursor=pointer]
+                    - text: أضف للسلة
+          - generic [ref=e1088]:
+            - generic [ref=e1089]:
+              - img "فلتر زيت مان أصلي" [ref=e1090]
+              - generic [ref=e1091]:
+                - generic [ref=e1092]: خصم 15%
+                - generic [ref=e1093]: متوفر
+              - generic [ref=e1095]: Mann Filter
+            - generic [ref=e1096]:
+              - heading "فلتر زيت مان أصلي" [level=3] [ref=e1097]
+              - paragraph [ref=e1098]: فلتر زيت أصلي بجودة ألمانية عالية
+              - generic [ref=e1099]:
+                - generic [ref=e1100]:
+                  - img [ref=e1101]
+                  - img [ref=e1103]
+                  - img [ref=e1105]
+                  - img [ref=e1107]
+                  - img [ref=e1109]
+                - generic [ref=e1111]: (156 تقييم)
+              - generic [ref=e1112]:
+                - generic [ref=e1113]:
+                  - img [ref=e1114]
+                  - generic [ref=e1116]: ألماني أصلي
+                - generic [ref=e1117]:
+                  - img [ref=e1118]
+                  - generic [ref=e1120]: فلترة ممتازة
+              - generic [ref=e1122]:
+                - generic [ref=e1123]: 85 جنيه
+                - generic [ref=e1124]: 100 جنيه
+              - generic [ref=e1125]:
+                - button "اشتري الآن" [ref=e1126] [cursor=pointer]
+                - button "أضف للسلة" [ref=e1127] [cursor=pointer]:
+                  - generic [ref=e1128] [cursor=pointer]:
+                    - img [ref=e1129] [cursor=pointer]
+                    - text: أضف للسلة
+        - generic [ref=e1132]:
+          - heading "🎯 خدمات إضافية مميزة" [level=3] [ref=e1133]
+          - generic [ref=e1134]:
+            - generic [ref=e1135]:
+              - img [ref=e1136]
+              - heading "توصيل سريع" [level=4] [ref=e1138]
+              - paragraph [ref=e1139]: خلال 24 ساعة في القاهرة والجيزة
+            - generic [ref=e1140]:
+              - img [ref=e1141]
+              - heading "ضمان أصلي" [level=4] [ref=e1143]
+              - paragraph [ref=e1144]: ضمان الوكيل على جميع القطع
+            - generic [ref=e1145]:
+              - img [ref=e1146]
+              - heading "تركيب مجاني" [level=4] [ref=e1148]
+              - paragraph [ref=e1149]: خدمة تركيب في مراكز معتمدة
+            - generic [ref=e1150]:
+              - img [ref=e1151]
+              - heading "أسعار تنافسية" [level=4] [ref=e1154]
+              - paragraph [ref=e1155]: أفضل الأسعار مع جودة مضمونة
+  - contentinfo [ref=e1156]:
+    - generic [ref=e1157]:
+      - generic [ref=e1158]:
+        - generic [ref=e1159]:
+          - generic [ref=e1160]:
+            - generic [ref=e1162]: س
+            - generic [ref=e1163]:
+              - heading "سوق السيارات" [level=3] [ref=e1164]
+              - paragraph [ref=e1165]: Souk El-Syarat
+          - paragraph [ref=e1166]: منصة التجارة الإلكترونية الرائدة في مصر للسيارات وقطع الغيار والخدمات
+          - generic [ref=e1167]:
+            - generic [ref=e1168]:
+              - img [ref=e1169]
+              - generic [ref=e1172]: القاهرة، مصر
+            - generic [ref=e1173]:
+              - img [ref=e1174]
+              - generic [ref=e1176]: +20 10 1234 5678
+            - generic [ref=e1177]:
+              - img [ref=e1178]
+              - generic [ref=e1180]: info@soukel-syarat.com
+            - generic [ref=e1181]:
+              - img [ref=e1182]
+              - generic [ref=e1184]: www.soukel-syarat.com
+        - generic [ref=e1185]:
+          - heading "الشركة" [level=4] [ref=e1186]
+          - list [ref=e1187]:
+            - listitem [ref=e1188]:
+              - link "من نحن" [ref=e1190] [cursor=pointer]:
+                - /url: /about
+            - listitem [ref=e1191]:
+              - link "اتصل بنا" [ref=e1193] [cursor=pointer]:
+                - /url: /contact
+            - listitem [ref=e1194]:
+              - link "الوظائف" [ref=e1196] [cursor=pointer]:
+                - /url: /careers
+            - listitem [ref=e1197]:
+              - link "الأخبار" [ref=e1199] [cursor=pointer]:
+                - /url: /news
+        - generic [ref=e1200]:
+          - heading "السوق" [level=4] [ref=e1201]
+          - list [ref=e1202]:
+            - listitem [ref=e1203]:
+              - link "سيارات للبيع" [ref=e1205] [cursor=pointer]:
+                - /url: /marketplace?category=cars
+            - listitem [ref=e1206]:
+              - link "قطع غيار" [ref=e1208] [cursor=pointer]:
+                - /url: /marketplace?category=parts
+            - listitem [ref=e1209]:
+              - link "الخدمات" [ref=e1211] [cursor=pointer]:
+                - /url: /marketplace?category=services
+            - listitem [ref=e1212]:
+              - link "التجار المميزين" [ref=e1214] [cursor=pointer]:
+                - /url: /vendors
+        - generic [ref=e1215]:
+          - heading "الدعم" [level=4] [ref=e1216]
+          - list [ref=e1217]:
+            - listitem [ref=e1218]:
+              - link "مركز المساعدة" [ref=e1220] [cursor=pointer]:
+                - /url: /help
+            - listitem [ref=e1221]:
+              - link "الأسئلة الشائعة" [ref=e1223] [cursor=pointer]:
+                - /url: /faq
+            - listitem [ref=e1224]:
+              - link "سياسة الخصوصية" [ref=e1226] [cursor=pointer]:
+                - /url: /privacy
+            - listitem [ref=e1227]:
+              - link "الشروط والأحكام" [ref=e1229] [cursor=pointer]:
+                - /url: /terms
+        - generic [ref=e1230]:
+          - heading "للتجار" [level=4] [ref=e1231]
+          - list [ref=e1232]:
+            - listitem [ref=e1233]:
+              - link "كن تاجراً" [ref=e1235] [cursor=pointer]:
+                - /url: /vendor/apply
+            - listitem [ref=e1236]:
+              - link "مركز البائعين" [ref=e1238] [cursor=pointer]:
+                - /url: /vendor/center
+            - listitem [ref=e1239]:
+              - link "دليل البيع" [ref=e1241] [cursor=pointer]:
+                - /url: /selling-guide
+            - listitem [ref=e1242]:
+              - link "الرسوم والعمولات" [ref=e1244] [cursor=pointer]:
+                - /url: /fees
+      - generic [ref=e1246]:
+        - heading "اشترك في نشرتنا الإخبارية" [level=4] [ref=e1247]
+        - paragraph [ref=e1248]: احصل على آخر العروض والأخبار من سوق السيارات
+        - generic [ref=e1249]:
+          - textbox "أدخل بريدك الإلكتروني" [ref=e1250]
+          - button "اشترك" [ref=e1251] [cursor=pointer]
+    - generic [ref=e1254]:
+      - generic [ref=e1255]:
+        - paragraph [ref=e1256]: © 2024 سوق السيارات. جميع الحقوق محفوظة
+        - img [ref=e1257]
+      - generic [ref=e1259]:
+        - paragraph [ref=e1260]: "تابعنا على:"
+        - link "Facebook" [ref=e1261] [cursor=pointer]:
+          - /url: https://facebook.com/soukel-syarat
+          - img [ref=e1262] [cursor=pointer]
+        - link "Instagram" [ref=e1264] [cursor=pointer]:
+          - /url: https://instagram.com/soukel-syarat
+          - img [ref=e1265] [cursor=pointer]
+        - link "Twitter" [ref=e1267] [cursor=pointer]:
+          - /url: https://twitter.com/soukel-syarat
+          - img [ref=e1268] [cursor=pointer]
+        - link "LinkedIn" [ref=e1270] [cursor=pointer]:
+          - /url: https://linkedin.com/company/soukel-syarat
+          - img [ref=e1271] [cursor=pointer]
+        - link "YouTube" [ref=e1273] [cursor=pointer]:
+          - /url: https://youtube.com/soukel-syarat
+          - img [ref=e1274] [cursor=pointer]
+```

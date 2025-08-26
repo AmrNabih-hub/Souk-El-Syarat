@@ -1,68 +1,487 @@
-<testsuites id="" name="" tests="8" failures="0" skipped="0" errors="0" time="47.561371">
-<testsuite name="homepage.spec.ts" timestamp="2025-08-26T17:47:13.734Z" hostname="chromium" tests="1" failures="0" skipped="0" time="11.931" errors="0">
-<testcase name="Homepage Visual Tests › it should match the homepage snapshot" classname="homepage.spec.ts" time="11.931">
+<testsuites id="" name="" tests="16" failures="10" skipped="0" errors="0" time="230.37631399999998">
+<testsuite name="auth.spec.ts" timestamp="2025-08-26T18:23:07.934Z" hostname="chromium" tests="1" failures="1" skipped="0" time="36.867" errors="0">
+<testcase name="Authentication Flow › should allow a customer to log in and log out" classname="auth.spec.ts" time="36.867">
+<failure message="auth.spec.ts:4:3 should allow a customer to log in and log out" type="FAILURE">
+<![CDATA[  [chromium] › auth.spec.ts:4:3 › Authentication Flow › should allow a customer to log in and log out 
+
+    TimeoutError: page.goto: Timeout 30000ms exceeded.
+    Call log:
+      - navigating to "http://localhost:5173/login", waiting until "load"
+
+
+      4 |   test('should allow a customer to log in and log out', async ({ page }) => {
+      5 |     // 1. Navigate to the Login Page
+    > 6 |     await page.goto('/login');
+        |                ^
+      7 |
+      8 |     // 2. Fill in the login form with the correct credentials from the component
+      9 |     await page.getByPlaceholder('أدخل البريد الإلكتروني').fill('customer1@souk-el-syarat.com');
+        at C:\Users\GM\Desktop\Souk El-Sayarat\e2e\auth.spec.ts:6:16
+
+    attachment #1: screenshot (image/png) ──────────────────────────────────────────────────────────
+    ..\test-results\auth-Authentication-Flow-s-a716f-tomer-to-log-in-and-log-out-chromium\test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    attachment #2: video (video/webm) ──────────────────────────────────────────────────────────────
+    ..\test-results\auth-Authentication-Flow-s-a716f-tomer-to-log-in-and-log-out-chromium\video.webm
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: ..\test-results\auth-Authentication-Flow-s-a716f-tomer-to-log-in-and-log-out-chromium\error-context.md
+]]>
+</failure>
+<system-out>
+<![CDATA[
+[[ATTACHMENT|..\test-results\auth-Authentication-Flow-s-a716f-tomer-to-log-in-and-log-out-chromium\test-failed-1.png]]
+
+[[ATTACHMENT|..\test-results\auth-Authentication-Flow-s-a716f-tomer-to-log-in-and-log-out-chromium\video.webm]]
+
+[[ATTACHMENT|..\test-results\auth-Authentication-Flow-s-a716f-tomer-to-log-in-and-log-out-chromium\error-context.md]]
+]]>
+</system-out>
 </testcase>
 </testsuite>
-<testsuite name="homepage.spec.ts" timestamp="2025-08-26T17:47:13.734Z" hostname="firefox" tests="1" failures="0" skipped="0" time="24.134" errors="0">
-<testcase name="Homepage Visual Tests › it should match the homepage snapshot" classname="homepage.spec.ts" time="24.134">
+<testsuite name="homepage.spec.ts" timestamp="2025-08-26T18:23:07.934Z" hostname="chromium" tests="1" failures="1" skipped="0" time="41.292" errors="0">
+<testcase name="Homepage Visual Tests › it should match the homepage snapshot" classname="homepage.spec.ts" time="41.292">
+<failure message="homepage.spec.ts:4:3 it should match the homepage snapshot" type="FAILURE">
+<![CDATA[  [chromium] › homepage.spec.ts:4:3 › Homepage Visual Tests › it should match the homepage snapshot 
+
+    TimeoutError: page.goto: Timeout 30000ms exceeded.
+    Call log:
+      - navigating to "http://localhost:5173/", waiting until "load"
+
+
+      4 |   test('it should match the homepage snapshot', async ({ page }) => {
+      5 |     // Navigate to the homepage
+    > 6 |     await page.goto('/');
+        |                ^
+      7 |
+      8 |     // Wait for a stable element in the footer to ensure the page is fully rendered
+      9 |     // Using a partial, unique text match to be language-independent and stable.
+        at C:\Users\GM\Desktop\Souk El-Sayarat\e2e\homepage.spec.ts:6:16
+
+    attachment #1: screenshot (image/png) ──────────────────────────────────────────────────────────
+    ..\test-results\homepage-Homepage-Visual-T-7f962-match-the-homepage-snapshot-chromium\test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    attachment #2: video (video/webm) ──────────────────────────────────────────────────────────────
+    ..\test-results\homepage-Homepage-Visual-T-7f962-match-the-homepage-snapshot-chromium\video.webm
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: ..\test-results\homepage-Homepage-Visual-T-7f962-match-the-homepage-snapshot-chromium\error-context.md
+]]>
+</failure>
+<system-out>
+<![CDATA[
+[[ATTACHMENT|..\test-results\homepage-Homepage-Visual-T-7f962-match-the-homepage-snapshot-chromium\test-failed-1.png]]
+
+[[ATTACHMENT|..\test-results\homepage-Homepage-Visual-T-7f962-match-the-homepage-snapshot-chromium\video.webm]]
+
+[[ATTACHMENT|..\test-results\homepage-Homepage-Visual-T-7f962-match-the-homepage-snapshot-chromium\error-context.md]]
+]]>
+</system-out>
+</testcase>
+</testsuite>
+<testsuite name="auth.spec.ts" timestamp="2025-08-26T18:23:07.934Z" hostname="firefox" tests="1" failures="1" skipped="0" time="53.092" errors="0">
+<testcase name="Authentication Flow › should allow a customer to log in and log out" classname="auth.spec.ts" time="53.092">
+<failure message="auth.spec.ts:4:3 should allow a customer to log in and log out" type="FAILURE">
+<![CDATA[  [firefox] › auth.spec.ts:4:3 › Authentication Flow › should allow a customer to log in and log out 
+
+    Error: expect(page).toHaveURL(expected) failed
+
+    Expected string: "http://localhost:5173/dashboard"
+    Received string: "http://localhost:5173/login"
+    Timeout: 15000ms
+
+    Call log:
+      - Expect "toHaveURL" with timeout 15000ms
+        16 × unexpected value "http://localhost:5173/login"
+
+
+      14 |
+      15 |     // 4. Verify successful login and redirection
+    > 16 |     await expect(page).toHaveURL('/dashboard', { timeout: 15000 });
+         |                        ^
+      17 |     
+      18 |     // Expect the logout button to be visible within the Navbar
+      19 |     const navbar = page.locator('nav');
+        at C:\Users\GM\Desktop\Souk El-Sayarat\e2e\auth.spec.ts:16:24
+
+    attachment #1: screenshot (image/png) ──────────────────────────────────────────────────────────
+    ..\test-results\auth-Authentication-Flow-s-a716f-tomer-to-log-in-and-log-out-firefox\test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    attachment #2: video (video/webm) ──────────────────────────────────────────────────────────────
+    ..\test-results\auth-Authentication-Flow-s-a716f-tomer-to-log-in-and-log-out-firefox\video.webm
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: ..\test-results\auth-Authentication-Flow-s-a716f-tomer-to-log-in-and-log-out-firefox\error-context.md
+]]>
+</failure>
+<system-out>
+<![CDATA[
+[[ATTACHMENT|..\test-results\auth-Authentication-Flow-s-a716f-tomer-to-log-in-and-log-out-firefox\test-failed-1.png]]
+
+[[ATTACHMENT|..\test-results\auth-Authentication-Flow-s-a716f-tomer-to-log-in-and-log-out-firefox\video.webm]]
+
+[[ATTACHMENT|..\test-results\auth-Authentication-Flow-s-a716f-tomer-to-log-in-and-log-out-firefox\error-context.md]]
+]]>
+</system-out>
+</testcase>
+</testsuite>
+<testsuite name="homepage.spec.ts" timestamp="2025-08-26T18:23:07.934Z" hostname="firefox" tests="1" failures="1" skipped="0" time="72.912" errors="0">
+<testcase name="Homepage Visual Tests › it should match the homepage snapshot" classname="homepage.spec.ts" time="72.912">
+<failure message="homepage.spec.ts:4:3 it should match the homepage snapshot" type="FAILURE">
+<![CDATA[  [firefox] › homepage.spec.ts:4:3 › Homepage Visual Tests › it should match the homepage snapshot ─
+
+    Test timeout of 60000ms exceeded.
+
+    attachment #1: screenshot (image/png) ──────────────────────────────────────────────────────────
+    ..\test-results\homepage-Homepage-Visual-T-7f962-match-the-homepage-snapshot-firefox\test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    attachment #2: video (video/webm) ──────────────────────────────────────────────────────────────
+    ..\test-results\homepage-Homepage-Visual-T-7f962-match-the-homepage-snapshot-firefox\video.webm
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: ..\test-results\homepage-Homepage-Visual-T-7f962-match-the-homepage-snapshot-firefox\error-context.md
+]]>
+</failure>
 <system-out>
 <![CDATA[C:\Users\GM\Desktop\Souk El-Sayarat\e2e\homepage.spec.ts-snapshots\homepage-firefox-win32.png is re-generated, writing actual.
-]]>
-</system-out>
-</testcase>
-</testsuite>
-<testsuite name="homepage.spec.ts" timestamp="2025-08-26T17:47:13.734Z" hostname="webkit" tests="1" failures="0" skipped="0" time="21.424" errors="0">
-<testcase name="Homepage Visual Tests › it should match the homepage snapshot" classname="homepage.spec.ts" time="21.424">
-<system-out>
-<![CDATA[A snapshot doesn't exist at C:\Users\GM\Desktop\Souk El-Sayarat\e2e\homepage.spec.ts-snapshots\homepage-webkit-win32.png, writing actual.
 
-[[ATTACHMENT|..\e2e\homepage.spec.ts-snapshots\homepage-webkit-win32.png]]
-]]>
-</system-out>
-<system-err>
-<![CDATA[
-Warning: attachment ..\test-results\homepage-Homepage-Visual-T-7f962-match-the-homepage-snapshot-webkit\homepage-actual.png is missing]]>
-</system-err>
-</testcase>
-</testsuite>
-<testsuite name="homepage.spec.ts" timestamp="2025-08-26T17:47:13.734Z" hostname="mobile" tests="1" failures="0" skipped="0" time="11.49" errors="0">
-<testcase name="Homepage Visual Tests › it should match the homepage snapshot" classname="homepage.spec.ts" time="11.49">
-<system-out>
-<![CDATA[A snapshot doesn't exist at C:\Users\GM\Desktop\Souk El-Sayarat\e2e\homepage.spec.ts-snapshots\homepage-mobile-win32.png, writing actual.
+[[ATTACHMENT|..\test-results\homepage-Homepage-Visual-T-7f962-match-the-homepage-snapshot-firefox\test-failed-1.png]]
 
-[[ATTACHMENT|..\e2e\homepage.spec.ts-snapshots\homepage-mobile-win32.png]]
-]]>
-</system-out>
-<system-err>
-<![CDATA[
-Warning: attachment ..\test-results\homepage-Homepage-Visual-T-7f962-match-the-homepage-snapshot-mobile\homepage-actual.png is missing]]>
-</system-err>
-</testcase>
-</testsuite>
-<testsuite name="homepage.spec.ts" timestamp="2025-08-26T17:47:13.734Z" hostname="mobile-safari" tests="1" failures="0" skipped="0" time="12.434" errors="0">
-<testcase name="Homepage Visual Tests › it should match the homepage snapshot" classname="homepage.spec.ts" time="12.434">
-<system-out>
-<![CDATA[A snapshot doesn't exist at C:\Users\GM\Desktop\Souk El-Sayarat\e2e\homepage.spec.ts-snapshots\homepage-mobile-safari-win32.png, writing actual.
+[[ATTACHMENT|..\test-results\homepage-Homepage-Visual-T-7f962-match-the-homepage-snapshot-firefox\video.webm]]
 
-[[ATTACHMENT|..\e2e\homepage.spec.ts-snapshots\homepage-mobile-safari-win32.png]]
+[[ATTACHMENT|..\test-results\homepage-Homepage-Visual-T-7f962-match-the-homepage-snapshot-firefox\error-context.md]]
 ]]>
 </system-out>
-<system-err>
+</testcase>
+</testsuite>
+<testsuite name="auth.spec.ts" timestamp="2025-08-26T18:23:07.934Z" hostname="webkit" tests="1" failures="1" skipped="0" time="30.432" errors="0">
+<testcase name="Authentication Flow › should allow a customer to log in and log out" classname="auth.spec.ts" time="30.432">
+<failure message="auth.spec.ts:4:3 should allow a customer to log in and log out" type="FAILURE">
+<![CDATA[  [webkit] › auth.spec.ts:4:3 › Authentication Flow › should allow a customer to log in and log out 
+
+    Error: expect(page).toHaveURL(expected) failed
+
+    Expected string: "http://localhost:5173/dashboard"
+    Received string: "http://localhost:5173/login"
+    Timeout: 15000ms
+
+    Call log:
+      - Expect "toHaveURL" with timeout 15000ms
+        17 × unexpected value "http://localhost:5173/login"
+
+
+      14 |
+      15 |     // 4. Verify successful login and redirection
+    > 16 |     await expect(page).toHaveURL('/dashboard', { timeout: 15000 });
+         |                        ^
+      17 |     
+      18 |     // Expect the logout button to be visible within the Navbar
+      19 |     const navbar = page.locator('nav');
+        at C:\Users\GM\Desktop\Souk El-Sayarat\e2e\auth.spec.ts:16:24
+
+    attachment #1: screenshot (image/png) ──────────────────────────────────────────────────────────
+    ..\test-results\auth-Authentication-Flow-s-a716f-tomer-to-log-in-and-log-out-webkit\test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    attachment #2: video (video/webm) ──────────────────────────────────────────────────────────────
+    ..\test-results\auth-Authentication-Flow-s-a716f-tomer-to-log-in-and-log-out-webkit\video.webm
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: ..\test-results\auth-Authentication-Flow-s-a716f-tomer-to-log-in-and-log-out-webkit\error-context.md
+]]>
+</failure>
+<system-out>
 <![CDATA[
-Warning: attachment ..\test-results\homepage-Homepage-Visual-T-7f962-match-the-homepage-snapshot-mobile-safari\homepage-actual.png is missing]]>
-</system-err>
+[[ATTACHMENT|..\test-results\auth-Authentication-Flow-s-a716f-tomer-to-log-in-and-log-out-webkit\test-failed-1.png]]
+
+[[ATTACHMENT|..\test-results\auth-Authentication-Flow-s-a716f-tomer-to-log-in-and-log-out-webkit\video.webm]]
+
+[[ATTACHMENT|..\test-results\auth-Authentication-Flow-s-a716f-tomer-to-log-in-and-log-out-webkit\error-context.md]]
+]]>
+</system-out>
 </testcase>
 </testsuite>
-<testsuite name="homepage.spec.ts" timestamp="2025-08-26T17:47:13.734Z" hostname="Microsoft Edge" tests="1" failures="0" skipped="0" time="9.757" errors="0">
-<testcase name="Homepage Visual Tests › it should match the homepage snapshot" classname="homepage.spec.ts" time="9.757">
+<testsuite name="homepage.spec.ts" timestamp="2025-08-26T18:23:07.934Z" hostname="webkit" tests="1" failures="0" skipped="0" time="6.658" errors="0">
+<testcase name="Homepage Visual Tests › it should match the homepage snapshot" classname="homepage.spec.ts" time="6.658">
 </testcase>
 </testsuite>
-<testsuite name="homepage.spec.ts" timestamp="2025-08-26T17:47:13.734Z" hostname="Google Chrome" tests="1" failures="0" skipped="0" time="6.61" errors="0">
-<testcase name="Homepage Visual Tests › it should match the homepage snapshot" classname="homepage.spec.ts" time="6.61">
+<testsuite name="auth.spec.ts" timestamp="2025-08-26T18:23:07.934Z" hostname="mobile" tests="1" failures="1" skipped="0" time="24.449" errors="0">
+<testcase name="Authentication Flow › should allow a customer to log in and log out" classname="auth.spec.ts" time="24.449">
+<failure message="auth.spec.ts:4:3 should allow a customer to log in and log out" type="FAILURE">
+<![CDATA[  [mobile] › auth.spec.ts:4:3 › Authentication Flow › should allow a customer to log in and log out 
+
+    Error: expect(page).toHaveURL(expected) failed
+
+    Expected string: "http://localhost:5173/dashboard"
+    Received string: "http://localhost:5173/login"
+    Timeout: 15000ms
+
+    Call log:
+      - Expect "toHaveURL" with timeout 15000ms
+        18 × unexpected value "http://localhost:5173/login"
+
+
+      14 |
+      15 |     // 4. Verify successful login and redirection
+    > 16 |     await expect(page).toHaveURL('/dashboard', { timeout: 15000 });
+         |                        ^
+      17 |     
+      18 |     // Expect the logout button to be visible within the Navbar
+      19 |     const navbar = page.locator('nav');
+        at C:\Users\GM\Desktop\Souk El-Sayarat\e2e\auth.spec.ts:16:24
+
+    attachment #1: screenshot (image/png) ──────────────────────────────────────────────────────────
+    ..\test-results\auth-Authentication-Flow-s-a716f-tomer-to-log-in-and-log-out-mobile\test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    attachment #2: video (video/webm) ──────────────────────────────────────────────────────────────
+    ..\test-results\auth-Authentication-Flow-s-a716f-tomer-to-log-in-and-log-out-mobile\video.webm
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: ..\test-results\auth-Authentication-Flow-s-a716f-tomer-to-log-in-and-log-out-mobile\error-context.md
+]]>
+</failure>
+<system-out>
+<![CDATA[
+[[ATTACHMENT|..\test-results\auth-Authentication-Flow-s-a716f-tomer-to-log-in-and-log-out-mobile\test-failed-1.png]]
+
+[[ATTACHMENT|..\test-results\auth-Authentication-Flow-s-a716f-tomer-to-log-in-and-log-out-mobile\video.webm]]
+
+[[ATTACHMENT|..\test-results\auth-Authentication-Flow-s-a716f-tomer-to-log-in-and-log-out-mobile\error-context.md]]
+]]>
+</system-out>
 </testcase>
 </testsuite>
-<testsuite name="homepage.spec.ts" timestamp="2025-08-26T17:47:13.734Z" hostname="tablet" tests="1" failures="0" skipped="0" time="5.843" errors="0">
-<testcase name="Homepage Visual Tests › it should match the homepage snapshot" classname="homepage.spec.ts" time="5.843">
+<testsuite name="homepage.spec.ts" timestamp="2025-08-26T18:23:07.934Z" hostname="mobile" tests="1" failures="0" skipped="0" time="46.976" errors="0">
+<testcase name="Homepage Visual Tests › it should match the homepage snapshot" classname="homepage.spec.ts" time="46.976">
+<system-out>
+<![CDATA[C:\Users\GM\Desktop\Souk El-Sayarat\e2e\homepage.spec.ts-snapshots\homepage-mobile-win32.png is re-generated, writing actual.
+]]>
+</system-out>
+</testcase>
+</testsuite>
+<testsuite name="auth.spec.ts" timestamp="2025-08-26T18:23:07.934Z" hostname="mobile-safari" tests="1" failures="1" skipped="0" time="28.522" errors="0">
+<testcase name="Authentication Flow › should allow a customer to log in and log out" classname="auth.spec.ts" time="28.522">
+<failure message="auth.spec.ts:4:3 should allow a customer to log in and log out" type="FAILURE">
+<![CDATA[  [mobile-safari] › auth.spec.ts:4:3 › Authentication Flow › should allow a customer to log in and log out 
+
+    Error: expect(page).toHaveURL(expected) failed
+
+    Expected string: "http://localhost:5173/dashboard"
+    Received string: "http://localhost:5173/login"
+    Timeout: 15000ms
+
+    Call log:
+      - Expect "toHaveURL" with timeout 15000ms
+        16 × unexpected value "http://localhost:5173/login"
+
+
+      14 |
+      15 |     // 4. Verify successful login and redirection
+    > 16 |     await expect(page).toHaveURL('/dashboard', { timeout: 15000 });
+         |                        ^
+      17 |     
+      18 |     // Expect the logout button to be visible within the Navbar
+      19 |     const navbar = page.locator('nav');
+        at C:\Users\GM\Desktop\Souk El-Sayarat\e2e\auth.spec.ts:16:24
+
+    attachment #1: screenshot (image/png) ──────────────────────────────────────────────────────────
+    ..\test-results\auth-Authentication-Flow-s-a716f-tomer-to-log-in-and-log-out-mobile-safari\test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    attachment #2: video (video/webm) ──────────────────────────────────────────────────────────────
+    ..\test-results\auth-Authentication-Flow-s-a716f-tomer-to-log-in-and-log-out-mobile-safari\video.webm
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: ..\test-results\auth-Authentication-Flow-s-a716f-tomer-to-log-in-and-log-out-mobile-safari\error-context.md
+]]>
+</failure>
+<system-out>
+<![CDATA[
+[[ATTACHMENT|..\test-results\auth-Authentication-Flow-s-a716f-tomer-to-log-in-and-log-out-mobile-safari\test-failed-1.png]]
+
+[[ATTACHMENT|..\test-results\auth-Authentication-Flow-s-a716f-tomer-to-log-in-and-log-out-mobile-safari\video.webm]]
+
+[[ATTACHMENT|..\test-results\auth-Authentication-Flow-s-a716f-tomer-to-log-in-and-log-out-mobile-safari\error-context.md]]
+]]>
+</system-out>
+</testcase>
+</testsuite>
+<testsuite name="homepage.spec.ts" timestamp="2025-08-26T18:23:07.934Z" hostname="mobile-safari" tests="1" failures="0" skipped="0" time="41.458" errors="0">
+<testcase name="Homepage Visual Tests › it should match the homepage snapshot" classname="homepage.spec.ts" time="41.458">
+<system-out>
+<![CDATA[C:\Users\GM\Desktop\Souk El-Sayarat\e2e\homepage.spec.ts-snapshots\homepage-mobile-safari-win32.png is re-generated, writing actual.
+]]>
+</system-out>
+</testcase>
+</testsuite>
+<testsuite name="auth.spec.ts" timestamp="2025-08-26T18:23:07.934Z" hostname="Microsoft Edge" tests="1" failures="1" skipped="0" time="20.175" errors="0">
+<testcase name="Authentication Flow › should allow a customer to log in and log out" classname="auth.spec.ts" time="20.175">
+<failure message="auth.spec.ts:4:3 should allow a customer to log in and log out" type="FAILURE">
+<![CDATA[  [Microsoft Edge] › auth.spec.ts:4:3 › Authentication Flow › should allow a customer to log in and log out 
+
+    Error: expect(page).toHaveURL(expected) failed
+
+    Expected string: "http://localhost:5173/dashboard"
+    Received string: "http://localhost:5173/login"
+    Timeout: 15000ms
+
+    Call log:
+      - Expect "toHaveURL" with timeout 15000ms
+        18 × unexpected value "http://localhost:5173/login"
+
+
+      14 |
+      15 |     // 4. Verify successful login and redirection
+    > 16 |     await expect(page).toHaveURL('/dashboard', { timeout: 15000 });
+         |                        ^
+      17 |     
+      18 |     // Expect the logout button to be visible within the Navbar
+      19 |     const navbar = page.locator('nav');
+        at C:\Users\GM\Desktop\Souk El-Sayarat\e2e\auth.spec.ts:16:24
+
+    attachment #1: screenshot (image/png) ──────────────────────────────────────────────────────────
+    ..\test-results\auth-Authentication-Flow-s-a716f-tomer-to-log-in-and-log-out-Microsoft-Edge\test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    attachment #2: video (video/webm) ──────────────────────────────────────────────────────────────
+    ..\test-results\auth-Authentication-Flow-s-a716f-tomer-to-log-in-and-log-out-Microsoft-Edge\video.webm
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: ..\test-results\auth-Authentication-Flow-s-a716f-tomer-to-log-in-and-log-out-Microsoft-Edge\error-context.md
+]]>
+</failure>
+<system-out>
+<![CDATA[
+[[ATTACHMENT|..\test-results\auth-Authentication-Flow-s-a716f-tomer-to-log-in-and-log-out-Microsoft-Edge\test-failed-1.png]]
+
+[[ATTACHMENT|..\test-results\auth-Authentication-Flow-s-a716f-tomer-to-log-in-and-log-out-Microsoft-Edge\video.webm]]
+
+[[ATTACHMENT|..\test-results\auth-Authentication-Flow-s-a716f-tomer-to-log-in-and-log-out-Microsoft-Edge\error-context.md]]
+]]>
+</system-out>
+</testcase>
+</testsuite>
+<testsuite name="homepage.spec.ts" timestamp="2025-08-26T18:23:07.934Z" hostname="Microsoft Edge" tests="1" failures="0" skipped="0" time="54.801" errors="0">
+<testcase name="Homepage Visual Tests › it should match the homepage snapshot" classname="homepage.spec.ts" time="54.801">
+<system-out>
+<![CDATA[C:\Users\GM\Desktop\Souk El-Sayarat\e2e\homepage.spec.ts-snapshots\homepage-Microsoft-Edge-win32.png is re-generated, writing actual.
+]]>
+</system-out>
+</testcase>
+</testsuite>
+<testsuite name="auth.spec.ts" timestamp="2025-08-26T18:23:07.934Z" hostname="Google Chrome" tests="1" failures="1" skipped="0" time="40.458" errors="0">
+<testcase name="Authentication Flow › should allow a customer to log in and log out" classname="auth.spec.ts" time="40.458">
+<failure message="auth.spec.ts:4:3 should allow a customer to log in and log out" type="FAILURE">
+<![CDATA[  [Google Chrome] › auth.spec.ts:4:3 › Authentication Flow › should allow a customer to log in and log out 
+
+    Error: expect(page).toHaveURL(expected) failed
+
+    Expected string: "http://localhost:5173/dashboard"
+    Received string: "http://localhost:5173/login"
+    Timeout: 15000ms
+
+    Call log:
+      - Expect "toHaveURL" with timeout 15000ms
+        15 × unexpected value "http://localhost:5173/login"
+
+
+      14 |
+      15 |     // 4. Verify successful login and redirection
+    > 16 |     await expect(page).toHaveURL('/dashboard', { timeout: 15000 });
+         |                        ^
+      17 |     
+      18 |     // Expect the logout button to be visible within the Navbar
+      19 |     const navbar = page.locator('nav');
+        at C:\Users\GM\Desktop\Souk El-Sayarat\e2e\auth.spec.ts:16:24
+
+    attachment #1: screenshot (image/png) ──────────────────────────────────────────────────────────
+    ..\test-results\auth-Authentication-Flow-s-a716f-tomer-to-log-in-and-log-out-Google-Chrome\test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    attachment #2: video (video/webm) ──────────────────────────────────────────────────────────────
+    ..\test-results\auth-Authentication-Flow-s-a716f-tomer-to-log-in-and-log-out-Google-Chrome\video.webm
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: ..\test-results\auth-Authentication-Flow-s-a716f-tomer-to-log-in-and-log-out-Google-Chrome\error-context.md
+]]>
+</failure>
+<system-out>
+<![CDATA[
+[[ATTACHMENT|..\test-results\auth-Authentication-Flow-s-a716f-tomer-to-log-in-and-log-out-Google-Chrome\test-failed-1.png]]
+
+[[ATTACHMENT|..\test-results\auth-Authentication-Flow-s-a716f-tomer-to-log-in-and-log-out-Google-Chrome\video.webm]]
+
+[[ATTACHMENT|..\test-results\auth-Authentication-Flow-s-a716f-tomer-to-log-in-and-log-out-Google-Chrome\error-context.md]]
+]]>
+</system-out>
+</testcase>
+</testsuite>
+<testsuite name="homepage.spec.ts" timestamp="2025-08-26T18:23:07.934Z" hostname="Google Chrome" tests="1" failures="0" skipped="0" time="47.295" errors="0">
+<testcase name="Homepage Visual Tests › it should match the homepage snapshot" classname="homepage.spec.ts" time="47.295">
+<system-out>
+<![CDATA[C:\Users\GM\Desktop\Souk El-Sayarat\e2e\homepage.spec.ts-snapshots\homepage-Google-Chrome-win32.png is re-generated, writing actual.
+]]>
+</system-out>
+</testcase>
+</testsuite>
+<testsuite name="auth.spec.ts" timestamp="2025-08-26T18:23:07.934Z" hostname="tablet" tests="1" failures="1" skipped="0" time="46.001" errors="0">
+<testcase name="Authentication Flow › should allow a customer to log in and log out" classname="auth.spec.ts" time="46.001">
+<failure message="auth.spec.ts:4:3 should allow a customer to log in and log out" type="FAILURE">
+<![CDATA[  [tablet] › auth.spec.ts:4:3 › Authentication Flow › should allow a customer to log in and log out 
+
+    Error: expect(page).toHaveURL(expected) failed
+
+    Expected string: "http://localhost:5173/dashboard"
+    Received string: "http://localhost:5173/login"
+    Timeout: 15000ms
+
+    Call log:
+      - Expect "toHaveURL" with timeout 15000ms
+        18 × unexpected value "http://localhost:5173/login"
+
+
+      14 |
+      15 |     // 4. Verify successful login and redirection
+    > 16 |     await expect(page).toHaveURL('/dashboard', { timeout: 15000 });
+         |                        ^
+      17 |     
+      18 |     // Expect the logout button to be visible within the Navbar
+      19 |     const navbar = page.locator('nav');
+        at C:\Users\GM\Desktop\Souk El-Sayarat\e2e\auth.spec.ts:16:24
+
+    attachment #1: screenshot (image/png) ──────────────────────────────────────────────────────────
+    ..\test-results\auth-Authentication-Flow-s-a716f-tomer-to-log-in-and-log-out-tablet\test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    attachment #2: video (video/webm) ──────────────────────────────────────────────────────────────
+    ..\test-results\auth-Authentication-Flow-s-a716f-tomer-to-log-in-and-log-out-tablet\video.webm
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: ..\test-results\auth-Authentication-Flow-s-a716f-tomer-to-log-in-and-log-out-tablet\error-context.md
+]]>
+</failure>
+<system-out>
+<![CDATA[
+[[ATTACHMENT|..\test-results\auth-Authentication-Flow-s-a716f-tomer-to-log-in-and-log-out-tablet\test-failed-1.png]]
+
+[[ATTACHMENT|..\test-results\auth-Authentication-Flow-s-a716f-tomer-to-log-in-and-log-out-tablet\video.webm]]
+
+[[ATTACHMENT|..\test-results\auth-Authentication-Flow-s-a716f-tomer-to-log-in-and-log-out-tablet\error-context.md]]
+]]>
+</system-out>
+</testcase>
+</testsuite>
+<testsuite name="homepage.spec.ts" timestamp="2025-08-26T18:23:07.934Z" hostname="tablet" tests="1" failures="0" skipped="0" time="29.22" errors="0">
+<testcase name="Homepage Visual Tests › it should match the homepage snapshot" classname="homepage.spec.ts" time="29.22">
+<system-out>
+<![CDATA[C:\Users\GM\Desktop\Souk El-Sayarat\e2e\homepage.spec.ts-snapshots\homepage-tablet-win32.png is re-generated, writing actual.
+]]>
+</system-out>
 </testcase>
 </testsuite>
 </testsuites>

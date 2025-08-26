@@ -181,6 +181,615 @@
   },
   "suites": [
     {
+      "title": "auth.spec.ts",
+      "file": "auth.spec.ts",
+      "column": 0,
+      "line": 0,
+      "specs": [],
+      "suites": [
+        {
+          "title": "Authentication Flow",
+          "file": "auth.spec.ts",
+          "line": 3,
+          "column": 6,
+          "specs": [
+            {
+              "title": "should allow a customer to log in and log out",
+              "ok": false,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 60000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium",
+                  "projectName": "chromium",
+                  "results": [
+                    {
+                      "workerIndex": 0,
+                      "parallelIndex": 0,
+                      "status": "failed",
+                      "duration": 36867,
+                      "error": {
+                        "message": "TimeoutError: page.goto: Timeout 30000ms exceeded.\nCall log:\n\u001b[2m  - navigating to \"http://localhost:5173/login\", waiting until \"load\"\u001b[22m\n",
+                        "stack": "TimeoutError: page.goto: Timeout 30000ms exceeded.\nCall log:\n\u001b[2m  - navigating to \"http://localhost:5173/login\", waiting until \"load\"\u001b[22m\n\n    at C:\\Users\\GM\\Desktop\\Souk El-Sayarat\\e2e\\auth.spec.ts:6:16",
+                        "location": {
+                          "file": "C:\\Users\\GM\\Desktop\\Souk El-Sayarat\\e2e\\auth.spec.ts",
+                          "column": 16,
+                          "line": 6
+                        },
+                        "snippet": "\u001b[0m \u001b[90m 4 |\u001b[39m   test(\u001b[32m'should allow a customer to log in and log out'\u001b[39m\u001b[33m,\u001b[39m \u001b[36masync\u001b[39m ({ page }) \u001b[33m=>\u001b[39m {\n \u001b[90m 5 |\u001b[39m     \u001b[90m// 1. Navigate to the Login Page\u001b[39m\n\u001b[31m\u001b[1m>\u001b[22m\u001b[39m\u001b[90m 6 |\u001b[39m     \u001b[36mawait\u001b[39m page\u001b[33m.\u001b[39mgoto(\u001b[32m'/login'\u001b[39m)\u001b[33m;\u001b[39m\n \u001b[90m   |\u001b[39m                \u001b[31m\u001b[1m^\u001b[22m\u001b[39m\n \u001b[90m 7 |\u001b[39m\n \u001b[90m 8 |\u001b[39m     \u001b[90m// 2. Fill in the login form with the correct credentials from the component\u001b[39m\n \u001b[90m 9 |\u001b[39m     \u001b[36mawait\u001b[39m page\u001b[33m.\u001b[39mgetByPlaceholder(\u001b[32m'أدخل البريد الإلكتروني'\u001b[39m)\u001b[33m.\u001b[39mfill(\u001b[32m'customer1@souk-el-syarat.com'\u001b[39m)\u001b[33m;\u001b[39m\u001b[0m"
+                      },
+                      "errors": [
+                        {
+                          "location": {
+                            "file": "C:\\Users\\GM\\Desktop\\Souk El-Sayarat\\e2e\\auth.spec.ts",
+                            "column": 16,
+                            "line": 6
+                          },
+                          "message": "TimeoutError: page.goto: Timeout 30000ms exceeded.\nCall log:\n\u001b[2m  - navigating to \"http://localhost:5173/login\", waiting until \"load\"\u001b[22m\n\n\n\u001b[0m \u001b[90m 4 |\u001b[39m   test(\u001b[32m'should allow a customer to log in and log out'\u001b[39m\u001b[33m,\u001b[39m \u001b[36masync\u001b[39m ({ page }) \u001b[33m=>\u001b[39m {\n \u001b[90m 5 |\u001b[39m     \u001b[90m// 1. Navigate to the Login Page\u001b[39m\n\u001b[31m\u001b[1m>\u001b[22m\u001b[39m\u001b[90m 6 |\u001b[39m     \u001b[36mawait\u001b[39m page\u001b[33m.\u001b[39mgoto(\u001b[32m'/login'\u001b[39m)\u001b[33m;\u001b[39m\n \u001b[90m   |\u001b[39m                \u001b[31m\u001b[1m^\u001b[22m\u001b[39m\n \u001b[90m 7 |\u001b[39m\n \u001b[90m 8 |\u001b[39m     \u001b[90m// 2. Fill in the login form with the correct credentials from the component\u001b[39m\n \u001b[90m 9 |\u001b[39m     \u001b[36mawait\u001b[39m page\u001b[33m.\u001b[39mgetByPlaceholder(\u001b[32m'أدخل البريد الإلكتروني'\u001b[39m)\u001b[33m.\u001b[39mfill(\u001b[32m'customer1@souk-el-syarat.com'\u001b[39m)\u001b[33m;\u001b[39m\u001b[0m\n\u001b[2m    at C:\\Users\\GM\\Desktop\\Souk El-Sayarat\\e2e\\auth.spec.ts:6:16\u001b[22m"
+                        }
+                      ],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2025-08-26T18:23:11.208Z",
+                      "annotations": [],
+                      "attachments": [
+                        {
+                          "name": "screenshot",
+                          "contentType": "image/png",
+                          "path": "C:\\Users\\GM\\Desktop\\Souk El-Sayarat\\test-results\\auth-Authentication-Flow-s-a716f-tomer-to-log-in-and-log-out-chromium\\test-failed-1.png"
+                        },
+                        {
+                          "name": "video",
+                          "contentType": "video/webm",
+                          "path": "C:\\Users\\GM\\Desktop\\Souk El-Sayarat\\test-results\\auth-Authentication-Flow-s-a716f-tomer-to-log-in-and-log-out-chromium\\video.webm"
+                        },
+                        {
+                          "name": "error-context",
+                          "contentType": "text/markdown",
+                          "path": "C:\\Users\\GM\\Desktop\\Souk El-Sayarat\\test-results\\auth-Authentication-Flow-s-a716f-tomer-to-log-in-and-log-out-chromium\\error-context.md"
+                        }
+                      ],
+                      "errorLocation": {
+                        "file": "C:\\Users\\GM\\Desktop\\Souk El-Sayarat\\e2e\\auth.spec.ts",
+                        "column": 16,
+                        "line": 6
+                      }
+                    }
+                  ],
+                  "status": "unexpected"
+                }
+              ],
+              "id": "d748ac400d08b85935ef-1fd863b25fe62ac55704",
+              "file": "auth.spec.ts",
+              "line": 4,
+              "column": 3
+            },
+            {
+              "title": "should allow a customer to log in and log out",
+              "ok": false,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 60000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "firefox",
+                  "projectName": "firefox",
+                  "results": [
+                    {
+                      "workerIndex": 2,
+                      "parallelIndex": 2,
+                      "status": "failed",
+                      "duration": 53092,
+                      "error": {
+                        "message": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mpage\u001b[39m\u001b[2m).\u001b[22mtoHaveURL\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m)\u001b[22m failed\n\nExpected string: \u001b[32m\"http://localhost:5173/\u001b[7mdashboard\u001b[27m\"\u001b[39m\nReceived string: \u001b[31m\"http://localhost:5173/\u001b[7mlogin\u001b[27m\"\u001b[39m\nTimeout: 15000ms\n\nCall log:\n\u001b[2m  - Expect \"toHaveURL\" with timeout 15000ms\u001b[22m\n\u001b[2m    16 × unexpected value \"http://localhost:5173/login\"\u001b[22m\n",
+                        "stack": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mpage\u001b[39m\u001b[2m).\u001b[22mtoHaveURL\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m)\u001b[22m failed\n\nExpected string: \u001b[32m\"http://localhost:5173/\u001b[7mdashboard\u001b[27m\"\u001b[39m\nReceived string: \u001b[31m\"http://localhost:5173/\u001b[7mlogin\u001b[27m\"\u001b[39m\nTimeout: 15000ms\n\nCall log:\n\u001b[2m  - Expect \"toHaveURL\" with timeout 15000ms\u001b[22m\n\u001b[2m    16 × unexpected value \"http://localhost:5173/login\"\u001b[22m\n\n    at C:\\Users\\GM\\Desktop\\Souk El-Sayarat\\e2e\\auth.spec.ts:16:24",
+                        "location": {
+                          "file": "C:\\Users\\GM\\Desktop\\Souk El-Sayarat\\e2e\\auth.spec.ts",
+                          "column": 24,
+                          "line": 16
+                        },
+                        "snippet": "\u001b[0m \u001b[90m 14 |\u001b[39m\n \u001b[90m 15 |\u001b[39m     \u001b[90m// 4. Verify successful login and redirection\u001b[39m\n\u001b[31m\u001b[1m>\u001b[22m\u001b[39m\u001b[90m 16 |\u001b[39m     \u001b[36mawait\u001b[39m expect(page)\u001b[33m.\u001b[39mtoHaveURL(\u001b[32m'/dashboard'\u001b[39m\u001b[33m,\u001b[39m { timeout\u001b[33m:\u001b[39m \u001b[35m15000\u001b[39m })\u001b[33m;\u001b[39m\n \u001b[90m    |\u001b[39m                        \u001b[31m\u001b[1m^\u001b[22m\u001b[39m\n \u001b[90m 17 |\u001b[39m     \n \u001b[90m 18 |\u001b[39m     \u001b[90m// Expect the logout button to be visible within the Navbar\u001b[39m\n \u001b[90m 19 |\u001b[39m     \u001b[36mconst\u001b[39m navbar \u001b[33m=\u001b[39m page\u001b[33m.\u001b[39mlocator(\u001b[32m'nav'\u001b[39m)\u001b[33m;\u001b[39m\u001b[0m"
+                      },
+                      "errors": [
+                        {
+                          "location": {
+                            "file": "C:\\Users\\GM\\Desktop\\Souk El-Sayarat\\e2e\\auth.spec.ts",
+                            "column": 24,
+                            "line": 16
+                          },
+                          "message": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mpage\u001b[39m\u001b[2m).\u001b[22mtoHaveURL\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m)\u001b[22m failed\n\nExpected string: \u001b[32m\"http://localhost:5173/\u001b[7mdashboard\u001b[27m\"\u001b[39m\nReceived string: \u001b[31m\"http://localhost:5173/\u001b[7mlogin\u001b[27m\"\u001b[39m\nTimeout: 15000ms\n\nCall log:\n\u001b[2m  - Expect \"toHaveURL\" with timeout 15000ms\u001b[22m\n\u001b[2m    16 × unexpected value \"http://localhost:5173/login\"\u001b[22m\n\n\n\u001b[0m \u001b[90m 14 |\u001b[39m\n \u001b[90m 15 |\u001b[39m     \u001b[90m// 4. Verify successful login and redirection\u001b[39m\n\u001b[31m\u001b[1m>\u001b[22m\u001b[39m\u001b[90m 16 |\u001b[39m     \u001b[36mawait\u001b[39m expect(page)\u001b[33m.\u001b[39mtoHaveURL(\u001b[32m'/dashboard'\u001b[39m\u001b[33m,\u001b[39m { timeout\u001b[33m:\u001b[39m \u001b[35m15000\u001b[39m })\u001b[33m;\u001b[39m\n \u001b[90m    |\u001b[39m                        \u001b[31m\u001b[1m^\u001b[22m\u001b[39m\n \u001b[90m 17 |\u001b[39m     \n \u001b[90m 18 |\u001b[39m     \u001b[90m// Expect the logout button to be visible within the Navbar\u001b[39m\n \u001b[90m 19 |\u001b[39m     \u001b[36mconst\u001b[39m navbar \u001b[33m=\u001b[39m page\u001b[33m.\u001b[39mlocator(\u001b[32m'nav'\u001b[39m)\u001b[33m;\u001b[39m\u001b[0m\n\u001b[2m    at C:\\Users\\GM\\Desktop\\Souk El-Sayarat\\e2e\\auth.spec.ts:16:24\u001b[22m"
+                        }
+                      ],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2025-08-26T18:23:11.119Z",
+                      "annotations": [],
+                      "attachments": [
+                        {
+                          "name": "screenshot",
+                          "contentType": "image/png",
+                          "path": "C:\\Users\\GM\\Desktop\\Souk El-Sayarat\\test-results\\auth-Authentication-Flow-s-a716f-tomer-to-log-in-and-log-out-firefox\\test-failed-1.png"
+                        },
+                        {
+                          "name": "video",
+                          "contentType": "video/webm",
+                          "path": "C:\\Users\\GM\\Desktop\\Souk El-Sayarat\\test-results\\auth-Authentication-Flow-s-a716f-tomer-to-log-in-and-log-out-firefox\\video.webm"
+                        },
+                        {
+                          "name": "error-context",
+                          "contentType": "text/markdown",
+                          "path": "C:\\Users\\GM\\Desktop\\Souk El-Sayarat\\test-results\\auth-Authentication-Flow-s-a716f-tomer-to-log-in-and-log-out-firefox\\error-context.md"
+                        }
+                      ],
+                      "errorLocation": {
+                        "file": "C:\\Users\\GM\\Desktop\\Souk El-Sayarat\\e2e\\auth.spec.ts",
+                        "column": 24,
+                        "line": 16
+                      }
+                    }
+                  ],
+                  "status": "unexpected"
+                }
+              ],
+              "id": "d748ac400d08b85935ef-356c1de06cd65b9d6837",
+              "file": "auth.spec.ts",
+              "line": 4,
+              "column": 3
+            },
+            {
+              "title": "should allow a customer to log in and log out",
+              "ok": false,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 60000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "webkit",
+                  "projectName": "webkit",
+                  "results": [
+                    {
+                      "workerIndex": 4,
+                      "parallelIndex": 0,
+                      "status": "failed",
+                      "duration": 30432,
+                      "error": {
+                        "message": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mpage\u001b[39m\u001b[2m).\u001b[22mtoHaveURL\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m)\u001b[22m failed\n\nExpected string: \u001b[32m\"http://localhost:5173/\u001b[7mdashboard\u001b[27m\"\u001b[39m\nReceived string: \u001b[31m\"http://localhost:5173/\u001b[7mlogin\u001b[27m\"\u001b[39m\nTimeout: 15000ms\n\nCall log:\n\u001b[2m  - Expect \"toHaveURL\" with timeout 15000ms\u001b[22m\n\u001b[2m    17 × unexpected value \"http://localhost:5173/login\"\u001b[22m\n",
+                        "stack": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mpage\u001b[39m\u001b[2m).\u001b[22mtoHaveURL\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m)\u001b[22m failed\n\nExpected string: \u001b[32m\"http://localhost:5173/\u001b[7mdashboard\u001b[27m\"\u001b[39m\nReceived string: \u001b[31m\"http://localhost:5173/\u001b[7mlogin\u001b[27m\"\u001b[39m\nTimeout: 15000ms\n\nCall log:\n\u001b[2m  - Expect \"toHaveURL\" with timeout 15000ms\u001b[22m\n\u001b[2m    17 × unexpected value \"http://localhost:5173/login\"\u001b[22m\n\n    at C:\\Users\\GM\\Desktop\\Souk El-Sayarat\\e2e\\auth.spec.ts:16:24",
+                        "location": {
+                          "file": "C:\\Users\\GM\\Desktop\\Souk El-Sayarat\\e2e\\auth.spec.ts",
+                          "column": 24,
+                          "line": 16
+                        },
+                        "snippet": "\u001b[0m \u001b[90m 14 |\u001b[39m\n \u001b[90m 15 |\u001b[39m     \u001b[90m// 4. Verify successful login and redirection\u001b[39m\n\u001b[31m\u001b[1m>\u001b[22m\u001b[39m\u001b[90m 16 |\u001b[39m     \u001b[36mawait\u001b[39m expect(page)\u001b[33m.\u001b[39mtoHaveURL(\u001b[32m'/dashboard'\u001b[39m\u001b[33m,\u001b[39m { timeout\u001b[33m:\u001b[39m \u001b[35m15000\u001b[39m })\u001b[33m;\u001b[39m\n \u001b[90m    |\u001b[39m                        \u001b[31m\u001b[1m^\u001b[22m\u001b[39m\n \u001b[90m 17 |\u001b[39m     \n \u001b[90m 18 |\u001b[39m     \u001b[90m// Expect the logout button to be visible within the Navbar\u001b[39m\n \u001b[90m 19 |\u001b[39m     \u001b[36mconst\u001b[39m navbar \u001b[33m=\u001b[39m page\u001b[33m.\u001b[39mlocator(\u001b[32m'nav'\u001b[39m)\u001b[33m;\u001b[39m\u001b[0m"
+                      },
+                      "errors": [
+                        {
+                          "location": {
+                            "file": "C:\\Users\\GM\\Desktop\\Souk El-Sayarat\\e2e\\auth.spec.ts",
+                            "column": 24,
+                            "line": 16
+                          },
+                          "message": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mpage\u001b[39m\u001b[2m).\u001b[22mtoHaveURL\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m)\u001b[22m failed\n\nExpected string: \u001b[32m\"http://localhost:5173/\u001b[7mdashboard\u001b[27m\"\u001b[39m\nReceived string: \u001b[31m\"http://localhost:5173/\u001b[7mlogin\u001b[27m\"\u001b[39m\nTimeout: 15000ms\n\nCall log:\n\u001b[2m  - Expect \"toHaveURL\" with timeout 15000ms\u001b[22m\n\u001b[2m    17 × unexpected value \"http://localhost:5173/login\"\u001b[22m\n\n\n\u001b[0m \u001b[90m 14 |\u001b[39m\n \u001b[90m 15 |\u001b[39m     \u001b[90m// 4. Verify successful login and redirection\u001b[39m\n\u001b[31m\u001b[1m>\u001b[22m\u001b[39m\u001b[90m 16 |\u001b[39m     \u001b[36mawait\u001b[39m expect(page)\u001b[33m.\u001b[39mtoHaveURL(\u001b[32m'/dashboard'\u001b[39m\u001b[33m,\u001b[39m { timeout\u001b[33m:\u001b[39m \u001b[35m15000\u001b[39m })\u001b[33m;\u001b[39m\n \u001b[90m    |\u001b[39m                        \u001b[31m\u001b[1m^\u001b[22m\u001b[39m\n \u001b[90m 17 |\u001b[39m     \n \u001b[90m 18 |\u001b[39m     \u001b[90m// Expect the logout button to be visible within the Navbar\u001b[39m\n \u001b[90m 19 |\u001b[39m     \u001b[36mconst\u001b[39m navbar \u001b[33m=\u001b[39m page\u001b[33m.\u001b[39mlocator(\u001b[32m'nav'\u001b[39m)\u001b[33m;\u001b[39m\u001b[0m\n\u001b[2m    at C:\\Users\\GM\\Desktop\\Souk El-Sayarat\\e2e\\auth.spec.ts:16:24\u001b[22m"
+                        }
+                      ],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2025-08-26T18:23:57.224Z",
+                      "annotations": [],
+                      "attachments": [
+                        {
+                          "name": "screenshot",
+                          "contentType": "image/png",
+                          "path": "C:\\Users\\GM\\Desktop\\Souk El-Sayarat\\test-results\\auth-Authentication-Flow-s-a716f-tomer-to-log-in-and-log-out-webkit\\test-failed-1.png"
+                        },
+                        {
+                          "name": "video",
+                          "contentType": "video/webm",
+                          "path": "C:\\Users\\GM\\Desktop\\Souk El-Sayarat\\test-results\\auth-Authentication-Flow-s-a716f-tomer-to-log-in-and-log-out-webkit\\video.webm"
+                        },
+                        {
+                          "name": "error-context",
+                          "contentType": "text/markdown",
+                          "path": "C:\\Users\\GM\\Desktop\\Souk El-Sayarat\\test-results\\auth-Authentication-Flow-s-a716f-tomer-to-log-in-and-log-out-webkit\\error-context.md"
+                        }
+                      ],
+                      "errorLocation": {
+                        "file": "C:\\Users\\GM\\Desktop\\Souk El-Sayarat\\e2e\\auth.spec.ts",
+                        "column": 24,
+                        "line": 16
+                      }
+                    }
+                  ],
+                  "status": "unexpected"
+                }
+              ],
+              "id": "d748ac400d08b85935ef-e42c29b1851cca015d41",
+              "file": "auth.spec.ts",
+              "line": 4,
+              "column": 3
+            },
+            {
+              "title": "should allow a customer to log in and log out",
+              "ok": false,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 60000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "mobile",
+                  "projectName": "mobile",
+                  "results": [
+                    {
+                      "workerIndex": 6,
+                      "parallelIndex": 2,
+                      "status": "failed",
+                      "duration": 24449,
+                      "error": {
+                        "message": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mpage\u001b[39m\u001b[2m).\u001b[22mtoHaveURL\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m)\u001b[22m failed\n\nExpected string: \u001b[32m\"http://localhost:5173/\u001b[7mdashboard\u001b[27m\"\u001b[39m\nReceived string: \u001b[31m\"http://localhost:5173/\u001b[7mlogin\u001b[27m\"\u001b[39m\nTimeout: 15000ms\n\nCall log:\n\u001b[2m  - Expect \"toHaveURL\" with timeout 15000ms\u001b[22m\n\u001b[2m    18 × unexpected value \"http://localhost:5173/login\"\u001b[22m\n",
+                        "stack": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mpage\u001b[39m\u001b[2m).\u001b[22mtoHaveURL\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m)\u001b[22m failed\n\nExpected string: \u001b[32m\"http://localhost:5173/\u001b[7mdashboard\u001b[27m\"\u001b[39m\nReceived string: \u001b[31m\"http://localhost:5173/\u001b[7mlogin\u001b[27m\"\u001b[39m\nTimeout: 15000ms\n\nCall log:\n\u001b[2m  - Expect \"toHaveURL\" with timeout 15000ms\u001b[22m\n\u001b[2m    18 × unexpected value \"http://localhost:5173/login\"\u001b[22m\n\n    at C:\\Users\\GM\\Desktop\\Souk El-Sayarat\\e2e\\auth.spec.ts:16:24",
+                        "location": {
+                          "file": "C:\\Users\\GM\\Desktop\\Souk El-Sayarat\\e2e\\auth.spec.ts",
+                          "column": 24,
+                          "line": 16
+                        },
+                        "snippet": "\u001b[0m \u001b[90m 14 |\u001b[39m\n \u001b[90m 15 |\u001b[39m     \u001b[90m// 4. Verify successful login and redirection\u001b[39m\n\u001b[31m\u001b[1m>\u001b[22m\u001b[39m\u001b[90m 16 |\u001b[39m     \u001b[36mawait\u001b[39m expect(page)\u001b[33m.\u001b[39mtoHaveURL(\u001b[32m'/dashboard'\u001b[39m\u001b[33m,\u001b[39m { timeout\u001b[33m:\u001b[39m \u001b[35m15000\u001b[39m })\u001b[33m;\u001b[39m\n \u001b[90m    |\u001b[39m                        \u001b[31m\u001b[1m^\u001b[22m\u001b[39m\n \u001b[90m 17 |\u001b[39m     \n \u001b[90m 18 |\u001b[39m     \u001b[90m// Expect the logout button to be visible within the Navbar\u001b[39m\n \u001b[90m 19 |\u001b[39m     \u001b[36mconst\u001b[39m navbar \u001b[33m=\u001b[39m page\u001b[33m.\u001b[39mlocator(\u001b[32m'nav'\u001b[39m)\u001b[33m;\u001b[39m\u001b[0m"
+                      },
+                      "errors": [
+                        {
+                          "location": {
+                            "file": "C:\\Users\\GM\\Desktop\\Souk El-Sayarat\\e2e\\auth.spec.ts",
+                            "column": 24,
+                            "line": 16
+                          },
+                          "message": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mpage\u001b[39m\u001b[2m).\u001b[22mtoHaveURL\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m)\u001b[22m failed\n\nExpected string: \u001b[32m\"http://localhost:5173/\u001b[7mdashboard\u001b[27m\"\u001b[39m\nReceived string: \u001b[31m\"http://localhost:5173/\u001b[7mlogin\u001b[27m\"\u001b[39m\nTimeout: 15000ms\n\nCall log:\n\u001b[2m  - Expect \"toHaveURL\" with timeout 15000ms\u001b[22m\n\u001b[2m    18 × unexpected value \"http://localhost:5173/login\"\u001b[22m\n\n\n\u001b[0m \u001b[90m 14 |\u001b[39m\n \u001b[90m 15 |\u001b[39m     \u001b[90m// 4. Verify successful login and redirection\u001b[39m\n\u001b[31m\u001b[1m>\u001b[22m\u001b[39m\u001b[90m 16 |\u001b[39m     \u001b[36mawait\u001b[39m expect(page)\u001b[33m.\u001b[39mtoHaveURL(\u001b[32m'/dashboard'\u001b[39m\u001b[33m,\u001b[39m { timeout\u001b[33m:\u001b[39m \u001b[35m15000\u001b[39m })\u001b[33m;\u001b[39m\n \u001b[90m    |\u001b[39m                        \u001b[31m\u001b[1m^\u001b[22m\u001b[39m\n \u001b[90m 17 |\u001b[39m     \n \u001b[90m 18 |\u001b[39m     \u001b[90m// Expect the logout button to be visible within the Navbar\u001b[39m\n \u001b[90m 19 |\u001b[39m     \u001b[36mconst\u001b[39m navbar \u001b[33m=\u001b[39m page\u001b[33m.\u001b[39mlocator(\u001b[32m'nav'\u001b[39m)\u001b[33m;\u001b[39m\u001b[0m\n\u001b[2m    at C:\\Users\\GM\\Desktop\\Souk El-Sayarat\\e2e\\auth.spec.ts:16:24\u001b[22m"
+                        }
+                      ],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2025-08-26T18:24:16.822Z",
+                      "annotations": [],
+                      "attachments": [
+                        {
+                          "name": "screenshot",
+                          "contentType": "image/png",
+                          "path": "C:\\Users\\GM\\Desktop\\Souk El-Sayarat\\test-results\\auth-Authentication-Flow-s-a716f-tomer-to-log-in-and-log-out-mobile\\test-failed-1.png"
+                        },
+                        {
+                          "name": "video",
+                          "contentType": "video/webm",
+                          "path": "C:\\Users\\GM\\Desktop\\Souk El-Sayarat\\test-results\\auth-Authentication-Flow-s-a716f-tomer-to-log-in-and-log-out-mobile\\video.webm"
+                        },
+                        {
+                          "name": "error-context",
+                          "contentType": "text/markdown",
+                          "path": "C:\\Users\\GM\\Desktop\\Souk El-Sayarat\\test-results\\auth-Authentication-Flow-s-a716f-tomer-to-log-in-and-log-out-mobile\\error-context.md"
+                        }
+                      ],
+                      "errorLocation": {
+                        "file": "C:\\Users\\GM\\Desktop\\Souk El-Sayarat\\e2e\\auth.spec.ts",
+                        "column": 24,
+                        "line": 16
+                      }
+                    }
+                  ],
+                  "status": "unexpected"
+                }
+              ],
+              "id": "d748ac400d08b85935ef-281ce6b4f86b6ac8130f",
+              "file": "auth.spec.ts",
+              "line": 4,
+              "column": 3
+            },
+            {
+              "title": "should allow a customer to log in and log out",
+              "ok": false,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 60000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "mobile-safari",
+                  "projectName": "mobile-safari",
+                  "results": [
+                    {
+                      "workerIndex": 8,
+                      "parallelIndex": 0,
+                      "status": "failed",
+                      "duration": 28522,
+                      "error": {
+                        "message": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mpage\u001b[39m\u001b[2m).\u001b[22mtoHaveURL\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m)\u001b[22m failed\n\nExpected string: \u001b[32m\"http://localhost:5173/\u001b[7mdashboard\u001b[27m\"\u001b[39m\nReceived string: \u001b[31m\"http://localhost:5173/\u001b[7mlogin\u001b[27m\"\u001b[39m\nTimeout: 15000ms\n\nCall log:\n\u001b[2m  - Expect \"toHaveURL\" with timeout 15000ms\u001b[22m\n\u001b[2m    16 × unexpected value \"http://localhost:5173/login\"\u001b[22m\n",
+                        "stack": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mpage\u001b[39m\u001b[2m).\u001b[22mtoHaveURL\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m)\u001b[22m failed\n\nExpected string: \u001b[32m\"http://localhost:5173/\u001b[7mdashboard\u001b[27m\"\u001b[39m\nReceived string: \u001b[31m\"http://localhost:5173/\u001b[7mlogin\u001b[27m\"\u001b[39m\nTimeout: 15000ms\n\nCall log:\n\u001b[2m  - Expect \"toHaveURL\" with timeout 15000ms\u001b[22m\n\u001b[2m    16 × unexpected value \"http://localhost:5173/login\"\u001b[22m\n\n    at C:\\Users\\GM\\Desktop\\Souk El-Sayarat\\e2e\\auth.spec.ts:16:24",
+                        "location": {
+                          "file": "C:\\Users\\GM\\Desktop\\Souk El-Sayarat\\e2e\\auth.spec.ts",
+                          "column": 24,
+                          "line": 16
+                        },
+                        "snippet": "\u001b[0m \u001b[90m 14 |\u001b[39m\n \u001b[90m 15 |\u001b[39m     \u001b[90m// 4. Verify successful login and redirection\u001b[39m\n\u001b[31m\u001b[1m>\u001b[22m\u001b[39m\u001b[90m 16 |\u001b[39m     \u001b[36mawait\u001b[39m expect(page)\u001b[33m.\u001b[39mtoHaveURL(\u001b[32m'/dashboard'\u001b[39m\u001b[33m,\u001b[39m { timeout\u001b[33m:\u001b[39m \u001b[35m15000\u001b[39m })\u001b[33m;\u001b[39m\n \u001b[90m    |\u001b[39m                        \u001b[31m\u001b[1m^\u001b[22m\u001b[39m\n \u001b[90m 17 |\u001b[39m     \n \u001b[90m 18 |\u001b[39m     \u001b[90m// Expect the logout button to be visible within the Navbar\u001b[39m\n \u001b[90m 19 |\u001b[39m     \u001b[36mconst\u001b[39m navbar \u001b[33m=\u001b[39m page\u001b[33m.\u001b[39mlocator(\u001b[32m'nav'\u001b[39m)\u001b[33m;\u001b[39m\u001b[0m"
+                      },
+                      "errors": [
+                        {
+                          "location": {
+                            "file": "C:\\Users\\GM\\Desktop\\Souk El-Sayarat\\e2e\\auth.spec.ts",
+                            "column": 24,
+                            "line": 16
+                          },
+                          "message": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mpage\u001b[39m\u001b[2m).\u001b[22mtoHaveURL\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m)\u001b[22m failed\n\nExpected string: \u001b[32m\"http://localhost:5173/\u001b[7mdashboard\u001b[27m\"\u001b[39m\nReceived string: \u001b[31m\"http://localhost:5173/\u001b[7mlogin\u001b[27m\"\u001b[39m\nTimeout: 15000ms\n\nCall log:\n\u001b[2m  - Expect \"toHaveURL\" with timeout 15000ms\u001b[22m\n\u001b[2m    16 × unexpected value \"http://localhost:5173/login\"\u001b[22m\n\n\n\u001b[0m \u001b[90m 14 |\u001b[39m\n \u001b[90m 15 |\u001b[39m     \u001b[90m// 4. Verify successful login and redirection\u001b[39m\n\u001b[31m\u001b[1m>\u001b[22m\u001b[39m\u001b[90m 16 |\u001b[39m     \u001b[36mawait\u001b[39m expect(page)\u001b[33m.\u001b[39mtoHaveURL(\u001b[32m'/dashboard'\u001b[39m\u001b[33m,\u001b[39m { timeout\u001b[33m:\u001b[39m \u001b[35m15000\u001b[39m })\u001b[33m;\u001b[39m\n \u001b[90m    |\u001b[39m                        \u001b[31m\u001b[1m^\u001b[22m\u001b[39m\n \u001b[90m 17 |\u001b[39m     \n \u001b[90m 18 |\u001b[39m     \u001b[90m// Expect the logout button to be visible within the Navbar\u001b[39m\n \u001b[90m 19 |\u001b[39m     \u001b[36mconst\u001b[39m navbar \u001b[33m=\u001b[39m page\u001b[33m.\u001b[39mlocator(\u001b[32m'nav'\u001b[39m)\u001b[33m;\u001b[39m\u001b[0m\n\u001b[2m    at C:\\Users\\GM\\Desktop\\Souk El-Sayarat\\e2e\\auth.spec.ts:16:24\u001b[22m"
+                        }
+                      ],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2025-08-26T18:24:33.159Z",
+                      "annotations": [],
+                      "attachments": [
+                        {
+                          "name": "screenshot",
+                          "contentType": "image/png",
+                          "path": "C:\\Users\\GM\\Desktop\\Souk El-Sayarat\\test-results\\auth-Authentication-Flow-s-a716f-tomer-to-log-in-and-log-out-mobile-safari\\test-failed-1.png"
+                        },
+                        {
+                          "name": "video",
+                          "contentType": "video/webm",
+                          "path": "C:\\Users\\GM\\Desktop\\Souk El-Sayarat\\test-results\\auth-Authentication-Flow-s-a716f-tomer-to-log-in-and-log-out-mobile-safari\\video.webm"
+                        },
+                        {
+                          "name": "error-context",
+                          "contentType": "text/markdown",
+                          "path": "C:\\Users\\GM\\Desktop\\Souk El-Sayarat\\test-results\\auth-Authentication-Flow-s-a716f-tomer-to-log-in-and-log-out-mobile-safari\\error-context.md"
+                        }
+                      ],
+                      "errorLocation": {
+                        "file": "C:\\Users\\GM\\Desktop\\Souk El-Sayarat\\e2e\\auth.spec.ts",
+                        "column": 24,
+                        "line": 16
+                      }
+                    }
+                  ],
+                  "status": "unexpected"
+                }
+              ],
+              "id": "d748ac400d08b85935ef-06f1d21bf0b397f57ec2",
+              "file": "auth.spec.ts",
+              "line": 4,
+              "column": 3
+            },
+            {
+              "title": "should allow a customer to log in and log out",
+              "ok": false,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 60000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "Microsoft Edge",
+                  "projectName": "Microsoft Edge",
+                  "results": [
+                    {
+                      "workerIndex": 10,
+                      "parallelIndex": 2,
+                      "status": "failed",
+                      "duration": 20175,
+                      "error": {
+                        "message": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mpage\u001b[39m\u001b[2m).\u001b[22mtoHaveURL\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m)\u001b[22m failed\n\nExpected string: \u001b[32m\"http://localhost:5173/\u001b[7mdashboard\u001b[27m\"\u001b[39m\nReceived string: \u001b[31m\"http://localhost:5173/\u001b[7mlogin\u001b[27m\"\u001b[39m\nTimeout: 15000ms\n\nCall log:\n\u001b[2m  - Expect \"toHaveURL\" with timeout 15000ms\u001b[22m\n\u001b[2m    18 × unexpected value \"http://localhost:5173/login\"\u001b[22m\n",
+                        "stack": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mpage\u001b[39m\u001b[2m).\u001b[22mtoHaveURL\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m)\u001b[22m failed\n\nExpected string: \u001b[32m\"http://localhost:5173/\u001b[7mdashboard\u001b[27m\"\u001b[39m\nReceived string: \u001b[31m\"http://localhost:5173/\u001b[7mlogin\u001b[27m\"\u001b[39m\nTimeout: 15000ms\n\nCall log:\n\u001b[2m  - Expect \"toHaveURL\" with timeout 15000ms\u001b[22m\n\u001b[2m    18 × unexpected value \"http://localhost:5173/login\"\u001b[22m\n\n    at C:\\Users\\GM\\Desktop\\Souk El-Sayarat\\e2e\\auth.spec.ts:16:24",
+                        "location": {
+                          "file": "C:\\Users\\GM\\Desktop\\Souk El-Sayarat\\e2e\\auth.spec.ts",
+                          "column": 24,
+                          "line": 16
+                        },
+                        "snippet": "\u001b[0m \u001b[90m 14 |\u001b[39m\n \u001b[90m 15 |\u001b[39m     \u001b[90m// 4. Verify successful login and redirection\u001b[39m\n\u001b[31m\u001b[1m>\u001b[22m\u001b[39m\u001b[90m 16 |\u001b[39m     \u001b[36mawait\u001b[39m expect(page)\u001b[33m.\u001b[39mtoHaveURL(\u001b[32m'/dashboard'\u001b[39m\u001b[33m,\u001b[39m { timeout\u001b[33m:\u001b[39m \u001b[35m15000\u001b[39m })\u001b[33m;\u001b[39m\n \u001b[90m    |\u001b[39m                        \u001b[31m\u001b[1m^\u001b[22m\u001b[39m\n \u001b[90m 17 |\u001b[39m     \n \u001b[90m 18 |\u001b[39m     \u001b[90m// Expect the logout button to be visible within the Navbar\u001b[39m\n \u001b[90m 19 |\u001b[39m     \u001b[36mconst\u001b[39m navbar \u001b[33m=\u001b[39m page\u001b[33m.\u001b[39mlocator(\u001b[32m'nav'\u001b[39m)\u001b[33m;\u001b[39m\u001b[0m"
+                      },
+                      "errors": [
+                        {
+                          "location": {
+                            "file": "C:\\Users\\GM\\Desktop\\Souk El-Sayarat\\e2e\\auth.spec.ts",
+                            "column": 24,
+                            "line": 16
+                          },
+                          "message": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mpage\u001b[39m\u001b[2m).\u001b[22mtoHaveURL\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m)\u001b[22m failed\n\nExpected string: \u001b[32m\"http://localhost:5173/\u001b[7mdashboard\u001b[27m\"\u001b[39m\nReceived string: \u001b[31m\"http://localhost:5173/\u001b[7mlogin\u001b[27m\"\u001b[39m\nTimeout: 15000ms\n\nCall log:\n\u001b[2m  - Expect \"toHaveURL\" with timeout 15000ms\u001b[22m\n\u001b[2m    18 × unexpected value \"http://localhost:5173/login\"\u001b[22m\n\n\n\u001b[0m \u001b[90m 14 |\u001b[39m\n \u001b[90m 15 |\u001b[39m     \u001b[90m// 4. Verify successful login and redirection\u001b[39m\n\u001b[31m\u001b[1m>\u001b[22m\u001b[39m\u001b[90m 16 |\u001b[39m     \u001b[36mawait\u001b[39m expect(page)\u001b[33m.\u001b[39mtoHaveURL(\u001b[32m'/dashboard'\u001b[39m\u001b[33m,\u001b[39m { timeout\u001b[33m:\u001b[39m \u001b[35m15000\u001b[39m })\u001b[33m;\u001b[39m\n \u001b[90m    |\u001b[39m                        \u001b[31m\u001b[1m^\u001b[22m\u001b[39m\n \u001b[90m 17 |\u001b[39m     \n \u001b[90m 18 |\u001b[39m     \u001b[90m// Expect the logout button to be visible within the Navbar\u001b[39m\n \u001b[90m 19 |\u001b[39m     \u001b[36mconst\u001b[39m navbar \u001b[33m=\u001b[39m page\u001b[33m.\u001b[39mlocator(\u001b[32m'nav'\u001b[39m)\u001b[33m;\u001b[39m\u001b[0m\n\u001b[2m    at C:\\Users\\GM\\Desktop\\Souk El-Sayarat\\e2e\\auth.spec.ts:16:24\u001b[22m"
+                        }
+                      ],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2025-08-26T18:24:47.058Z",
+                      "annotations": [],
+                      "attachments": [
+                        {
+                          "name": "screenshot",
+                          "contentType": "image/png",
+                          "path": "C:\\Users\\GM\\Desktop\\Souk El-Sayarat\\test-results\\auth-Authentication-Flow-s-a716f-tomer-to-log-in-and-log-out-Microsoft-Edge\\test-failed-1.png"
+                        },
+                        {
+                          "name": "video",
+                          "contentType": "video/webm",
+                          "path": "C:\\Users\\GM\\Desktop\\Souk El-Sayarat\\test-results\\auth-Authentication-Flow-s-a716f-tomer-to-log-in-and-log-out-Microsoft-Edge\\video.webm"
+                        },
+                        {
+                          "name": "error-context",
+                          "contentType": "text/markdown",
+                          "path": "C:\\Users\\GM\\Desktop\\Souk El-Sayarat\\test-results\\auth-Authentication-Flow-s-a716f-tomer-to-log-in-and-log-out-Microsoft-Edge\\error-context.md"
+                        }
+                      ],
+                      "errorLocation": {
+                        "file": "C:\\Users\\GM\\Desktop\\Souk El-Sayarat\\e2e\\auth.spec.ts",
+                        "column": 24,
+                        "line": 16
+                      }
+                    }
+                  ],
+                  "status": "unexpected"
+                }
+              ],
+              "id": "d748ac400d08b85935ef-5a6f5dc1b60cfc89826f",
+              "file": "auth.spec.ts",
+              "line": 4,
+              "column": 3
+            },
+            {
+              "title": "should allow a customer to log in and log out",
+              "ok": false,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 60000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "Google Chrome",
+                  "projectName": "Google Chrome",
+                  "results": [
+                    {
+                      "workerIndex": 12,
+                      "parallelIndex": 1,
+                      "status": "failed",
+                      "duration": 40458,
+                      "error": {
+                        "message": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mpage\u001b[39m\u001b[2m).\u001b[22mtoHaveURL\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m)\u001b[22m failed\n\nExpected string: \u001b[32m\"http://localhost:5173/\u001b[7mdashboard\u001b[27m\"\u001b[39m\nReceived string: \u001b[31m\"http://localhost:5173/\u001b[7mlogin\u001b[27m\"\u001b[39m\nTimeout: 15000ms\n\nCall log:\n\u001b[2m  - Expect \"toHaveURL\" with timeout 15000ms\u001b[22m\n\u001b[2m    15 × unexpected value \"http://localhost:5173/login\"\u001b[22m\n",
+                        "stack": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mpage\u001b[39m\u001b[2m).\u001b[22mtoHaveURL\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m)\u001b[22m failed\n\nExpected string: \u001b[32m\"http://localhost:5173/\u001b[7mdashboard\u001b[27m\"\u001b[39m\nReceived string: \u001b[31m\"http://localhost:5173/\u001b[7mlogin\u001b[27m\"\u001b[39m\nTimeout: 15000ms\n\nCall log:\n\u001b[2m  - Expect \"toHaveURL\" with timeout 15000ms\u001b[22m\n\u001b[2m    15 × unexpected value \"http://localhost:5173/login\"\u001b[22m\n\n    at C:\\Users\\GM\\Desktop\\Souk El-Sayarat\\e2e\\auth.spec.ts:16:24",
+                        "location": {
+                          "file": "C:\\Users\\GM\\Desktop\\Souk El-Sayarat\\e2e\\auth.spec.ts",
+                          "column": 24,
+                          "line": 16
+                        },
+                        "snippet": "\u001b[0m \u001b[90m 14 |\u001b[39m\n \u001b[90m 15 |\u001b[39m     \u001b[90m// 4. Verify successful login and redirection\u001b[39m\n\u001b[31m\u001b[1m>\u001b[22m\u001b[39m\u001b[90m 16 |\u001b[39m     \u001b[36mawait\u001b[39m expect(page)\u001b[33m.\u001b[39mtoHaveURL(\u001b[32m'/dashboard'\u001b[39m\u001b[33m,\u001b[39m { timeout\u001b[33m:\u001b[39m \u001b[35m15000\u001b[39m })\u001b[33m;\u001b[39m\n \u001b[90m    |\u001b[39m                        \u001b[31m\u001b[1m^\u001b[22m\u001b[39m\n \u001b[90m 17 |\u001b[39m     \n \u001b[90m 18 |\u001b[39m     \u001b[90m// Expect the logout button to be visible within the Navbar\u001b[39m\n \u001b[90m 19 |\u001b[39m     \u001b[36mconst\u001b[39m navbar \u001b[33m=\u001b[39m page\u001b[33m.\u001b[39mlocator(\u001b[32m'nav'\u001b[39m)\u001b[33m;\u001b[39m\u001b[0m"
+                      },
+                      "errors": [
+                        {
+                          "location": {
+                            "file": "C:\\Users\\GM\\Desktop\\Souk El-Sayarat\\e2e\\auth.spec.ts",
+                            "column": 24,
+                            "line": 16
+                          },
+                          "message": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mpage\u001b[39m\u001b[2m).\u001b[22mtoHaveURL\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m)\u001b[22m failed\n\nExpected string: \u001b[32m\"http://localhost:5173/\u001b[7mdashboard\u001b[27m\"\u001b[39m\nReceived string: \u001b[31m\"http://localhost:5173/\u001b[7mlogin\u001b[27m\"\u001b[39m\nTimeout: 15000ms\n\nCall log:\n\u001b[2m  - Expect \"toHaveURL\" with timeout 15000ms\u001b[22m\n\u001b[2m    15 × unexpected value \"http://localhost:5173/login\"\u001b[22m\n\n\n\u001b[0m \u001b[90m 14 |\u001b[39m\n \u001b[90m 15 |\u001b[39m     \u001b[90m// 4. Verify successful login and redirection\u001b[39m\n\u001b[31m\u001b[1m>\u001b[22m\u001b[39m\u001b[90m 16 |\u001b[39m     \u001b[36mawait\u001b[39m expect(page)\u001b[33m.\u001b[39mtoHaveURL(\u001b[32m'/dashboard'\u001b[39m\u001b[33m,\u001b[39m { timeout\u001b[33m:\u001b[39m \u001b[35m15000\u001b[39m })\u001b[33m;\u001b[39m\n \u001b[90m    |\u001b[39m                        \u001b[31m\u001b[1m^\u001b[22m\u001b[39m\n \u001b[90m 17 |\u001b[39m     \n \u001b[90m 18 |\u001b[39m     \u001b[90m// Expect the logout button to be visible within the Navbar\u001b[39m\n \u001b[90m 19 |\u001b[39m     \u001b[36mconst\u001b[39m navbar \u001b[33m=\u001b[39m page\u001b[33m.\u001b[39mlocator(\u001b[32m'nav'\u001b[39m)\u001b[33m;\u001b[39m\u001b[0m\n\u001b[2m    at C:\\Users\\GM\\Desktop\\Souk El-Sayarat\\e2e\\auth.spec.ts:16:24\u001b[22m"
+                        }
+                      ],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2025-08-26T18:25:14.018Z",
+                      "annotations": [],
+                      "attachments": [
+                        {
+                          "name": "screenshot",
+                          "contentType": "image/png",
+                          "path": "C:\\Users\\GM\\Desktop\\Souk El-Sayarat\\test-results\\auth-Authentication-Flow-s-a716f-tomer-to-log-in-and-log-out-Google-Chrome\\test-failed-1.png"
+                        },
+                        {
+                          "name": "video",
+                          "contentType": "video/webm",
+                          "path": "C:\\Users\\GM\\Desktop\\Souk El-Sayarat\\test-results\\auth-Authentication-Flow-s-a716f-tomer-to-log-in-and-log-out-Google-Chrome\\video.webm"
+                        },
+                        {
+                          "name": "error-context",
+                          "contentType": "text/markdown",
+                          "path": "C:\\Users\\GM\\Desktop\\Souk El-Sayarat\\test-results\\auth-Authentication-Flow-s-a716f-tomer-to-log-in-and-log-out-Google-Chrome\\error-context.md"
+                        }
+                      ],
+                      "errorLocation": {
+                        "file": "C:\\Users\\GM\\Desktop\\Souk El-Sayarat\\e2e\\auth.spec.ts",
+                        "column": 24,
+                        "line": 16
+                      }
+                    }
+                  ],
+                  "status": "unexpected"
+                }
+              ],
+              "id": "d748ac400d08b85935ef-4331d498e3111cccba82",
+              "file": "auth.spec.ts",
+              "line": 4,
+              "column": 3
+            },
+            {
+              "title": "should allow a customer to log in and log out",
+              "ok": false,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 60000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "tablet",
+                  "projectName": "tablet",
+                  "results": [
+                    {
+                      "workerIndex": 14,
+                      "parallelIndex": 3,
+                      "status": "failed",
+                      "duration": 46001,
+                      "error": {
+                        "message": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mpage\u001b[39m\u001b[2m).\u001b[22mtoHaveURL\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m)\u001b[22m failed\n\nExpected string: \u001b[32m\"http://localhost:5173/\u001b[7mdashboard\u001b[27m\"\u001b[39m\nReceived string: \u001b[31m\"http://localhost:5173/\u001b[7mlogin\u001b[27m\"\u001b[39m\nTimeout: 15000ms\n\nCall log:\n\u001b[2m  - Expect \"toHaveURL\" with timeout 15000ms\u001b[22m\n\u001b[2m    18 × unexpected value \"http://localhost:5173/login\"\u001b[22m\n",
+                        "stack": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mpage\u001b[39m\u001b[2m).\u001b[22mtoHaveURL\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m)\u001b[22m failed\n\nExpected string: \u001b[32m\"http://localhost:5173/\u001b[7mdashboard\u001b[27m\"\u001b[39m\nReceived string: \u001b[31m\"http://localhost:5173/\u001b[7mlogin\u001b[27m\"\u001b[39m\nTimeout: 15000ms\n\nCall log:\n\u001b[2m  - Expect \"toHaveURL\" with timeout 15000ms\u001b[22m\n\u001b[2m    18 × unexpected value \"http://localhost:5173/login\"\u001b[22m\n\n    at C:\\Users\\GM\\Desktop\\Souk El-Sayarat\\e2e\\auth.spec.ts:16:24",
+                        "location": {
+                          "file": "C:\\Users\\GM\\Desktop\\Souk El-Sayarat\\e2e\\auth.spec.ts",
+                          "column": 24,
+                          "line": 16
+                        },
+                        "snippet": "\u001b[0m \u001b[90m 14 |\u001b[39m\n \u001b[90m 15 |\u001b[39m     \u001b[90m// 4. Verify successful login and redirection\u001b[39m\n\u001b[31m\u001b[1m>\u001b[22m\u001b[39m\u001b[90m 16 |\u001b[39m     \u001b[36mawait\u001b[39m expect(page)\u001b[33m.\u001b[39mtoHaveURL(\u001b[32m'/dashboard'\u001b[39m\u001b[33m,\u001b[39m { timeout\u001b[33m:\u001b[39m \u001b[35m15000\u001b[39m })\u001b[33m;\u001b[39m\n \u001b[90m    |\u001b[39m                        \u001b[31m\u001b[1m^\u001b[22m\u001b[39m\n \u001b[90m 17 |\u001b[39m     \n \u001b[90m 18 |\u001b[39m     \u001b[90m// Expect the logout button to be visible within the Navbar\u001b[39m\n \u001b[90m 19 |\u001b[39m     \u001b[36mconst\u001b[39m navbar \u001b[33m=\u001b[39m page\u001b[33m.\u001b[39mlocator(\u001b[32m'nav'\u001b[39m)\u001b[33m;\u001b[39m\u001b[0m"
+                      },
+                      "errors": [
+                        {
+                          "location": {
+                            "file": "C:\\Users\\GM\\Desktop\\Souk El-Sayarat\\e2e\\auth.spec.ts",
+                            "column": 24,
+                            "line": 16
+                          },
+                          "message": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mpage\u001b[39m\u001b[2m).\u001b[22mtoHaveURL\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m)\u001b[22m failed\n\nExpected string: \u001b[32m\"http://localhost:5173/\u001b[7mdashboard\u001b[27m\"\u001b[39m\nReceived string: \u001b[31m\"http://localhost:5173/\u001b[7mlogin\u001b[27m\"\u001b[39m\nTimeout: 15000ms\n\nCall log:\n\u001b[2m  - Expect \"toHaveURL\" with timeout 15000ms\u001b[22m\n\u001b[2m    18 × unexpected value \"http://localhost:5173/login\"\u001b[22m\n\n\n\u001b[0m \u001b[90m 14 |\u001b[39m\n \u001b[90m 15 |\u001b[39m     \u001b[90m// 4. Verify successful login and redirection\u001b[39m\n\u001b[31m\u001b[1m>\u001b[22m\u001b[39m\u001b[90m 16 |\u001b[39m     \u001b[36mawait\u001b[39m expect(page)\u001b[33m.\u001b[39mtoHaveURL(\u001b[32m'/dashboard'\u001b[39m\u001b[33m,\u001b[39m { timeout\u001b[33m:\u001b[39m \u001b[35m15000\u001b[39m })\u001b[33m;\u001b[39m\n \u001b[90m    |\u001b[39m                        \u001b[31m\u001b[1m^\u001b[22m\u001b[39m\n \u001b[90m 17 |\u001b[39m     \n \u001b[90m 18 |\u001b[39m     \u001b[90m// Expect the logout button to be visible within the Navbar\u001b[39m\n \u001b[90m 19 |\u001b[39m     \u001b[36mconst\u001b[39m navbar \u001b[33m=\u001b[39m page\u001b[33m.\u001b[39mlocator(\u001b[32m'nav'\u001b[39m)\u001b[33m;\u001b[39m\u001b[0m\n\u001b[2m    at C:\\Users\\GM\\Desktop\\Souk El-Sayarat\\e2e\\auth.spec.ts:16:24\u001b[22m"
+                        }
+                      ],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2025-08-26T18:25:28.555Z",
+                      "annotations": [],
+                      "attachments": [
+                        {
+                          "name": "screenshot",
+                          "contentType": "image/png",
+                          "path": "C:\\Users\\GM\\Desktop\\Souk El-Sayarat\\test-results\\auth-Authentication-Flow-s-a716f-tomer-to-log-in-and-log-out-tablet\\test-failed-1.png"
+                        },
+                        {
+                          "name": "video",
+                          "contentType": "video/webm",
+                          "path": "C:\\Users\\GM\\Desktop\\Souk El-Sayarat\\test-results\\auth-Authentication-Flow-s-a716f-tomer-to-log-in-and-log-out-tablet\\video.webm"
+                        },
+                        {
+                          "name": "error-context",
+                          "contentType": "text/markdown",
+                          "path": "C:\\Users\\GM\\Desktop\\Souk El-Sayarat\\test-results\\auth-Authentication-Flow-s-a716f-tomer-to-log-in-and-log-out-tablet\\error-context.md"
+                        }
+                      ],
+                      "errorLocation": {
+                        "file": "C:\\Users\\GM\\Desktop\\Souk El-Sayarat\\e2e\\auth.spec.ts",
+                        "column": 24,
+                        "line": 16
+                      }
+                    }
+                  ],
+                  "status": "unexpected"
+                }
+              ],
+              "id": "d748ac400d08b85935ef-e8253684a9c71906f49e",
+              "file": "auth.spec.ts",
+              "line": 4,
+              "column": 3
+            }
+          ]
+        }
+      ]
+    },
+    {
       "title": "homepage.spec.ts",
       "file": "homepage.spec.ts",
       "column": 0,
@@ -195,7 +804,7 @@
           "specs": [
             {
               "title": "it should match the homepage snapshot",
-              "ok": true,
+              "ok": false,
               "tags": [],
               "tests": [
                 {
@@ -206,20 +815,60 @@
                   "projectName": "chromium",
                   "results": [
                     {
-                      "workerIndex": 0,
-                      "parallelIndex": 0,
-                      "status": "passed",
-                      "duration": 11931,
-                      "errors": [],
+                      "workerIndex": 1,
+                      "parallelIndex": 1,
+                      "status": "failed",
+                      "duration": 41292,
+                      "error": {
+                        "message": "TimeoutError: page.goto: Timeout 30000ms exceeded.\nCall log:\n\u001b[2m  - navigating to \"http://localhost:5173/\", waiting until \"load\"\u001b[22m\n",
+                        "stack": "TimeoutError: page.goto: Timeout 30000ms exceeded.\nCall log:\n\u001b[2m  - navigating to \"http://localhost:5173/\", waiting until \"load\"\u001b[22m\n\n    at C:\\Users\\GM\\Desktop\\Souk El-Sayarat\\e2e\\homepage.spec.ts:6:16",
+                        "location": {
+                          "file": "C:\\Users\\GM\\Desktop\\Souk El-Sayarat\\e2e\\homepage.spec.ts",
+                          "column": 16,
+                          "line": 6
+                        },
+                        "snippet": "\u001b[0m \u001b[90m 4 |\u001b[39m   test(\u001b[32m'it should match the homepage snapshot'\u001b[39m\u001b[33m,\u001b[39m \u001b[36masync\u001b[39m ({ page }) \u001b[33m=>\u001b[39m {\n \u001b[90m 5 |\u001b[39m     \u001b[90m// Navigate to the homepage\u001b[39m\n\u001b[31m\u001b[1m>\u001b[22m\u001b[39m\u001b[90m 6 |\u001b[39m     \u001b[36mawait\u001b[39m page\u001b[33m.\u001b[39mgoto(\u001b[32m'/'\u001b[39m)\u001b[33m;\u001b[39m\n \u001b[90m   |\u001b[39m                \u001b[31m\u001b[1m^\u001b[22m\u001b[39m\n \u001b[90m 7 |\u001b[39m\n \u001b[90m 8 |\u001b[39m     \u001b[90m// Wait for a stable element in the footer to ensure the page is fully rendered\u001b[39m\n \u001b[90m 9 |\u001b[39m     \u001b[90m// Using a partial, unique text match to be language-independent and stable.\u001b[39m\u001b[0m"
+                      },
+                      "errors": [
+                        {
+                          "location": {
+                            "file": "C:\\Users\\GM\\Desktop\\Souk El-Sayarat\\e2e\\homepage.spec.ts",
+                            "column": 16,
+                            "line": 6
+                          },
+                          "message": "TimeoutError: page.goto: Timeout 30000ms exceeded.\nCall log:\n\u001b[2m  - navigating to \"http://localhost:5173/\", waiting until \"load\"\u001b[22m\n\n\n\u001b[0m \u001b[90m 4 |\u001b[39m   test(\u001b[32m'it should match the homepage snapshot'\u001b[39m\u001b[33m,\u001b[39m \u001b[36masync\u001b[39m ({ page }) \u001b[33m=>\u001b[39m {\n \u001b[90m 5 |\u001b[39m     \u001b[90m// Navigate to the homepage\u001b[39m\n\u001b[31m\u001b[1m>\u001b[22m\u001b[39m\u001b[90m 6 |\u001b[39m     \u001b[36mawait\u001b[39m page\u001b[33m.\u001b[39mgoto(\u001b[32m'/'\u001b[39m)\u001b[33m;\u001b[39m\n \u001b[90m   |\u001b[39m                \u001b[31m\u001b[1m^\u001b[22m\u001b[39m\n \u001b[90m 7 |\u001b[39m\n \u001b[90m 8 |\u001b[39m     \u001b[90m// Wait for a stable element in the footer to ensure the page is fully rendered\u001b[39m\n \u001b[90m 9 |\u001b[39m     \u001b[90m// Using a partial, unique text match to be language-independent and stable.\u001b[39m\u001b[0m\n\u001b[2m    at C:\\Users\\GM\\Desktop\\Souk El-Sayarat\\e2e\\homepage.spec.ts:6:16\u001b[22m"
+                        }
+                      ],
                       "stdout": [],
                       "stderr": [],
                       "retry": 0,
-                      "startTime": "2025-08-26T17:47:16.578Z",
+                      "startTime": "2025-08-26T18:23:11.135Z",
                       "annotations": [],
-                      "attachments": []
+                      "attachments": [
+                        {
+                          "name": "screenshot",
+                          "contentType": "image/png",
+                          "path": "C:\\Users\\GM\\Desktop\\Souk El-Sayarat\\test-results\\homepage-Homepage-Visual-T-7f962-match-the-homepage-snapshot-chromium\\test-failed-1.png"
+                        },
+                        {
+                          "name": "video",
+                          "contentType": "video/webm",
+                          "path": "C:\\Users\\GM\\Desktop\\Souk El-Sayarat\\test-results\\homepage-Homepage-Visual-T-7f962-match-the-homepage-snapshot-chromium\\video.webm"
+                        },
+                        {
+                          "name": "error-context",
+                          "contentType": "text/markdown",
+                          "path": "C:\\Users\\GM\\Desktop\\Souk El-Sayarat\\test-results\\homepage-Homepage-Visual-T-7f962-match-the-homepage-snapshot-chromium\\error-context.md"
+                        }
+                      ],
+                      "errorLocation": {
+                        "file": "C:\\Users\\GM\\Desktop\\Souk El-Sayarat\\e2e\\homepage.spec.ts",
+                        "column": 16,
+                        "line": 6
+                      }
                     }
                   ],
-                  "status": "expected"
+                  "status": "unexpected"
                 }
               ],
               "id": "84e7eb052e8cbae1c9f0-0163818e5c45f29da540",
@@ -229,7 +878,7 @@
             },
             {
               "title": "it should match the homepage snapshot",
-              "ok": true,
+              "ok": false,
               "tags": [],
               "tests": [
                 {
@@ -240,11 +889,19 @@
                   "projectName": "firefox",
                   "results": [
                     {
-                      "workerIndex": 1,
-                      "parallelIndex": 1,
-                      "status": "passed",
-                      "duration": 24134,
-                      "errors": [],
+                      "workerIndex": 3,
+                      "parallelIndex": 3,
+                      "status": "timedOut",
+                      "duration": 72912,
+                      "error": {
+                        "message": "\u001b[31mTest timeout of 60000ms exceeded.\u001b[39m",
+                        "stack": "\u001b[31mTest timeout of 60000ms exceeded.\u001b[39m"
+                      },
+                      "errors": [
+                        {
+                          "message": "\u001b[31mTest timeout of 60000ms exceeded.\u001b[39m"
+                        }
+                      ],
                       "stdout": [
                         {
                           "text": "C:\\Users\\GM\\Desktop\\Souk El-Sayarat\\e2e\\homepage.spec.ts-snapshots\\homepage-firefox-win32.png is re-generated, writing actual.\n"
@@ -252,12 +909,28 @@
                       ],
                       "stderr": [],
                       "retry": 0,
-                      "startTime": "2025-08-26T17:47:16.582Z",
+                      "startTime": "2025-08-26T18:23:11.194Z",
                       "annotations": [],
-                      "attachments": []
+                      "attachments": [
+                        {
+                          "name": "screenshot",
+                          "contentType": "image/png",
+                          "path": "C:\\Users\\GM\\Desktop\\Souk El-Sayarat\\test-results\\homepage-Homepage-Visual-T-7f962-match-the-homepage-snapshot-firefox\\test-failed-1.png"
+                        },
+                        {
+                          "name": "video",
+                          "contentType": "video/webm",
+                          "path": "C:\\Users\\GM\\Desktop\\Souk El-Sayarat\\test-results\\homepage-Homepage-Visual-T-7f962-match-the-homepage-snapshot-firefox\\video.webm"
+                        },
+                        {
+                          "name": "error-context",
+                          "contentType": "text/markdown",
+                          "path": "C:\\Users\\GM\\Desktop\\Souk El-Sayarat\\test-results\\homepage-Homepage-Visual-T-7f962-match-the-homepage-snapshot-firefox\\error-context.md"
+                        }
+                      ]
                     }
                   ],
-                  "status": "expected"
+                  "status": "unexpected"
                 }
               ],
               "id": "84e7eb052e8cbae1c9f0-462c8cc7ce4d5cce229a",
@@ -278,32 +951,17 @@
                   "projectName": "webkit",
                   "results": [
                     {
-                      "workerIndex": 2,
-                      "parallelIndex": 2,
+                      "workerIndex": 5,
+                      "parallelIndex": 1,
                       "status": "passed",
-                      "duration": 21424,
+                      "duration": 6658,
                       "errors": [],
-                      "stdout": [
-                        {
-                          "text": "A snapshot doesn't exist at C:\\Users\\GM\\Desktop\\Souk El-Sayarat\\e2e\\homepage.spec.ts-snapshots\\homepage-webkit-win32.png, writing actual.\n"
-                        }
-                      ],
+                      "stdout": [],
                       "stderr": [],
                       "retry": 0,
-                      "startTime": "2025-08-26T17:47:16.717Z",
+                      "startTime": "2025-08-26T18:24:08.126Z",
                       "annotations": [],
-                      "attachments": [
-                        {
-                          "name": "homepage-expected.png",
-                          "contentType": "image/png",
-                          "path": "C:\\Users\\GM\\Desktop\\Souk El-Sayarat\\e2e\\homepage.spec.ts-snapshots\\homepage-webkit-win32.png"
-                        },
-                        {
-                          "name": "homepage-actual.png",
-                          "contentType": "image/png",
-                          "path": "C:\\Users\\GM\\Desktop\\Souk El-Sayarat\\test-results\\homepage-Homepage-Visual-T-7f962-match-the-homepage-snapshot-webkit\\homepage-actual.png"
-                        }
-                      ]
+                      "attachments": []
                     }
                   ],
                   "status": "expected"
@@ -327,32 +985,21 @@
                   "projectName": "mobile",
                   "results": [
                     {
-                      "workerIndex": 3,
-                      "parallelIndex": 3,
+                      "workerIndex": 7,
+                      "parallelIndex": 1,
                       "status": "passed",
-                      "duration": 11490,
+                      "duration": 46976,
                       "errors": [],
                       "stdout": [
                         {
-                          "text": "A snapshot doesn't exist at C:\\Users\\GM\\Desktop\\Souk El-Sayarat\\e2e\\homepage.spec.ts-snapshots\\homepage-mobile-win32.png, writing actual.\n"
+                          "text": "C:\\Users\\GM\\Desktop\\Souk El-Sayarat\\e2e\\homepage.spec.ts-snapshots\\homepage-mobile-win32.png is re-generated, writing actual.\n"
                         }
                       ],
                       "stderr": [],
                       "retry": 0,
-                      "startTime": "2025-08-26T17:47:16.772Z",
+                      "startTime": "2025-08-26T18:24:20.398Z",
                       "annotations": [],
-                      "attachments": [
-                        {
-                          "name": "homepage-expected.png",
-                          "contentType": "image/png",
-                          "path": "C:\\Users\\GM\\Desktop\\Souk El-Sayarat\\e2e\\homepage.spec.ts-snapshots\\homepage-mobile-win32.png"
-                        },
-                        {
-                          "name": "homepage-actual.png",
-                          "contentType": "image/png",
-                          "path": "C:\\Users\\GM\\Desktop\\Souk El-Sayarat\\test-results\\homepage-Homepage-Visual-T-7f962-match-the-homepage-snapshot-mobile\\homepage-actual.png"
-                        }
-                      ]
+                      "attachments": []
                     }
                   ],
                   "status": "expected"
@@ -376,32 +1023,21 @@
                   "projectName": "mobile-safari",
                   "results": [
                     {
-                      "workerIndex": 5,
-                      "parallelIndex": 0,
+                      "workerIndex": 9,
+                      "parallelIndex": 3,
                       "status": "passed",
-                      "duration": 12434,
+                      "duration": 41458,
                       "errors": [],
                       "stdout": [
                         {
-                          "text": "A snapshot doesn't exist at C:\\Users\\GM\\Desktop\\Souk El-Sayarat\\e2e\\homepage.spec.ts-snapshots\\homepage-mobile-safari-win32.png, writing actual.\n"
+                          "text": "C:\\Users\\GM\\Desktop\\Souk El-Sayarat\\e2e\\homepage.spec.ts-snapshots\\homepage-mobile-safari-win32.png is re-generated, writing actual.\n"
                         }
                       ],
                       "stderr": [],
                       "retry": 0,
-                      "startTime": "2025-08-26T17:47:36.156Z",
+                      "startTime": "2025-08-26T18:24:34.102Z",
                       "annotations": [],
-                      "attachments": [
-                        {
-                          "name": "homepage-expected.png",
-                          "contentType": "image/png",
-                          "path": "C:\\Users\\GM\\Desktop\\Souk El-Sayarat\\e2e\\homepage.spec.ts-snapshots\\homepage-mobile-safari-win32.png"
-                        },
-                        {
-                          "name": "homepage-actual.png",
-                          "contentType": "image/png",
-                          "path": "C:\\Users\\GM\\Desktop\\Souk El-Sayarat\\test-results\\homepage-Homepage-Visual-T-7f962-match-the-homepage-snapshot-mobile-safari\\homepage-actual.png"
-                        }
-                      ]
+                      "attachments": []
                     }
                   ],
                   "status": "expected"
@@ -425,15 +1061,19 @@
                   "projectName": "Microsoft Edge",
                   "results": [
                     {
-                      "workerIndex": 4,
-                      "parallelIndex": 3,
+                      "workerIndex": 11,
+                      "parallelIndex": 0,
                       "status": "passed",
-                      "duration": 9757,
+                      "duration": 54801,
                       "errors": [],
-                      "stdout": [],
+                      "stdout": [
+                        {
+                          "text": "C:\\Users\\GM\\Desktop\\Souk El-Sayarat\\e2e\\homepage.spec.ts-snapshots\\homepage-Microsoft-Edge-win32.png is re-generated, writing actual.\n"
+                        }
+                      ],
                       "stderr": [],
                       "retry": 0,
-                      "startTime": "2025-08-26T17:47:36.057Z",
+                      "startTime": "2025-08-26T18:25:08.460Z",
                       "annotations": [],
                       "attachments": []
                     }
@@ -459,15 +1099,19 @@
                   "projectName": "Google Chrome",
                   "results": [
                     {
-                      "workerIndex": 6,
+                      "workerIndex": 13,
                       "parallelIndex": 2,
                       "status": "passed",
-                      "duration": 6610,
+                      "duration": 47295,
                       "errors": [],
-                      "stdout": [],
+                      "stdout": [
+                        {
+                          "text": "C:\\Users\\GM\\Desktop\\Souk El-Sayarat\\e2e\\homepage.spec.ts-snapshots\\homepage-Google-Chrome-win32.png is re-generated, writing actual.\n"
+                        }
+                      ],
                       "stderr": [],
                       "retry": 0,
-                      "startTime": "2025-08-26T17:47:48.502Z",
+                      "startTime": "2025-08-26T18:25:17.308Z",
                       "annotations": [],
                       "attachments": []
                     }
@@ -493,15 +1137,19 @@
                   "projectName": "tablet",
                   "results": [
                     {
-                      "workerIndex": 7,
-                      "parallelIndex": 3,
+                      "workerIndex": 15,
+                      "parallelIndex": 0,
                       "status": "passed",
-                      "duration": 5843,
+                      "duration": 29220,
                       "errors": [],
-                      "stdout": [],
+                      "stdout": [
+                        {
+                          "text": "C:\\Users\\GM\\Desktop\\Souk El-Sayarat\\e2e\\homepage.spec.ts-snapshots\\homepage-tablet-win32.png is re-generated, writing actual.\n"
+                        }
+                      ],
                       "stderr": [],
                       "retry": 0,
-                      "startTime": "2025-08-26T17:47:54.384Z",
+                      "startTime": "2025-08-26T18:26:10.111Z",
                       "annotations": [],
                       "attachments": []
                     }
@@ -521,11 +1169,11 @@
   ],
   "errors": [],
   "stats": {
-    "startTime": "2025-08-26T17:47:13.194Z",
-    "duration": 47561.371,
-    "expected": 8,
+    "startTime": "2025-08-26T18:22:49.722Z",
+    "duration": 230376.31399999998,
+    "expected": 6,
     "skipped": 0,
-    "unexpected": 0,
+    "unexpected": 10,
     "flaky": 0
   }
 }

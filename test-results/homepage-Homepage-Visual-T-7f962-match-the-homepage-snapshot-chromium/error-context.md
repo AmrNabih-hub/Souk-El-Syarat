@@ -1,0 +1,154 @@
+# Page snapshot
+
+```yaml
+- generic [ref=e3]:
+  - navigation [ref=e4]:
+    - generic [ref=e6]:
+      - link "س سوق السيارات Souk El-Syarat" [ref=e8] [cursor=pointer]:
+        - /url: /
+        - generic [ref=e10] [cursor=pointer]: س
+        - generic [ref=e11] [cursor=pointer]:
+          - heading "سوق السيارات" [level=1] [ref=e12] [cursor=pointer]
+          - paragraph [ref=e13] [cursor=pointer]: Souk El-Syarat
+      - generic [ref=e14]:
+        - link "الرئيسية" [ref=e16] [cursor=pointer]:
+          - /url: /
+          - text: الرئيسية
+        - link "السوق" [ref=e19] [cursor=pointer]:
+          - /url: /marketplace
+        - link "التجار" [ref=e21] [cursor=pointer]:
+          - /url: /vendors
+        - link "طلب كونك تاجر" [ref=e23] [cursor=pointer]:
+          - /url: /vendor/apply
+      - generic [ref=e26]:
+        - textbox "ابحث عن سيارة، قطع غيار..." [ref=e27]
+        - img [ref=e28]
+      - generic [ref=e30]:
+        - button "تفعيل الوضع المظلم" [ref=e31] [cursor=pointer]:
+          - img [ref=e32] [cursor=pointer]
+        - button "EN" [ref=e34] [cursor=pointer]:
+          - generic [ref=e35] [cursor=pointer]:
+            - img [ref=e36] [cursor=pointer]
+            - generic [ref=e38] [cursor=pointer]: EN
+        - link "دخول" [ref=e40] [cursor=pointer]:
+          - /url: /login
+        - link "تسجيل" [ref=e42] [cursor=pointer]:
+          - /url: /register
+  - main:
+    - generic [ref=e44]:
+      - img [ref=e49]
+      - generic [ref=e51]:
+        - heading "سوق السيارات" [level=2] [ref=e52]:
+          - generic [ref=e53]: سوق السيارات
+        - paragraph [ref=e54]: جاري التحميل...
+  - contentinfo [ref=e62]:
+    - generic [ref=e63]:
+      - generic [ref=e64]:
+        - generic [ref=e65]:
+          - generic [ref=e66]:
+            - generic [ref=e68]: س
+            - generic [ref=e69]:
+              - heading "سوق السيارات" [level=3] [ref=e70]
+              - paragraph [ref=e71]: Souk El-Syarat
+          - paragraph [ref=e72]: منصة التجارة الإلكترونية الرائدة في مصر للسيارات وقطع الغيار والخدمات
+          - generic [ref=e73]:
+            - generic [ref=e74]:
+              - img [ref=e75]
+              - generic [ref=e78]: القاهرة، مصر
+            - generic [ref=e79]:
+              - img [ref=e80]
+              - generic [ref=e82]: +20 10 1234 5678
+            - generic [ref=e83]:
+              - img [ref=e84]
+              - generic [ref=e86]: info@soukel-syarat.com
+            - generic [ref=e87]:
+              - img [ref=e88]
+              - generic [ref=e90]: www.soukel-syarat.com
+        - generic [ref=e91]:
+          - heading "الشركة" [level=4] [ref=e92]
+          - list [ref=e93]:
+            - listitem [ref=e94]:
+              - link "من نحن" [ref=e96] [cursor=pointer]:
+                - /url: /about
+            - listitem [ref=e97]:
+              - link "اتصل بنا" [ref=e99] [cursor=pointer]:
+                - /url: /contact
+            - listitem [ref=e100]:
+              - link "الوظائف" [ref=e102] [cursor=pointer]:
+                - /url: /careers
+            - listitem [ref=e103]:
+              - link "الأخبار" [ref=e105] [cursor=pointer]:
+                - /url: /news
+        - generic [ref=e106]:
+          - heading "السوق" [level=4] [ref=e107]
+          - list [ref=e108]:
+            - listitem [ref=e109]:
+              - link "سيارات للبيع" [ref=e111] [cursor=pointer]:
+                - /url: /marketplace?category=cars
+            - listitem [ref=e112]:
+              - link "قطع غيار" [ref=e114] [cursor=pointer]:
+                - /url: /marketplace?category=parts
+            - listitem [ref=e115]:
+              - link "الخدمات" [ref=e117] [cursor=pointer]:
+                - /url: /marketplace?category=services
+            - listitem [ref=e118]:
+              - link "التجار المميزين" [ref=e120] [cursor=pointer]:
+                - /url: /vendors
+        - generic [ref=e121]:
+          - heading "الدعم" [level=4] [ref=e122]
+          - list [ref=e123]:
+            - listitem [ref=e124]:
+              - link "مركز المساعدة" [ref=e126] [cursor=pointer]:
+                - /url: /help
+            - listitem [ref=e127]:
+              - link "الأسئلة الشائعة" [ref=e129] [cursor=pointer]:
+                - /url: /faq
+            - listitem [ref=e130]:
+              - link "سياسة الخصوصية" [ref=e132] [cursor=pointer]:
+                - /url: /privacy
+            - listitem [ref=e133]:
+              - link "الشروط والأحكام" [ref=e135] [cursor=pointer]:
+                - /url: /terms
+        - generic [ref=e136]:
+          - heading "للتجار" [level=4] [ref=e137]
+          - list [ref=e138]:
+            - listitem [ref=e139]:
+              - link "كن تاجراً" [ref=e141] [cursor=pointer]:
+                - /url: /vendor/apply
+            - listitem [ref=e142]:
+              - link "مركز البائعين" [ref=e144] [cursor=pointer]:
+                - /url: /vendor/center
+            - listitem [ref=e145]:
+              - link "دليل البيع" [ref=e147] [cursor=pointer]:
+                - /url: /selling-guide
+            - listitem [ref=e148]:
+              - link "الرسوم والعمولات" [ref=e150] [cursor=pointer]:
+                - /url: /fees
+      - generic [ref=e152]:
+        - heading "اشترك في نشرتنا الإخبارية" [level=4] [ref=e153]
+        - paragraph [ref=e154]: احصل على آخر العروض والأخبار من سوق السيارات
+        - generic [ref=e155]:
+          - textbox "أدخل بريدك الإلكتروني" [ref=e156]
+          - button "اشترك" [ref=e157] [cursor=pointer]
+    - generic [ref=e160]:
+      - generic [ref=e161]:
+        - paragraph [ref=e162]: © 2024 سوق السيارات. جميع الحقوق محفوظة
+        - img [ref=e163]
+      - generic [ref=e165]:
+        - paragraph [ref=e166]: "تابعنا على:"
+        - link "Facebook" [ref=e167] [cursor=pointer]:
+          - /url: https://facebook.com/soukel-syarat
+          - img [ref=e168] [cursor=pointer]
+        - link "Instagram" [ref=e170] [cursor=pointer]:
+          - /url: https://instagram.com/soukel-syarat
+          - img [ref=e171] [cursor=pointer]
+        - link "Twitter" [ref=e173] [cursor=pointer]:
+          - /url: https://twitter.com/soukel-syarat
+          - img [ref=e174] [cursor=pointer]
+        - link "LinkedIn" [ref=e176] [cursor=pointer]:
+          - /url: https://linkedin.com/company/soukel-syarat
+          - img [ref=e177] [cursor=pointer]
+        - link "YouTube" [ref=e179] [cursor=pointer]:
+          - /url: https://youtube.com/soukel-syarat
+          - img [ref=e180] [cursor=pointer]
+```
