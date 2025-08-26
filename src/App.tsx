@@ -193,21 +193,14 @@ const PublicRoute: React.FC<{
   );
 };
 
-// Safe page wrapper
-const SafePage: React.FC<{ children: React.ReactNode }> = ({ children }) => {
-  return (
-    <ErrorBoundary>
-      <motion.div
-        initial={{ opacity: 0, y: 10 }}
-        animate={{ opacity: 1, y: 0 }}
-        exit={{ opacity: 0, y: -10 }}
-        transition={{ duration: 0.2 }}
-      >
-        {children}
-      </motion.div>
-    </ErrorBoundary>
-  );
-};
+// Safe Page Wrapper Component
+const SafePage: React.FC<{ children: React.ReactNode }> = ({ children }) => (
+  <ErrorBoundary>
+    <Suspense fallback={<LoadingScreen />}>
+      {children}
+    </Suspense>
+  </ErrorBoundary>
+);
 
 // Page not found component
 const NotFoundPage = () => (
@@ -228,30 +221,38 @@ const NotFoundPage = () => (
   </div>
 );
 
-function App() {
-  const { initializeAuth, user } = useUnifiedAuthStore();
-  const { language, theme } = useAppStore();
+const App: React.FC = () => {
+  const { initializeAuth, authChecked, isLoading } = useUnifiedAuthStore();
+  const { theme } = useAppStore();
 
-  // Initialize unified authentication system
+  // Initialize authentication on app load
   useEffect(() => {
-    console.log('🚀 Starting App with Unified Auth System...');
-    try {
-      initializeAuth();
-    } catch (error) {
-      console.error('❌ Failed to initialize auth system:', error);
-    }
+    console.log('🚀 Starting app initialization...');
+    initializeAuth();
+    
+    // Cleanup function
+    return () => {
+      if ((window as any).__unifiedAuthUnsubscribe) {
+        (window as any).__unifiedAuthUnsubscribe();
+      }
+    };
   }, [initializeAuth]);
+
+  // Show loading screen while checking authentication
+  if (!authChecked || isLoading) {
+    return <LoadingScreen />;
+  }
 
   // Safe document setup
   useEffect(() => {
     try {
-      document.documentElement.dir = language === 'ar' ? 'rtl' : 'ltr';
-      document.documentElement.lang = language;
+      document.documentElement.dir = 'ltr'; // Default to LTR for now, or set based on language if needed
+      document.documentElement.lang = 'en'; // Default to English for now
       document.documentElement.className = theme === 'dark' ? 'dark' : '';
     } catch (error) {
       console.error('Error setting document properties:', error);
     }
-  }, [language, theme]);
+  }, [theme]);
 
   return (
     <ErrorBoundary>

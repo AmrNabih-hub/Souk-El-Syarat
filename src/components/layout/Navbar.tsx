@@ -158,7 +158,15 @@ const Navbar: React.FC = () => {
           <div className='flex items-center space-x-4'>
             {/* Theme Toggle */}
             <motion.button
-              onClick={() => setTheme(theme === 'light' ? 'dark' : 'light')}
+              onClick={() => {
+                try {
+                  const newTheme = theme === 'light' ? 'dark' : 'light';
+                  console.log('🎨 Switching theme from', theme, 'to', newTheme);
+                  setTheme(newTheme);
+                } catch (error) {
+                  console.error('❌ Theme toggle error:', error);
+                }
+              }}
               className='p-2 text-neutral-600 hover:text-primary-600 transition-colors'
               whileHover={{ scale: 1.1 }}
               whileTap={{ scale: 0.9 }}
@@ -172,12 +180,23 @@ const Navbar: React.FC = () => {
 
             {/* Language Toggle */}
             <motion.button
-              onClick={() => setLanguage(language === 'ar' ? 'en' : 'ar')}
+              onClick={() => {
+                try {
+                  const newLanguage = language === 'ar' ? 'en' : 'ar';
+                  console.log('🌐 Switching language from', language, 'to', newLanguage);
+                  setLanguage(newLanguage);
+                } catch (error) {
+                  console.error('❌ Language toggle error:', error);
+                }
+              }}
               className='p-2 text-neutral-600 hover:text-primary-600 transition-colors'
               whileHover={{ scale: 1.1 }}
               whileTap={{ scale: 0.9 }}
             >
-              <GlobeAltIcon className='w-5 h-5' />
+              <div className="flex items-center gap-1">
+                <GlobeAltIcon className='w-5 h-5' />
+                <span className="text-xs font-medium">{language === 'ar' ? 'EN' : 'AR'}</span>
+              </div>
             </motion.button>
 
             {user ? (
@@ -192,11 +211,11 @@ const Navbar: React.FC = () => {
                     <HeartIcon className='w-5 h-5 group-hover:text-red-500' />
                     {favorites.length > 0 && (
                       <motion.span
-                        className='absolute -top-1 -right-1 min-w-[18px] h-[18px] bg-red-500 text-white text-xs rounded-full flex items-center justify-center font-bold shadow-lg border-2 border-white'
+                        className='absolute -top-2 -right-2 min-w-[20px] h-[20px] bg-red-500 text-white text-xs rounded-full flex items-center justify-center font-bold shadow-lg border-2 border-white z-10'
                         initial={{ scale: 0 }}
                         animate={{ scale: 1 }}
                         transition={{ type: 'spring', stiffness: 300 }}
-                        style={{ fontSize: '10px', lineHeight: '1' }}
+                        style={{ fontSize: '11px', lineHeight: '1' }}
                       >
                         {favorites.length > 99 ? '99+' : favorites.length}
                       </motion.span>
@@ -214,11 +233,11 @@ const Navbar: React.FC = () => {
                     <ShoppingCartIcon className='w-5 h-5 group-hover:text-primary-600' />
                     {getCartItemsCount() > 0 && (
                       <motion.span
-                        className='absolute -top-1 -right-1 min-w-[18px] h-[18px] bg-primary-500 text-white text-xs rounded-full flex items-center justify-center font-bold shadow-lg border-2 border-white'
+                        className='absolute -top-2 -right-2 min-w-[20px] h-[20px] bg-primary-500 text-white text-xs rounded-full flex items-center justify-center font-bold shadow-lg border-2 border-white z-10'
                         initial={{ scale: 0 }}
                         animate={{ scale: 1 }}
                         transition={{ type: 'spring', stiffness: 300 }}
-                        style={{ fontSize: '10px', lineHeight: '1' }}
+                        style={{ fontSize: '11px', lineHeight: '1' }}
                       >
                         {getCartItemsCount() > 99 ? '99+' : getCartItemsCount()}
                       </motion.span>

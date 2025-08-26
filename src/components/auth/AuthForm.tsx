@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { motion } from 'framer-motion';
 import { EyeIcon, EyeSlashIcon } from '@heroicons/react/24/outline';
-import { useAuthStore } from '@/stores/authStore';
+import { useUnifiedAuthStore } from '@/stores/authStore.unified';
 import toast from 'react-hot-toast';
 
 interface AuthFormProps {
@@ -20,7 +20,7 @@ const AuthForm: React.FC<AuthFormProps> = ({ type, onSuccess }) => {
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
 
-  const { signIn, signUp, signInWithGoogle } = useAuthStore();
+  const { signIn, signUp, signInWithGoogle } = useUnifiedAuthStore();
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
