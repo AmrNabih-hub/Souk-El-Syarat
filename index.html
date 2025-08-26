@@ -18,6 +18,11 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Poppins:wght@300;400;500;600;700;800;900&family=Cairo:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
     
+    <!-- Performance optimizations -->
+    <link rel="dns-prefetch" href="https://souk-el-syarat.firebaseapp.com">
+    <link rel="dns-prefetch" href="https://firebaseapp.com">
+    <link rel="dns-prefetch" href="https://firebase.googleapis.com">
+    
     <title>سوق السيارات - Souk El-Syarat</title>
   </head>
   <body>
@@ -83,6 +88,8 @@
           }
         }, 100);
       });
+      
+      // No Service Worker for now to avoid conflicts
     </script>
     
     <script type="module" src="/src/main.tsx"></script>

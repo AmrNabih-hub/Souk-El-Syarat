@@ -13,11 +13,19 @@ import {
   SunIcon,
   MoonIcon,
   ChevronDownIcon,
+  Cog6ToothIcon,
+  ArrowRightOnRectangleIcon,
+  BuildingStorefrontIcon,
+  ChartBarIcon,
+  UserCircleIcon,
+  ShieldCheckIcon,
 } from '@heroicons/react/24/outline';
 
 import { useAppStore } from '@/stores/appStore';
 import { useAuthStore } from '@/stores/authStore';
+import SyncStatusIndicator from '@/components/ui/SyncStatusIndicator';
 import clsx from 'clsx';
+import toast from 'react-hot-toast';
 
 const Navbar: React.FC = () => {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
@@ -30,8 +38,76 @@ const Navbar: React.FC = () => {
 
   const navigate = useNavigate();
   const location = useLocation();
-  const { user, signOut } = useAuthStore();
-  const { language, theme, setLanguage, setTheme, getCartItemsCount, favorites } = useAppStore();
+  
+  // Real authentication state
+  const { user, signOut, isLoading: authLoading } = useAuthStore();
+  const { language, theme, setLanguage, setTheme, getCartItemsCount, favorites, syncStatus, isOnline } = useAppStore();
+
+  // Get role-based profile information
+  const getUserProfileInfo = () => {
+    if (!user) return null;
+    
+    switch (user.role) {
+      case 'admin':
+        return {
+          name: user.displayName || 'المدير',
+          role: 'مدير النظام',
+          icon: ShieldCheckIcon,
+          dashboardPath: '/admin/dashboard',
+          profilePath: '/admin/profile',
+          color: 'text-red-600',
+          bgColor: 'bg-red-50',
+          borderColor: 'border-red-200'
+        };
+      case 'vendor':
+        return {
+          name: user.displayName || 'التاجر',
+          role: 'تاجر',
+          icon: BuildingStorefrontIcon,
+          dashboardPath: '/vendor/dashboard',
+          profilePath: '/vendor/profile',
+          color: 'text-blue-600',
+          bgColor: 'bg-blue-50',
+          borderColor: 'border-blue-200'
+        };
+      case 'customer':
+        return {
+          name: user.displayName || 'العميل',
+          role: 'عميل',
+          icon: UserCircleIcon,
+          dashboardPath: '/dashboard',
+          profilePath: '/profile',
+          color: 'text-green-600',
+          bgColor: 'bg-green-50',
+          borderColor: 'border-green-200'
+        };
+      default:
+        return {
+          name: user.displayName || user.email,
+          role: 'مستخدم',
+          icon: UserIcon,
+          dashboardPath: '/dashboard',
+          profilePath: '/profile',
+          color: 'text-gray-600',
+          bgColor: 'bg-gray-50',
+          borderColor: 'border-gray-200'
+        };
+    }
+  };
+
+  // Handle sign out with navigation
+  const handleSignOut = async () => {
+    try {
+      await signOut();
+      setIsUserMenuOpen(false);
+      navigate('/');
+      toast.success('تم تسجيل الخروج بنجاح');
+    } catch (error) {
+      toast.error('حدث خطأ أثناء تسجيل الخروج');
+    }
+  };
+
+  const profileInfo = getUserProfileInfo();
 
   // Close dropdowns when clicking outside
   useEffect(() => {
@@ -47,17 +123,6 @@ const Navbar: React.FC = () => {
     document.addEventListener('mousedown', handleClickOutside);
     return () => document.removeEventListener('mousedown', handleClickOutside);
   }, []);
-
-  const handleSignOut = async () => {
-    try {
-      await signOut();
-      setIsUserMenuOpen(false);
-      navigate('/');
-    } catch (error) {
-      if (process.env.NODE_ENV === 'development')
-        if (process.env.NODE_ENV === 'development') console.error('Error signing out:', error);
-    }
-  };
 
   const handleSearch = (e: React.FormEvent) => {
     e.preventDefault();
@@ -158,10 +223,36 @@ const Navbar: React.FC = () => {
           <div className='flex items-center space-x-4'>
             {/* Theme Toggle */}
             <motion.button
-              onClick={() => setTheme(theme === 'light' ? 'dark' : 'light')}
-              className='p-2 text-neutral-600 hover:text-primary-600 transition-colors'
+              onClick={() => {
+                try {
+                  const newTheme = theme === 'light' ? 'dark' : 'light';
+                  console.log('🎨 Switching theme from', theme, 'to', newTheme);
+                  setTheme(newTheme);
+                  
+                  // Force immediate DOM update
+                  if (typeof window !== 'undefined') {
+                    const root = document.documentElement;
+                    if (newTheme === 'dark') {
+                      root.classList.add('dark');
+                    } else {
+                      root.classList.remove('dark');
+                    }
+                    localStorage.setItem('souk-theme', newTheme);
+                  }
+                  
+                  toast.success(
+                    newTheme === 'dark' ? 'تم تفعيل الوضع المظلم' : 'تم تفعيل الوضع المضيء',
+                    { duration: 2000 }
+                  );
+                } catch (error) {
+                  console.error('❌ Theme toggle error:', error);
+                  toast.error('خطأ في تغيير النمط');
+                }
+              }}
+              className='p-3 text-neutral-600 hover:text-primary-600 transition-all duration-300 bg-neutral-100 hover:bg-primary-50 rounded-lg shadow-sm hover:shadow-md'
               whileHover={{ scale: 1.1 }}
               whileTap={{ scale: 0.9 }}
+              title={theme === 'light' ? 'تفعيل الوضع المظلم' : 'تفعيل الوضع المضيء'}
             >
               {theme === 'light' ? (
                 <MoonIcon className='w-5 h-5' />
@@ -172,12 +263,42 @@ const Navbar: React.FC = () => {
 
             {/* Language Toggle */}
             <motion.button
-              onClick={() => setLanguage(language === 'ar' ? 'en' : 'ar')}
-              className='p-2 text-neutral-600 hover:text-primary-600 transition-colors'
+              onClick={() => {
+                try {
+                  const newLanguage = language === 'ar' ? 'en' : 'ar';
+                  console.log('🌐 Switching language from', language, 'to', newLanguage);
+                  setLanguage(newLanguage);
+                  
+                  // Force immediate DOM update
+                  if (typeof window !== 'undefined') {
+                    const root = document.documentElement;
+                    root.setAttribute('lang', newLanguage);
+                    root.setAttribute('dir', newLanguage === 'ar' ? 'rtl' : 'ltr');
+                    localStorage.setItem('souk-language', newLanguage);
+                    
+                    // Also update the HTML tag direction immediately
+                    document.dir = newLanguage === 'ar' ? 'rtl' : 'ltr';
+                  }
+                  
+                  toast.success(
+                    newLanguage === 'ar' ? 'تم التبديل للعربية' : 'Switched to English',
+                    { duration: 2000 }
+                  );
+                  
+                } catch (error) {
+                  console.error('❌ Language toggle error:', error);
+                  toast.error('خطأ في تغيير اللغة / Language change error');
+                }
+              }}
+              className='p-3 text-neutral-600 hover:text-primary-600 transition-all duration-300 bg-neutral-100 hover:bg-primary-50 rounded-lg shadow-sm hover:shadow-md'
               whileHover={{ scale: 1.1 }}
               whileTap={{ scale: 0.9 }}
+              title={language === 'ar' ? 'Switch to English' : 'التبديل للعربية'}
             >
-              <GlobeAltIcon className='w-5 h-5' />
+              <div className="flex items-center gap-1">
+                <GlobeAltIcon className='w-5 h-5' />
+                <span className="text-xs font-bold">{language === 'ar' ? 'EN' : 'AR'}</span>
+              </div>
             </motion.button>
 
             {user ? (
@@ -192,10 +313,11 @@ const Navbar: React.FC = () => {
                     <HeartIcon className='w-5 h-5 group-hover:text-red-500' />
                     {favorites.length > 0 && (
                       <motion.span
-                        className='absolute -top-1 -right-1 w-5 h-5 bg-red-500 text-white text-xs rounded-full flex items-center justify-center font-medium shadow-sm'
+                        className='absolute -top-2 -right-2 min-w-[20px] h-[20px] bg-red-500 text-white text-xs rounded-full flex items-center justify-center font-bold shadow-xl border-2 border-white z-30'
                         initial={{ scale: 0 }}
                         animate={{ scale: 1 }}
                         transition={{ type: 'spring', stiffness: 300 }}
+                        style={{ fontSize: '11px', lineHeight: '1', fontWeight: 'bold' }}
                       >
                         {favorites.length > 99 ? '99+' : favorites.length}
                       </motion.span>
@@ -213,10 +335,11 @@ const Navbar: React.FC = () => {
                     <ShoppingCartIcon className='w-5 h-5 group-hover:text-primary-600' />
                     {getCartItemsCount() > 0 && (
                       <motion.span
-                        className='absolute -top-1 -right-1 w-5 h-5 bg-primary-500 text-white text-xs rounded-full flex items-center justify-center font-medium shadow-sm'
+                        className='absolute -top-2 -right-2 min-w-[20px] h-[20px] bg-primary-500 text-white text-xs rounded-full flex items-center justify-center font-bold shadow-xl border-2 border-white z-30'
                         initial={{ scale: 0 }}
                         animate={{ scale: 1 }}
                         transition={{ type: 'spring', stiffness: 300 }}
+                        style={{ fontSize: '11px', lineHeight: '1', fontWeight: 'bold' }}
                       >
                         {getCartItemsCount() > 99 ? '99+' : getCartItemsCount()}
                       </motion.span>
@@ -224,81 +347,136 @@ const Navbar: React.FC = () => {
                   </Link>
                 </motion.div>
 
-                {/* User Menu */}
+                {/* Real-time Sync Status Indicator */}
+                <SyncStatusIndicator size="sm" />
+
+                {/* Enhanced User Menu with Role-based Styling */}
                 <div className='relative' ref={userMenuRef}>
                   <motion.button
                     onClick={() => setIsUserMenuOpen(!isUserMenuOpen)}
-                    className='flex items-center space-x-2 p-2 text-neutral-600 hover:text-primary-600 transition-colors'
+                    className={`flex items-center space-x-2 p-2 rounded-lg border transition-all duration-200 ${
+                      profileInfo ? `${profileInfo.bgColor} ${profileInfo.borderColor} ${profileInfo.color}` : 'text-neutral-600 hover:text-primary-600'
+                    }`}
                     whileHover={{ scale: 1.05 }}
+                    whileTap={{ scale: 0.95 }}
                   >
-                    {user.photoURL ? (
-                      <img
-                        src={user.photoURL}
-                        alt={user.displayName}
-                        className='w-6 h-6 rounded-full object-cover'
-                      />
-                    ) : (
-                      <UserIcon className='w-5 h-5' />
-                    )}
-                    <span className='hidden sm:block text-sm font-medium'>{user.displayName}</span>
+                    <div className={`w-8 h-8 rounded-full flex items-center justify-center ${
+                      profileInfo ? profileInfo.bgColor : 'bg-gray-100'
+                    }`}>
+                      {user.photoURL ? (
+                        <img
+                          src={user.photoURL}
+                          alt={user.displayName}
+                          className='w-8 h-8 rounded-full object-cover'
+                        />
+                      ) : profileInfo ? (
+                        React.createElement(profileInfo.icon, { 
+                          className: `w-4 h-4 ${profileInfo.color}` 
+                        })
+                      ) : (
+                        <UserIcon className='w-4 h-4 text-gray-600' />
+                      )}
+                    </div>
+                    <div className='hidden sm:flex flex-col items-start'>
+                      <span className='text-sm font-medium'>{profileInfo?.name || user.displayName}</span>
+                      {profileInfo && (
+                        <span className='text-xs opacity-75'>{profileInfo.role}</span>
+                      )}
+                    </div>
                     <ChevronDownIcon className='w-4 h-4' />
                   </motion.button>
 
                   <AnimatePresence>
                     {isUserMenuOpen && (
                       <motion.div
-                        className='absolute right-0 mt-2 w-48 bg-white rounded-lg shadow-lg border border-neutral-200 py-2 z-50'
+                        className='absolute right-0 mt-2 w-64 bg-white rounded-xl shadow-xl border border-neutral-200 py-3 z-50 overflow-hidden'
                         initial={{ opacity: 0, y: -10, scale: 0.95 }}
                         animate={{ opacity: 1, y: 0, scale: 1 }}
                         exit={{ opacity: 0, y: -10, scale: 0.95 }}
-                        transition={{ duration: 0.15 }}
+                        transition={{ duration: 0.2, ease: "easeOut" }}
                       >
-                        <Link
-                          to='/profile'
-                          className='block px-4 py-2 text-sm text-neutral-700 hover:bg-neutral-50 transition-colors'
-                          onClick={() => setIsUserMenuOpen(false)}
-                        >
-                          {language === 'ar' ? 'الملف الشخصي' : 'Profile'}
-                        </Link>
+                        {/* User Info Header */}
+                        <div className={`px-4 py-3 ${profileInfo?.bgColor || 'bg-gray-50'} border-b border-gray-100`}>
+                          <div className="flex items-center space-x-3">
+                            <div className={`w-10 h-10 rounded-full flex items-center justify-center ${
+                              profileInfo ? profileInfo.bgColor : 'bg-gray-100'
+                            } border-2 ${profileInfo?.borderColor || 'border-gray-200'}`}>
+                              {user.photoURL ? (
+                                <img
+                                  src={user.photoURL}
+                                  alt={user.displayName}
+                                  className='w-10 h-10 rounded-full object-cover'
+                                />
+                              ) : profileInfo ? (
+                                React.createElement(profileInfo.icon, { 
+                                  className: `w-5 h-5 ${profileInfo.color}` 
+                                })
+                              ) : (
+                                <UserIcon className='w-5 h-5 text-gray-600' />
+                              )}
+                            </div>
+                            <div className="flex-1">
+                              <p className="font-semibold text-gray-900">{profileInfo?.name || user.displayName}</p>
+                              <p className={`text-sm ${profileInfo?.color || 'text-gray-500'}`}>
+                                {profileInfo?.role || 'مستخدم'}
+                              </p>
+                              <p className="text-xs text-gray-500 truncate">{user.email}</p>
+                            </div>
+                          </div>
+                        </div>
 
-                        {user.role === 'admin' && (
+                        {/* Menu Items */}
+                        <div className="py-2">
+                          {/* Profile Link */}
                           <Link
-                            to='/admin/dashboard'
-                            className='block px-4 py-2 text-sm text-neutral-700 hover:bg-neutral-50 transition-colors'
+                            to={profileInfo?.profilePath || '/profile'}
+                            className='flex items-center px-4 py-3 text-sm text-gray-700 hover:bg-gray-50 transition-colors group'
                             onClick={() => setIsUserMenuOpen(false)}
                           >
-                            {language === 'ar' ? 'لوحة الإدارة' : 'Admin Dashboard'}
+                            <UserCircleIcon className="w-5 h-5 text-gray-400 group-hover:text-gray-600 mr-3" />
+                            <span>{language === 'ar' ? 'الملف الشخصي' : 'Profile'}</span>
                           </Link>
-                        )}
 
-                        {user.role === 'vendor' && (
+                          {/* Dashboard Link */}
+                          {profileInfo && (
+                            <Link
+                              to={profileInfo.dashboardPath}
+                              className='flex items-center px-4 py-3 text-sm text-gray-700 hover:bg-gray-50 transition-colors group'
+                              onClick={() => setIsUserMenuOpen(false)}
+                            >
+                              <ChartBarIcon className="w-5 h-5 text-gray-400 group-hover:text-gray-600 mr-3" />
+                              <span>
+                                {user.role === 'admin' && (language === 'ar' ? 'لوحة الإدارة' : 'Admin Dashboard')}
+                                {user.role === 'vendor' && (language === 'ar' ? 'لوحة التاجر' : 'Vendor Dashboard')}
+                                {user.role === 'customer' && (language === 'ar' ? 'لوحة التحكم' : 'Dashboard')}
+                              </span>
+                            </Link>
+                          )}
+
+                          {/* Settings Link */}
                           <Link
-                            to='/vendor/dashboard'
-                            className='block px-4 py-2 text-sm text-neutral-700 hover:bg-neutral-50 transition-colors'
+                            to='/settings'
+                            className='flex items-center px-4 py-3 text-sm text-gray-700 hover:bg-gray-50 transition-colors group'
                             onClick={() => setIsUserMenuOpen(false)}
                           >
-                            {language === 'ar' ? 'لوحة التاجر' : 'Vendor Dashboard'}
+                            <Cog6ToothIcon className="w-5 h-5 text-gray-400 group-hover:text-gray-600 mr-3" />
+                            <span>{language === 'ar' ? 'الإعدادات' : 'Settings'}</span>
                           </Link>
-                        )}
+                        </div>
 
-                        {user.role === 'customer' && (
-                          <Link
-                            to='/dashboard'
-                            className='block px-4 py-2 text-sm text-neutral-700 hover:bg-neutral-50 transition-colors'
-                            onClick={() => setIsUserMenuOpen(false)}
-                          >
-                            {language === 'ar' ? 'لوحة التحكم' : 'Dashboard'}
-                          </Link>
-                        )}
+                        <hr className='my-2 border-gray-100' />
 
-                        <hr className='my-2' />
-
-                        <button
+                        {/* Sign Out */}
+                        <motion.button
                           onClick={handleSignOut}
-                          className='block w-full text-left px-4 py-2 text-sm text-red-600 hover:bg-red-50 transition-colors'
+                          className='flex items-center w-full px-4 py-3 text-sm text-red-600 hover:bg-red-50 transition-colors group'
+                          whileHover={{ scale: 1.02 }}
+                          whileTap={{ scale: 0.98 }}
+                          disabled={authLoading}
                         >
-                          {language === 'ar' ? 'تسجيل الخروج' : 'Sign Out'}
-                        </button>
+                          <ArrowRightOnRectangleIcon className="w-5 h-5 text-red-500 group-hover:text-red-600 mr-3" />
+                          <span>{authLoading ? 'جاري تسجيل الخروج...' : (language === 'ar' ? 'تسجيل الخروج' : 'Sign Out')}</span>
+                        </motion.button>
                       </motion.div>
                     )}
                   </AnimatePresence>

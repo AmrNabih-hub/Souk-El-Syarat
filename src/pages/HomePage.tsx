@@ -10,6 +10,9 @@ import {
   ShieldCheckIcon,
   TruckIcon,
 } from '@heroicons/react/24/outline';
+import CarServicesGrid from '@/components/services/CarServicesGrid';
+import PartsAccessoriesStore from '@/components/parts/PartsAccessoriesStore';
+import toast from 'react-hot-toast';
 
 const HomePage: React.FC = () => {
   const features = {
@@ -147,46 +150,98 @@ const HomePage: React.FC = () => {
             >
               <div className='relative'>
                 {/* Hero Image Carousel */}
-                <div className='w-full h-96 rounded-2xl overflow-hidden relative'>
+                <div className='w-full h-96 rounded-2xl overflow-hidden relative shadow-2xl'>
                   <motion.div
                     className='flex w-full h-full'
                     animate={{ x: [0, -100, -200, -300, 0] }}
                     transition={{
-                      duration: 15,
+                      duration: 20,
                       repeat: Infinity,
                       ease: 'easeInOut',
                       times: [0, 0.25, 0.5, 0.75, 1],
                     }}
                   >
-                    {/* Car Image 1 */}
-                    <div className='min-w-full h-full bg-gradient-to-br from-blue-500 to-purple-600 flex items-center justify-center'>
-                      <div className='text-center text-white'>
-                        <h3 className='text-2xl font-bold mb-2'>Luxury Cars</h3>
-                        <p className='text-lg opacity-90'>Premium Selection</p>
+                    {/* Slide 1: Car Sales */}
+                    <div className='min-w-full h-full relative overflow-hidden'>
+                      <div className='absolute inset-0 bg-gradient-to-r from-black/70 via-black/50 to-black/30 z-10'></div>
+                      <img
+                        src='https://images.unsplash.com/photo-1549317661-bd32c8ce0db2?w=800&h=600&fit=crop'
+                        alt='سيارات مستعملة للبيع في مصر'
+                        className='w-full h-full object-cover'
+                        loading='lazy'
+                      />
+                      <div className='absolute inset-0 flex items-center justify-center z-20'>
+                        <div className='text-center text-white p-6'>
+                          <h3 className='text-3xl font-bold mb-3 drop-shadow-lg'>بيع وشراء السيارات</h3>
+                          <p className='text-lg opacity-90 mb-4 drop-shadow-md'>أفضل الأسعار في السوق المصري</p>
+                          <div className='flex items-center justify-center gap-2 text-sm'>
+                            <span className='bg-green-500 px-3 py-1 rounded-full'>✓ ضمان</span>
+                            <span className='bg-blue-500 px-3 py-1 rounded-full'>✓ معتمد</span>
+                          </div>
+                        </div>
                       </div>
                     </div>
 
-                    {/* Car Image 2 */}
-                    <div className='min-w-full h-full bg-gradient-to-br from-green-500 to-teal-600 flex items-center justify-center'>
-                      <div className='text-center text-white'>
-                        <h3 className='text-2xl font-bold mb-2'>Family Cars</h3>
-                        <p className='text-lg opacity-90'>Safe & Reliable</p>
+                    {/* Slide 2: Auto Parts */}
+                    <div className='min-w-full h-full relative overflow-hidden'>
+                      <div className='absolute inset-0 bg-gradient-to-r from-black/70 via-black/50 to-black/30 z-10'></div>
+                      <img
+                        src='https://images.unsplash.com/photo-1486262715619-67b85e0b08d3?w=800&h=600&fit=crop'
+                        alt='قطع غيار السيارات الأصلية'
+                        className='w-full h-full object-cover'
+                        loading='lazy'
+                      />
+                      <div className='absolute inset-0 flex items-center justify-center z-20'>
+                        <div className='text-center text-white p-6'>
+                          <h3 className='text-3xl font-bold mb-3 drop-shadow-lg'>قطع الغيار الأصلية</h3>
+                          <p className='text-lg opacity-90 mb-4 drop-shadow-md'>من المصنع مباشرة لسيارتك</p>
+                          <div className='flex items-center justify-center gap-2 text-sm'>
+                            <span className='bg-yellow-500 px-3 py-1 rounded-full'>⭐ جودة عالية</span>
+                            <span className='bg-purple-500 px-3 py-1 rounded-full'>🔧 متوافقة</span>
+                          </div>
+                        </div>
                       </div>
                     </div>
 
-                    {/* Car Image 3 */}
-                    <div className='min-w-full h-full bg-gradient-to-br from-orange-500 to-red-600 flex items-center justify-center'>
-                      <div className='text-center text-white'>
-                        <h3 className='text-2xl font-bold mb-2'>Sports Cars</h3>
-                        <p className='text-lg opacity-90'>High Performance</p>
+                    {/* Slide 3: Auto Services */}
+                    <div className='min-w-full h-full relative overflow-hidden'>
+                      <div className='absolute inset-0 bg-gradient-to-r from-black/70 via-black/50 to-black/30 z-10'></div>
+                      <img
+                        src='https://images.unsplash.com/photo-1619642751034-765dfdf7c58e?w=800&h=600&fit=crop'
+                        alt='مراكز خدمة السيارات في مصر'
+                        className='w-full h-full object-cover'
+                        loading='lazy'
+                      />
+                      <div className='absolute inset-0 flex items-center justify-center z-20'>
+                        <div className='text-center text-white p-6'>
+                          <h3 className='text-3xl font-bold mb-3 drop-shadow-lg'>خدمات السيارات</h3>
+                          <p className='text-lg opacity-90 mb-4 drop-shadow-md'>صيانة احترافية وخدمة متميزة</p>
+                          <div className='flex items-center justify-center gap-2 text-sm'>
+                            <span className='bg-red-500 px-3 py-1 rounded-full'>🔧 صيانة</span>
+                            <span className='bg-indigo-500 px-3 py-1 rounded-full'>🏆 احترافية</span>
+                          </div>
+                        </div>
                       </div>
                     </div>
 
-                    {/* Car Image 4 */}
-                    <div className='min-w-full h-full bg-gradient-to-br from-indigo-500 to-blue-600 flex items-center justify-center'>
-                      <div className='text-center text-white'>
-                        <h3 className='text-2xl font-bold mb-2'>Electric Cars</h3>
-                        <p className='text-lg opacity-90'>Future Ready</p>
+                    {/* Slide 4: Trusted Vendors */}
+                    <div className='min-w-full h-full relative overflow-hidden'>
+                      <div className='absolute inset-0 bg-gradient-to-r from-black/70 via-black/50 to-black/30 z-10'></div>
+                      <img
+                        src='https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=800&h=600&fit=crop'
+                        alt='تجار السيارات الموثوقين في مصر'
+                        className='w-full h-full object-cover'
+                        loading='lazy'
+                      />
+                      <div className='absolute inset-0 flex items-center justify-center z-20'>
+                        <div className='text-center text-white p-6'>
+                          <h3 className='text-3xl font-bold mb-3 drop-shadow-lg'>تجار موثوقون</h3>
+                          <p className='text-lg opacity-90 mb-4 drop-shadow-md'>شبكة من أفضل التجار في مصر</p>
+                          <div className='flex items-center justify-center gap-2 text-sm'>
+                            <span className='bg-green-500 px-3 py-1 rounded-full'>✅ موثق</span>
+                            <span className='bg-orange-500 px-3 py-1 rounded-full'>🤝 شراكة</span>
+                          </div>
+                        </div>
                       </div>
                     </div>
                   </motion.div>
@@ -660,6 +715,148 @@ const HomePage: React.FC = () => {
           </motion.div>
         </div>
       </section>
+
+      {/* Car Services Grid - 8 Automotive Services */}
+                <CarServicesGrid />
+
+          {/* Marketplace Promotion */}
+          <motion.section
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.8, delay: 0.6 }}
+            className="py-16 px-6 bg-gradient-to-r from-blue-50 to-indigo-50"
+          >
+            <div className="max-w-6xl mx-auto text-center">
+              <motion.div
+                initial={{ scale: 0.9 }}
+                animate={{ scale: 1 }}
+                transition={{ duration: 0.5 }}
+                className="mb-8"
+              >
+                <h2 className="text-4xl font-bold text-gray-900 mb-4">
+                  السوق المصري للسيارات
+                </h2>
+                <p className="text-xl text-gray-600 max-w-3xl mx-auto mb-8">
+                  اكتشف تجربة التسوق المتطورة مع البيانات الحقيقية، التفاعل المباشر، والخدمات الاحترافية
+                </p>
+              </motion.div>
+              
+              <div className="grid md:grid-cols-3 gap-8 mb-12">
+                <motion.div
+                  whileHover={{ scale: 1.05, rotateY: 5 }}
+                  className="bg-white rounded-2xl shadow-lg p-6 border border-blue-100"
+                >
+                  <div className="text-5xl mb-4">🚗</div>
+                  <h3 className="text-xl font-bold text-gray-900 mb-3">
+                    6 سيارات حقيقية
+                  </h3>
+                  <p className="text-gray-600 mb-4">
+                    بيانات حقيقية من السوق المصري مع التفاصيل الكاملة، الصور الفعلية، والأسعار المحدثة
+                  </p>
+                  <div className="flex justify-center space-x-2">
+                    <span className="bg-green-100 text-green-700 px-3 py-1 rounded-full text-sm font-medium">
+                      تويوتا كامري
+                    </span>
+                    <span className="bg-blue-100 text-blue-700 px-3 py-1 rounded-full text-sm font-medium">
+                      BMW X3
+                    </span>
+                  </div>
+                </motion.div>
+                
+                <motion.div
+                  whileHover={{ scale: 1.05, rotateY: 5 }}
+                  className="bg-white rounded-2xl shadow-lg p-6 border border-green-100"
+                >
+                  <div className="text-5xl mb-4">🔧</div>
+                  <h3 className="text-xl font-bold text-gray-900 mb-3">
+                    8 خدمات احترافية
+                  </h3>
+                  <p className="text-gray-600 mb-4">
+                    من غسيل وصيانة وحماية بأسعار حقيقية ومقدمي خدمة موثوقين مع إمكانية الحجز المباشر
+                  </p>
+                  <div className="flex justify-center space-x-2">
+                    <span className="bg-orange-100 text-orange-700 px-3 py-1 rounded-full text-sm font-medium">
+                      غسيل VIP
+                    </span>
+                    <span className="bg-purple-100 text-purple-700 px-3 py-1 rounded-full text-sm font-medium">
+                      فيلم حماية
+                    </span>
+                  </div>
+                </motion.div>
+                
+                <motion.div
+                  whileHover={{ scale: 1.05, rotateY: 5 }}
+                  className="bg-white rounded-2xl shadow-lg p-6 border border-orange-100"
+                >
+                  <div className="text-5xl mb-4">⚙️</div>
+                  <h3 className="text-xl font-bold text-gray-900 mb-3">
+                    6 قطع غيار أصلية
+                  </h3>
+                  <p className="text-gray-600 mb-4">
+                    قطع غيار من أفضل البراندات العالمية مع الضمان والشحن السريع والأسعار التنافسية
+                  </p>
+                  <div className="flex justify-center space-x-2">
+                    <span className="bg-red-100 text-red-700 px-3 py-1 rounded-full text-sm font-medium">
+                      Brembo
+                    </span>
+                    <span className="bg-yellow-100 text-yellow-700 px-3 py-1 rounded-full text-sm font-medium">
+                      Philips
+                    </span>
+                  </div>
+                </motion.div>
+              </div>
+
+              <div className="bg-white rounded-2xl p-8 shadow-xl border border-gray-100 mb-8">
+                <h3 className="text-2xl font-bold text-gray-900 mb-4">✨ مميزات حصرية</h3>
+                <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-6 text-center">
+                  <div className="p-4">
+                    <div className="text-3xl mb-2">❤️</div>
+                    <h4 className="font-semibold text-gray-900">المفضلة المباشرة</h4>
+                    <p className="text-sm text-gray-600">حفظ وإدارة المفضلة بنقرة واحدة</p>
+                  </div>
+                  <div className="p-4">
+                    <div className="text-3xl mb-2">📱</div>
+                    <h4 className="font-semibold text-gray-900">واتساب مباشر</h4>
+                    <p className="text-sm text-gray-600">تواصل فوري مع البائعين</p>
+                  </div>
+                  <div className="p-4">
+                    <div className="text-3xl mb-2">🛒</div>
+                    <h4 className="font-semibold text-gray-900">سلة التسوق</h4>
+                    <p className="text-sm text-gray-600">حجز الخدمات وشراء القطع</p>
+                  </div>
+                  <div className="p-4">
+                    <div className="text-3xl mb-2">🔍</div>
+                    <h4 className="font-semibold text-gray-900">بحث متقدم</h4>
+                    <p className="text-sm text-gray-600">فلترة ذكية وبحث سريع</p>
+                  </div>
+                </div>
+              </div>
+
+              <motion.div
+                whileHover={{ scale: 1.05 }}
+                whileTap={{ scale: 0.95 }}
+              >
+                <Link 
+                  to="/marketplace"
+                  className="inline-block"
+                >
+                  <div className="bg-gradient-to-r from-blue-600 to-indigo-700 hover:from-blue-700 hover:to-indigo-800 text-white px-12 py-4 rounded-2xl text-xl font-bold shadow-2xl hover:shadow-3xl transition-all duration-300 transform">
+                    <span className="flex items-center justify-center gap-3">
+                      <span>ادخل السوق الآن</span>
+                      <ArrowRightIcon className="w-6 h-6" />
+                    </span>
+                  </div>
+                </Link>
+              </motion.div>
+              
+              <p className="text-sm text-gray-500 mt-6 max-w-2xl mx-auto">
+                ✨ بيانات حقيقية • تفاعل مباشر • تجربة محسنة • خدمات احترافية • قطع غيار أصلية
+              </p>
+            </div>
+          </motion.section>
+
+          {/* Parts & Accessories Store */}
+          <PartsAccessoriesStore />
     </div>
   );
 };

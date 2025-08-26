@@ -9,7 +9,7 @@ import * as yup from 'yup';
 import { EyeIcon, EyeSlashIcon, UserIcon, LockClosedIcon } from '@heroicons/react/24/outline';
 
 import { useAppStore } from '@/stores/appStore';
-import { useAuthStore } from '@/stores/authStore';
+import { useMasterAuthStore } from '@/stores/authStore.master';
 import LoadingSpinner from '@/components/ui/LoadingSpinner';
 import toast from 'react-hot-toast';
 
@@ -29,7 +29,7 @@ const loginSchema = yup.object().shape({
 const LoginPage: React.FC = () => {
   const [showPassword, setShowPassword] = useState(false);
   const navigate = useNavigate();
-  const { signIn, signInWithGoogle, isLoading, error, clearError } = useAuthStore();
+  const { signIn, signInWithGoogle, isLoading, error, clearError } = useMasterAuthStore();
   const { language } = useAppStore();
 
   const {
@@ -44,10 +44,10 @@ const LoginPage: React.FC = () => {
     try {
       clearError();
       await signIn(data.email, data.password);
-      toast.success(language === 'ar' ? 'تم تسجيل الدخول بنجاح!' : 'Logged in successfully!');
-      navigate('/');
+      // Navigation is handled automatically by the unified auth store
     } catch (error) {
-      toast.error(error.message || 'Failed to sign in');
+      // Error toast is already handled by the unified auth service
+      console.error('Login failed:', error);
     }
   };
 
@@ -234,6 +234,47 @@ const LoginPage: React.FC = () => {
               )}
             </motion.button>
           </form>
+
+          {/* Test Accounts Section */}
+          <motion.div
+            initial={{ opacity: 0, y: 10 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.8 }}
+            className='mt-6 bg-blue-50 border border-blue-200 rounded-xl p-4'
+          >
+            <h3 className='text-sm font-bold text-blue-800 mb-3 text-center'>
+              🧪 {language === 'ar' ? 'حسابات تجريبية للاختبار' : 'Test Accounts for Testing'}
+            </h3>
+            <div className='space-y-2 text-xs'>
+              <div className='bg-white rounded-lg p-3 border'>
+                <div className='font-semibold text-red-600 mb-1'>
+                  👨‍💼 {language === 'ar' ? 'مدير النظام' : 'Admin'}
+                </div>
+                <div className='text-gray-700'>
+                  📧 admin@souk-el-syarat.com<br/>
+                  🔐 Admin123456!
+                </div>
+              </div>
+              <div className='bg-white rounded-lg p-3 border'>
+                <div className='font-semibold text-green-600 mb-1'>
+                  🏪 {language === 'ar' ? 'تاجر' : 'Vendor'}
+                </div>
+                <div className='text-gray-700'>
+                  📧 vendor1@souk-el-syarat.com<br/>
+                  🔐 Vendor123456!
+                </div>
+              </div>
+              <div className='bg-white rounded-lg p-3 border'>
+                <div className='font-semibold text-blue-600 mb-1'>
+                  👤 {language === 'ar' ? 'عميل' : 'Customer'}
+                </div>
+                <div className='text-gray-700'>
+                  📧 customer1@souk-el-syarat.com<br/>
+                  🔐 Customer123456!
+                </div>
+              </div>
+            </div>
+          </motion.div>
 
           {/* Divider */}
           <div className='mt-6'>

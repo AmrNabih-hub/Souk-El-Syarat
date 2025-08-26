@@ -1,6 +1,6 @@
 import React, { useState, useCallback, useEffect } from 'react';
 
-import { NotificationService } from '@/services/notification.service';
+import NotificationService from '@/services/notification.service';
 import { OrderService, Order } from '@/services/order.service';
 import { AnalyticsService, BusinessMetrics, RealTimeStats } from '@/services/analytics.service';
 import { ProcessOrchestratorService } from '@/services/process-orchestrator.service';
@@ -11,7 +11,7 @@ export interface DashboardData {
   notifications: Notification[];
   unreadNotificationCount: number;
   orders: Order[];
-  conversations: Conversation[];
+  conversations: any[]; // TODO: Define proper Conversation type
   unreadConversationCount: number;
   businessMetrics: BusinessMetrics | null;
   realTimeStats: RealTimeStats | null;
@@ -22,7 +22,7 @@ export interface DashboardData {
 export interface DashboardActions {
   markNotificationAsRead: (notificationId: string) => Promise<void>;
   markAllNotificationsAsRead: () => Promise<void>;
-  updateOrderStatus: (orderId: string, status: unknown, notes?: string) => Promise<void>;
+  updateOrderStatus: (orderId: string, status: string, notes?: string) => Promise<void>;
   sendMessage: (conversationId: string, content: string) => Promise<void>;
   markMessagesAsRead: (conversationId: string) => Promise<void>;
   refreshData: () => Promise<void>;
@@ -55,7 +55,7 @@ export const useRealTimeDashboard = (): DashboardData & DashboardActions => {
 
     try {
       // Subscribe to notifications
-      const notificationsUnsubscribe = NotificationService.subscribeToUserNotifications(
+      const notificationsUnsubscribe = NotificationService.getInstance().subscribeToUserNotifications(
         user.id,
         notifications => {
           setData(prev => ({
@@ -68,7 +68,7 @@ export const useRealTimeDashboard = (): DashboardData & DashboardActions => {
       newUnsubscribeFunctions.push(notificationsUnsubscribe);
 
       // Subscribe to unread notification count
-      const unreadNotificationsUnsubscribe = NotificationService.subscribeToUnreadCount(
+      const unreadNotificationsUnsubscribe = NotificationService.getInstance().subscribeToUnreadCount(
         user.id,
         count => {
           setData(prev => ({
@@ -211,7 +211,7 @@ export const useRealTimeDashboard = (): DashboardData & DashboardActions => {
    */
   const markNotificationAsRead = useCallback(async (notificationId: string): Promise<void> => {
     try {
-      await NotificationService.markAsRead(notificationId);
+      await NotificationService.getInstance().markAsRead(notificationId);
     } catch (error) {
       if (process.env.NODE_ENV === 'development')
         if (process.env.NODE_ENV === 'development')
@@ -230,7 +230,7 @@ export const useRealTimeDashboard = (): DashboardData & DashboardActions => {
     if (!user) return;
 
     try {
-      await NotificationService.markAllAsRead(user.id);
+      await NotificationService.getInstance().markAllAsRead(user.id);
     } catch (error) {
       if (process.env.NODE_ENV === 'development')
         if (process.env.NODE_ENV === 'development')
@@ -246,7 +246,7 @@ export const useRealTimeDashboard = (): DashboardData & DashboardActions => {
    * Update order status
    */
   const updateOrderStatus = useCallback(
-    async (orderId: string, status: OrderStatus, notes?: string): Promise<void> => {
+    async (orderId: string, status: string, notes?: string): Promise<void> => {
       if (!user) return;
 
       try {
