@@ -2,7 +2,7 @@ import React, { useEffect, Suspense } from 'react';
 import { Routes, Route, Navigate } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 
-import { useUnifiedAuthStore } from '@/stores/authStore.unified';
+import { useUnifiedAuthStore } from '@/stores/authStore.unified.enhanced';
 import { useAppStore } from '@/stores/appStore';
 
 // Layout Components
@@ -18,8 +18,8 @@ const HomePage = React.lazy(() =>
   }))
 );
 
-const LoginPage = React.lazy(() => 
-  import('@/pages/auth/LoginPage').catch(() => ({ 
+const EnhancedLoginPage = React.lazy(() => 
+  import('@/pages/auth/LoginPage.enhanced').catch(() => ({ 
     default: () => <div className="p-8 text-center">صفحة تسجيل الدخول غير متاحة</div> 
   }))
 );
@@ -139,23 +139,26 @@ const CustomerDashboard = React.lazy(() =>
   }))
 );
 
-// Safe Protected Route Component
+// Enhanced Protected Route Component
 const ProtectedRoute: React.FC<{
   children: React.ReactNode;
   roles?: string[];
   redirectTo?: string;
 }> = ({ children, roles, redirectTo = '/login' }) => {
-  const { user, isLoading } = useUnifiedAuthStore();
+  const { user, isLoading, isInitialized } = useUnifiedAuthStore();
 
-  if (isLoading) {
+  // Wait for auth system to initialize
+  if (!isInitialized || isLoading) {
     return <LoadingScreen message='جاري التحقق من الصلاحيات...' />;
   }
 
   if (!user) {
+    console.log('🔀 No user found, redirecting to login...');
     return <Navigate to={redirectTo} replace />;
   }
 
   if (roles && !roles.includes(user.role)) {
+    console.log(`🔀 User role ${user.role} not authorized for roles: ${roles.join(', ')}`);
     return <Navigate to='/' replace />;
   }
 
@@ -166,13 +169,19 @@ const ProtectedRoute: React.FC<{
   );
 };
 
-// Safe Public Route Component
+// Enhanced Public Route Component
 const PublicRoute: React.FC<{
   children: React.ReactNode;
 }> = ({ children }) => {
-  const { user } = useUnifiedAuthStore();
+  const { user, isInitialized, isLoading } = useUnifiedAuthStore();
+
+  // Wait for auth system to initialize
+  if (!isInitialized || isLoading) {
+    return <LoadingScreen message='جاري التحقق من حالة المصادقة...' />;
+  }
 
   if (user) {
+    console.log(`🔀 User already logged in as ${user.role}, redirecting...`);
     // Redirect based on user role
     switch (user.role) {
       case 'admin':
@@ -222,37 +231,53 @@ const NotFoundPage = () => (
 );
 
 const App: React.FC = () => {
-  const { initializeAuth, authChecked, isLoading } = useUnifiedAuthStore();
-  const { theme } = useAppStore();
+  const { initializeAuth, authChecked, isLoading, isInitialized } = useUnifiedAuthStore();
+  const { theme, language } = useAppStore();
 
-  // Initialize authentication on app load
+  // Initialize authentication on app load with enhanced logging
   useEffect(() => {
-    console.log('🚀 Starting app initialization...');
-    initializeAuth();
+    console.log('🚀 Starting Enhanced App Initialization...');
+    console.log('🔧 Enhanced Auth Store State:', { authChecked, isLoading, isInitialized });
+    
+    try {
+      initializeAuth();
+    } catch (error) {
+      console.error('❌ Failed to initialize auth:', error);
+    }
     
     // Cleanup function
     return () => {
       if ((window as any).__unifiedAuthUnsubscribe) {
+        console.log('🧹 Cleaning up auth listener...');
         (window as any).__unifiedAuthUnsubscribe();
       }
     };
   }, [initializeAuth]);
 
-  // Show loading screen while checking authentication
-  if (!authChecked || isLoading) {
-    return <LoadingScreen />;
+  // Show loading screen while initializing authentication
+  if (!isInitialized || isLoading) {
+    return <LoadingScreen message="جاري تحضير النظام..." />;
   }
 
-  // Safe document setup
+  // Safe document setup with enhanced error handling
   useEffect(() => {
     try {
-      document.documentElement.dir = 'ltr'; // Default to LTR for now, or set based on language if needed
-      document.documentElement.lang = 'en'; // Default to English for now
+      // Set document direction based on language
+      document.documentElement.dir = language === 'ar' ? 'rtl' : 'ltr';
+      document.documentElement.lang = language === 'ar' ? 'ar' : 'en';
+      
+      // Apply theme
       document.documentElement.className = theme === 'dark' ? 'dark' : '';
+      
+      console.log('✅ Document properties set successfully:', { 
+        direction: document.documentElement.dir, 
+        language: document.documentElement.lang,
+        theme: document.documentElement.className || 'light'
+      });
     } catch (error) {
-      console.error('Error setting document properties:', error);
+      console.error('❌ Error setting document properties:', error);
     }
-  }, [theme]);
+  }, [theme, language]);
 
   return (
     <ErrorBoundary>
@@ -347,13 +372,13 @@ const App: React.FC = () => {
                   }
                 />
 
-                {/* Authentication Routes */}
+                {/* Enhanced Authentication Routes */}
                 <Route
                   path="/login"
                   element={
                     <PublicRoute>
                       <SafePage>
-                        <LoginPage />
+                        <EnhancedLoginPage />
                       </SafePage>
                     </PublicRoute>
                   }
