@@ -15,7 +15,14 @@ import {
   CameraIcon
 } from '@heroicons/react/24/outline';
 import { useAppStore } from '@/stores/appStore';
-import { debounce } from 'lodash';
+// Simple debounce implementation to avoid lodash dependency
+const debounce = <T extends (...args: any[]) => void>(func: T, wait: number): T => {
+  let timeout: NodeJS.Timeout;
+  return ((...args: any[]) => {
+    clearTimeout(timeout);
+    timeout = setTimeout(() => func(...args), wait);
+  }) as T;
+};
 import toast from 'react-hot-toast';
 
 interface SearchFilters {

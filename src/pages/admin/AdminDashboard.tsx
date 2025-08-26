@@ -82,14 +82,12 @@ const AdminDashboard: React.FC = () => {
     try {
       setIsLoading(true);
 
-      // Load vendor management service
-      const vendorService = VendorManagementService.getInstance();
-
       // Load pending applications
-      const pendingApps = await vendorService.getPendingApplications();
+      const pendingApps = await VendorManagementService.getPendingApplications();
 
       // Load recent vendors (mock data for now)
-      const testVendors = vendorService.getTestVendorAccounts();
+      // Load test vendors (mock data for now)
+      const testVendors: any[] = []; // TODO: Implement proper vendor loading
 
       // Calculate real-time statistics
       const totalRevenue = Math.floor(Math.random() * 3000000) + 2000000; // Random revenue 2M-5M
@@ -142,7 +140,7 @@ const AdminDashboard: React.FC = () => {
     try {
       setIsProcessing(true);
 
-      await VendorService.reviewApplication(
+      await VendorManagementService.reviewApplication(
         selectedApplication.id,
         user.id,
         reviewStatus,

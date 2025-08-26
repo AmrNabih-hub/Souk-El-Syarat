@@ -38,11 +38,32 @@ export interface Address {
 export interface UserPreferences {
   language: 'ar' | 'en';
   currency: 'EGP' | 'USD';
+  theme?: 'light' | 'dark';
   notifications: {
     email: boolean;
     sms: boolean;
     push: boolean;
   };
+}
+
+// Real-time types for RealtimeStore
+export interface UserPresence {
+  userId: string;
+  status: 'online' | 'offline' | 'away';
+  lastSeen: Date;
+  currentPage?: string;
+  isTyping?: boolean;
+}
+
+export interface ChatMessage {
+  id: string;
+  senderId: string;
+  receiverId: string;
+  message: string;
+  timestamp: Date;
+  read: boolean;
+  type: 'text' | 'image' | 'file';
+  data?: Record<string, any>;
 }
 
 // Vendor Types

@@ -177,7 +177,8 @@ export const useAuthStore = create<AuthStore>((set, get) => ({
       const { user } = get();
       if (!user) throw new Error('No user logged in');
       
-      const updatedUser = await AuthService.updateProfile(user.id, updates);
+      await AuthService.updateUserProfile(user.id, updates);
+      const updatedUser = { ...user, ...updates };
       set({ user: updatedUser, isLoading: false });
     } catch (error) {
       console.error('Update profile error:', error);

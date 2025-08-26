@@ -6,7 +6,7 @@ import {
   StarIcon,
   EyeIcon,
   ClockIcon,
-  TrendingUpIcon,
+  ArrowArrowTrendingUpIcon,
   BoltIcon,
   ChartBarIcon,
   UserGroupIcon,
@@ -340,7 +340,7 @@ const SmartRecommendationsEngine: React.FC<SmartRecommendationsProps> = ({
         id: 'trending',
         title: language === 'ar' ? 'الأكثر شيوعاً' : 'Trending Now',
         subtitle: language === 'ar' ? 'السيارات الأكثر مشاهدة هذا الأسبوع' : 'Most viewed cars this week',
-        icon: <TrendingUpIcon className="w-5 h-5" />,
+        icon: <ArrowTrendingUpIcon className="w-5 h-5" />,
         cars: trendingCars,
         algorithm: 'trending',
         priority: 3

@@ -19,7 +19,8 @@ const queryClient = new QueryClient({
       staleTime: 5 * 60 * 1000, // 5 minutes
       retry: (failureCount, error: unknown) => {
         // Don't retry for auth errors
-        if (error?.status === 401 || error?.status === 403) {
+        const errorStatus = (error as any)?.status;
+        if (errorStatus === 401 || errorStatus === 403) {
           return false;
         }
         return failureCount < 3;
