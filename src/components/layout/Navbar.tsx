@@ -16,7 +16,7 @@ import {
 } from '@heroicons/react/24/outline';
 
 import { useAppStore } from '@/stores/appStore';
-import { useMasterAuthStore } from '@/stores/authStore.master';
+// import { useMasterAuthStore } from '@/stores/authStore.master';
 import clsx from 'clsx';
 import toast from 'react-hot-toast';
 
@@ -31,7 +31,9 @@ const Navbar: React.FC = () => {
 
   const navigate = useNavigate();
   const location = useLocation();
-  const { user, signOut } = useMasterAuthStore();
+  // Temporary mock user for design restoration - will fix auth later
+  const user = null;
+  const signOut = () => console.log('Sign out clicked');
   const { language, theme, setLanguage, setTheme, getCartItemsCount, favorites } = useAppStore();
 
   // Close dropdowns when clicking outside
