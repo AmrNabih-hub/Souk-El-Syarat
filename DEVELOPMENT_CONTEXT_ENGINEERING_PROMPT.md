@@ -1,7 +1,78 @@
-The project has been rolled back to commit 8bf7a7af3046364b06a686e675c389aa6a624ab0. All subsequent development and enhancements should be based on this version. This rollback was necessary to restore a stable version of the application.
+# 🧠 **MASTER DEVELOPMENT CONTEXT & ENGINEERING PROMPT**
+## **Souk El-Sayarat - Senior AI Software Architect Protocol**
+
+### **Primary Directive: Stability, Quality, and Predictability**
+This document outlines the mandatory, non-negotiable development protocol for the Souk El-Sayarat project. The primary objective is to build a robust, maintainable, and scalable application by ensuring every enhancement is meticulously planned, integrated, and tested. The previous issues of unintended side effects (e.g., style changes, broken features) are unacceptable and will be prevented by strict adherence to this protocol.
+
+---
+
+### **The Feature Implementation Workflow**
+All new features and enhancements MUST follow the process outlined in the diagram below. Each phase is a hard gate; the next phase cannot begin until the current one is complete and approved.
+
+*(Reference the Feature Implementation Workflow diagram shown in the chat)*
+
+---
+
+### **AI Agent Task Protocol: Step-by-Step Implementation Guide**
+This is the explicit, step-by-step command sequence for an AI agent implementing a new feature.
+
+**Phase 1: Analysis & Design (Backend First)**
+1.  **Acknowledge & Analyze:** Verbally confirm the feature request. Analyze the business and technical requirements, asking clarifying questions if anything is ambiguous.
+2.  **Data Schema Design:** Propose a detailed backend data schema. For Firestore, this includes collection names, document structures, field data types, and any necessary sub-collections.
+3.  **API Contract Definition:** Define a clear API contract. This includes Cloud Function signatures (names, request parameters, response structures) and/or GraphQL queries/mutations. This contract is the source of truth for the frontend.
+4.  **Request Approval:** Present the analysis, data schema, and API contract for formal review and approval. **DO NOT PROCEED** until approval is given.
+
+**Phase 2: Implementation (Backend -> Frontend)**
+5.  **Implement Backend:** Create a new `feature/*` branch. Implement the backend logic based *exactly* on the approved design.
+6.  **Test Backend Rigorously:** Write comprehensive unit and integration tests for the new backend services. Mock all external dependencies. Ensure high test coverage.
+7.  **Implement Frontend:** Only after the backend is complete and stable, begin frontend development. Build UI components that communicate with the backend precisely according to the approved API contract.
+8.  **Test Frontend Components:** Write unit and integration tests for all new UI components.
+9.  **Write End-to-End Tests:** Create Playwright E2E tests that simulate the full user journey for the new feature. This MUST include visual regression snapshots to prevent unintended style changes.
+
+**Phase 3: Quality Assurance & Merge**
+10. **Create Pull Request:** Open a pull request from the feature branch to the `develop` branch. The PR description must detail the changes, link to the initial requirements, and include screenshots/videos of the new feature.
+11. **Pass CI Quality Gates:** The automated GitHub Actions workflow must pass without any errors. This includes linting, formatting, type-checking, all backend tests, and all E2E tests.
+12. **Final Approval & Merge:** After passing CI, the feature is ready for final manual review and approval. Once approved, the PR can be merged into `develop`.
+
+---
+
+### **Guiding Principles**
+*   **Backend First, Always:** We do not write a single line of frontend code until the backend schema and API contract are approved and implemented.
+*   **Test Obsessively:** A feature is not "done" until it is covered by a full suite of automated tests. If a test is failing, it is treated as a critical bug.
+*   **Communicate Proactively:** Provide constant updates on progress, especially at each phase transition. Announce when a phase is complete and you are ready for review.
+*   **No Unrequested Changes:** Do not make any changes, especially stylistic ones, that were not explicitly part of the feature request. All UI changes must be validated by visual regression tests.
+*   **Follow the Workflow:** This process is not optional. Every step must be followed for every task.
+
+---
+
+### **Current High-Priority Enhancement Plan**
+*(This section will be updated with our active feature development plan)*
+
+1.  **[UP NEXT] Full Vendor Dashboard Overhaul:**
+    *   **Business Goal:** Provide vendors with a comprehensive dashboard to manage their inventory, view sales analytics, and handle orders.
+    *   **Key Features:**
+        *   Inventory Management (Add, Edit, Delete Car Listings).
+        *   Sales Analytics (Total Revenue, Cars Sold, Views).
+        *   Order Management (View new orders, mark as shipped).
+        *   Profile Management (Update business information).
+2.  **Advanced Marketplace Search & Filtering:**
+    *   **Business Goal:** Allow customers to easily find the exact car they are looking for with advanced filtering options.
+    *   **Key Features:**
+        *   Filter by Make, Model, Year, Price Range, Mileage, Color, Location.
+        *   Sort results by Price (Low/High), Date Listed, Mileage.
+3.  **Real-Time Customer-Vendor Chat:**
+    *   **Business Goal:** Enable direct, real-time communication between potential buyers and vendors to facilitate sales.
+    *   **Key Features:**
+        *   Real-time messaging interface.
+        *   Unread message notifications.
+        *   Chat history.
+
+---
+*This prompt was last updated on $(date). The project was last restored to the stable commit 8bf7a7af3046364b06a686e675c389aa6a624ab0.*
 
 # 🧠 **DEVELOPMENT CONTEXT ENGINEERING PROMPT**
 ## **Souk El-Sayarat - Senior Software Engineer Analysis & Enhancement Strategy**
+The project has been rolled back to commit 8bf7a7af3046364b06a686e675c389aa6a624ab0. All subsequent development and enhancements should be based on this version. This rollback was necessary to restore a stable version of the application.
 
 ---
 
