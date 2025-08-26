@@ -45,27 +45,41 @@ This is the explicit, step-by-step command sequence for an AI agent implementing
 
 ---
 
-### **Current High-Priority Enhancement Plan**
-*(This section will be updated with our active feature development plan)*
+### **Current High-Priority Enhancement Plan & Architecture**
+This section details the active, parallel development tracks. Each feature must be developed on its own `feature/*` branch.
 
-1.  **[UP NEXT] Full Vendor Dashboard Overhaul:**
-    *   **Business Goal:** Provide vendors with a comprehensive dashboard to manage their inventory, view sales analytics, and handle orders.
-    *   **Key Features:**
-        *   Inventory Management (Add, Edit, Delete Car Listings).
-        *   Sales Analytics (Total Revenue, Cars Sold, Views).
-        *   Order Management (View new orders, mark as shipped).
-        *   Profile Management (Update business information).
-2.  **Advanced Marketplace Search & Filtering:**
-    *   **Business Goal:** Allow customers to easily find the exact car they are looking for with advanced filtering options.
-    *   **Key Features:**
-        *   Filter by Make, Model, Year, Price Range, Mileage, Color, Location.
-        *   Sort results by Price (Low/High), Date Listed, Mileage.
-3.  **Real-Time Customer-Vendor Chat:**
-    *   **Business Goal:** Enable direct, real-time communication between potential buyers and vendors to facilitate sales.
-    *   **Key Features:**
-        *   Real-time messaging interface.
-        *   Unread message notifications.
-        *   Chat history.
+#### **Track 1: Full Vendor Dashboard Overhaul**
+*   **Branch:** `feature/vendor-dashboard-overhaul`
+*   **Business Goal:** Provide vendors with a comprehensive dashboard to manage their inventory, view sales analytics, and handle orders.
+*   **Backend Data Schema (Firestore):**
+    *   `vendors/{vendorId}`: Stores `businessName`, `contactEmail`, `phone`, `location`, `userId`.
+    *   `listings/{listingId}`: Stores `vendorId`, `make`, `model`, `year`, `price`, `mileage`, `description`, `imageUrls`, `status` ("active", "sold", "delisted"), `views`, `createdAt`.
+    *   `orders/{orderId}`: Stores `listingId`, `vendorId`, `customerId`, `status` ("new", "contacted", "closed"), `createdAt`.
+*   **API Contract (Cloud Functions):**
+    *   `addListing(data)`: Creates a new listing.
+    *   `updateListing(listingId, data)`: Updates an existing listing.
+    *   `getVendorListings(vendorId)`: Retrieves all listings for a vendor.
+    *   `getVendorAnalytics(vendorId)`: Aggregates and returns analytics data.
+
+#### **Track 2: Advanced Marketplace Search & Filtering**
+*   **Branch:** `feature/advanced-search`
+*   **Business Goal:** Allow customers to easily find cars with advanced filtering options.
+*   **Architecture:** This will use **Algolia** for search, populated by Firestore-triggered functions.
+*   **Backend Data Schema (Algolia Index: `listings`):**
+    *   An Algolia record will mirror the `listings/{listingId}` Firestore document.
+*   **API Contract (Cloud Functions):**
+    *   `onListingWrite(change, context)`: A Firestore-triggered function that automatically syncs creates, updates, and deletes to the Algolia `listings` index.
+    *   **Frontend API:** The frontend will use the Algolia client-side SDK to perform search queries directly.
+
+#### **Track 3: Real-Time Customer-Vendor Chat**
+*   **Branch:** `feature/real-time-chat`
+*   **Business Goal:** Enable direct, real-time communication between potential buyers and vendors.
+*   **Backend Data Schema (Firestore):**
+    *   `chats/{chatId}`: Stores `participantIds` (array), `listingId`, `lastMessage` (object), `createdAt`.
+    *   `chats/{chatId}/messages/{messageId}`: Sub-collection for messages. Stores `senderId`, `text`, `timestamp`.
+*   **API Contract (Frontend SDK & Security Rules):**
+    *   The frontend will use the Firestore SDK to listen to and write messages in real-time.
+    *   **Firebase Security Rules** will enforce that users can only access chats they are a participant in.
 
 ---
 *This prompt was last updated on $(date). The project was last restored to the stable commit 8bf7a7af3046364b06a686e675c389aa6a624ab0.*
