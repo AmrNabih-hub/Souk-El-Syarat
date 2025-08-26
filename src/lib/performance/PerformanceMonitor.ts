@@ -221,13 +221,12 @@ export class PerformanceMonitor {
             url: window.location.href,
           });
           }
-                }
+        }
       }, 30000); // Check every 30 seconds
     }
   }
-  }
 
-  }
+  private recordMetric(name: string, value: number): void {
     this.metrics.set(name, value);
     this.checkBudget(name, value);
     
