@@ -2,11 +2,11 @@ import React, { useEffect, Suspense } from 'react';
 import { Routes, Route, Navigate } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 
-import { useMasterAuthStore } from '@/stores/authStore.master';
+import { useAuthStore } from '@/stores/authStore';
 import { useAppStore } from '@/stores/appStore';
 
 // Layout Components
-import EnhancedNavbar from '@/components/layout/Navbar.enhanced';
+import Navbar from '@/components/layout/Navbar';
 import Footer from '@/components/layout/Footer';
 import LoadingScreen from '@/components/ui/LoadingScreen';
 import ErrorBoundary from '@/components/ErrorBoundary';
@@ -145,7 +145,7 @@ const ProtectedRoute: React.FC<{
   roles?: string[];
   redirectTo?: string;
 }> = ({ children, roles, redirectTo = '/login' }) => {
-  const { user, isLoading, isInitialized } = useMasterAuthStore();
+  const { user, isLoading, isInitialized } = useAuthStore();
 
   // Wait for auth system to initialize
   if (!isInitialized || isLoading) {
@@ -173,7 +173,7 @@ const ProtectedRoute: React.FC<{
 const PublicRoute: React.FC<{
   children: React.ReactNode;
 }> = ({ children }) => {
-  const { user, isInitialized, isLoading } = useMasterAuthStore();
+  const { user, isInitialized, isLoading } = useAuthStore();
 
   // Wait for auth system to initialize
   if (!isInitialized || isLoading) {
@@ -231,7 +231,7 @@ const NotFoundPage = () => (
 );
 
 const App: React.FC = () => {
-  const { initializeAuth, authChecked, isLoading, isInitialized } = useMasterAuthStore();
+  const { initializeAuth, authChecked, isLoading, isInitialized } = useAuthStore();
   const { theme, language } = useAppStore();
 
   // Initialize authentication on app load with enhanced logging and diagnostics
@@ -307,7 +307,7 @@ const App: React.FC = () => {
     <ErrorBoundary>
       <div className="min-h-screen bg-gradient-to-br from-primary-50 via-white to-secondary-50 transition-all duration-500">
         <ErrorBoundary>
-          <EnhancedNavbar />
+          <Navbar />
         </ErrorBoundary>
 
         <main className="flex-1">

@@ -4,6 +4,10 @@ import { AuthService } from '@/services/auth.service.fixed';
 import { AdminAuthService } from '@/services/admin-auth.service';
 
 interface AuthStore extends AuthState {
+  // Additional state
+  authChecked: boolean;
+  isInitialized: boolean;
+  
   // Actions
   signIn: (email: string, password: string) => Promise<void>;
   signUp: (email: string, password: string, displayName: string) => Promise<void>;
@@ -15,6 +19,7 @@ interface AuthStore extends AuthState {
   setLoading: (loading: boolean) => void;
   setError: (error: string | null) => void;
   clearError: () => void;
+  initializeAuth: () => void;
 }
 
 export const useAuthStore = create<AuthStore>((set, get) => ({
@@ -22,6 +27,8 @@ export const useAuthStore = create<AuthStore>((set, get) => ({
   user: null,
   isLoading: false,
   error: null,
+  authChecked: false,
+  isInitialized: false,
 
   // Actions
   signIn: async (email: string, password: string) => {
@@ -137,4 +144,28 @@ export const useAuthStore = create<AuthStore>((set, get) => ({
   setLoading: (isLoading: boolean) => set({ isLoading }),
   setError: (error: string | null) => set({ error }),
   clearError: () => set({ error: null }),
+  
+  initializeAuth: () => {
+    console.log('🚀 Initializing Auth System...');
+    try {
+      // Initialize auth state change listener
+      AuthService.onAuthStateChange((user) => {
+        console.log('📡 Auth state changed:', user ? `${user.displayName} (${user.role})` : 'No user');
+        set({ 
+          user, 
+          isLoading: false, 
+          authChecked: true, 
+          isInitialized: true 
+        });
+      });
+    } catch (error) {
+      console.error('❌ Auth initialization failed:', error);
+      set({ 
+        error: 'فشل في تهيئة نظام المصادقة', 
+        isLoading: false, 
+        authChecked: true, 
+        isInitialized: true 
+      });
+    }
+  },
 }));
