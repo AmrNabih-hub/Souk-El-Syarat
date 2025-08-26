@@ -93,50 +93,16 @@
         }, 100);
       });
       
-      // Service Worker Registration for performance and offline support
+      // Simple Service Worker Registration
       if ('serviceWorker' in navigator) {
         window.addEventListener('load', () => {
           navigator.serviceWorker.register('/sw.js')
             .then((registration) => {
-              console.log('✅ Service Worker registered successfully:', registration.scope);
-              
-              // Check for updates
-              registration.addEventListener('updatefound', () => {
-                console.log('🔄 Service Worker update found');
-                const newWorker = registration.installing;
-                if (newWorker) {
-                  newWorker.addEventListener('statechange', () => {
-                    if (newWorker.state === 'installed' && navigator.serviceWorker.controller) {
-                      console.log('✨ Service Worker updated - new content available');
-                    }
-                  });
-                }
-              });
+              console.log('Service Worker registered:', registration.scope);
             })
             .catch((error) => {
-              console.log('❌ Service Worker registration failed:', error);
+              console.log('Service Worker registration failed:', error);
             });
-        });
-        
-        // Listen for controller change (new SW activated)
-        navigator.serviceWorker.addEventListener('controllerchange', () => {
-          console.log('🔄 Service Worker controller changed - reloading page');
-          window.location.reload();
-        });
-      }
-      
-      // Performance monitoring
-      if ('performance' in window) {
-        window.addEventListener('load', () => {
-          setTimeout(() => {
-            const perfData = performance.getEntriesByType('navigation')[0];
-            if (perfData) {
-              console.log('📊 Performance Metrics:');
-              console.log('⚡ DOM Content Loaded:', Math.round(perfData.domContentLoadedEventEnd - perfData.fetchStart), 'ms');
-              console.log('🏁 Load Complete:', Math.round(perfData.loadEventEnd - perfData.fetchStart), 'ms');
-              console.log('🎨 First Paint:', Math.round(perfData.domContentLoadedEventStart - perfData.fetchStart), 'ms');
-            }
-          }, 0);
         });
       }
     </script>
