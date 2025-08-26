@@ -9,7 +9,7 @@ import * as yup from 'yup';
 import { EyeIcon, EyeSlashIcon, UserIcon, LockClosedIcon } from '@heroicons/react/24/outline';
 
 import { useAppStore } from '@/stores/appStore';
-import { useUnifiedAuthStore } from '@/stores/authStore.unified';
+import { useUnifiedAuthStore } from '@/stores/authStore.unified.enhanced';
 import LoadingSpinner from '@/components/ui/LoadingSpinner';
 import toast from 'react-hot-toast';
 
