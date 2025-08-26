@@ -9,123 +9,57 @@ import {
   PhoneIcon,
   MapPinIcon,
   ClockIcon,
-  CheckIcon
+  CheckIcon,
+  ShoppingCartIcon,
+  HeartIcon
 } from '@heroicons/react/24/outline';
+import { HeartIcon as HeartSolidIcon } from '@heroicons/react/24/solid';
 import toast from 'react-hot-toast';
+import { realCarServices } from '@/data/real-market-data';
+import { useAppStore } from '@/stores/appStore';
 
 const CarServicesGrid: React.FC = () => {
   const [selectedService, setSelectedService] = useState<string | null>(null);
+  const { addToCart, toggleFavorite, favorites, getCartItemsCount } = useAppStore();
 
-  const services = [
-    {
-      id: '1',
-      title: 'غسيل VIP متكامل',
-      description: 'غسيل شامل داخلي وخارجي مع تلميع وحماية',
-      price: '150 جنيه',
-      originalPrice: '200 جنيه',
-      image: 'https://images.unsplash.com/photo-1558618666-fbd51c2cd834?w=400&h=300&fit=crop',
-      icon: SparklesIcon,
-      features: ['غسيل خارجي شامل', 'تنظيف داخلي عميق', 'تلميع الهيكل', 'تعطير السيارة'],
-      duration: '2-3 ساعات',
-      rating: 4.9,
-      provider: 'مراكز الغسيل المتطورة',
-      phone: '01000000001'
-    },
-    {
-      id: '2', 
-      title: 'قطع غيار أصلية',
-      description: 'قطع غيار أصلية لجميع أنواع السيارات',
-      price: '50-5000 جنيه',
-      image: 'https://images.unsplash.com/photo-1486262715619-67b85e0b08d3?w=400&h=300&fit=crop',
-      icon: WrenchScrewdriverIcon,
-      features: ['قطع أصلية 100%', 'ضمان سنة كاملة', 'توصيل مجاني', 'أسعار منافسة'],
-      duration: 'فوري - 3 أيام',
-      rating: 4.8,
-      provider: 'مؤسسة النجاح للقطع',
-      phone: '01000000002'
-    },
-    {
-      id: '3',
-      title: 'صيانة شاملة متقدمة', 
-      description: 'حزمة صيانة كاملة مع فحص كمبيوتر',
-      price: '500 جنيه',
-      originalPrice: '650 جنيه',
-      image: 'https://images.unsplash.com/photo-1609205804882-e1c6a72e9d0b?w=400&h=300&fit=crop',
-      icon: ShieldCheckIcon,
-      features: ['تغيير الزيت والفلاتر', 'فحص كمبيوتر شامل', 'فحص الفرامل', 'تقرير مفصل'],
-      duration: '3-4 ساعات',
-      rating: 4.9,
-      provider: 'مراكز الخدمة السريعة',
-      phone: '01000000003'
-    },
-    {
-      id: '4',
-      title: 'حماية نانو سيراميك',
-      description: 'حماية متقدمة لطلاء السيارة تدوم 5 سنوات',
-      price: '1200 جنيه',
-      originalPrice: '1500 جنيه',
-      image: 'https://images.unsplash.com/photo-1609105954880-e4c28648b098?w=400&h=300&fit=crop',
-      icon: ShieldCheckIcon,
-      features: ['حماية 5 سنوات', 'مقاوم للخدوش', 'لمعة دائمة', 'سهولة التنظيف'],
-      duration: '6-8 ساعات',
-      rating: 4.7,
-      provider: 'مراكز الحماية المتخصصة',
-      phone: '01000000004'
-    },
-    {
-      id: '5',
-      title: 'إطارات وعجلات',
-      description: 'إطارات عالية الجودة من أفضل الماركات',
-      price: '800-2500 جنيه',
-      image: 'https://images.unsplash.com/photo-1606987542373-0c71b19d46d6?w=400&h=300&fit=crop',
-      icon: WrenchScrewdriverIcon,
-      features: ['ماركات عالمية', 'ضمان الوكيل', 'توازن مجاني', 'تركيب احترافي'],
-      duration: '1-2 ساعة',
-      rating: 4.6,
-      provider: 'معارض الإطارات',
-      phone: '01000000005'
-    },
-    {
-      id: '6',
-      title: 'أنظمة صوت وترفيه',
-      description: 'تركيب أنظمة صوت وشاشات ترفيه متطورة',
-      price: '1500-5000 جنيه',
-      image: 'https://images.unsplash.com/photo-1493225457124-a3eb161ffa5f?w=400&h=300&fit=crop',
-      icon: SparklesIcon,
-      features: ['صوت عالي الدقة', 'شاشة تاتش', 'بلوتوث وUSB', 'تركيب مجاني'],
-      duration: '2-4 ساعات',
-      rating: 4.5,
-      provider: 'مراكز الترفيه المتطورة',
-      phone: '01000000006'
-    },
-    {
-      id: '7',
-      title: 'خدمة توصيل VIP',
-      description: 'استلام وتسليم السيارة من والى المنزل',
-      price: '200 جنيه',
-      image: 'https://images.unsplash.com/photo-1580273916550-e323be2ae537?w=400&h=300&fit=crop',
-      icon: TruckIcon,
-      features: ['استلام من المنزل', 'خدمة 24/7', 'تتبع الرحلة', 'أمان كامل'],
-      duration: '30-60 دقيقة',
-      rating: 4.8,
-      provider: 'شركة التوصيل الذكي',
-      phone: '01000000007'
-    },
-    {
-      id: '8',
-      title: 'فحص شامل متطور',
-      description: 'فحص إلكتروني شامل بأحدث التقنيات',
-      price: '180 جنيه',
-      originalPrice: '250 جنيه',
-      image: 'https://images.unsplash.com/photo-1609205804902-1976d87ec1ad?w=400&h=300&fit=crop',
-      icon: ShieldCheckIcon,
-      features: ['فحص كمبيوتر متطور', 'تقرير مفصل', 'نصائح صيانة', 'متابعة دورية'],
-      duration: '1-2 ساعة',
-      rating: 4.7,
-      provider: 'مراكز الفحص المعتمدة',
-      phone: '01000000008'
-    }
-  ];
+  // Use real services data
+  const services = realCarServices.slice(0, 8); // Show first 8 services
+
+  // Add to cart functionality
+  const handleAddToCart = (service: typeof realCarServices[0]) => {
+    addToCart({
+      id: service.id,
+      name: service.title,
+      price: parseFloat(service.price.replace(/[^\d]/g, '')),
+      image: service.image,
+      category: 'service',
+      quantity: 1
+    });
+    toast.success(`تم إضافة ${service.title} إلى السلة`);
+  };
+
+  // Add to wishlist functionality
+  const handleToggleFavorite = (service: typeof realCarServices[0]) => {
+    toggleFavorite({
+      id: service.id,
+      name: service.title,
+      price: parseFloat(service.price.replace(/[^\d]/g, '')),
+      image: service.image,
+      category: 'service'
+    });
+    
+    const isFavorite = favorites.some(fav => fav.id === service.id);
+    toast.success(isFavorite ? `تم إزالة ${service.title} من المفضلة` : `تم إضافة ${service.title} إلى المفضلة`);
+  };
+
+  // Get icon for service based on title
+  const getServiceIcon = (title: string) => {
+    if (title.includes('غسيل')) return SparklesIcon;
+    if (title.includes('فيلم') || title.includes('حماية')) return ShieldCheckIcon;
+    if (title.includes('صيانة')) return WrenchScrewdriverIcon;
+    if (title.includes('تلميع') || title.includes('سيراميك')) return SparklesIcon;
+    return TruckIcon;
+  };
 
   const handleBookService = (service: any) => {
     toast.success(`تم حجز ${service.title} بنجاح! سيتم التواصل معك خلال 15 دقيقة`);
@@ -205,7 +139,7 @@ const CarServicesGrid: React.FC = () => {
               {/* Content */}
               <div className="p-6">
                 <div className="flex items-center mb-2">
-                  <service.icon className="w-5 h-5 text-primary-500 mr-2" />
+                  {React.createElement(getServiceIcon(service.title), { className: "w-5 h-5 text-primary-500 mr-2" })}
                   <h3 className="text-lg font-bold text-gray-900">{service.title}</h3>
                 </div>
                 
@@ -244,36 +178,65 @@ const CarServicesGrid: React.FC = () => {
                 </div>
 
                 {/* Action Buttons */}
-                <div className="flex space-x-2 space-x-reverse">
-                  <motion.button
-                    onClick={() => handleBookService(service)}
-                    className={`flex-1 py-2 px-4 rounded-lg font-medium text-sm transition-all duration-200 ${
-                      selectedService === service.id 
-                        ? 'bg-green-500 text-white' 
-                        : 'bg-primary-500 hover:bg-primary-600 text-white'
-                    }`}
-                    whileHover={{ scale: 1.02 }}
-                    whileTap={{ scale: 0.98 }}
-                    disabled={selectedService === service.id}
-                  >
-                    {selectedService === service.id ? (
-                      <div className="flex items-center justify-center">
-                        <CheckIcon className="w-4 h-4 mr-1" />
-                        تم الحجز
-                      </div>
-                    ) : (
-                      'احجز الآن'
-                    )}
-                  </motion.button>
-                  
-                  <motion.button
-                    onClick={() => handleCallProvider(service.phone, service.title)}
-                    className="px-3 py-2 border border-primary-500 text-primary-500 hover:bg-primary-50 rounded-lg transition-colors"
-                    whileHover={{ scale: 1.02 }}
-                    whileTap={{ scale: 0.98 }}
-                  >
-                    <PhoneIcon className="w-4 h-4" />
-                  </motion.button>
+                <div className="space-y-2">
+                  {/* Top row - Add to Cart and Wishlist */}
+                  <div className="flex space-x-2 space-x-reverse">
+                    <motion.button
+                      onClick={() => handleAddToCart(service)}
+                      className="flex-1 py-2 px-4 bg-primary-500 hover:bg-primary-600 text-white rounded-lg font-medium text-sm transition-all duration-200 flex items-center justify-center"
+                      whileHover={{ scale: 1.02 }}
+                      whileTap={{ scale: 0.98 }}
+                    >
+                      <ShoppingCartIcon className="w-4 h-4 mr-1" />
+                      أضف للسلة
+                    </motion.button>
+                    
+                    <motion.button
+                      onClick={() => handleToggleFavorite(service)}
+                      className="px-3 py-2 border border-gray-300 hover:border-red-300 hover:bg-red-50 rounded-lg transition-all duration-200"
+                      whileHover={{ scale: 1.05 }}
+                      whileTap={{ scale: 0.95 }}
+                    >
+                      {favorites.some(fav => fav.id === service.id) ? (
+                        <HeartSolidIcon className="w-4 h-4 text-red-500" />
+                      ) : (
+                        <HeartIcon className="w-4 h-4 text-gray-400 hover:text-red-500" />
+                      )}
+                    </motion.button>
+                  </div>
+
+                  {/* Bottom row - Book and Call */}
+                  <div className="flex space-x-2 space-x-reverse">
+                    <motion.button
+                      onClick={() => handleBookService(service)}
+                      className={`flex-1 py-2 px-4 rounded-lg font-medium text-sm transition-all duration-200 ${
+                        selectedService === service.id 
+                          ? 'bg-green-500 text-white' 
+                          : 'bg-secondary-500 hover:bg-secondary-600 text-white'
+                      }`}
+                      whileHover={{ scale: 1.02 }}
+                      whileTap={{ scale: 0.98 }}
+                      disabled={selectedService === service.id}
+                    >
+                      {selectedService === service.id ? (
+                        <div className="flex items-center justify-center">
+                          <CheckIcon className="w-4 h-4 mr-1" />
+                          تم الحجز
+                        </div>
+                      ) : (
+                        'احجز الآن'
+                      )}
+                    </motion.button>
+                    
+                    <motion.button
+                      onClick={() => handleCallProvider(service.phone, service.title)}
+                      className="px-3 py-2 border border-secondary-500 text-secondary-500 hover:bg-secondary-50 rounded-lg transition-colors"
+                      whileHover={{ scale: 1.02 }}
+                      whileTap={{ scale: 0.98 }}
+                    >
+                      <PhoneIcon className="w-4 h-4" />
+                    </motion.button>
+                  </div>
                 </div>
               </div>
             </motion.div>
