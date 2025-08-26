@@ -2,13 +2,11 @@ import React, { useEffect, Suspense } from 'react';
 import { Routes, Route, Navigate } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 
-import { useAuthStore } from '@/stores/authStore';
-import { useEnhancedAuthStore } from '@/stores/authStore.enhanced';
+import { useUnifiedAuthStore } from '@/stores/authStore.unified';
 import { useAppStore } from '@/stores/appStore';
-import { AuthService } from '@/services/auth.service.fixed';
 
 // Layout Components
-import Navbar from '@/components/layout/Navbar';
+import EnhancedNavbar from '@/components/layout/Navbar.enhanced';
 import Footer from '@/components/layout/Footer';
 import LoadingScreen from '@/components/ui/LoadingScreen';
 import ErrorBoundary from '@/components/ErrorBoundary';
@@ -147,7 +145,7 @@ const ProtectedRoute: React.FC<{
   roles?: string[];
   redirectTo?: string;
 }> = ({ children, roles, redirectTo = '/login' }) => {
-  const { user, isLoading } = useAuthStore();
+  const { user, isLoading } = useUnifiedAuthStore();
 
   if (isLoading) {
     return <LoadingScreen message='جاري التحقق من الصلاحيات...' />;
@@ -172,7 +170,7 @@ const ProtectedRoute: React.FC<{
 const PublicRoute: React.FC<{
   children: React.ReactNode;
 }> = ({ children }) => {
-  const { user } = useAuthStore();
+  const { user } = useUnifiedAuthStore();
 
   if (user) {
     // Redirect based on user role
@@ -231,37 +229,18 @@ const NotFoundPage = () => (
 );
 
 function App() {
-  const { setUser, setLoading, user } = useAuthStore();
+  const { initializeAuth, user } = useUnifiedAuthStore();
   const { language, theme } = useAppStore();
 
-  // Safe authentication state listener
+  // Initialize unified authentication system
   useEffect(() => {
-    setLoading(true);
-
+    console.log('🚀 Starting App with Unified Auth System...');
     try {
-      const unsubscribe = AuthService.onAuthStateChange((user) => {
-        try {
-          setUser(user);
-          setLoading(false);
-        } catch (error) {
-          console.error('Error setting user state:', error);
-          setLoading(false);
-        }
-      });
-
-      return () => {
-        try {
-          unsubscribe();
-        } catch (error) {
-          console.error('Error unsubscribing from auth state:', error);
-        }
-      };
+      initializeAuth();
     } catch (error) {
-      console.error('Error setting up auth listener:', error);
-      setLoading(false);
-      return () => {}; // Return empty cleanup function
+      console.error('❌ Failed to initialize auth system:', error);
     }
-  }, [setUser, setLoading]);
+  }, [initializeAuth]);
 
   // Safe document setup
   useEffect(() => {
@@ -278,7 +257,7 @@ function App() {
     <ErrorBoundary>
       <div className="min-h-screen bg-gradient-to-br from-primary-50 via-white to-secondary-50 transition-all duration-500">
         <ErrorBoundary>
-          <Navbar />
+          <EnhancedNavbar />
         </ErrorBoundary>
 
         <main className="flex-1">

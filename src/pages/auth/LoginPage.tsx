@@ -9,7 +9,7 @@ import * as yup from 'yup';
 import { EyeIcon, EyeSlashIcon, UserIcon, LockClosedIcon } from '@heroicons/react/24/outline';
 
 import { useAppStore } from '@/stores/appStore';
-import { useAuthStore } from '@/stores/authStore';
+import { useUnifiedAuthStore } from '@/stores/authStore.unified';
 import LoadingSpinner from '@/components/ui/LoadingSpinner';
 import toast from 'react-hot-toast';
 
@@ -29,7 +29,7 @@ const loginSchema = yup.object().shape({
 const LoginPage: React.FC = () => {
   const [showPassword, setShowPassword] = useState(false);
   const navigate = useNavigate();
-  const { signIn, signInWithGoogle, isLoading, error, clearError } = useAuthStore();
+  const { signIn, signInWithGoogle, isLoading, error, clearError } = useUnifiedAuthStore();
   const { language } = useAppStore();
 
   const {
@@ -44,10 +44,10 @@ const LoginPage: React.FC = () => {
     try {
       clearError();
       await signIn(data.email, data.password);
-      toast.success(language === 'ar' ? 'تم تسجيل الدخول بنجاح!' : 'Logged in successfully!');
-      navigate('/');
+      // Navigation is handled automatically by the unified auth store
     } catch (error) {
-      toast.error(error.message || 'Failed to sign in');
+      // Error toast is already handled by the unified auth service
+      console.error('Login failed:', error);
     }
   };
 

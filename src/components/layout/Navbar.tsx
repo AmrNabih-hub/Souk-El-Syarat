@@ -16,7 +16,7 @@ import {
 } from '@heroicons/react/24/outline';
 
 import { useAppStore } from '@/stores/appStore';
-import { useAuthStore } from '@/stores/authStore';
+import { useUnifiedAuthStore } from '@/stores/authStore.unified';
 import clsx from 'clsx';
 
 const Navbar: React.FC = () => {
@@ -30,7 +30,7 @@ const Navbar: React.FC = () => {
 
   const navigate = useNavigate();
   const location = useLocation();
-  const { user, signOut } = useAuthStore();
+  const { user, signOut } = useUnifiedAuthStore();
   const { language, theme, setLanguage, setTheme, getCartItemsCount, favorites } = useAppStore();
 
   // Close dropdowns when clicking outside

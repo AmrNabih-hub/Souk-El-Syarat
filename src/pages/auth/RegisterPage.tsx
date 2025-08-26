@@ -17,7 +17,7 @@ import {
 } from '@heroicons/react/24/outline';
 
 import { useAppStore } from '@/stores/appStore';
-import { useAuthStore } from '@/stores/authStore';
+import { useUnifiedAuthStore } from '@/stores/authStore.unified';
 import LoadingSpinner from '@/components/ui/LoadingSpinner';
 import toast from 'react-hot-toast';
 
@@ -55,7 +55,7 @@ const RegisterPage: React.FC = () => {
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const navigate = useNavigate();
-  const { signUp, signInWithGoogle, isLoading, error, clearError } = useAuthStore();
+  const { signUp, signInWithGoogle, isLoading, error, clearError } = useUnifiedAuthStore();
   const { language } = useAppStore();
 
   const {
@@ -76,15 +76,17 @@ const RegisterPage: React.FC = () => {
     try {
       clearError();
       await signUp(data.email, data.password, data.displayName);
-      toast.success(language === 'ar' ? 'تم إنشاء الحساب بنجاح!' : 'Account created successfully!');
-
+      
+      // Handle vendor role redirect
       if (data.role === 'vendor') {
-        navigate('/vendor/apply');
-      } else {
-        navigate('/');
+        setTimeout(() => {
+          navigate('/vendor/apply');
+        }, 2500);
       }
+      // For customer role, navigation is handled automatically by unified auth store
     } catch (error) {
-      toast.error(error.message || 'Failed to create account');
+      // Error toast is already handled by the unified auth service
+      console.error('Registration failed:', error);
     }
   };
 
