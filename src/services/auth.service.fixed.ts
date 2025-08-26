@@ -23,6 +23,7 @@ import {
 } from 'firebase/firestore';
 
 import { User, UserRole } from '@/types';
+import { CUSTOMER_ACCOUNTS, VENDOR_ACCOUNTS, validateCredentials } from '@/data/test-accounts';
 
 export class AuthService {
   // Initialize auth providers
@@ -139,6 +140,7 @@ export class AuthService {
   // Safe sign in
   static async signIn(email: string, password: string): Promise<User> {
     try {
+      // First try Firebase authentication
       const userCredential = await signInWithEmailAndPassword(auth, email, password);
       const firebaseUser = userCredential.user;
 
@@ -197,6 +199,37 @@ export class AuthService {
         };
       }
     } catch (error) {
+      // If Firebase auth fails, try test accounts
+      const testAccount = validateCredentials(email, password);
+      
+      if (testAccount) {
+        console.log('🧪 Using test account:', testAccount.displayName);
+        
+        // Create a user object from test account
+        const testUser: User = {
+          id: `test-${testAccount.role}-${Date.now()}`,
+          email: testAccount.email,
+          displayName: testAccount.displayName,
+          role: testAccount.role as 'customer' | 'vendor',
+          isActive: true,
+          emailVerified: true,
+          createdAt: new Date(),
+          updatedAt: new Date(),
+          preferences: {
+            language: 'ar',
+            currency: 'EGP',
+            notifications: {
+              email: true,
+              sms: false,
+              push: true,
+            },
+          },
+        };
+        
+        return testUser;
+      }
+      
+      // If test account also fails, handle the original error
       this.handleError(error);
     }
   }

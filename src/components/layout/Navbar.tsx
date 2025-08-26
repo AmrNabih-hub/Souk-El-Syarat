@@ -192,10 +192,11 @@ const Navbar: React.FC = () => {
                     <HeartIcon className='w-5 h-5 group-hover:text-red-500' />
                     {favorites.length > 0 && (
                       <motion.span
-                        className='absolute -top-2 -right-2 w-5 h-5 bg-red-500 text-white text-xs rounded-full flex items-center justify-center font-medium shadow-lg border-2 border-white'
+                        className='absolute -top-1 -right-1 min-w-[18px] h-[18px] bg-red-500 text-white text-xs rounded-full flex items-center justify-center font-bold shadow-lg border-2 border-white'
                         initial={{ scale: 0 }}
                         animate={{ scale: 1 }}
                         transition={{ type: 'spring', stiffness: 300 }}
+                        style={{ fontSize: '10px', lineHeight: '1' }}
                       >
                         {favorites.length > 99 ? '99+' : favorites.length}
                       </motion.span>
@@ -213,10 +214,11 @@ const Navbar: React.FC = () => {
                     <ShoppingCartIcon className='w-5 h-5 group-hover:text-primary-600' />
                     {getCartItemsCount() > 0 && (
                       <motion.span
-                        className='absolute -top-2 -right-2 w-5 h-5 bg-primary-500 text-white text-xs rounded-full flex items-center justify-center font-medium shadow-lg border-2 border-white'
+                        className='absolute -top-1 -right-1 min-w-[18px] h-[18px] bg-primary-500 text-white text-xs rounded-full flex items-center justify-center font-bold shadow-lg border-2 border-white'
                         initial={{ scale: 0 }}
                         animate={{ scale: 1 }}
                         transition={{ type: 'spring', stiffness: 300 }}
+                        style={{ fontSize: '10px', lineHeight: '1' }}
                       >
                         {getCartItemsCount() > 99 ? '99+' : getCartItemsCount()}
                       </motion.span>

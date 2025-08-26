@@ -28,18 +28,65 @@ interface AppStore extends AppState {
 
 export const useAppStore = create<AppStore>()(
   persist(
-    (set, get) => ({
-      // Initial state
-      theme: 'light',
-      language: 'ar',
-      currency: 'EGP',
-      cartItems: [],
-      favorites: [],
-      recentlyViewed: [],
+    (set, get) => {
+      // Initialize theme and language from localStorage on startup
+      let initialTheme: 'light' | 'dark' = 'light';
+      let initialLanguage: 'ar' | 'en' = 'ar';
+      
+      if (typeof window !== 'undefined') {
+        initialTheme = (localStorage.getItem('souk-theme') as 'light' | 'dark') || 'light';
+        initialLanguage = (localStorage.getItem('souk-language') as 'ar' | 'en') || 'ar';
+        
+        // Apply initial settings
+        const root = document.documentElement;
+        if (initialTheme === 'dark') {
+          root.classList.add('dark');
+        }
+        root.setAttribute('lang', initialLanguage);
+        root.setAttribute('dir', initialLanguage === 'ar' ? 'rtl' : 'ltr');
+      }
+      
+      return {
+        // Initial state
+        theme: initialTheme,
+        language: initialLanguage,
+        currency: 'EGP',
+        cartItems: [],
+        favorites: [],
+        recentlyViewed: [],
 
-      // Theme actions
-      setTheme: theme => set({ theme }),
-      setLanguage: language => set({ language }),
+      // Theme actions with side effects
+      setTheme: theme => {
+        set({ theme });
+        
+        // Apply theme to document
+        if (typeof window !== 'undefined') {
+          const root = document.documentElement;
+          if (theme === 'dark') {
+            root.classList.add('dark');
+          } else {
+            root.classList.remove('dark');
+          }
+          
+          // Store in localStorage for persistence
+          localStorage.setItem('souk-theme', theme);
+        }
+      },
+      
+      setLanguage: language => {
+        set({ language });
+        
+        // Apply language to document
+        if (typeof window !== 'undefined') {
+          const root = document.documentElement;
+          root.setAttribute('lang', language);
+          root.setAttribute('dir', language === 'ar' ? 'rtl' : 'ltr');
+          
+          // Store in localStorage for persistence
+          localStorage.setItem('souk-language', language);
+        }
+      },
+      
       setCurrency: currency => set({ currency }),
 
       // Cart actions
@@ -138,7 +185,8 @@ export const useAppStore = create<AppStore>()(
       },
 
       clearRecentlyViewed: () => set({ recentlyViewed: [] }),
-    }),
+      };
+    },
     {
       name: 'souk-app-store',
       partialize: state => ({

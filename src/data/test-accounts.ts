@@ -1,125 +1,186 @@
-// Test Accounts for Souk El-Syarat Platform
+// Test Accounts for Easy Access and Testing
+// أدمن، تجار، وعملاء للاختبار المباشر
 
 export interface TestAccount {
   email: string;
   password: string;
-  displayName: string;
   role: 'admin' | 'vendor' | 'customer';
+  displayName: string;
   description: string;
+  permissions?: string[];
 }
 
-export const TEST_ACCOUNTS: TestAccount[] = [
-  // Admin Account
+// =============================================================================
+// 👨‍💼 ADMIN ACCOUNTS - حسابات المدراء
+// =============================================================================
+
+export const ADMIN_ACCOUNTS: TestAccount[] = [
   {
     email: 'admin@souk-el-syarat.com',
-    password: 'SoukAdmin2024!@#$',
-    displayName: 'مدير النظام الرئيسي',
+    password: 'Admin123456!',
     role: 'admin',
-    description: 'حساب المدير الرئيسي مع جميع الصلاحيات'
+    displayName: 'مدير النظام الرئيسي',
+    description: 'Admin account with full system access',
+    permissions: [
+      'manage_vendors',
+      'manage_users',
+      'view_analytics',
+      'manage_content',
+      'system_settings',
+      'financial_reports'
+    ]
   },
+  {
+    email: 'admin@alamancar.com',
+    password: 'AdminSouk2024!',
+    role: 'admin',
+    displayName: 'أحمد المدير العام',
+    description: 'Secondary admin account for testing',
+    permissions: [
+      'manage_vendors',
+      'manage_users',
+      'view_analytics'
+    ]
+  }
+];
 
-  // Vendor Test Accounts
+// =============================================================================
+// 🏪 VENDOR ACCOUNTS - حسابات التجار
+// =============================================================================
+
+export const VENDOR_ACCOUNTS: TestAccount[] = [
   {
     email: 'vendor1@alamancar.com',
-    password: 'VendorTest123!',
-    displayName: 'أحمد محمد علي - معرض الأمان',
+    password: 'Vendor123456!',
     role: 'vendor',
-    description: 'معرض الأمان للسيارات الفاخرة - الجيزة'
+    displayName: 'أحمد محمد علي',
+    description: 'معرض الأمان للسيارات الفاخرة - شارع الهرم، الجيزة'
   },
   {
     email: 'vendor2@carservice.com',
-    password: 'VendorTest456!',
-    displayName: 'محمود حسن الشافعي - مركز الخدمة',
+    password: 'ServiceVendor123!',
     role: 'vendor',
-    description: 'مركز خدمة السيارات المتطور - مدينة نصر'
+    displayName: 'محمود حسن الشافعي',
+    description: 'مركز خدمة السيارات المتطور - مدينة نصر، القاهرة'
   },
   {
     email: 'vendor3@parts-egypt.com',
-    password: 'VendorTest789!',
-    displayName: 'فاطمة أحمد عبدالله - قطع الغيار',
+    password: 'PartsVendor123!',
     role: 'vendor',
+    displayName: 'فاطمة أحمد عبدالله',
     description: 'شركة قطع الغيار الأصلية - الإسكندرية'
   },
   {
     email: 'vendor4@cairocars.com',
-    password: 'VendorCairo123!',
-    displayName: 'محمد عبدالرحمن - معرض القاهرة',
+    password: 'CairoVendor123!',
     role: 'vendor',
+    displayName: 'محمد عبدالرحمن',
     description: 'معرض القاهرة للسيارات الحديثة - وسط القاهرة'
   },
   {
     email: 'vendor5@luxcars.com',
-    password: 'VendorLux456!',
-    displayName: 'سارة أحمد حسن - السيارات الفاخرة',
+    password: 'LuxVendor123!',
     role: 'vendor',
-    description: 'معرض السيارات الفاخرة المتميزة - الزمالك'
-  },
+    displayName: 'سارة أحمد حسن',
+    description: 'معرض السيارات الفاخرة المتميزة - الزمالك، القاهرة'
+  }
+];
 
-  // Customer Test Accounts
+// =============================================================================
+// 👥 CUSTOMER ACCOUNTS - حسابات العملاء
+// =============================================================================
+
+export const CUSTOMER_ACCOUNTS: TestAccount[] = [
   {
     email: 'customer1@gmail.com',
     password: 'Customer123!',
-    displayName: 'علي محمد خالد',
     role: 'customer',
-    description: 'عميل تجريبي - باحث عن سيارة عائلية'
+    displayName: 'محمد أحمد السيد',
+    description: 'عميل عادي - القاهرة'
   },
   {
     email: 'customer2@gmail.com',
     password: 'Customer456!',
-    displayName: 'منى أحمد السيد',
     role: 'customer',
-    description: 'عميل تجريبي - مهتمة بالسيارات الصغيرة'
+    displayName: 'فاطمة محمود علي',
+    description: 'عميلة عادية - الإسكندرية'
   },
   {
     email: 'customer3@yahoo.com',
     password: 'Customer789!',
-    displayName: 'أحمد عبدالله محمد',
     role: 'customer',
-    description: 'عميل تجريبي - يبحث عن سيارة رياضية'
+    displayName: 'أحمد محمد حسن',
+    description: 'عميل VIP - الجيزة'
+  },
+  {
+    email: 'test@souk-el-syarat.com',
+    password: 'Test123456!',
+    role: 'customer',
+    displayName: 'مستخدم تجريبي',
+    description: 'حساب تجريبي للاختبار السريع'
   }
 ];
 
-// Quick reference for testing
-export const QUICK_TEST_LOGINS = {
+// =============================================================================
+// 🔗 ALL ACCOUNTS COMBINED - جميع الحسابات
+// =============================================================================
+
+export const ALL_TEST_ACCOUNTS: TestAccount[] = [
+  ...ADMIN_ACCOUNTS,
+  ...VENDOR_ACCOUNTS,
+  ...CUSTOMER_ACCOUNTS
+];
+
+// =============================================================================
+// 🎯 QUICK ACCESS FUNCTIONS - وظائف الوصول السريع
+// =============================================================================
+
+export const getAccountByEmail = (email: string): TestAccount | undefined => {
+  return ALL_TEST_ACCOUNTS.find(account => account.email === email);
+};
+
+export const getAccountsByRole = (role: TestAccount['role']): TestAccount[] => {
+  return ALL_TEST_ACCOUNTS.filter(account => account.role === role);
+};
+
+export const validateCredentials = (email: string, password: string): TestAccount | null => {
+  const account = getAccountByEmail(email);
+  return account && account.password === password ? account : null;
+};
+
+// =============================================================================
+// 📋 QUICK REFERENCE GUIDE - دليل مرجعي سريع
+// =============================================================================
+
+export const QUICK_LOGIN_GUIDE = {
   admin: {
     email: 'admin@souk-el-syarat.com',
-    password: 'SoukAdmin2024!@#$'
+    password: 'Admin123456!',
+    description: 'استخدم هذا الحساب للدخول كمدير'
   },
-  vendor1: {
+  vendor: {
     email: 'vendor1@alamancar.com',
-    password: 'VendorTest123!'
+    password: 'Vendor123456!',
+    description: 'استخدم هذا الحساب للدخول كتاجر'
   },
-  vendor2: {
-    email: 'vendor2@carservice.com',
-    password: 'VendorTest456!'
-  },
-  customer1: {
-    email: 'customer1@gmail.com',
-    password: 'Customer123!'
-  },
-  customer2: {
-    email: 'customer2@gmail.com',
-    password: 'Customer456!'
+  customer: {
+    email: 'test@souk-el-syarat.com',
+    password: 'Test123456!',
+    description: 'استخدم هذا الحساب للدخول كعميل'
   }
 };
 
-export const createTestAccounts = async () => {
-  console.log('🧪 Test accounts ready for:', TEST_ACCOUNTS.length, 'users');
-  
-  console.log('\n🔐 ADMIN LOGIN:');
-  console.log(`Email: ${QUICK_TEST_LOGINS.admin.email}`);
-  console.log(`Password: ${QUICK_TEST_LOGINS.admin.password}`);
-  
-  console.log('\n🏪 VENDOR LOGINS:');
-  console.log(`Vendor 1: ${QUICK_TEST_LOGINS.vendor1.email} / ${QUICK_TEST_LOGINS.vendor1.password}`);
-  console.log(`Vendor 2: ${QUICK_TEST_LOGINS.vendor2.email} / ${QUICK_TEST_LOGINS.vendor2.password}`);
-  
-  console.log('\n👤 CUSTOMER LOGINS:');
-  console.log(`Customer 1: ${QUICK_TEST_LOGINS.customer1.email} / ${QUICK_TEST_LOGINS.customer1.password}`);
-  console.log(`Customer 2: ${QUICK_TEST_LOGINS.customer2.email} / ${QUICK_TEST_LOGINS.customer2.password}`);
-  
-  console.log('\n✨ All accounts are ready for testing!');
-};
+// =============================================================================
+// 🚀 EXPORT FOR EASY IMPORT
+// =============================================================================
 
-// Export for easy import
-export default TEST_ACCOUNTS;
+export default {
+  ADMIN_ACCOUNTS,
+  VENDOR_ACCOUNTS,
+  CUSTOMER_ACCOUNTS,
+  ALL_TEST_ACCOUNTS,
+  QUICK_LOGIN_GUIDE,
+  getAccountByEmail,
+  getAccountsByRole,
+  validateCredentials
+};

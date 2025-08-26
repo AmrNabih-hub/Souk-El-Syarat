@@ -2,22 +2,15 @@ import { signInWithEmailAndPassword, User } from 'firebase/auth';
 import { doc, setDoc, getDoc } from 'firebase/firestore';
 import { auth, db } from '@/config/firebase.config';
 
-// Admin Credentials - Multiple options for flexibility
-const ADMIN_CREDENTIALS = [
-  {
-    email: 'admin@souk-el-syarat.com',
-    password: 'SoukAdmin2024!@#$'
-  },
-  {
-    email: 'admin@souk-el-syarat.com',
-    password: '$#@SoukAdmin2024!@#$'
-  },
-  {
-    // Fallback for the credentials shown in the screenshot
-    email: 'admin@souk-el-syarat.com', 
-    password: 'S#@SoukAdmin2024'
-  }
-];
+import { ADMIN_ACCOUNTS } from '@/data/test-accounts';
+
+// Admin Credentials from test accounts
+const ADMIN_CREDENTIALS = ADMIN_ACCOUNTS.map(account => ({
+  email: account.email,
+  password: account.password,
+  displayName: account.displayName,
+  permissions: account.permissions || []
+}));
 
 export interface AdminUser {
   id: string;
@@ -39,20 +32,12 @@ export class AdminAuthService {
       const adminDoc = await getDoc(adminDocRef);
 
       if (!adminDoc.exists()) {
+        const mainAdmin = ADMIN_CREDENTIALS[0]; // Use first admin as main
         const adminData: Omit<AdminUser, 'id'> = {
-          email: ADMIN_CREDENTIALS.email,
-          displayName: 'مدير النظام الرئيسي',
+          email: mainAdmin.email,
+          displayName: mainAdmin.displayName,
           role: 'admin',
-          permissions: [
-            'manage_vendors',
-            'manage_users', 
-            'view_analytics',
-            'manage_content',
-            'system_settings',
-            'financial_reports',
-            'vendor_applications',
-            'customer_support'
-          ],
+          permissions: mainAdmin.permissions,
           createdAt: new Date(),
           lastLogin: new Date(),
           isActive: true
