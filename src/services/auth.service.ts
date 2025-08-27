@@ -279,6 +279,25 @@ export class AuthService {
   }
 
   // 🚨 BULLETPROOF SIGN OUT
+  static async getCurrentUser(): Promise<User | null> {
+    const currentUser = auth.currentUser;
+    if (!currentUser) return null;
+
+    try {
+      const userDoc = await getDoc(doc(db, 'users', currentUser.uid));
+      if (userDoc.exists()) {
+        return {
+          id: currentUser.uid,
+          ...userDoc.data(),
+        } as User;
+      }
+      return null;
+    } catch (error) {
+      console.error('Error getting current user:', error);
+      return null;
+    }
+  }
+
   static async signOut(): Promise<void> {
     try {
       console.log('🚀 Starting bulletproof sign out...');

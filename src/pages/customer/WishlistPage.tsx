@@ -16,7 +16,8 @@ import { useAuthStore } from '@/stores/authStore';
 import { Product } from '@/types';
 import { ProductService } from '@/services/product.service';
 
-import { EgyptianLoader, HeartSolid } from '@/components/ui/CustomIcons';
+import { HeartSolid } from '@/components/ui/CustomIcons';
+import { EgyptianLoader } from '@/components/ui/LoadingSpinner';
 import ProductDetailModal from '@/components/product/ProductDetailModal';
 import toast from 'react-hot-toast';
 
@@ -199,7 +200,7 @@ const WishlistPage: React.FC = () => {
         {/* Loading Content */}
         <div className='max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8'>
           <div className='flex justify-center items-center py-20'>
-            <EgyptianLoader size='lg' text={language === 'ar' ? 'جاري التحميل...' : 'Loading...'} />
+            <EgyptianLoader text={language === 'ar' ? 'جاري التحميل...' : 'Loading...'} />
           </div>
         </div>
       </div>

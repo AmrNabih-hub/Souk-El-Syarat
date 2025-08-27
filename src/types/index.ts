@@ -550,7 +550,8 @@ export type NotificationType =
   | 'product_rejected'
   | 'new_review'
   | 'payment_received'
-  | 'system_announcement';
+  | 'system_announcement'
+  | 'system';
 
 // Form Types
 export interface VendorApplicationForm {
@@ -585,4 +586,25 @@ export interface ProductForm {
   warranty?: Warranty;
   // Car-specific fields
   carDetails?: Partial<CarDetails>;
+}
+
+// Real-time Types
+export interface UserPresence {
+  userId: string;
+  status: 'online' | 'offline' | 'away';
+  lastSeen: Date;
+  currentPage?: string;
+  isTyping?: boolean;
+}
+
+export interface ChatMessage {
+  id: string;
+  chatId?: string;
+  senderId: string;
+  receiverId: string;
+  message: string;
+  timestamp: Date;
+  read: boolean;
+  type: 'text' | 'image' | 'file';
+  data?: Record<string, any>;
 }

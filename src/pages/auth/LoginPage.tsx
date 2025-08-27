@@ -24,7 +24,7 @@ const loginSchema = yup.object().shape({
     .string()
     .min(6, 'كلمة المرور يجب أن تكون 6 أحرف على الأقل')
     .required('كلمة المرور مطلوبة'),
-});
+}) as yup.ObjectSchema<LoginFormData>;
 
 const LoginPage: React.FC = () => {
   const [showPassword, setShowPassword] = useState(false);

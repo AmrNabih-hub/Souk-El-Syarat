@@ -24,7 +24,8 @@ import { Product, CarProduct } from '@/types';
 import { ProductService } from '@/services/product.service';
 
 import ProductCard from '@/components/product/ProductCard';
-import { EgyptianLoader, HeartSolid } from '@/components/ui/CustomIcons';
+import { HeartSolid } from '@/components/ui/CustomIcons';
+import { EgyptianLoader } from '@/components/ui/LoadingSpinner';
 import toast from 'react-hot-toast';
 
 const ProductDetailsPage: React.FC = () => {
@@ -186,7 +187,6 @@ const ProductDetailsPage: React.FC = () => {
         <div className='max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8'>
           <div className='flex justify-center items-center py-20'>
             <EgyptianLoader
-              size='lg'
               text={language === 'ar' ? 'جاري تحميل المنتج...' : 'Loading product...'}
             />
           </div>

@@ -12,6 +12,8 @@ import {
   orderBy,
   limit,
   onSnapshot,
+  addDoc,
+  serverTimestamp,
 } from 'firebase/firestore';
 import { ref, set, push, onValue, update } from 'firebase/database';
 
@@ -351,6 +353,144 @@ export class RealtimeService {
     // This method is called when the service is no longer needed
     // Individual listeners should be cleaned up by the components using them
     // if (process.env.NODE_ENV === 'development') console.log('🧹 Realtime service cleanup completed');
+  }
+
+  // Listen to all users presence
+  listenToAllUsersPresence(callback: (presenceList: Record<string, UserPresence>) => void) {
+    const presenceRef = ref(realtimeDb, 'presence');
+    return onValue(presenceRef, snapshot => {
+      const data = snapshot.val() || {};
+      const presenceList: Record<string, UserPresence> = {};
+      Object.keys(data).forEach(userId => {
+        presenceList[userId] = {
+          userId,
+          status: data[userId].status || 'offline',
+          lastSeen: new Date(data[userId].lastSeen || Date.now()),
+          currentPage: data[userId].currentPage,
+          isTyping: data[userId].isTyping,
+        };
+      });
+      callback(presenceList);
+    });
+  }
+
+  // Set user offline
+  async setUserOffline(userId: string): Promise<void> {
+    try {
+      const userPresenceRef = ref(realtimeDb, `presence/${userId}`);
+      await set(userPresenceRef, {
+        status: 'offline',
+        lastSeen: Date.now(),
+        isTyping: false,
+      });
+    } catch (error) {
+      if (process.env.NODE_ENV === 'development')
+        console.error('❌ Error setting user offline:', error);
+    }
+  }
+
+  // Send message
+  async sendMessage(senderId: string, receiverId: string, message: string, type: string = 'text'): Promise<string> {
+    try {
+      const messagesRef = ref(realtimeDb, 'messages');
+      const newMessageRef = push(messagesRef);
+      const messageData: ChatMessage = {
+        id: newMessageRef.key!,
+        senderId,
+        receiverId,
+        message,
+        timestamp: new Date(),
+        read: false,
+        type: type as 'text' | 'image' | 'file',
+      };
+      await set(newMessageRef, messageData);
+      return newMessageRef.key!;
+    } catch (error) {
+      console.error('❌ Error sending message:', error);
+      throw error;
+    }
+  }
+
+  // Mark message as read
+  async markMessageAsRead(currentUserId: string, senderId: string, messageId: string): Promise<void> {
+    try {
+      const messageRef = ref(realtimeDb, `messages/${messageId}`);
+      await update(messageRef, { read: true });
+    } catch (error) {
+      console.error('❌ Error marking message as read:', error);
+    }
+  }
+
+  // Listen to user orders
+  listenToUserOrders(userId: string, userRole: string, callback: (orders: unknown[]) => void) {
+    const q = userRole === 'vendor'
+      ? query(collection(db, 'orders'), where('vendorId', '==', userId), orderBy('createdAt', 'desc'))
+      : query(collection(db, 'orders'), where('customerId', '==', userId), orderBy('createdAt', 'desc'));
+
+    return onSnapshot(q, snapshot => {
+      const orders = snapshot.docs.map(doc => ({
+        id: doc.id,
+        ...doc.data(),
+      }));
+      callback(orders);
+    });
+  }
+
+  // Listen to vendor products
+  listenToVendorProducts(vendorId: string, callback: (products: unknown[]) => void) {
+    const q = query(collection(db, 'products'), where('vendorId', '==', vendorId));
+
+    return onSnapshot(q, snapshot => {
+      const products = snapshot.docs.map(doc => ({
+        id: doc.id,
+        ...doc.data(),
+      }));
+      callback(products);
+    });
+  }
+
+  // Listen to analytics
+  listenToAnalytics(callback: (analytics: unknown) => void) {
+    const analyticsRef = ref(realtimeDb, 'analytics');
+    return onValue(analyticsRef, snapshot => {
+      callback(snapshot.val() || {});
+    });
+  }
+
+  // Add activity
+  async addActivity(userId: string, type: string, data: unknown): Promise<void> {
+    try {
+      const activitiesRef = collection(db, 'activities');
+      await addDoc(activitiesRef, {
+        userId,
+        type,
+        data,
+        createdAt: serverTimestamp(),
+      });
+    } catch (error) {
+      console.error('❌ Error adding activity:', error);
+    }
+  }
+
+  // Listen to chat messages
+  listenToChatMessages(senderId: string, receiverId: string, callback: (messages: ChatMessage[]) => void) {
+    const messagesRef = ref(realtimeDb, 'messages');
+    return onValue(messagesRef, snapshot => {
+      const data = snapshot.val() || {};
+      const messages: ChatMessage[] = [];
+      Object.keys(data).forEach(key => {
+        const msg = data[key];
+        if ((msg.senderId === senderId && msg.receiverId === receiverId) ||
+            (msg.senderId === receiverId && msg.receiverId === senderId)) {
+          messages.push({
+            ...msg,
+            timestamp: new Date(msg.timestamp),
+          });
+        }
+      });
+      messages.sort((a, b) => a.timestamp.getTime() - b.timestamp.getTime());
+      callback(messages);
+    });
   }
 }
 

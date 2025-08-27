@@ -12,6 +12,7 @@ import { AuthService } from '@/services/auth.service';
 import Navbar from '@/components/layout/Navbar';
 import Footer from '@/components/layout/Footer';
 import LoadingScreen from '@/components/ui/LoadingScreen';
+import ChatSystem from '@/components/realtime/ChatSystem';
 
 // Lazy load pages for better performance
 const HomePage = React.lazy(() => import('@/pages/HomePage'));
@@ -414,6 +415,9 @@ function App() {
       </main>
 
       <Footer />
+      
+      {/* Real-time Chat System - Available for logged in users */}
+      {user && <ChatSystem />}
     </div>
   );
 }

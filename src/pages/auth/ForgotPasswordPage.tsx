@@ -20,7 +20,7 @@ interface ForgotPasswordFormData {
 
 const forgotPasswordSchema = yup.object().shape({
   email: yup.string().email('البريد الإلكتروني غير صحيح').required('البريد الإلكتروني مطلوب'),
-});
+}) as yup.ObjectSchema<ForgotPasswordFormData>;
 
 const ForgotPasswordPage: React.FC = () => {
   const { resetPassword, isLoading, error, clearError } = useAuthStore();

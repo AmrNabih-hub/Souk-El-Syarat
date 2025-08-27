@@ -49,7 +49,7 @@ const registerSchema = yup.object().shape({
     .boolean()
     .oneOf([true], 'يجب الموافقة على الشروط والأحكام')
     .required('يجب الموافقة على الشروط والأحكام'),
-});
+}) as yup.ObjectSchema<RegisterFormData>;
 
 const RegisterPage: React.FC = () => {
   const [showPassword, setShowPassword] = useState(false);
