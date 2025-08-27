@@ -1,0 +1,108 @@
+{
+  "firestore": {
+    "rules": {
+      "users": {
+        "$userId": {
+          ".read": "$userId === auth.uid || auth.token.role === 'admin'",
+          ".write": "$userId === auth.uid || auth.token.role === 'admin'",
+          ".validate": "newData.hasChildren(['email', 'displayName', 'role']) && newData.child('email').isString() && newData.child('email').matches(/^[^\\s@]+@[^\\s@]+\\.[^\\s@]+$/)"
+        }
+      },
+      "products": {
+        "$productId": {
+          ".read": true,
+          ".write": "auth != null && (auth.token.role === 'vendor' || auth.token.role === 'admin')",
+          ".validate": "newData.hasChildren(['name', 'price', 'vendorId']) && newData.child('price').isNumber() && newData.child('price').val() > 0"
+        }
+      },
+      "orders": {
+        "$orderId": {
+          ".read": "auth != null && (data.child('customerId').val() === auth.uid || data.child('vendorId').val() === auth.uid || auth.token.role === 'admin')",
+          ".write": "auth != null && (data.child('customerId').val() === auth.uid || data.child('vendorId').val() === auth.uid || auth.token.role === 'admin')",
+          ".validate": "newData.hasChildren(['customerId', 'vendorId', 'total', 'status']) && newData.child('total').isNumber() && newData.child('total').val() > 0"
+        }
+      },
+      "messages": {
+        "$messageId": {
+          ".read": "auth != null && (data.child('senderId').val() === auth.uid || data.child('receiverId').val() === auth.uid)",
+          ".write": "auth != null && newData.child('senderId').val() === auth.uid",
+          ".validate": "newData.hasChildren(['senderId', 'receiverId', 'message', 'timestamp']) && newData.child('message').isString() && newData.child('message').val().length <= 1000"
+        }
+      },
+      "notifications": {
+        "$userId": {
+          "$notificationId": {
+            ".read": "$userId === auth.uid",
+            ".write": "auth.token.role === 'admin' || auth.token.role === 'system'"
+          }
+        }
+      },
+      "security_logs": {
+        ".read": "auth.token.role === 'admin'",
+        ".write": "auth != null"
+      },
+      "banned_users": {
+        ".read": "auth.token.role === 'admin'",
+        ".write": "auth.token.role === 'admin'"
+      }
+    }
+  },
+  "storage": {
+    "rules": {
+      "users": {
+        "$userId": {
+          "profile": {
+            ".read": true,
+            ".write": "$userId === auth.uid",
+            ".validate": "request.resource.size < 5 * 1024 * 1024 && request.resource.contentType.matches('image/.*')"
+          }
+        }
+      },
+      "products": {
+        "$productId": {
+          ".read": true,
+          ".write": "auth != null && (auth.token.role === 'vendor' || auth.token.role === 'admin')",
+          ".validate": "request.resource.size < 10 * 1024 * 1024 && request.resource.contentType.matches('image/.*')"
+        }
+      },
+      "documents": {
+        "$userId": {
+          ".read": "$userId === auth.uid || auth.token.role === 'admin'",
+          ".write": "$userId === auth.uid",
+          ".validate": "request.resource.size < 20 * 1024 * 1024 && (request.resource.contentType.matches('application/pdf') || request.resource.contentType.matches('image/.*'))"
+        }
+      }
+    }
+  },
+  "database": {
+    "rules": {
+      ".read": false,
+      ".write": false,
+      "presence": {
+        "$uid": {
+          ".read": true,
+          ".write": "$uid === auth.uid"
+        }
+      },
+      "typing": {
+        ".read": "auth != null",
+        ".write": "auth != null"
+      },
+      "messages": {
+        ".read": "auth != null",
+        ".write": "auth != null",
+        "$messageId": {
+          ".validate": "newData.hasChildren(['senderId', 'receiverId', 'message', 'timestamp']) && newData.child('senderId').val() === auth.uid"
+        }
+      },
+      "analytics": {
+        ".read": "auth != null && (auth.token.role === 'admin' || auth.token.role === 'vendor')",
+        ".write": false
+      },
+      "activities": {
+        ".read": "auth != null",
+        ".write": "auth != null && newData.child('userId').val() === auth.uid"
+      }
+    }
+  }
+}
