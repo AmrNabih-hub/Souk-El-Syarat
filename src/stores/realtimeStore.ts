@@ -41,6 +41,11 @@ interface RealtimeState {
   // Activity feed
   activityFeed: unknown[];
 
+  // AI Recommendations (REAL-TIME)
+  recommendations: Product[];
+  recommendationConfidence: number;
+  recommendationReasons: string[];
+
   // Connection status
   isConnected: boolean;
   isInitialized: boolean;
