@@ -27,6 +27,7 @@ const VendorsPage = React.lazy(() => import('@/pages/customer/VendorsPage'));
 const CartPage = React.lazy(() => import('@/pages/customer/CartPage'));
 const WishlistPage = React.lazy(() => import('@/pages/customer/WishlistPage'));
 const ProfilePage = React.lazy(() => import('@/pages/customer/ProfilePage'));
+const OrdersPage = React.lazy(() => import('@/pages/customer/OrdersPage'));
 
 // Dashboard pages
 const AdminDashboard = React.lazy(() => import('@/pages/admin/AdminDashboard'));
@@ -36,6 +37,10 @@ const NotFoundPage = React.lazy(() => import('@/pages/NotFoundPage'));
 const TestPage = React.lazy(() => import('@/pages/TestPage'));
 const AboutPage = React.lazy(() => import('@/pages/AboutPage'));
 const ContactPage = React.lazy(() => import('@/pages/ContactPage'));
+const HelpPage = React.lazy(() => import('@/pages/HelpPage'));
+const FAQPage = React.lazy(() => import('@/pages/FAQPage'));
+const TermsPage = React.lazy(() => import('@/pages/TermsPage'));
+const PrivacyPage = React.lazy(() => import('@/pages/PrivacyPage'));
 
 // Protected Route Component
 const ProtectedRoute: React.FC<{
@@ -351,6 +356,22 @@ function App() {
                 }
               />
 
+              <Route
+                path='/orders'
+                element={
+                  <ProtectedRoute>
+                    <motion.div
+                      variants={pageVariants}
+                      initial='initial'
+                      animate='animate'
+                      exit='exit'
+                    >
+                      <OrdersPage />
+                    </motion.div>
+                  </ProtectedRoute>
+                }
+              />
+
               {/* Customer Dashboard */}
               <Route
                 path='/dashboard'
@@ -457,6 +478,62 @@ function App() {
                     exit='exit'
                   >
                     <ContactPage />
+                  </motion.div>
+                }
+              />
+              
+              <Route
+                path='/help'
+                element={
+                  <motion.div
+                    variants={pageVariants}
+                    initial='initial'
+                    animate='animate'
+                    exit='exit'
+                  >
+                    <HelpPage />
+                  </motion.div>
+                }
+              />
+              
+              <Route
+                path='/faq'
+                element={
+                  <motion.div
+                    variants={pageVariants}
+                    initial='initial'
+                    animate='animate'
+                    exit='exit'
+                  >
+                    <FAQPage />
+                  </motion.div>
+                }
+              />
+              
+              <Route
+                path='/terms'
+                element={
+                  <motion.div
+                    variants={pageVariants}
+                    initial='initial'
+                    animate='animate'
+                    exit='exit'
+                  >
+                    <TermsPage />
+                  </motion.div>
+                }
+              />
+              
+              <Route
+                path='/privacy'
+                element={
+                  <motion.div
+                    variants={pageVariants}
+                    initial='initial'
+                    animate='animate'
+                    exit='exit'
+                  >
+                    <PrivacyPage />
                   </motion.div>
                 }
               />
