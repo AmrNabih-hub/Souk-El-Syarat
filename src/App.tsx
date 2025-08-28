@@ -28,6 +28,8 @@ const CartPage = React.lazy(() => import('@/pages/customer/CartPage'));
 const WishlistPage = React.lazy(() => import('@/pages/customer/WishlistPage'));
 const ProfilePage = React.lazy(() => import('@/pages/customer/ProfilePage'));
 const OrdersPage = React.lazy(() => import('@/pages/customer/OrdersPage'));
+const CheckoutPage = React.lazy(() => import('@/pages/customer/CheckoutPage'));
+const OrderConfirmationPage = React.lazy(() => import('@/pages/customer/OrderConfirmationPage'));
 
 // Dashboard pages
 const AdminDashboard = React.lazy(() => import('@/pages/admin/AdminDashboard'));
@@ -367,6 +369,38 @@ function App() {
                       exit='exit'
                     >
                       <OrdersPage />
+                    </motion.div>
+                  </ProtectedRoute>
+                }
+              />
+
+              <Route
+                path='/checkout'
+                element={
+                  <ProtectedRoute>
+                    <motion.div
+                      variants={pageVariants}
+                      initial='initial'
+                      animate='animate'
+                      exit='exit'
+                    >
+                      <CheckoutPage />
+                    </motion.div>
+                  </ProtectedRoute>
+                }
+              />
+
+              <Route
+                path='/order-confirmation/:orderId'
+                element={
+                  <ProtectedRoute>
+                    <motion.div
+                      variants={pageVariants}
+                      initial='initial'
+                      animate='animate'
+                      exit='exit'
+                    >
+                      <OrderConfirmationPage />
                     </motion.div>
                   </ProtectedRoute>
                 }
