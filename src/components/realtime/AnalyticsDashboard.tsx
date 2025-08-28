@@ -90,11 +90,11 @@ const MetricCard: React.FC<MetricCardProps> = ({ title, value, change, icon: Ico
 };
 
 const AnalyticsDashboard: React.FC = () => {
-  const { analytics, listenToAnalytics } = useRealtimeStore();
+  const { liveAnalytics, listenToAnalytics } = useRealtimeStore();
   const { language } = useAppStore();
   
   // Type the analytics data
-  const analytics = analytics as any;
+  const analytics = liveAnalytics as any;
 
   useEffect(() => {
     listenToAnalytics((analytics) => {

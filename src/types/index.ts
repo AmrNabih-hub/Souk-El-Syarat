@@ -629,3 +629,18 @@ export interface ChatMessage {
   type: 'text' | 'image' | 'file';
   data?: Record<string, any>;
 }
+
+// Additional type exports for error fixes
+export interface AnalyticsData {
+  trafficData?: any;
+  salesData?: any;
+  deviceData?: any;
+  activeUsers?: number;
+  newOrders?: number;
+  revenue?: number;
+  conversionRate?: number;
+  topCountries?: any[];
+  recentActivity?: any[];
+  pageLoadTime?: number;
+  uptime?: number;
+}

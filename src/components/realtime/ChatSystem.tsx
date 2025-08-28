@@ -52,7 +52,7 @@ const ChatWindow: React.FC<ChatWindowProps> = ({ recipientId, recipientName, onC
     
     if (!isTyping && value.length > 0) {
       setIsTyping(true);
-      setTypingStatus(recipientId, true);
+      setTypingStatus(recipientId, user?.id || '', true);
     }
     
     if (typingTimeoutRef.current) {
@@ -62,7 +62,7 @@ const ChatWindow: React.FC<ChatWindowProps> = ({ recipientId, recipientName, onC
     typingTimeoutRef.current = setTimeout(() => {
       if (isTyping) {
         setIsTyping(false);
-        setTypingStatus(recipientId, false);
+        setTypingStatus(recipientId, user?.id || '', false);
       }
     }, 1000);
   };
@@ -70,10 +70,10 @@ const ChatWindow: React.FC<ChatWindowProps> = ({ recipientId, recipientName, onC
   const handleSendMessage = async () => {
     if (!message.trim() || !user) return;
     
-    await sendMessage(recipientId, message, 'text');
+    await sendMessage(recipientId, message);
     setMessage('');
     setIsTyping(false);
-    setTypingStatus(recipientId, false);
+    setTypingStatus(recipientId, user?.id || '', false);
   };
 
   const handleKeyPress = (e: React.KeyboardEvent) => {
