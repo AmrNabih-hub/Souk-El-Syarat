@@ -25,6 +25,7 @@ const MarketplacePage = React.lazy(() => import('@/pages/customer/MarketplacePag
 const ProductDetailsPage = React.lazy(() => import('@/pages/customer/ProductDetailsPage'));
 const VendorsPage = React.lazy(() => import('@/pages/customer/VendorsPage'));
 const CartPage = React.lazy(() => import('@/pages/customer/CartPage'));
+const WishlistPage = React.lazy(() => import('@/pages/customer/WishlistPage'));
 const ProfilePage = React.lazy(() => import('@/pages/customer/ProfilePage'));
 
 // Dashboard pages
@@ -311,6 +312,22 @@ function App() {
                       exit='exit'
                     >
                       <CartPage />
+                    </motion.div>
+                  </ProtectedRoute>
+                }
+              />
+
+              <Route
+                path='/wishlist'
+                element={
+                  <ProtectedRoute>
+                    <motion.div
+                      variants={pageVariants}
+                      initial='initial'
+                      animate='animate'
+                      exit='exit'
+                    >
+                      <WishlistPage />
                     </motion.div>
                   </ProtectedRoute>
                 }
