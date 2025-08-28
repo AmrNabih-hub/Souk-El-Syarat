@@ -30,6 +30,8 @@ const ProfilePage = React.lazy(() => import('@/pages/customer/ProfilePage'));
 const AdminDashboard = React.lazy(() => import('@/pages/admin/AdminDashboard'));
 const VendorDashboard = React.lazy(() => import('@/pages/vendor/VendorDashboard'));
 const CustomerDashboard = React.lazy(() => import('@/pages/customer/CustomerDashboard'));
+const NotFoundPage = React.lazy(() => import('@/pages/NotFoundPage'));
+const TestPage = React.lazy(() => import('@/pages/TestPage'));
 
 // Protected Route Component
 const ProtectedRoute: React.FC<{
@@ -406,6 +408,38 @@ function App() {
                     >
                       العودة للرئيسية
                     </motion.a>
+                  </motion.div>
+                }
+              />
+
+              {/* Test Page Route */}
+              <Route
+                path='/test'
+                element={
+                  <Suspense fallback={<LoadingSpinner />}>
+                    <motion.div
+                      variants={pageVariants}
+                      initial='initial'
+                      animate='animate'
+                      exit='exit'
+                    >
+                      <TestPage />
+                    </motion.div>
+                  </Suspense>
+                }
+              />
+
+              {/* 404 Not Found - Must be last */}
+              <Route
+                path='*'
+                element={
+                  <motion.div
+                    variants={pageVariants}
+                    initial='initial'
+                    animate='animate'
+                    exit='exit'
+                  >
+                    <NotFoundPage />
                   </motion.div>
                 }
               />

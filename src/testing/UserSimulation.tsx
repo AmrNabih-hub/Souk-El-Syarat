@@ -20,8 +20,8 @@ import { AuthService } from '@/services/auth.service';
 import { ProductService } from '@/services/product.service';
 import { OrderService } from '@/services/order.service';
 import { CartService } from '@/services/cart.service';
-import { errorHandlerService } from '@/services/error-handler.service';
-import { apiValidatorService } from '@/services/api-validator.service';
+import { errorHandler as errorHandlerService } from '@/services/error-handler.service';
+import { apiValidator as apiValidatorService } from '@/services/api-validator.service';
 
 interface SimulationStep {
   id: string;
