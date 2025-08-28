@@ -393,3 +393,5 @@ export class AuthService {
     return errorMessages[errorCode || ''] || 'An unexpected error occurred. Please try again.';
   }
 }
+
+export const authService = AuthService.getInstance();

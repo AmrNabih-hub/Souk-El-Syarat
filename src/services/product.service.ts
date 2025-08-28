@@ -1303,3 +1303,5 @@ export class ProductService {
     return sampleProducts;
   }
 }
+
+export const productService = new ProductService();

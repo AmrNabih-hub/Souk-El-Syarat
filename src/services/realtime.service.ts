@@ -279,4 +279,5 @@ export class RealtimeService {
   }
 }
 
+export const realtimeService = RealtimeService.getInstance();
 export default RealtimeService;

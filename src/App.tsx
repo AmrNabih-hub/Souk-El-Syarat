@@ -37,6 +37,7 @@ const VendorDashboard = React.lazy(() => import('@/pages/vendor/VendorDashboard'
 const CustomerDashboard = React.lazy(() => import('@/pages/customer/CustomerDashboard'));
 const NotFoundPage = React.lazy(() => import('@/pages/NotFoundPage'));
 const TestPage = React.lazy(() => import('@/pages/TestPage'));
+const AutomatedTestSuite = React.lazy(() => import('@/testing/automated-test-suite'));
 const AboutPage = React.lazy(() => import('@/pages/AboutPage'));
 const ContactPage = React.lazy(() => import('@/pages/ContactPage'));
 const HelpPage = React.lazy(() => import('@/pages/HelpPage'));
@@ -584,6 +585,23 @@ function App() {
                       exit='exit'
                     >
                       <TestPage />
+                    </motion.div>
+                  </Suspense>
+                }
+              />
+              
+              {/* Automated Test Suite */}
+              <Route
+                path='/test-suite'
+                element={
+                  <Suspense fallback={<LoadingSpinner />}>
+                    <motion.div
+                      variants={pageVariants}
+                      initial='initial'
+                      animate='animate'
+                      exit='exit'
+                    >
+                      <AutomatedTestSuite />
                     </motion.div>
                   </Suspense>
                 }
