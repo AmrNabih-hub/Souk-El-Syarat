@@ -1,0 +1,158 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Emergency Diagnosis - Souk El-Sayarat</title>
+    <style>
+        body { font-family: monospace; padding: 20px; background: #1a1a1a; color: #0f0; }
+        .error { color: #f00; font-weight: bold; }
+        .success { color: #0f0; }
+        .warning { color: #ff0; }
+        .info { color: #0ff; }
+        pre { background: #000; padding: 10px; overflow-x: auto; }
+    </style>
+</head>
+<body>
+    <h1>🔍 Deep Diagnosis of Souk El-Sayarat</h1>
+    <div id="output"></div>
+    
+    <script>
+        const output = document.getElementById('output');
+        const log = (msg, type = 'info') => {
+            const div = document.createElement('div');
+            div.className = type;
+            div.innerHTML = `[${new Date().toISOString().substr(11, 8)}] ${msg}`;
+            output.appendChild(div);
+        };
+
+        async function diagnose() {
+            log('Starting comprehensive diagnosis...', 'info');
+            
+            try {
+                // Test 1: Basic connectivity
+                log('Test 1: Checking site connectivity...', 'info');
+                const response = await fetch('https://souk-el-syarat.web.app/');
+                log(`HTTP Status: ${response.status}`, response.ok ? 'success' : 'error');
+                
+                if (!response.ok) {
+                    log(`Site returns error: ${response.status} ${response.statusText}`, 'error');
+                    return;
+                }
+                
+                const html = await response.text();
+                log(`HTML Size: ${(html.length / 1024).toFixed(2)}KB`, 'success');
+                
+                // Test 2: Check for critical elements
+                log('Test 2: Checking critical HTML elements...', 'info');
+                
+                if (html.includes('id="root"')) {
+                    log('✓ Root element found', 'success');
+                } else {
+                    log('✗ Root element missing!', 'error');
+                }
+                
+                // Test 3: Check JavaScript bundle
+                log('Test 3: Checking JavaScript bundle...', 'info');
+                const scriptMatch = html.match(/src="(\/assets\/index-[^"]+\.js)"/);
+                
+                if (scriptMatch) {
+                    log(`Found script: ${scriptMatch[1]}`, 'success');
+                    
+                    // Test loading the script
+                    const scriptUrl = 'https://souk-el-syarat.web.app' + scriptMatch[1];
+                    const scriptResponse = await fetch(scriptUrl);
+                    
+                    if (scriptResponse.ok) {
+                        const scriptContent = await scriptResponse.text();
+                        log(`Script size: ${(scriptContent.length / 1024).toFixed(2)}KB`, 'success');
+                        
+                        // Check for common errors in script
+                        if (scriptContent.includes('Cannot read properties of null')) {
+                            log('Script contains null reference errors!', 'error');
+                        }
+                        if (scriptContent.includes('firebase is not defined')) {
+                            log('Firebase initialization issue detected!', 'error');
+                        }
+                        if (scriptContent.includes('exports is not defined')) {
+                            log('Module system error detected!', 'error');
+                        }
+                        
+                        // Check for React
+                        if (scriptContent.includes('React.createElement')) {
+                            log('✓ React code found', 'success');
+                        } else {
+                            log('✗ React code might be missing', 'warning');
+                        }
+                        
+                    } else {
+                        log(`Script fails to load: ${scriptResponse.status}`, 'error');
+                    }
+                } else {
+                    log('No script tag found in HTML!', 'error');
+                }
+                
+                // Test 4: Check for console errors by creating iframe
+                log('Test 4: Testing actual page load...', 'info');
+                
+                const iframe = document.createElement('iframe');
+                iframe.style.display = 'none';
+                iframe.src = 'https://souk-el-syarat.web.app/';
+                document.body.appendChild(iframe);
+                
+                setTimeout(() => {
+                    try {
+                        // We can't access cross-origin iframe content, but we can check if it loaded
+                        log('Page load test completed', 'info');
+                    } catch (e) {
+                        log(`Cross-origin test: ${e.message}`, 'warning');
+                    }
+                }, 3000);
+                
+                // Test 5: Check CSS
+                log('Test 5: Checking CSS...', 'info');
+                const cssMatch = html.match(/href="(\/assets\/index-[^"]+\.css)"/);
+                if (cssMatch) {
+                    log(`Found CSS: ${cssMatch[1]}`, 'success');
+                } else {
+                    log('No CSS file found!', 'warning');
+                }
+                
+                // Test 6: Check for common issues
+                log('Test 6: Checking for common issues...', 'info');
+                
+                if (html.includes('<!DOCTYPE html>')) {
+                    log('✓ Valid HTML5 doctype', 'success');
+                }
+                
+                if (html.includes('charset="UTF-8"')) {
+                    log('✓ UTF-8 charset set', 'success');
+                }
+                
+                if (html.includes('viewport')) {
+                    log('✓ Viewport meta tag present', 'success');
+                }
+                
+                // Final diagnosis
+                log('=== DIAGNOSIS COMPLETE ===', 'info');
+                
+            } catch (error) {
+                log(`Critical error: ${error.message}`, 'error');
+                console.error(error);
+            }
+        }
+        
+        // Run diagnosis
+        diagnose();
+        
+        // Also try to load the app directly
+        setTimeout(() => {
+            log('Attempting direct script execution test...', 'info');
+            
+            const testScript = document.createElement('script');
+            testScript.onerror = () => log('Script execution failed!', 'error');
+            testScript.onload = () => log('Script loaded successfully', 'success');
+            testScript.src = 'https://souk-el-syarat.web.app/assets/index-BeeCAm6W.js';
+            document.head.appendChild(testScript);
+        }, 2000);
+    </script>
+</body>
+</html>
