@@ -34,6 +34,8 @@ const VendorDashboard = React.lazy(() => import('@/pages/vendor/VendorDashboard'
 const CustomerDashboard = React.lazy(() => import('@/pages/customer/CustomerDashboard'));
 const NotFoundPage = React.lazy(() => import('@/pages/NotFoundPage'));
 const TestPage = React.lazy(() => import('@/pages/TestPage'));
+const AboutPage = React.lazy(() => import('@/pages/AboutPage'));
+const ContactPage = React.lazy(() => import('@/pages/ContactPage'));
 
 // Protected Route Component
 const ProtectedRoute: React.FC<{
@@ -426,6 +428,35 @@ function App() {
                     >
                       العودة للرئيسية
                     </motion.a>
+                  </motion.div>
+                }
+              />
+
+              {/* Static Pages */}
+              <Route
+                path='/about'
+                element={
+                  <motion.div
+                    variants={pageVariants}
+                    initial='initial'
+                    animate='animate'
+                    exit='exit'
+                  >
+                    <AboutPage />
+                  </motion.div>
+                }
+              />
+              
+              <Route
+                path='/contact'
+                element={
+                  <motion.div
+                    variants={pageVariants}
+                    initial='initial'
+                    animate='animate'
+                    exit='exit'
+                  >
+                    <ContactPage />
                   </motion.div>
                 }
               />
