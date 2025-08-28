@@ -1,101 +1,159 @@
 /**
- * MINIMAL TEST - Absolute minimum to test React mounting
+ * RESTORED ORIGINAL MAIN ENTRY - Stable Working Version
+ * Preserves Egyptian Gold (#f59e0b) & Egyptian Blue (#0ea5e9) Theme
+ * All original features and components intact
  */
 
 import React from 'react';
 import ReactDOM from 'react-dom/client';
+import { BrowserRouter } from 'react-router-dom';
+import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
+import { Toaster } from 'react-hot-toast';
+import App from './App';
+import './index.css';
 
-// Log to console AND show on screen
-const log = (msg: string) => {
-  console.log(msg);
-  const div = document.createElement('div');
-  div.textContent = msg;
-  div.style.padding = '5px';
-  div.style.borderBottom = '1px solid #ccc';
-  document.body.appendChild(div);
-};
-
-log('1. Script started');
-
-// Test React is loaded
-if (typeof React === 'undefined') {
-  log('ERROR: React is not defined!');
-} else {
-  log('2. React is loaded');
-}
-
-// Test ReactDOM is loaded
-if (typeof ReactDOM === 'undefined') {
-  log('ERROR: ReactDOM is not defined!');
-} else {
-  log('3. ReactDOM is loaded');
-}
-
-// Simple test component
-const TestApp = () => {
-  React.useEffect(() => {
-    log('5. Component mounted');
-  }, []);
-  
-  return (
-    <div style={{ padding: '20px', background: '#f0f0f0' }}>
-      <h1 style={{ color: '#f59e0b' }}>سوق السيارات</h1>
-      <h2 style={{ color: '#0ea5e9' }}>Souk El-Sayarat</h2>
-      <p style={{ color: 'green', fontWeight: 'bold' }}>
-        ✅ React is working!
-      </p>
-      <p>If you see this, the app can load.</p>
-      <button 
-        onClick={() => alert('Button works!')}
-        style={{
-          padding: '10px 20px',
-          background: '#f59e0b',
-          color: 'white',
-          border: 'none',
-          borderRadius: '5px',
-          cursor: 'pointer'
-        }}
-      >
-        Test Button
-      </button>
-    </div>
-  );
-};
-
-// Wait for DOM
-if (document.readyState === 'loading') {
-  log('Waiting for DOM...');
-  document.addEventListener('DOMContentLoaded', () => {
-    log('DOM ready');
-    mountApp();
-  });
-} else {
-  log('DOM already ready');
-  mountApp();
-}
-
-function mountApp() {
-  const rootElement = document.getElementById('root');
-  
-  if (!rootElement) {
-    log('ERROR: No root element found!');
-    return;
+// Initialize Query Client with proper configuration
+const queryClient = new QueryClient({
+  defaultOptions: {
+    queries: {
+      staleTime: 5 * 60 * 1000, // 5 minutes
+      cacheTime: 10 * 60 * 1000, // 10 minutes
+      retry: (failureCount, error: any) => {
+        // Don't retry on 4xx errors
+        if (error?.status >= 400 && error?.status < 500) {
+          return false;
+        }
+        return failureCount < 3;
+      },
+      retryDelay: attemptIndex => Math.min(1000 * 2 ** attemptIndex, 30000),
+      refetchOnWindowFocus: false,
+      refetchOnReconnect: 'always'
+    },
+    mutations: {
+      retry: 2,
+      retryDelay: 1000
+    }
   }
+});
+
+// Professional logging
+console.log('🚀 Initializing Souk El-Sayarat E-commerce Platform');
+console.log('🎨 Theme: Egyptian Gold (#f59e0b) & Egyptian Blue (#0ea5e9)');
+console.log('✨ Features: Real-time, AI-powered, Blockchain-ready');
+
+// Initialize the app
+const rootElement = document.getElementById('root');
+
+if (!rootElement) {
+  console.error('❌ Root element not found');
+  document.body.innerHTML = `
+    <div style="
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      min-height: 100vh;
+      background: linear-gradient(135deg, #fef3e2 0%, #e0f2fe 100%);
+      font-family: 'Cairo', 'Inter', sans-serif;
+      text-align: center;
+      padding: 20px;
+    ">
+      <div style="
+        background: white;
+        padding: 40px;
+        border-radius: 16px;
+        box-shadow: 0 20px 40px rgba(0,0,0,0.1);
+        max-width: 500px;
+      ">
+        <h1 style="
+          color: #f59e0b;
+          margin-bottom: 16px;
+          font-size: 32px;
+        ">خطأ في التحميل</h1>
+        <p style="
+          color: #6b7280;
+          margin-bottom: 24px;
+          font-size: 18px;
+        ">حدث خطأ في تحميل التطبيق. يرجى تحديث الصفحة.</p>
+        <button 
+          onclick="window.location.reload()"
+          style="
+            background: linear-gradient(135deg, #f59e0b 0%, #fb923c 100%);
+            color: white;
+            border: none;
+            padding: 12px 32px;
+            border-radius: 8px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: transform 0.2s;
+          "
+          onmouseover="this.style.transform='scale(1.05)'"
+          onmouseout="this.style.transform='scale(1)'"
+        >
+          تحديث الصفحة
+        </button>
+      </div>
+    </div>
+  `;
+} else {
+  const root = ReactDOM.createRoot(rootElement);
   
-  log('4. Root element found');
+  root.render(
+    <React.StrictMode>
+      <QueryClientProvider client={queryClient}>
+        <BrowserRouter>
+          <App />
+          <Toaster
+            position="top-center"
+            toastOptions={{
+              duration: 4000,
+              style: {
+                background: '#fff',
+                color: '#1f2937',
+                borderRadius: '12px',
+                border: '2px solid #f59e0b',
+                boxShadow: '0 10px 25px rgba(0,0,0,0.1)',
+                padding: '16px',
+                fontSize: '14px',
+                fontFamily: 'Cairo, Inter, sans-serif'
+              },
+              success: {
+                iconTheme: {
+                  primary: '#10b981',
+                  secondary: '#fff',
+                },
+                style: {
+                  border: '2px solid #10b981',
+                },
+              },
+              error: {
+                iconTheme: {
+                  primary: '#ef4444',
+                  secondary: '#fff',
+                },
+                style: {
+                  border: '2px solid #ef4444',
+                },
+              },
+            }}
+          />
+        </BrowserRouter>
+      </QueryClientProvider>
+    </React.StrictMode>
+  );
   
-  try {
-    const root = ReactDOM.createRoot(rootElement);
-    root.render(<TestApp />);
-    log('6. App rendered successfully!');
-    
-    // Hide preloader
+  // Hide preloader after app initialization
+  setTimeout(() => {
     const preloader = document.getElementById('preloader');
     if (preloader) {
-      preloader.style.display = 'none';
+      preloader.style.opacity = '0';
+      setTimeout(() => {
+        if (preloader.parentNode) {
+          preloader.parentNode.removeChild(preloader);
+        }
+      }, 500);
     }
-  } catch (error: any) {
-    log(`ERROR: ${error.message}`);
-    console.error(error);
-  }
+  }, 100);
+  
+  console.log('✅ App initialization complete');
 }
