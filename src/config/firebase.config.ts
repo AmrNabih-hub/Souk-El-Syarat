@@ -77,6 +77,11 @@ export const initializeServices = () => {
   return false;
 };
 
+// Initialize immediately if app exists
+if (app) {
+  initializeServices();
+}
+
 console.log('✅ Firebase services initialized');
 
 // Initialize Analytics and Performance (Production only)
@@ -163,6 +168,13 @@ export const validateFirebaseConfig = (): boolean => {
 };
 
 // Test connection already defined above
+
+// Safe getters for services
+export const getFirebaseAuth = () => auth || getAuth(app!);
+export const getFirebaseDb = () => db || getFirestore(app!);
+export const getRealtimeDb = () => realtimeDb || getDatabase(app!);
+export const getFirebaseStorage = () => storage || getStorage(app!);
+export const getFirebaseFunctions = () => functions || getFunctions(app!);
 
 // Export everything for immediate use
 export default app;
