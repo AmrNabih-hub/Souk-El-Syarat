@@ -446,7 +446,7 @@ export class AIRecommendationService {
   ): Promise<Product[]> {
     const filtered = recommendations.filter(product => {
       // Remove out of stock items
-      if (product.stock === 0) return false;
+      if (product.quantity === 0) return false;
       
       // Remove inactive products
       if (!product.isActive) return false;

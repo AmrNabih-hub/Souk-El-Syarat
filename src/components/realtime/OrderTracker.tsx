@@ -10,7 +10,7 @@ import {
   CheckCircleIcon,
   TruckIcon,
   ClockIcon,
-  PackageIcon,
+  CubeIcon as PackageIcon, // Using CubeIcon as PackageIcon
   CreditCardIcon
 } from '@heroicons/react/24/outline';
 import { formatDistanceToNow } from 'date-fns';

@@ -7,6 +7,7 @@ import React, { useState, useEffect, useRef } from 'react';
 import { useRealtimeStore } from '@/stores/realtimeStore';
 import { useAuthStore } from '@/stores/authStore';
 import { motion, AnimatePresence } from 'framer-motion';
+import clsx from 'clsx';
 import { 
   ChatBubbleLeftRightIcon, 
   PaperAirplaneIcon,
@@ -32,7 +33,7 @@ const ChatWindow: React.FC<ChatWindowProps> = ({ recipientId, recipientName, onC
   const [message, setMessage] = useState('');
   const [isTyping, setIsTyping] = useState(false);
   const messagesEndRef = useRef<HTMLDivElement>(null);
-  const typingTimeoutRef = useRef<NodeJS.Timeout>();
+  const typingTimeoutRef = useRef<ReturnType<typeof setTimeout>>();
 
   const locale = language === 'ar' ? ar : enUS;
   const chatMessages = activeChats[recipientId] || [];

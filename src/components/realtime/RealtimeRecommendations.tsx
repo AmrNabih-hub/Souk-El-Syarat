@@ -9,7 +9,7 @@ import { useAuthStore } from '@/stores/authStore';
 import { aiRecommendation } from '@/services/ai-recommendation.service';
 import { Product } from '@/types';
 import { motion, AnimatePresence } from 'framer-motion';
-import { SparklesIcon, RefreshIcon } from '@heroicons/react/24/outline';
+import { SparklesIcon, ArrowPathIcon as RefreshIcon } from '@heroicons/react/24/outline';
 import { onSnapshot, collection, query, where } from 'firebase/firestore';
 import { db } from '@/config/firebase.config';
 import { useAppStore } from '@/stores/appStore';
@@ -189,19 +189,19 @@ const RealtimeRecommendations: React.FC<RecommendationProps> = ({ userId, onProd
               <div className="relative">
                 <img
                   src={product.images?.[0] || '/placeholder.jpg'}
-                  alt={product.name}
+                  alt={product.title}
                   className="w-full h-48 object-cover"
                 />
-                {product.stock <= 5 && product.stock > 0 && (
+                {product.quantity <= 5 && product.quantity > 0 && (
                   <motion.div
                     animate={{ opacity: [1, 0.5, 1] }}
                     transition={{ duration: 2, repeat: Infinity }}
                     className="absolute top-2 right-2 bg-yellow-500 text-white px-2 py-1 rounded-full text-xs"
                   >
-                    {language === 'ar' ? `${product.stock} فقط متبقي` : `Only ${product.stock} left`}
+                    {language === 'ar' ? `${product.quantity} فقط متبقي` : `Only ${product.quantity} left`}
                   </motion.div>
                 )}
-                {product.stock === 0 && (
+                {product.quantity === 0 && (
                   <div className="absolute top-2 right-2 bg-red-500 text-white px-2 py-1 rounded-full text-xs">
                     {language === 'ar' ? 'نفذ المخزون' : 'Out of Stock'}
                   </div>
@@ -210,7 +210,7 @@ const RealtimeRecommendations: React.FC<RecommendationProps> = ({ userId, onProd
 
               <div className="p-4">
                 <h3 className="font-semibold text-gray-900 mb-2 line-clamp-2">
-                  {product.name}
+                  {product.title}
                 </h3>
                 
                 {/* Real-time Price */}
@@ -261,9 +261,9 @@ const RealtimeRecommendations: React.FC<RecommendationProps> = ({ userId, onProd
                       e.stopPropagation();
                       handleProductInteraction(product, 'cart');
                     }}
-                    disabled={product.stock === 0}
+                    disabled={product.quantity === 0}
                     className={`flex-1 py-2 rounded-lg font-medium transition-colors ${
-                      product.stock === 0
+                      product.quantity === 0
                         ? 'bg-gray-100 text-gray-400 cursor-not-allowed'
                         : 'bg-primary-500 text-white hover:bg-primary-600'
                     }`}

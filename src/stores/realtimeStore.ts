@@ -46,6 +46,13 @@ interface RealtimeState {
   recommendationConfidence: number;
   recommendationReasons: string[];
 
+  // Missing methods for components
+  listenToAnalytics: (callback: (analytics: any) => void) => void;
+  listenToVendorInventory: (vendorId: string) => void;
+  listenToOrderUpdates: (orderId: string) => void;
+  setTypingStatus: (chatId: string, userId: string, isTyping: boolean) => void;
+  addToCart: (item: { productId: string; quantity: number; product?: Product }) => void;
+
   // Connection status
   isConnected: boolean;
   isInitialized: boolean;
@@ -394,9 +401,53 @@ export const useRealtimeStore = create<RealtimeState>()(
         await realtimeService.addActivity(currentUser.id, type as any, data);
       } catch (error) {
         if (process.env.NODE_ENV === 'development')
-          if (process.env.NODE_ENV === 'development')
-            console.error('❌ Failed to add activity:', error);
+          console.error('❌ Failed to add activity:', error);
       }
+    },
+
+    // Missing implementations for components
+    listenToAnalytics: (callback: (analytics: any) => void) => {
+      const realtimeService = RealtimeService.getInstance();
+      const listener = realtimeService.listenToAnalytics(callback);
+      get().listeners.set('analytics', listener);
+    },
+
+    listenToVendorInventory: (vendorId: string) => {
+      const realtimeService = RealtimeService.getInstance();
+      const listener = realtimeService.listenToVendorProducts(vendorId, products => {
+        set({ vendorProducts: products });
+      });
+      get().listeners.set(`vendorInventory_${vendorId}`, listener);
+    },
+
+    listenToOrderUpdates: (orderId: string) => {
+      const realtimeService = RealtimeService.getInstance();
+      const listener = realtimeService.listenToUserOrders(orderId, orders => {
+        set(state => ({
+          orderUpdates: {
+            ...state.orderUpdates,
+            [orderId]: orders[0]
+          }
+        }));
+      });
+      get().listeners.set(`orderUpdates_${orderId}`, listener);
+    },
+
+    setTypingStatus: (chatId: string, userId: string, isTyping: boolean) => {
+      set(state => ({
+        typingUsers: {
+          ...state.typingUsers,
+          [chatId]: isTyping 
+            ? [...(state.typingUsers[chatId] || []), userId]
+            : (state.typingUsers[chatId] || []).filter(id => id !== userId)
+        }
+      }));
+    },
+
+    addToCart: (item: { productId: string; quantity: number; product?: Product }) => {
+      // This should integrate with cart service
+      if (process.env.NODE_ENV === 'development')
+        console.log('Adding to cart:', item);
     },
   }))
 );

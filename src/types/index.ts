@@ -155,6 +155,7 @@ export interface Product {
   id: string;
   vendorId: string;
   title: string;
+  name?: string; // Alias for title (used by some components)
   description: string;
   category: ProductCategory;
   subcategory: string;
@@ -164,6 +165,11 @@ export interface Product {
   currency: 'EGP' | 'USD';
   inStock: boolean;
   quantity: number;
+  stock?: number; // Alias for quantity (used by some components)
+  reserved?: number; // For inventory tracking
+  minStock?: number; // Minimum stock threshold
+  previousQuantity?: number; // For tracking changes
+  currentViewers?: number; // Real-time viewers count
   specifications: ProductSpecification[];
   features: string[];
   tags: string[];
@@ -178,6 +184,7 @@ export interface Product {
   updatedAt: Date;
   publishedAt?: Date;
   seoData?: SEOData;
+  isActive?: boolean; // For active/inactive status
 }
 
 export type ProductCategory =
@@ -189,7 +196,8 @@ export type ProductCategory =
   | 'tools'
   | 'tires'
   | 'electronics'
-  | 'kits';
+  | 'kits'
+  | 'test'; // For testing purposes
 
 export interface ProductImage {
   id: string;
@@ -267,7 +275,11 @@ export interface Order {
   vendorId: string;
   items: OrderItem[];
   totalAmount: number;
+  total?: number; // Alias for totalAmount
   status: OrderStatus;
+  statusHistory?: StatusUpdate[]; // Track status changes
+  realTimeUpdates?: { message: string; timestamp: Date }[]; // Live updates
+  updates?: any[]; // Generic updates array
   paymentStatus: PaymentStatus;
   paymentMethod?: PaymentMethod;
   shippingAddress: Address;
@@ -293,7 +305,15 @@ export type OrderStatus =
   | 'shipped'
   | 'delivered'
   | 'cancelled'
-  | 'returned';
+  | 'returned'
+  | 'paid'; // Added for payment tracking
+
+export interface StatusUpdate {
+  status: OrderStatus;
+  timestamp: Date;
+  message?: string;
+  updatedBy?: string;
+}
 
 export type PaymentStatus = 'pending' | 'paid' | 'failed' | 'refunded' | 'partially_refunded';
 

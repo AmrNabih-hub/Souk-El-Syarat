@@ -94,7 +94,7 @@ const InventoryMonitor: React.FC<InventoryMonitorProps> = ({ vendorId }) => {
                 <div className="flex items-center space-x-2 rtl:space-x-reverse">
                   <CubeIcon className="w-5 h-5 text-gray-400" />
                   <h4 className="font-medium text-gray-900 line-clamp-1">
-                    {product.name || `Product ${productId.slice(-6)}`}
+                    {product.title || `Product ${productId.slice(-6)}`}
                   </h4>
                 </div>
                 <span className={`px-2 py-1 text-xs rounded-full ${status.bgColor} ${status.color}`}>
