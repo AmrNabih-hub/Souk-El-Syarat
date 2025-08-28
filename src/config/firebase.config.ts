@@ -50,8 +50,9 @@ export let appCheck: AppCheck | null = null;
 
 // 🚨 IMMEDIATE SERVICE INITIALIZATION
 try {
-  // Initialize Analytics
-  if (typeof window !== 'undefined') {
+  // Initialize Analytics - Disabled to prevent 403 errors
+  // Will be re-enabled after proper Google Analytics setup
+  if (typeof window !== 'undefined' && false) {
     analytics = getAnalytics(app);
     console.log('✅ Analytics initialized');
   }

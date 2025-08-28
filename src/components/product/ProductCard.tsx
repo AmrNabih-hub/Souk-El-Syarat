@@ -124,6 +124,7 @@ const ProductCard = ({
               animate={{ opacity: imageLoaded ? 1 : 0 }}
               exit={{ opacity: 0 }}
               loading='lazy'
+              decoding='async'
             />
           </AnimatePresence>
 

@@ -236,6 +236,9 @@ const HomePage: React.FC = () => {
             <form className='flex flex-col sm:flex-row gap-4'>
               <input
                 type='email'
+                id='newsletter-email'
+                name='email'
+                autoComplete='email'
                 placeholder='البريد الإلكتروني'
                 className='flex-1 px-6 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-primary-500'
                 dir='ltr'
