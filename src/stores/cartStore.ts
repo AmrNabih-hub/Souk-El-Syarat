@@ -2,6 +2,7 @@ import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
 import { Product } from '@/types';
 import toast from 'react-hot-toast';
+import { syncService } from '@/services/sync.service';
 
 interface CartItem {
   product: Product;
