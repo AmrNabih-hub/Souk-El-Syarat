@@ -38,6 +38,10 @@ export const initializeFirebase = async (): Promise<boolean> => {
     app = initializeApp(firebaseConfig);
     initialized = true;
     console.log('✅ Firebase app initialized');
+    
+    // Initialize services
+    initializeServices();
+    
     return true;
   } catch (error) {
     console.error('❌ Firebase initialization failed:', error);
@@ -52,21 +56,26 @@ if (typeof window !== 'undefined') {
 
 export { app };
 
-// Initialize Firebase Services (lazy - will initialize when app is ready)
-export let auth: Auth;
-export let db: Firestore;
-export let realtimeDb: Database;
-export let storage: FirebaseStorage;
-export let functions: Functions;
+// Initialize Firebase Services
+export let auth: Auth | null = null;
+export let db: Firestore | null = null;
+export let realtimeDb: Database | null = null;
+export let storage: FirebaseStorage | null = null;
+export let functions: Functions | null = null;
 
-// Initialize services when app is ready
-if (app) {
-  auth = getAuth(app);
-  db = getFirestore(app);
-  realtimeDb = getDatabase(app);
-  storage = getStorage(app);
-  functions = getFunctions(app);
-}
+// Initialize services after app is ready
+export const initializeServices = () => {
+  if (app && !auth) {
+    auth = getAuth(app);
+    db = getFirestore(app);
+    realtimeDb = getDatabase(app);
+    storage = getStorage(app);
+    functions = getFunctions(app);
+    console.log('✅ Firebase services initialized');
+    return true;
+  }
+  return false;
+};
 
 console.log('✅ Firebase services initialized');
 
@@ -153,22 +162,7 @@ export const validateFirebaseConfig = (): boolean => {
   return true;
 };
 
-// Test connection function
-const testFirebaseConnection = async (): Promise<boolean> => {
-  try {
-    // Simple test to verify Firebase is responding
-    if (auth) {
-      console.log('✅ Firebase Auth service ready');
-    }
-    if (db) {
-      console.log('✅ Firestore service ready');
-    }
-    return true;
-  } catch (error) {
-    console.error('Connection test failed:', error);
-    return false;
-  }
-};
+// Test connection already defined above
 
 // Export everything for immediate use
 export default app;
