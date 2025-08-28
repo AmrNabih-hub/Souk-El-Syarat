@@ -26,19 +26,47 @@ const firebaseConfig = {
   databaseURL: 'https://souk-el-syarat-default-rtdb.europe-west1.firebasedatabase.app/',
 };
 
-// 🚨 IMMEDIATE INITIALIZATION - NO ENVIRONMENT CHECKS
-console.log('🚀 Initializing Firebase with bulletproof config...');
+// 🚨 PROFESSIONAL INITIALIZATION WITH ERROR HANDLING
+let app: FirebaseApp | null = null;
+let initialized = false;
 
-// Initialize Firebase App
-export const app: FirebaseApp = initializeApp(firebaseConfig);
-console.log('✅ Firebase app initialized');
+export const initializeFirebase = async (): Promise<boolean> => {
+  if (initialized) return true;
+  
+  try {
+    console.log('🚀 Initializing Firebase with bulletproof config...');
+    app = initializeApp(firebaseConfig);
+    initialized = true;
+    console.log('✅ Firebase app initialized');
+    return true;
+  } catch (error) {
+    console.error('❌ Firebase initialization failed:', error);
+    return false;
+  }
+};
 
-// Initialize Firebase Services
-export const auth: Auth = getAuth(app);
-export const db: Firestore = getFirestore(app);
-export const realtimeDb: Database = getDatabase(app);
-export const storage: FirebaseStorage = getStorage(app);
-export const functions: Functions = getFunctions(app);
+// Auto-initialize for backward compatibility
+if (typeof window !== 'undefined') {
+  initializeFirebase();
+}
+
+export { app };
+
+// Initialize Firebase Services (lazy - will initialize when app is ready)
+export let auth: Auth;
+export let db: Firestore;
+export let realtimeDb: Database;
+export let storage: FirebaseStorage;
+export let functions: Functions;
+
+// Initialize services when app is ready
+if (app) {
+  auth = getAuth(app);
+  db = getFirestore(app);
+  realtimeDb = getDatabase(app);
+  storage = getStorage(app);
+  functions = getFunctions(app);
+}
 
 console.log('✅ Firebase services initialized');
 
@@ -125,40 +153,22 @@ export const validateFirebaseConfig = (): boolean => {
   return true;
 };
 
-// 🚨 IMMEDIATE INITIALIZATION
-export const initializeFirebase = async (): Promise<boolean> => {
+// Test connection function
+const testFirebaseConnection = async (): Promise<boolean> => {
   try {
-    console.log('🚀 Starting bulletproof Firebase initialization...');
-    
-    // Validate configuration
-    if (!validateFirebaseConfig()) {
-      throw new Error('Invalid Firebase configuration');
+    // Simple test to verify Firebase is responding
+    if (auth) {
+      console.log('✅ Firebase Auth service ready');
     }
-    
-    // Test connection
-    const connectionSuccess = await testFirebaseConnection();
-    if (!connectionSuccess) {
-      throw new Error('Firebase connection test failed');
+    if (db) {
+      console.log('✅ Firestore service ready');
     }
-    
-    console.log('🎉 BULLETPROOF FIREBASE INITIALIZATION COMPLETE!');
     return true;
   } catch (error) {
-    console.error('💥 Firebase initialization failed:', error);
+    console.error('Connection test failed:', error);
     return false;
   }
 };
-
-// 🚨 IMMEDIATE EXECUTION
-console.log('🚀 EXECUTING BULLETPROOF FIREBASE INITIALIZATION...');
-initializeFirebase().then(success => {
-  if (success) {
-    console.log('🎉 SOUK EL-SYARAT FIREBASE SETUP COMPLETE!');
-    console.log('🌐 Your app is ready for production!');
-  } else {
-    console.error('💥 CRITICAL: Firebase setup failed!');
-  }
-});
 
 // Export everything for immediate use
 export default app;

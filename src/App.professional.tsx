@@ -70,7 +70,7 @@ const VendorDashboard = lazyLoadWithRetry(() => import('@/pages/vendor/VendorDas
 const AdminDashboard = lazyLoadWithRetry(() => import('@/pages/admin/AdminDashboard'), 'AdminDashboard');
 
 // Professional Firebase initialization with error handling
-const initializeFirebase = async () => {
+const initFirebase = async () => {
   try {
     const { initializeFirebase } = await import('@/config/firebase.config');
     await initializeFirebase();
@@ -112,7 +112,7 @@ const ProfessionalApp: React.FC = () => {
 
   useEffect(() => {
     // Initialize Firebase
-    initializeFirebase().then(success => {
+    initFirebase().then(success => {
       setFirebaseReady(success);
       setAppReady(true);
       console.log(`Firebase initialized: ${success ? 'Success' : 'Failed (Demo mode)'}`);
