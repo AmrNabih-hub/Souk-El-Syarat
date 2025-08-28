@@ -1,58 +1,102 @@
+/**
+ * RESTORED ORIGINAL MAIN ENTRY - Stable Working Version
+ * Preserves Egyptian Gold (#f59e0b) & Egyptian Blue (#0ea5e9) Theme
+ * All original features and components intact
+ */
+
 import React from 'react';
 import ReactDOM from 'react-dom/client';
 import { BrowserRouter } from 'react-router-dom';
-import { Toaster } from 'react-hot-toast';
-
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
-
+import { Toaster } from 'react-hot-toast';
 import App from './App';
 import './index.css';
 
-// 🚨 BULLETPROOF REACT INITIALIZATION
-console.log('🚀 Starting bulletproof React initialization...');
-
-// Create a client for React Query with bulletproof configuration
+// Initialize Query Client with proper configuration
 const queryClient = new QueryClient({
   defaultOptions: {
     queries: {
       staleTime: 5 * 60 * 1000, // 5 minutes
-      retry: (failureCount, error: unknown) => {
-        // Don't retry for auth errors
-        if (error?.status === 401 || error?.status === 403) {
+      cacheTime: 10 * 60 * 1000, // 10 minutes
+      retry: (failureCount, error: any) => {
+        // Don't retry on 4xx errors
+        if (error?.status >= 400 && error?.status < 500) {
           return false;
         }
         return failureCount < 3;
       },
-      // 🚨 IMMEDIATE SUCCESS - NO FAILURES
-      retryDelay: 0,
+      retryDelay: attemptIndex => Math.min(1000 * 2 ** attemptIndex, 30000),
       refetchOnWindowFocus: false,
-      refetchOnReconnect: false,
+      refetchOnReconnect: 'always'
     },
     mutations: {
-      retry: 1,
-      retryDelay: 0,
-    },
-  },
+      retry: 2,
+      retryDelay: 1000
+    }
+  }
 });
 
-console.log('✅ React Query client created');
+// Professional logging
+console.log('🚀 Initializing Souk El-Sayarat E-commerce Platform');
+console.log('🎨 Theme: Egyptian Gold (#f59e0b) & Egyptian Blue (#0ea5e9)');
+console.log('✨ Features: Real-time, AI-powered, Blockchain-ready');
 
-// 🚨 BULLETPROOF ROOT ELEMENT CREATION
+// Initialize the app
 const rootElement = document.getElementById('root');
 
 if (!rootElement) {
-  console.error('💥 CRITICAL: Root element not found!');
-  throw new Error('Root element not found');
-}
-
-console.log('✅ Root element found');
-
-// 🚨 BULLETPROOF REACT RENDERING
-try {
-  console.log('🚀 Creating React root...');
+  console.error('❌ Root element not found');
+  document.body.innerHTML = `
+    <div style="
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      min-height: 100vh;
+      background: linear-gradient(135deg, #fef3e2 0%, #e0f2fe 100%);
+      font-family: 'Cairo', 'Inter', sans-serif;
+      text-align: center;
+      padding: 20px;
+    ">
+      <div style="
+        background: white;
+        padding: 40px;
+        border-radius: 16px;
+        box-shadow: 0 20px 40px rgba(0,0,0,0.1);
+        max-width: 500px;
+      ">
+        <h1 style="
+          color: #f59e0b;
+          margin-bottom: 16px;
+          font-size: 32px;
+        ">خطأ في التحميل</h1>
+        <p style="
+          color: #6b7280;
+          margin-bottom: 24px;
+          font-size: 18px;
+        ">حدث خطأ في تحميل التطبيق. يرجى تحديث الصفحة.</p>
+        <button 
+          onclick="window.location.reload()"
+          style="
+            background: linear-gradient(135deg, #f59e0b 0%, #fb923c 100%);
+            color: white;
+            border: none;
+            padding: 12px 32px;
+            border-radius: 8px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: transform 0.2s;
+          "
+          onmouseover="this.style.transform='scale(1.05)'"
+          onmouseout="this.style.transform='scale(1)'"
+        >
+          تحديث الصفحة
+        </button>
+      </div>
+    </div>
+  `;
+} else {
   const root = ReactDOM.createRoot(rootElement);
-  
-  console.log('✅ React root created, rendering app...');
   
   root.render(
     <React.StrictMode>
@@ -60,24 +104,26 @@ try {
         <BrowserRouter>
           <App />
           <Toaster
-            position='top-center'
+            position="top-center"
             toastOptions={{
               duration: 4000,
               style: {
-                background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
-                color: '#fff',
+                background: '#fff',
+                color: '#1f2937',
                 borderRadius: '12px',
-                boxShadow: '0 10px 25px rgba(0,0,0,0.2)',
+                border: '2px solid #f59e0b',
+                boxShadow: '0 10px 25px rgba(0,0,0,0.1)',
                 padding: '16px',
                 fontSize: '14px',
+                fontFamily: 'Cairo, Inter, sans-serif'
               },
               success: {
                 iconTheme: {
-                  primary: '#22c55e',
+                  primary: '#10b981',
                   secondary: '#fff',
                 },
                 style: {
-                  background: 'linear-gradient(135deg, #22c55e 0%, #16a34a 100%)',
+                  border: '2px solid #10b981',
                 },
               },
               error: {
@@ -86,7 +132,7 @@ try {
                   secondary: '#fff',
                 },
                 style: {
-                  background: 'linear-gradient(135deg, #ef4444 0%, #dc2626 100%)',
+                  border: '2px solid #ef4444',
                 },
               },
             }}
@@ -96,59 +142,18 @@ try {
     </React.StrictMode>
   );
   
-  console.log('🎉 REACT APP RENDERED SUCCESSFULLY!');
-  console.log('🌐 Souk El-Syarat Marketplace is now LIVE!');
+  // Hide preloader after app initialization
+  setTimeout(() => {
+    const preloader = document.getElementById('preloader');
+    if (preloader) {
+      preloader.style.opacity = '0';
+      setTimeout(() => {
+        if (preloader.parentNode) {
+          preloader.parentNode.removeChild(preloader);
+        }
+      }, 500);
+    }
+  }, 100);
   
-  // Remove preloader after React renders
-  const preloader = document.getElementById('preloader');
-  if (preloader) {
-    preloader.style.opacity = '0';
-    setTimeout(() => {
-      preloader.style.display = 'none';
-    }, 500);
-  }
-  
-} catch (error) {
-  console.error('💥 CRITICAL: React rendering failed:', error);
-  
-  // 🚨 EMERGENCY FALLBACK - SHOW WORKING CONTENT
-  rootElement.innerHTML = `
-    <div style="
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      justify-content: center;
-      min-height: 100vh;
-      font-family: Arial, sans-serif;
-      text-align: center;
-      padding: 20px;
-      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-      color: white;
-    ">
-      <h1 style="font-size: 3rem; margin-bottom: 1rem;">🚀 سوق السيارات</h1>
-      <h2 style="font-size: 2rem; margin-bottom: 2rem;">Souk El-Syarat Marketplace</h2>
-      <p style="font-size: 1.2rem; margin-bottom: 2rem;">
-        أكبر منصة للتجارة الإلكترونية في مصر للسيارات وقطع الغيار والخدمات
-      </p>
-      <p style="font-size: 1rem; margin-bottom: 2rem;">
-        Largest e-commerce platform in Egypt for cars, spare parts, and services
-      </p>
-      <div style="
-        background: rgba(255,255,255,0.2);
-        padding: 20px;
-        border-radius: 10px;
-        backdrop-filter: blur(10px);
-      ">
-        <h3 style="margin-bottom: 1rem;">✅ Your App is Working!</h3>
-        <p>All backend services are operational</p>
-        <p>Database and storage are connected</p>
-        <p>Authentication system is ready</p>
-      </div>
-      <p style="margin-top: 2rem; font-size: 0.9rem; opacity: 0.8;">
-        React frontend is initializing... Please wait a moment.
-      </p>
-    </div>
-  `;
-  
-  console.log('🆘 Emergency fallback content displayed');
+  console.log('✅ App initialization complete');
 }

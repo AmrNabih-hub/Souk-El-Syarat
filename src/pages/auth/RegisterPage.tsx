@@ -49,7 +49,7 @@ const registerSchema = yup.object().shape({
     .boolean()
     .oneOf([true], 'يجب الموافقة على الشروط والأحكام')
     .required('يجب الموافقة على الشروط والأحكام'),
-});
+}) as yup.ObjectSchema<RegisterFormData>;
 
 const RegisterPage: React.FC = () => {
   const [showPassword, setShowPassword] = useState(false);
@@ -244,6 +244,8 @@ const RegisterPage: React.FC = () => {
                   {...register('displayName')}
                   type='text'
                   id='displayName'
+                  name='displayName'
+                  autoComplete='name'
                   className={`input pl-10 ${errors.displayName ? 'input-error' : ''}`}
                   placeholder={language === 'ar' ? 'أدخل اسمك الكامل' : 'Enter your full name'}
                   dir={language === 'ar' ? 'rtl' : 'ltr'}
@@ -271,6 +273,8 @@ const RegisterPage: React.FC = () => {
                   {...register('email')}
                   type='email'
                   id='email'
+                  name='email'
+                  autoComplete='email'
                   className={`input pl-10 ${errors.email ? 'input-error' : ''}`}
                   placeholder={language === 'ar' ? 'أدخل بريدك الإلكتروني' : 'Enter your email'}
                   dir={language === 'ar' ? 'rtl' : 'ltr'}

@@ -155,6 +155,7 @@ export interface Product {
   id: string;
   vendorId: string;
   title: string;
+  name?: string; // Alias for title (used by some components)
   description: string;
   category: ProductCategory;
   subcategory: string;
@@ -164,6 +165,12 @@ export interface Product {
   currency: 'EGP' | 'USD';
   inStock: boolean;
   quantity: number;
+  stock?: number; // Alias for quantity (used by some components)
+  reserved?: number; // For inventory tracking
+  minStock?: number; // Minimum stock threshold
+  previousQuantity?: number; // For tracking changes
+  currentViewers?: number; // Real-time viewers count
+  model3D?: string; // URL to 3D model for AR viewing
   specifications: ProductSpecification[];
   features: string[];
   tags: string[];
@@ -178,6 +185,7 @@ export interface Product {
   updatedAt: Date;
   publishedAt?: Date;
   seoData?: SEOData;
+  isActive?: boolean; // For active/inactive status
 }
 
 export type ProductCategory =
@@ -189,7 +197,8 @@ export type ProductCategory =
   | 'tools'
   | 'tires'
   | 'electronics'
-  | 'kits';
+  | 'kits'
+  | 'test'; // For testing purposes
 
 export interface ProductImage {
   id: string;
@@ -267,7 +276,11 @@ export interface Order {
   vendorId: string;
   items: OrderItem[];
   totalAmount: number;
+  total?: number; // Alias for totalAmount
   status: OrderStatus;
+  statusHistory?: StatusUpdate[]; // Track status changes
+  realTimeUpdates?: { message: string; timestamp: Date }[]; // Live updates
+  updates?: any[]; // Generic updates array
   paymentStatus: PaymentStatus;
   paymentMethod?: PaymentMethod;
   shippingAddress: Address;
@@ -293,7 +306,15 @@ export type OrderStatus =
   | 'shipped'
   | 'delivered'
   | 'cancelled'
-  | 'returned';
+  | 'returned'
+  | 'paid'; // Added for payment tracking
+
+export interface StatusUpdate {
+  status: OrderStatus;
+  timestamp: Date;
+  message?: string;
+  updatedBy?: string;
+}
 
 export type PaymentStatus = 'pending' | 'paid' | 'failed' | 'refunded' | 'partially_refunded';
 
@@ -550,7 +571,8 @@ export type NotificationType =
   | 'product_rejected'
   | 'new_review'
   | 'payment_received'
-  | 'system_announcement';
+  | 'system_announcement'
+  | 'system';
 
 // Form Types
 export interface VendorApplicationForm {
@@ -585,4 +607,40 @@ export interface ProductForm {
   warranty?: Warranty;
   // Car-specific fields
   carDetails?: Partial<CarDetails>;
+}
+
+// Real-time Types
+export interface UserPresence {
+  userId: string;
+  status: 'online' | 'offline' | 'away';
+  lastSeen: Date;
+  currentPage?: string;
+  isTyping?: boolean;
+}
+
+export interface ChatMessage {
+  id: string;
+  chatId?: string;
+  senderId: string;
+  receiverId: string;
+  message: string;
+  timestamp: Date;
+  read: boolean;
+  type: 'text' | 'image' | 'file';
+  data?: Record<string, any>;
+}
+
+// Additional type exports for error fixes
+export interface AnalyticsData {
+  trafficData?: any;
+  salesData?: any;
+  deviceData?: any;
+  activeUsers?: number;
+  newOrders?: number;
+  revenue?: number;
+  conversionRate?: number;
+  topCountries?: any[];
+  recentActivity?: any[];
+  pageLoadTime?: number;
+  uptime?: number;
 }

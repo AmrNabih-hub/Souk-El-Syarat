@@ -17,7 +17,10 @@ import {
 
 import { useAppStore } from '@/stores/appStore';
 import { useAuthStore } from '@/stores/authStore';
+import { useRealtimeStore } from '@/stores/realtimeStore';
 import clsx from 'clsx';
+import NotificationCenter from '@/components/realtime/NotificationCenter';
+import UserPresenceIndicator from '@/components/realtime/UserPresenceIndicator';
 
 const Navbar: React.FC = () => {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
@@ -182,6 +185,9 @@ const Navbar: React.FC = () => {
 
             {user ? (
               <>
+                {/* Notifications - Real-time */}
+                {user && <NotificationCenter />}
+
                 {/* Wishlist */}
                 <motion.div whileHover={{ scale: 1.1 }} whileTap={{ scale: 0.9 }}>
                   <Link

@@ -35,7 +35,7 @@ const adminLoginSchema = yup.object().shape({
     .string()
     .min(6, 'رمز المسؤول يجب أن يكون 6 أحرف على الأقل')
     .required('رمز المسؤول مطلوب'),
-});
+}) as yup.ObjectSchema<AdminLoginFormData>;
 
 const AdminLoginPage: React.FC = () => {
   const [showPassword, setShowPassword] = useState(false);

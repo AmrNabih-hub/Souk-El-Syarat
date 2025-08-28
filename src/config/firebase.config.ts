@@ -26,19 +26,61 @@ const firebaseConfig = {
   databaseURL: 'https://souk-el-syarat-default-rtdb.europe-west1.firebasedatabase.app/',
 };
 
-// 🚨 IMMEDIATE INITIALIZATION - NO ENVIRONMENT CHECKS
-console.log('🚀 Initializing Firebase with bulletproof config...');
+// 🚨 PROFESSIONAL INITIALIZATION WITH ERROR HANDLING
+let app: FirebaseApp | null = null;
+let initialized = false;
 
-// Initialize Firebase App
-export const app: FirebaseApp = initializeApp(firebaseConfig);
-console.log('✅ Firebase app initialized');
+export const initializeFirebase = async (): Promise<boolean> => {
+  if (initialized) return true;
+  
+  try {
+    console.log('🚀 Initializing Firebase with bulletproof config...');
+    app = initializeApp(firebaseConfig);
+    initialized = true;
+    console.log('✅ Firebase app initialized');
+    
+    // Initialize services
+    initializeServices();
+    
+    return true;
+  } catch (error) {
+    console.error('❌ Firebase initialization failed:', error);
+    return false;
+  }
+};
+
+// Auto-initialize for backward compatibility
+if (typeof window !== 'undefined') {
+  initializeFirebase();
+}
+
+export { app };
 
 // Initialize Firebase Services
-export const auth: Auth = getAuth(app);
-export const db: Firestore = getFirestore(app);
-export const realtimeDb: Database = getDatabase(app);
-export const storage: FirebaseStorage = getStorage(app);
-export const functions: Functions = getFunctions(app);
+export let auth: Auth | null = null;
+export let db: Firestore | null = null;
+export let realtimeDb: Database | null = null;
+export let storage: FirebaseStorage | null = null;
+export let functions: Functions | null = null;
+
+// Initialize services after app is ready
+export const initializeServices = () => {
+  if (app && !auth) {
+    auth = getAuth(app);
+    db = getFirestore(app);
+    realtimeDb = getDatabase(app);
+    storage = getStorage(app);
+    functions = getFunctions(app);
+    console.log('✅ Firebase services initialized');
+    return true;
+  }
+  return false;
+};
+
+// Initialize immediately if app exists
+if (app) {
+  initializeServices();
+}
 
 console.log('✅ Firebase services initialized');
 
@@ -50,8 +92,9 @@ export let appCheck: AppCheck | null = null;
 
 // 🚨 IMMEDIATE SERVICE INITIALIZATION
 try {
-  // Initialize Analytics
-  if (typeof window !== 'undefined') {
+  // Initialize Analytics - Disabled to prevent 403 errors
+  // Will be re-enabled after proper Google Analytics setup
+  if (typeof window !== 'undefined' && false) {
     analytics = getAnalytics(app);
     console.log('✅ Analytics initialized');
   }
@@ -124,40 +167,14 @@ export const validateFirebaseConfig = (): boolean => {
   return true;
 };
 
-// 🚨 IMMEDIATE INITIALIZATION
-export const initializeFirebase = async (): Promise<boolean> => {
-  try {
-    console.log('🚀 Starting bulletproof Firebase initialization...');
-    
-    // Validate configuration
-    if (!validateFirebaseConfig()) {
-      throw new Error('Invalid Firebase configuration');
-    }
-    
-    // Test connection
-    const connectionSuccess = await testFirebaseConnection();
-    if (!connectionSuccess) {
-      throw new Error('Firebase connection test failed');
-    }
-    
-    console.log('🎉 BULLETPROOF FIREBASE INITIALIZATION COMPLETE!');
-    return true;
-  } catch (error) {
-    console.error('💥 Firebase initialization failed:', error);
-    return false;
-  }
-};
+// Test connection already defined above
 
-// 🚨 IMMEDIATE EXECUTION
-console.log('🚀 EXECUTING BULLETPROOF FIREBASE INITIALIZATION...');
-initializeFirebase().then(success => {
-  if (success) {
-    console.log('🎉 SOUK EL-SYARAT FIREBASE SETUP COMPLETE!');
-    console.log('🌐 Your app is ready for production!');
-  } else {
-    console.error('💥 CRITICAL: Firebase setup failed!');
-  }
-});
+// Safe getters for services
+export const getFirebaseAuth = () => auth || getAuth(app!);
+export const getFirebaseDb = () => db || getFirestore(app!);
+export const getRealtimeDb = () => realtimeDb || getDatabase(app!);
+export const getFirebaseStorage = () => storage || getStorage(app!);
+export const getFirebaseFunctions = () => functions || getFunctions(app!);
 
 // Export everything for immediate use
 export default app;

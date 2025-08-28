@@ -24,7 +24,7 @@ const loginSchema = yup.object().shape({
     .string()
     .min(6, 'كلمة المرور يجب أن تكون 6 أحرف على الأقل')
     .required('كلمة المرور مطلوبة'),
-});
+}) as yup.ObjectSchema<LoginFormData>;
 
 const LoginPage: React.FC = () => {
   const [showPassword, setShowPassword] = useState(false);
@@ -128,6 +128,8 @@ const LoginPage: React.FC = () => {
                   {...register('email')}
                   type='email'
                   id='email'
+                  name='email'
+                  autoComplete='email'
                   className={`input pl-10 ${errors.email ? 'input-error' : ''}`}
                   placeholder={language === 'ar' ? 'أدخل بريدك الإلكتروني' : 'Enter your email'}
                   dir={language === 'ar' ? 'rtl' : 'ltr'}
