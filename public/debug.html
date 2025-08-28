@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Debug Console</title>
+</head>
+<body>
+    <h1>Testing Souk El-Sayarat</h1>
+    <iframe id="testFrame" src="https://souk-el-syarat.web.app" width="100%" height="600"></iframe>
+    
+    <h2>Console Output:</h2>
+    <div id="console" style="background: #000; color: #0f0; padding: 10px; font-family: monospace; height: 300px; overflow-y: auto;"></div>
+    
+    <script>
+        const consoleDiv = document.getElementById('console');
+        
+        // Override console methods
+        const originalLog = console.log;
+        const originalError = console.error;
+        const originalWarn = console.warn;
+        
+        function addToConsole(type, ...args) {
+            const msg = args.map(arg => 
+                typeof arg === 'object' ? JSON.stringify(arg, null, 2) : String(arg)
+            ).join(' ');
+            
+            const color = type === 'error' ? '#f00' : type === 'warn' ? '#ff0' : '#0f0';
+            consoleDiv.innerHTML += `<div style="color: ${color}">[${type.toUpperCase()}] ${msg}</div>`;
+            consoleDiv.scrollTop = consoleDiv.scrollHeight;
+        }
+        
+        console.log = function(...args) {
+            originalLog.apply(console, args);
+            addToConsole('log', ...args);
+        };
+        
+        console.error = function(...args) {
+            originalError.apply(console, args);
+            addToConsole('error', ...args);
+        };
+        
+        console.warn = function(...args) {
+            originalWarn.apply(console, args);
+            addToConsole('warn', ...args);
+        };
+        
+        // Listen for errors
+        window.addEventListener('error', (e) => {
+            addToConsole('error', `${e.message} at ${e.filename}:${e.lineno}:${e.colno}`);
+        });
+        
+        // Try to access iframe console
+        setTimeout(() => {
+            try {
+                const iframe = document.getElementById('testFrame');
+                if (iframe && iframe.contentWindow) {
+                    // Can't access cross-origin iframe console
+                    addToConsole('info', 'Cannot access cross-origin iframe console');
+                }
+            } catch (e) {
+                addToConsole('error', 'Cross-origin error: ' + e.message);
+            }
+        }, 3000);
+        
+        // Test fetch
+        fetch('https://souk-el-syarat.web.app')
+            .then(res => {
+                addToConsole('log', `Main page status: ${res.status}`);
+                return res.text();
+            })
+            .then(html => {
+                const hasRoot = html.includes('id="root"');
+                const hasScript = html.includes('/assets/index-');
+                addToConsole('log', `Has root div: ${hasRoot}, Has script: ${hasScript}`);
+            })
+            .catch(err => {
+                addToConsole('error', 'Fetch error: ' + err.message);
+            });
+    </script>
+</body>
+</html>

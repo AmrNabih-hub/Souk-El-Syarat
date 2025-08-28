@@ -90,8 +90,11 @@ const MetricCard: React.FC<MetricCardProps> = ({ title, value, change, icon: Ico
 };
 
 const AnalyticsDashboard: React.FC = () => {
-  const { liveAnalytics, listenToAnalytics } = useRealtimeStore();
+  const { analytics, listenToAnalytics } = useRealtimeStore();
   const { language } = useAppStore();
+  
+  // Type the analytics data
+  const analytics = analytics as any;
 
   useEffect(() => {
     listenToAnalytics((analytics) => {
@@ -101,10 +104,10 @@ const AnalyticsDashboard: React.FC = () => {
 
   // Chart data for real-time traffic
   const trafficData = {
-    labels: liveAnalytics?.trafficData?.labels || ['00:00', '04:00', '08:00', '12:00', '16:00', '20:00'],
+    labels: analytics?.trafficData?.labels || ['00:00', '04:00', '08:00', '12:00', '16:00', '20:00'],
     datasets: [{
       label: language === 'ar' ? 'الزوار' : 'Visitors',
-      data: liveAnalytics?.trafficData?.values || [120, 190, 300, 500, 200, 300],
+      data: analytics?.trafficData?.values || [120, 190, 300, 500, 200, 300],
       borderColor: 'rgb(59, 130, 246)',
       backgroundColor: 'rgba(59, 130, 246, 0.1)',
       tension: 0.4,
@@ -114,10 +117,10 @@ const AnalyticsDashboard: React.FC = () => {
 
   // Chart data for sales
   const salesData = {
-    labels: liveAnalytics?.salesData?.labels || ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun'],
+    labels: analytics?.salesData?.labels || ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun'],
     datasets: [{
       label: language === 'ar' ? 'المبيعات' : 'Sales',
-      data: liveAnalytics?.salesData?.values || [12000, 19000, 30000, 50000, 20000, 30000],
+      data: analytics?.salesData?.values || [12000, 19000, 30000, 50000, 20000, 30000],
       backgroundColor: 'rgba(34, 197, 94, 0.8)',
       borderColor: 'rgb(34, 197, 94)',
       borderWidth: 1
@@ -132,7 +135,7 @@ const AnalyticsDashboard: React.FC = () => {
       language === 'ar' ? 'الجهاز اللوحي' : 'Tablet'
     ],
     datasets: [{
-      data: liveAnalytics?.deviceData || [60, 30, 10],
+      data: analytics?.deviceData || [60, 30, 10],
       backgroundColor: [
         'rgba(59, 130, 246, 0.8)',
         'rgba(168, 85, 247, 0.8)',
@@ -193,28 +196,28 @@ const AnalyticsDashboard: React.FC = () => {
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
           <MetricCard
             title={language === 'ar' ? 'المستخدمون النشطون' : 'Active Users'}
-            value={liveAnalytics?.activeUsers || 1234}
+            value={analytics?.activeUsers || 1234}
             change={12.5}
             icon={UsersIcon}
             color="blue"
           />
           <MetricCard
             title={language === 'ar' ? 'الطلبات الجديدة' : 'New Orders'}
-            value={liveAnalytics?.newOrders || 56}
+            value={analytics?.newOrders || 56}
             change={8.2}
             icon={ShoppingCartIcon}
             color="green"
           />
           <MetricCard
             title={language === 'ar' ? 'الإيرادات اليوم' : "Today's Revenue"}
-            value={`${liveAnalytics?.revenue || 45678} ${language === 'ar' ? 'ج.م' : 'EGP'}`}
+            value={`${analytics?.revenue || 45678} ${language === 'ar' ? 'ج.م' : 'EGP'}`}
             change={-3.1}
             icon={CurrencyDollarIcon}
             color="purple"
           />
           <MetricCard
             title={language === 'ar' ? 'معدل التحويل' : 'Conversion Rate'}
-            value={`${liveAnalytics?.conversionRate || 3.4}%`}
+            value={`${analytics?.conversionRate || 3.4}%`}
             change={5.7}
             icon={ChartBarIcon}
             color="yellow"
@@ -263,7 +266,7 @@ const AnalyticsDashboard: React.FC = () => {
             {language === 'ar' ? 'أعلى الدول' : 'Top Countries'}
           </h3>
           <div className="space-y-3">
-            {(liveAnalytics?.topCountries || [
+            {(analytics?.topCountries || [
               { country: 'Egypt', visitors: 4521, flag: '🇪🇬' },
               { country: 'Saudi Arabia', visitors: 2341, flag: '🇸🇦' },
               { country: 'UAE', visitors: 1876, flag: '🇦🇪' },
@@ -286,7 +289,7 @@ const AnalyticsDashboard: React.FC = () => {
             {language === 'ar' ? 'النشاط الأخير' : 'Recent Activity'}
           </h3>
           <div className="space-y-3">
-            {(liveAnalytics?.recentActivity || [
+            {(analytics?.recentActivity || [
               { action: 'New order', time: '2 min ago', icon: '🛒' },
               { action: 'User registered', time: '5 min ago', icon: '👤' },
               { action: 'Product viewed', time: '7 min ago', icon: '👁️' },
@@ -318,7 +321,7 @@ const AnalyticsDashboard: React.FC = () => {
         <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
           <div className="text-center">
             <div className="text-3xl font-bold text-primary-600">
-              {liveAnalytics?.pageLoadTime || '1.2'}s
+              {analytics?.pageLoadTime || '1.2'}s
             </div>
             <p className="text-sm text-gray-600">
               {language === 'ar' ? 'وقت تحميل الصفحة' : 'Page Load Time'}
@@ -326,7 +329,7 @@ const AnalyticsDashboard: React.FC = () => {
           </div>
           <div className="text-center">
             <div className="text-3xl font-bold text-green-600">
-              {liveAnalytics?.uptime || '99.9'}%
+              {analytics?.uptime || '99.9'}%
             </div>
             <p className="text-sm text-gray-600">
               {language === 'ar' ? 'وقت التشغيل' : 'Uptime'}
@@ -334,7 +337,7 @@ const AnalyticsDashboard: React.FC = () => {
           </div>
           <div className="text-center">
             <div className="text-3xl font-bold text-purple-600">
-              {liveAnalytics?.errorRate || '0.1'}%
+              {analytics?.errorRate || '0.1'}%
             </div>
             <p className="text-sm text-gray-600">
               {language === 'ar' ? 'معدل الأخطاء' : 'Error Rate'}
@@ -342,7 +345,7 @@ const AnalyticsDashboard: React.FC = () => {
           </div>
           <div className="text-center">
             <div className="text-3xl font-bold text-yellow-600">
-              {liveAnalytics?.avgResponseTime || '245'}ms
+              {analytics?.avgResponseTime || '245'}ms
             </div>
             <p className="text-sm text-gray-600">
               {language === 'ar' ? 'متوسط وقت الاستجابة' : 'Avg Response Time'}

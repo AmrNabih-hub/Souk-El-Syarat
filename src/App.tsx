@@ -15,8 +15,9 @@ import LoadingScreen from '@/components/ui/LoadingScreen';
 import { LoadingSpinner } from '@/components/ui/CustomIcons';
 import ChatSystem from '@/components/realtime/ChatSystem';
 
-// Lazy load pages for better performance
-const HomePage = React.lazy(() => import('@/pages/HomePage'));
+// Direct import for HomePage to ensure it loads
+import HomePage from '@/pages/HomePage';
+// Lazy load other pages for better performance
 const LoginPage = React.lazy(() => import('@/pages/auth/LoginPage'));
 const RegisterPage = React.lazy(() => import('@/pages/auth/RegisterPage'));
 const ForgotPasswordPage = React.lazy(() => import('@/pages/auth/ForgotPasswordPage'));
@@ -35,7 +36,7 @@ const OrderConfirmationPage = React.lazy(() => import('@/pages/customer/OrderCon
 const AdminDashboard = React.lazy(() => import('@/pages/admin/AdminDashboard'));
 const VendorDashboard = React.lazy(() => import('@/pages/vendor/VendorDashboard'));
 const CustomerDashboard = React.lazy(() => import('@/pages/customer/CustomerDashboard'));
-const NotFoundPage = React.lazy(() => import('@/pages/NotFoundPage'));
+import NotFoundPage from '@/pages/NotFoundPage';
 const TestPage = React.lazy(() => import('@/pages/TestPage'));
 const AutomatedTestSuite = React.lazy(() => import('@/testing/automated-test-suite'));
 const AboutPage = React.lazy(() => import('@/pages/AboutPage'));

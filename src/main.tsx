@@ -6,6 +6,8 @@ import { Toaster } from 'react-hot-toast';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 
 import App from './App';
+// import App from './App.simple';
+import ErrorBoundary from './components/ErrorBoundary';
 import './index.css';
 
 // 🚨 BULLETPROOF REACT INITIALIZATION
@@ -16,7 +18,7 @@ const queryClient = new QueryClient({
   defaultOptions: {
     queries: {
       staleTime: 5 * 60 * 1000, // 5 minutes
-      retry: (failureCount, error: unknown) => {
+      retry: (failureCount, error: any) => {
         // Don't retry for auth errors
         if (error?.status === 401 || error?.status === 403) {
           return false;
@@ -56,10 +58,11 @@ try {
   
   root.render(
     <React.StrictMode>
-      <QueryClientProvider client={queryClient}>
-        <BrowserRouter>
-          <App />
-          <Toaster
+      <ErrorBoundary>
+        <QueryClientProvider client={queryClient}>
+          <BrowserRouter>
+            <App />
+            <Toaster
             position='top-center'
             toastOptions={{
               duration: 4000,
@@ -93,6 +96,7 @@ try {
           />
         </BrowserRouter>
       </QueryClientProvider>
+      </ErrorBoundary>
     </React.StrictMode>
   );
   
