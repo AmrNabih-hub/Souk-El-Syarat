@@ -12,6 +12,7 @@ import { AuthService } from '@/services/auth.service';
 import Navbar from '@/components/layout/Navbar';
 import Footer from '@/components/layout/Footer';
 import LoadingScreen from '@/components/ui/LoadingScreen';
+import { LoadingSpinner } from '@/components/ui/CustomIcons';
 import ChatSystem from '@/components/realtime/ChatSystem';
 
 // Lazy load pages for better performance
