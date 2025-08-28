@@ -255,12 +255,12 @@ const VIPServices: React.FC = () => {
                 {/* Price */}
                 <div className="border-t pt-6">
                   <div className="flex items-center justify-between">
-                    <span className="text-2xl font-bold bg-gradient-to-r from-primary-500 to-primary-600 bg-clip-text text-transparent">
+                    <span className="text-2xl font-bold text-primary-500">
                       {service.price[language]}
                     </span>
                     <Link
                       to={`/services/vip/${service.id}`}
-                      className="px-4 py-2 bg-gradient-to-r from-primary-500 to-primary-600 text-white font-semibold rounded-lg hover:shadow-lg transition-all transform hover:scale-105"
+                      className="px-4 py-2 bg-primary-500 hover:bg-primary-600 text-white font-semibold rounded-lg transition-all"
                     >
                       {language === 'ar' ? 'احجز الآن' : 'Book Now'}
                     </Link>
@@ -278,7 +278,7 @@ const VIPServices: React.FC = () => {
           viewport={{ once: true }}
           className="mt-16 text-center"
         >
-          <div className="inline-flex items-center space-x-4 bg-gradient-to-r from-primary-500 to-primary-600 text-white px-8 py-4 rounded-full shadow-xl">
+          <div className="inline-flex items-center space-x-4 bg-primary-500 text-white px-8 py-4 rounded-full shadow-xl">
             <PhoneIcon className="w-6 h-6" />
             <span className="text-lg font-semibold">
               {language === 'ar' ? 'اتصل بنا للحجز: 19555' : 'Call to Book: 19555'}

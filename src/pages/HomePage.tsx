@@ -143,7 +143,7 @@ const HomePage: React.FC = () => {
                 transition={{ delay: index * 0.1 }}
                 className='bg-white rounded-2xl shadow-lg p-8 hover:shadow-2xl transition-all duration-300'
               >
-                <div className='w-16 h-16 bg-gradient-to-br from-primary-500 to-primary-600 rounded-xl flex items-center justify-center mb-6'>
+                <div className='w-16 h-16 bg-primary-500 rounded-xl flex items-center justify-center mb-6'>
                   <feature.icon className='w-8 h-8 text-white' />
                 </div>
                 <h3 className='text-xl font-bold text-gray-900 mb-3'>{feature.title}</h3>
@@ -183,7 +183,7 @@ const HomePage: React.FC = () => {
       </section>
 
       {/* CTA Section */}
-      <section className='py-20 bg-gradient-to-r from-primary-600 to-primary-700'>
+      <section className='py-20 bg-primary-500'>
         <div className='max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 text-center'>
           <motion.div
             initial={{ opacity: 0, y: 20 }}
@@ -242,7 +242,7 @@ const HomePage: React.FC = () => {
               />
               <button
                 type='submit'
-                className='px-8 py-3 bg-gradient-to-r from-primary-500 to-primary-600 text-white font-bold rounded-lg hover:shadow-lg transition-all'
+                className='px-8 py-3 bg-primary-500 hover:bg-primary-600 text-white font-bold rounded-lg transition-all'
               >
                 اشترك الآن
               </button>

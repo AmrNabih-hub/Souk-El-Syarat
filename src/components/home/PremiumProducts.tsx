@@ -289,7 +289,7 @@ const PremiumProducts: React.FC = () => {
               whileTap={{ scale: 0.95 }}
               className={`flex items-center space-x-2 px-6 py-3 rounded-full font-semibold transition-all ${
                 activeCategory === category.id
-                  ? 'bg-gradient-to-r from-primary-500 to-primary-600 text-white shadow-lg'
+                  ? 'bg-primary-500 text-white shadow-lg'
                   : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
               }`}
             >
@@ -407,7 +407,7 @@ const PremiumProducts: React.FC = () => {
                     <div className="flex gap-2">
                       <Link
                         to={`/product/${product.id}`}
-                        className="flex-1 px-4 py-2 bg-gradient-to-r from-primary-500 to-primary-600 text-white text-center font-semibold rounded-lg hover:shadow-lg transition-all"
+                        className="flex-1 px-4 py-2 bg-primary-500 hover:bg-primary-600 text-white text-center font-semibold rounded-lg transition-all"
                       >
                         {isArabic ? 'عرض التفاصيل' : 'View Details'}
                       </Link>
@@ -438,7 +438,7 @@ const PremiumProducts: React.FC = () => {
         >
           <Link
             to={`/marketplace?category=${activeCategory}`}
-            className="inline-flex items-center px-8 py-4 bg-gradient-to-r from-primary-500 to-primary-600 text-white font-bold rounded-lg hover:shadow-xl transition-all transform hover:scale-105"
+            className="inline-flex items-center px-8 py-4 bg-primary-500 hover:bg-primary-600 text-white font-bold rounded-lg hover:shadow-xl transition-all"
           >
             {isArabic ? 'عرض جميع المنتجات' : 'View All Products'}
             <ArrowRightIcon className={`w-5 h-5 ${isArabic ? 'mr-2 rotate-180' : 'ml-2'}`} />

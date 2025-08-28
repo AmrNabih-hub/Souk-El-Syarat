@@ -62,7 +62,7 @@ const NotFoundPage: React.FC = () => {
             transition={{ type: "spring", stiffness: 100 }}
             className="mb-8"
           >
-            <div className="text-9xl font-bold bg-gradient-to-r from-primary-400 to-primary-600 bg-clip-text text-transparent">
+            <div className="text-9xl font-bold text-primary-500">
               404
             </div>
             <motion.div
@@ -89,7 +89,7 @@ const NotFoundPage: React.FC = () => {
             whileHover={{ scale: 1.05 }}
             whileTap={{ scale: 0.95 }}
             onClick={() => navigate(-1)}
-            className="inline-flex items-center px-6 py-3 bg-gradient-to-r from-primary-500 to-primary-600 text-white font-bold rounded-lg hover:shadow-xl transition-all mb-12"
+            className="inline-flex items-center px-6 py-3 bg-primary-500 hover:bg-primary-600 text-white font-bold rounded-lg hover:shadow-xl transition-all mb-12"
           >
             <ArrowLeftIcon className={`w-5 h-5 ${isArabic ? 'ml-2' : 'mr-2'}`} />
             {isArabic ? 'العودة للخلف' : 'Go Back'}
