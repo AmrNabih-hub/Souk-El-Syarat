@@ -170,6 +170,7 @@ export interface Product {
   minStock?: number; // Minimum stock threshold
   previousQuantity?: number; // For tracking changes
   currentViewers?: number; // Real-time viewers count
+  model3D?: string; // URL to 3D model for AR viewing
   specifications: ProductSpecification[];
   features: string[];
   tags: string[];

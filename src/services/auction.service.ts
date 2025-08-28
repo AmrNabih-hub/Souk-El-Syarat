@@ -13,7 +13,8 @@ import {
   onSnapshot,
   query,
   where,
-  orderBy
+  orderBy,
+  getDocs
 } from 'firebase/firestore';
 import { ref, push, onValue, set, onDisconnect } from 'firebase/database';
 import { Product } from '@/types';

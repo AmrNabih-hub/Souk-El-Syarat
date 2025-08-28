@@ -21,7 +21,7 @@ import {
 interface ProductCategory {
   id: string;
   name: { ar: string; en: string };
-  icon: React.ElementType;
+  icon: React.ComponentType<{ className?: string }>;
   count: number;
   featured: Product[];
 }

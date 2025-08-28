@@ -94,9 +94,10 @@ const AnalyticsDashboard: React.FC = () => {
   const { language } = useAppStore();
 
   useEffect(() => {
-    const unsubscribe = listenToAnalytics();
-    return () => unsubscribe?.();
-  }, []);
+    listenToAnalytics((analytics) => {
+      // Analytics are automatically updated in the store
+    });
+  }, [listenToAnalytics]);
 
   // Chart data for real-time traffic
   const trafficData = {

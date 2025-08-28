@@ -21,7 +21,7 @@ import {
 
 interface VIPService {
   id: string;
-  icon: React.ElementType;
+  icon: React.ComponentType<{ className?: string }>;
   title: { ar: string; en: string };
   description: { ar: string; en: string };
   features: { ar: string[]; en: string[] };
