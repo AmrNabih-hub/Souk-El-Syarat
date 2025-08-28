@@ -182,7 +182,7 @@ function App() {
   }, [language, theme]);
 
   return (
-    <div className='min-h-screen bg-gradient-to-br from-primary-50 via-white to-secondary-50 transition-all duration-500'>
+    <div className='min-h-screen bg-gray-50 transition-all duration-500'>
       <Navbar />
 
       <main className='flex-1'>

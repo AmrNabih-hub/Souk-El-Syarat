@@ -109,7 +109,7 @@ const OrderConfirmationPage: React.FC = () => {
           className='bg-white rounded-2xl shadow-xl overflow-hidden'
         >
           {/* Success Header */}
-          <div className='bg-gradient-to-r from-green-500 to-green-600 text-white p-8 text-center'>
+          <div className='bg-green-500 text-white p-8 text-center'>
             <motion.div
               initial={{ scale: 0 }}
               animate={{ scale: 1 }}
