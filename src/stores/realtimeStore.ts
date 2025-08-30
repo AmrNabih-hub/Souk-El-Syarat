@@ -9,6 +9,15 @@ import { subscribeWithSelector } from 'zustand/middleware';
 import { PushNotificationService } from '@/services/push-notification.service';
 import { RealtimeService } from '@/services/realtime.service';
 import { AuthService } from '@/services/auth.service';
+import { 
+  realtimeInfrastructure, 
+  RealtimePresence, 
+  RealtimeMessage, 
+  RealtimeNotification,
+  RealtimeOrder,
+  RealtimeProduct,
+  RealtimeAnalytics
+} from '@/services/realtime-infrastructure.service';
 
 import { UserPresence, ChatMessage, Order, Product, Notification } from '@/types';
 import { Unsubscribe } from 'firebase/firestore';
@@ -48,8 +57,16 @@ interface RealtimeState {
   // Listeners management
   listeners: Map<string, Unsubscribe>;
 
+  // Enhanced real-time infrastructure
+  realtimePresence: RealtimePresence[];
+  realtimeMessages: Record<string, RealtimeMessage[]>;
+  realtimeNotifications: RealtimeNotification[];
+  realtimeOrders: RealtimeOrder[];
+  realtimeProducts: RealtimeProduct[];
+  realtimeAnalytics: RealtimeAnalytics | null;
+
   // Actions
-  initialize: (userId: string) => Promise<void>;
+  initialize: (userId: string, userRole?: 'customer' | 'vendor' | 'admin') => Promise<void>;
   cleanup: () => void;
 
   // Presence actions
@@ -98,6 +115,14 @@ export const useRealtimeStore = create<RealtimeState>()(
     notifications: [],
     unreadNotifications: 0,
     orders: [],
+    
+    // Enhanced real-time infrastructure state
+    realtimePresence: [],
+    realtimeMessages: {},
+    realtimeNotifications: [],
+    realtimeOrders: [],
+    realtimeProducts: [],
+    realtimeAnalytics: null,
     orderUpdates: {},
     vendorProducts: [],
     productUpdates: {},
@@ -107,46 +132,135 @@ export const useRealtimeStore = create<RealtimeState>()(
     isInitialized: false,
     listeners: new Map(),
 
-    // Initialize real-time services
-    initialize: async (userId: string) => {
+    // Initialize real-time services with enhanced infrastructure
+    initialize: async (userId: string, userRole: 'customer' | 'vendor' | 'admin' = 'customer') => {
       try {
-        // if (process.env.NODE_ENV === 'development') console.log('🔄 Initializing real-time services for user:', userId);
+        console.log('🚀 Initializing enhanced real-time infrastructure for user:', userId);
 
-        // Initialize Firebase real-time services
+        // Initialize the enhanced real-time infrastructure
+        await realtimeInfrastructure.initializeUserPresence(userId, {
+          role: userRole,
+          currentPage: window.location.pathname
+        });
+
+        // Initialize Firebase real-time services (legacy support)
         await RealtimeService.initializeForUser(userId);
 
         // Initialize push notifications
         await PushNotificationService.initialize(userId);
 
-        // Set up presence
+        // Set up presence tracking
         await get().setUserOnline(userId, window.location.pathname);
 
-        // Subscribe to user presence
-        const presenceListener = RealtimeService.listenToUserPresence(userId, presence => {
-          set({ currentUserPresence: presence });
+        // Subscribe to online users with enhanced infrastructure
+        const onlineUsersListener = realtimeInfrastructure.subscribeToOnlineUsers((users) => {
+          set({ realtimePresence: users });
+          // Convert to legacy format for backward compatibility
+          const legacyUsers: Record<string, UserPresence> = {};
+          users.forEach(user => {
+            legacyUsers[user.userId] = {
+              userId: user.userId,
+              status: user.status === 'online' ? 'online' : user.status === 'offline' ? 'offline' : 'away',
+              lastSeen: new Date(user.lastSeen),
+              currentPage: user.currentPage,
+              isTyping: false
+            } as UserPresence;
+          });
+          set({ onlineUsers: legacyUsers });
         });
-        get().listeners.set('userPresence', presenceListener);
+        get().listeners.set('onlineUsers', onlineUsersListener);
 
-        // Subscribe to all users presence
-        const allPresenceListener = RealtimeService.listenToAllUsersPresence(presenceList => {
-          set({ onlineUsers: presenceList });
-        });
-        get().listeners.set('allPresence', allPresenceListener);
-
-        // Subscribe to notifications
-        const notificationsListener = RealtimeService.listenToUserNotifications(
+        // Subscribe to notifications with enhanced infrastructure
+        const notificationsListener = realtimeInfrastructure.subscribeToNotifications(
           userId,
-          notifications => {
+          (notifications) => {
+            set({ realtimeNotifications: notifications });
             const unreadCount = notifications.filter(n => !n.read).length;
+            // Convert to legacy format for backward compatibility
+            const legacyNotifications: Notification[] = notifications.map(n => ({
+              id: n.id,
+              userId: n.userId,
+              type: n.type,
+              title: n.title,
+              message: n.body,
+              read: n.read,
+              createdAt: new Date(n.timestamp),
+              data: n.data
+            } as Notification));
             set({
-              notifications,
+              notifications: legacyNotifications,
               unreadNotifications: unreadCount,
             });
           }
         );
         get().listeners.set('notifications', notificationsListener);
 
-        // Subscribe to activity feed
+        // Subscribe to orders based on user role
+        const ordersListener = realtimeInfrastructure.subscribeToOrders(
+          userId,
+          userRole,
+          (orders) => {
+            set({ realtimeOrders: orders });
+            // Convert to legacy format for backward compatibility
+            const legacyOrders: Order[] = orders.map(o => ({
+              id: o.id,
+              customerId: o.customerId,
+              vendorId: o.vendorId,
+              items: o.products.map(p => ({
+                productId: p.productId,
+                quantity: p.quantity,
+                price: p.price,
+                name: '',
+                image: ''
+              })),
+              status: o.status,
+              totalAmount: o.totalAmount,
+              createdAt: new Date(o.timestamp),
+              updatedAt: new Date(o.timestamp)
+            } as Order));
+            set({ orders: legacyOrders });
+          }
+        );
+        get().listeners.set('orders', ordersListener);
+
+        // Subscribe to analytics for admin users
+        if (userRole === 'admin') {
+          const analyticsListener = realtimeInfrastructure.subscribeToAnalytics((analytics) => {
+            set({ 
+              realtimeAnalytics: analytics,
+              liveAnalytics: analytics 
+            });
+          });
+          get().listeners.set('analytics', analyticsListener);
+        }
+
+        // Subscribe to vendor products for vendor users
+        if (userRole === 'vendor') {
+          const productsListener = realtimeInfrastructure.subscribeToVendorProducts(
+            userId,
+            (products) => {
+              set({ realtimeProducts: products });
+              // Convert to legacy format
+              const legacyProducts: Product[] = products.map(p => ({
+                id: p.id,
+                vendorId: p.vendorId,
+                name: p.name,
+                description: p.description,
+                price: p.price,
+                stock: p.stock,
+                category: p.category,
+                images: p.images,
+                isAvailable: p.isAvailable,
+                createdAt: new Date(p.timestamp),
+                updatedAt: new Date(p.lastUpdated)
+              } as Product));
+              set({ vendorProducts: legacyProducts });
+            }
+          );
+          get().listeners.set('vendorProducts', productsListener);
+        }
+
+        // Subscribe to activity feed (legacy)
         const activityListener = RealtimeService.listenToActivityFeed(activities => {
           set({ activityFeed: activities });
         });
@@ -157,18 +271,19 @@ export const useRealtimeStore = create<RealtimeState>()(
           isConnected: true,
         });
 
-        // if (process.env.NODE_ENV === 'development') console.log('✅ Real-time services initialized successfully');
+        console.log('✅ Enhanced real-time infrastructure initialized successfully');
       } catch (error) {
-        if (process.env.NODE_ENV === 'development')
-          if (process.env.NODE_ENV === 'development')
-            console.error('❌ Failed to initialize real-time services:', error);
+        console.error('❌ Failed to initialize real-time infrastructure:', error);
         set({ isConnected: false });
       }
     },
 
     // Cleanup all listeners
     cleanup: () => {
-      // if (process.env.NODE_ENV === 'development') console.log('🧹 Cleaning up real-time services');
+      console.log('🧹 Cleaning up real-time services');
+
+      // Clean up enhanced infrastructure
+      realtimeInfrastructure.cleanup();
 
       // Clean up all listeners
       get().listeners.forEach((unsubscribe, key) => {

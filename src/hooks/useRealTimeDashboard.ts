@@ -1,4 +1,4 @@
-import React, { useState, useCallback, useEffect } from 'react';
+import { useState, useCallback, useEffect } from 'react';
 
 import { NotificationService } from '@/services/notification.service';
 import { OrderService, Order } from '@/services/order.service';
@@ -6,6 +6,23 @@ import { AnalyticsService, BusinessMetrics, RealTimeStats } from '@/services/ana
 import { ProcessOrchestratorService } from '@/services/process-orchestrator.service';
 import { MessagingService } from '@/services/messaging.service';
 import { useAuthStore } from '@/stores/authStore';
+import { Notification } from '@/types';
+
+// Define Conversation interface
+export interface Conversation {
+  id: string;
+  participants: string[];
+  lastMessage: string;
+  lastMessageTime: Date;
+  unreadCount: number;
+  messages: Array<{
+    id: string;
+    senderId: string;
+    content: string;
+    timestamp: Date;
+    read: boolean;
+  }>;
+}
 
 export interface DashboardData {
   notifications: Notification[];
@@ -22,7 +39,7 @@ export interface DashboardData {
 export interface DashboardActions {
   markNotificationAsRead: (notificationId: string) => Promise<void>;
   markAllNotificationsAsRead: () => Promise<void>;
-  updateOrderStatus: (orderId: string, status: unknown, notes?: string) => Promise<void>;
+  updateOrderStatus: (orderId: string, status: string, notes?: string) => Promise<void>;
   sendMessage: (conversationId: string, content: string) => Promise<void>;
   markMessagesAsRead: (conversationId: string) => Promise<void>;
   refreshData: () => Promise<void>;
@@ -246,11 +263,11 @@ export const useRealTimeDashboard = (): DashboardData & DashboardActions => {
    * Update order status
    */
   const updateOrderStatus = useCallback(
-    async (orderId: string, status: OrderStatus, notes?: string): Promise<void> => {
+    async (orderId: string, status: string, notes?: string): Promise<void> => {
       if (!user) return;
 
       try {
-        await OrderService.updateOrderStatus(orderId, status, user.id, notes);
+        await OrderService.updateOrderStatus(orderId, status as any, user.id, notes);
 
         // Track analytics
         await AnalyticsService.trackEvent({

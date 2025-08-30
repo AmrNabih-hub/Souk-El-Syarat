@@ -13,6 +13,9 @@ import Navbar from '@/components/layout/Navbar';
 import Footer from '@/components/layout/Footer';
 import LoadingScreen from '@/components/ui/LoadingScreen';
 
+// Real-time Components
+import { ChatWidget } from '@/components/realtime/ChatWidget';
+
 // Lazy load pages for better performance
 const HomePage = React.lazy(() => import('@/pages/HomePage'));
 const LoginPage = React.lazy(() => import('@/pages/auth/LoginPage'));
@@ -120,8 +123,8 @@ function App() {
   // Initialize real-time services when user logs in
   useEffect(() => {
     if (user) {
-      // Initialize real-time services
-      initializeRealtime(user.id).catch(error => {
+      // Initialize real-time services with user role
+      initializeRealtime(user.id, user.role as 'customer' | 'vendor' | 'admin').catch(error => {
         // Silent handling - service will continue without real-time features
         if (process.env.NODE_ENV === 'development') {
           console.error('Failed to initialize real-time services:', error);
@@ -414,6 +417,9 @@ function App() {
       </main>
 
       <Footer />
+      
+      {/* Real-time Chat Widget - Only show when user is logged in */}
+      {user && <ChatWidget />}
     </div>
   );
 }

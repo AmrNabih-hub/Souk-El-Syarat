@@ -28,6 +28,7 @@ import {
 } from 'firebase/firestore';
 
 import { User, UserRole } from '@/types';
+import { realtimeInfrastructure } from './realtime-infrastructure.service';
 
 export class AuthService {
   // Initialize auth providers
