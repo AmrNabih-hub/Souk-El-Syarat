@@ -3,12 +3,12 @@ import { getFirestore, collection, addDoc, setDoc, doc, serverTimestamp } from '
 import { getAuth, createUserWithEmailAndPassword } from 'firebase/auth';
 
 const firebaseConfig = {
-  apiKey: "AIzaSyDqpOd0B-GBQlPl7J-3qUTX0vz4VnJlqno",
+  apiKey: "AIzaSyAdkK2OlebHPUsWFCEqY5sWHs5ZL3wUk0Q",
   authDomain: "souk-el-syarat.firebaseapp.com",
   projectId: "souk-el-syarat",
   storageBucket: "souk-el-syarat.firebasestorage.app",
-  messagingSenderId: "586741668046",
-  appId: "1:586741668046:web:d37e1c6c1f1f436c19f1d8"
+  messagingSenderId: "505765285633",
+  appId: "1:505765285633:web:1bc55f947c68b46d75d500"
 };
 
 const app = initializeApp(firebaseConfig);

@@ -15,14 +15,14 @@ import { getMessaging } from 'firebase/messaging';
 
 // Your actual Firebase project configuration
 const firebaseConfig = {
-  apiKey: import.meta.env.VITE_FIREBASE_API_KEY || "AIzaSyDyKJOF5XmZPxKlWyTpZGSaYyL8Y-nVVsM",
+  apiKey: import.meta.env.VITE_FIREBASE_API_KEY || "AIzaSyAdkK2OlebHPUsWFCEqY5sWHs5ZL3wUk0Q",
   authDomain: import.meta.env.VITE_FIREBASE_AUTH_DOMAIN || "souk-el-syarat.firebaseapp.com",
   projectId: import.meta.env.VITE_FIREBASE_PROJECT_ID || "souk-el-syarat",
-  storageBucket: import.meta.env.VITE_FIREBASE_STORAGE_BUCKET || "souk-el-syarat.appspot.com",
+  storageBucket: import.meta.env.VITE_FIREBASE_STORAGE_BUCKET || "souk-el-syarat.firebasestorage.app",
   messagingSenderId: import.meta.env.VITE_FIREBASE_MESSAGING_SENDER_ID || "505765285633",
-  appId: import.meta.env.VITE_FIREBASE_APP_ID || "1:505765285633:web:default-app-id",
-  measurementId: import.meta.env.VITE_FIREBASE_MEASUREMENT_ID || "G-DEFAULT-ID",
-  databaseURL: "https://souk-el-syarat-default-rtdb.firebaseio.com"
+  appId: import.meta.env.VITE_FIREBASE_APP_ID || "1:505765285633:web:1bc55f947c68b46d75d500",
+  measurementId: import.meta.env.VITE_FIREBASE_MEASUREMENT_ID || "G-46RKPHQLVB",
+  databaseURL: "https://souk-el-syarat-default-rtdb.europe-west1.firebasedatabase.app"
 };
 
 // Initialize Firebase
