@@ -791,8 +791,15 @@ app.get('/api/products', async (req, res) => {
             query = query.where('price', '>=', Number(minPrice));
         if (maxPrice)
             query = query.where('price', '<=', Number(maxPrice));
-        // Apply sorting
-        query = query.orderBy(sortBy, sortOrder);
+        // Apply sorting only if not default or if createdAt field exists
+        if (sortBy !== 'createdAt') {
+            try {
+                query = query.orderBy(sortBy, sortOrder);
+            }
+            catch (error) {
+                console.log('Sorting skipped:', error);
+            }
+        }
         // Apply pagination
         const startAt = (Number(page) - 1) * Number(limit);
         query = query.limit(Number(limit)).offset(startAt);
