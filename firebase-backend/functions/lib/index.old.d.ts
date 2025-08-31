@@ -1,12 +1,10 @@
 /**
- * PROFESSIONAL PRODUCTION-READY BACKEND
- * Souk El-Syarat Marketplace
- * Complete Real-time Implementation
+ * COMPLETE Firebase Cloud Functions Backend
+ * Full implementation for Souk El-Syarat
  */
 import * as functions from 'firebase-functions';
 export declare const api: functions.HttpsFunction;
 export declare const onUserCreated: functions.CloudFunction<import("firebase-admin/auth").UserRecord>;
 export declare const onOrderStatusUpdate: functions.CloudFunction<functions.Change<functions.firestore.QueryDocumentSnapshot>>;
-export declare const onNewMessage: functions.CloudFunction<functions.database.DataSnapshot>;
-export declare const checkSubscriptions: functions.CloudFunction<unknown>;
-//# sourceMappingURL=index.d.ts.map
+export declare const dailyAnalytics: functions.CloudFunction<unknown>;
+//# sourceMappingURL=index.old.d.ts.map
