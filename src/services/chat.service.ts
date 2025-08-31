@@ -17,7 +17,8 @@ import {
   onSnapshot,
   serverTimestamp,
   Timestamp,
-import { ref, push, set, onValue, off } from 'firebase/database';
+} from 'firebase/firestore';
+// import { ref, push, set, onValue, off } from 'firebase/database';
 import { cacheService } from './cache.service';
 
 // Chat interfaces
