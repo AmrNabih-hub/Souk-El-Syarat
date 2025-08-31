@@ -3,6 +3,6 @@
  * This is a minimal backend to get started
  */
 import * as functions from 'firebase-functions';
-export declare const api: functions.HttpsFunction;
-export declare const onUserCreated: functions.CloudFunction<import("firebase-admin/auth").UserRecord>;
+export declare const api: functions.https.HttpsFunction;
+export declare const onUserCreated: any;
 //# sourceMappingURL=index.simple.d.ts.map

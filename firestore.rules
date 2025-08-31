@@ -1,7 +1,6 @@
 rules_version = '2';
 service cloud.firestore {
   match /databases/{database}/documents {
-    // Helper functions
     function isAuthenticated() {
       return request.auth != null;
     }
@@ -11,20 +10,9 @@ service cloud.firestore {
         get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role == 'admin';
     }
     
-    function isVendor() {
-      return isAuthenticated() && 
-        get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role == 'vendor';
-    }
-    
-    function isOwner(userId) {
-      return isAuthenticated() && request.auth.uid == userId;
-    }
-    
-    // Public read for products and categories
     match /products/{productId} {
       allow read: if true;
-      allow create: if isAuthenticated() && (isAdmin() || isVendor());
-      allow update: if isAuthenticated() && (isAdmin() || (isVendor() && resource.data.vendorId == request.auth.uid));
+      allow create, update: if isAuthenticated();
       allow delete: if isAdmin();
     }
     
@@ -33,30 +21,15 @@ service cloud.firestore {
       allow write: if isAdmin();
     }
     
-    // User profiles
     match /users/{userId} {
       allow read: if isAuthenticated();
-      allow create: if true; // Allow user creation during signup
-      allow update: if isOwner(userId) || isAdmin();
+      allow create: if true;
+      allow update: if request.auth.uid == userId || isAdmin();
       allow delete: if isAdmin();
     }
     
-    // Orders
     match /orders/{orderId} {
-      allow read: if isAuthenticated() && 
-        (isOwner(resource.data.customerId) || isOwner(resource.data.vendorId) || isAdmin());
-      allow create: if isAuthenticated();
-      allow update: if isAuthenticated() && 
-        (isOwner(resource.data.customerId) || isOwner(resource.data.vendorId) || isAdmin());
-      allow delete: if isAdmin();
-    }
-    
-    // Chat messages
-    match /chats/{chatId}/messages/{messageId} {
-      allow read: if isAuthenticated();
-      allow create: if isAuthenticated();
-      allow update: if isOwner(resource.data.senderId) || isAdmin();
-      allow delete: if isAdmin();
+      allow read, write: if isAuthenticated();
     }
   }
 }

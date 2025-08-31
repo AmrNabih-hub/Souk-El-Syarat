@@ -2,10 +2,9 @@
  * Firebase Cloud Functions - Production Backend
  * Souk El-Sayarat Real Backend Server
  */
-import * as functions from 'firebase-functions';
-export declare const api: functions.HttpsFunction;
-export declare const onOrderCreated: functions.CloudFunction<functions.firestore.QueryDocumentSnapshot>;
-export declare const onVendorApplication: functions.CloudFunction<functions.firestore.QueryDocumentSnapshot>;
-export declare const dailyAnalytics: functions.CloudFunction<unknown>;
-export declare const getUploadUrl: functions.HttpsFunction & functions.Runnable<any>;
+export declare const api: any;
+export declare const onOrderCreated: any;
+export declare const onVendorApplication: any;
+export declare const dailyAnalytics: any;
+export declare const getUploadUrl: any;
 //# sourceMappingURL=index.full.d.ts.map
