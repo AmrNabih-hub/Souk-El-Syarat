@@ -418,7 +418,7 @@ app.get('/api/admin/dashboard', async (req, res) => {
     }
 });
 // Error handling middleware
-app.use((err, req, res, next) => {
+app.use((err, req, res, _next) => {
     console.error('Error:', err);
     res.status(err.status || 500).json({
         success: false,
@@ -500,7 +500,7 @@ exports.dailyAnalytics = functions
     .pubsub
     .schedule('0 2 * * *') // Run at 2 AM daily
     .timeZone('Africa/Cairo')
-    .onRun(async (context) => {
+    .onRun(async (_context) => {
     const yesterday = new Date();
     yesterday.setDate(yesterday.getDate() - 1);
     yesterday.setHours(0, 0, 0, 0);
