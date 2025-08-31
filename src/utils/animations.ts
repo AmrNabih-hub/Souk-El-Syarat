@@ -3,7 +3,8 @@
  * Comprehensive animation presets and utilities
  */
 
-import { Variants, Transition, AnimationControls } from 'framer-motion';
+import { Variants } from 'framer-motion';
+import React from 'react';
 
 // Animation Timing Functions
 export const easings = {

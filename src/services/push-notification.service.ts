@@ -55,16 +55,14 @@ export class PushNotificationService {
         // Set up foreground message listener
         this.setupForegroundListener();
 
-        // if (process.env.NODE_ENV === 'development') console.log('🔔 Push notifications initialized successfully');
+        // if (process.env.NODE_ENV === 'development') // console.log('🔔 Push notifications initialized successfully');
         return token;
       } else {
         // if (process.env.NODE_ENV === 'development') console.warn('No FCM token available');
         return null;
       }
     } catch (error) {
-      if (process.env.NODE_ENV === 'development')
-        if (process.env.NODE_ENV === 'development')
-          console.error('Error initializing push notifications:', error);
+      // console.error('Error initializing push notifications:', error);
       return null;
     }
   }
@@ -89,9 +87,7 @@ export class PushNotificationService {
       const permission = await Notification.requestPermission();
       return permission;
     } catch (error) {
-      if (process.env.NODE_ENV === 'development')
-        if (process.env.NODE_ENV === 'development')
-          console.error('Error requesting notification permission:', error);
+      // console.error('Error requesting notification permission:', error);
       return 'denied';
     }
   }
@@ -106,8 +102,9 @@ export class PushNotificationService {
         pushNotificationsEnabled: true,
       });
     } catch (error) {
-      if (process.env.NODE_ENV === 'development')
-        if (process.env.NODE_ENV === 'development') console.error('Error saving FCM token:', error);
+      if (process.env.NODE_ENV === 'development') {
+        // console.error('Error saving FCM token:', error);
+      }
     }
   }
 
@@ -116,7 +113,7 @@ export class PushNotificationService {
     if (!messaging) return;
 
     onMessage(messaging, payload => {
-      // if (process.env.NODE_ENV === 'development') console.log('📱 Foreground message received:', payload);
+      // if (process.env.NODE_ENV === 'development') // console.log('📱 Foreground message received:', payload);
 
       const { notification, data } = payload;
 
@@ -162,9 +159,7 @@ export class PushNotificationService {
         // timestamp: Date.now(), // Not supported in basic Notification API
       });
     } catch (error) {
-      if (process.env.NODE_ENV === 'development')
-        if (process.env.NODE_ENV === 'development')
-          console.error('Error showing notification:', error);
+      // console.error('Error showing notification:', error);
     }
   }
 
@@ -207,9 +202,7 @@ export class PushNotificationService {
         notification.close();
       }, 10000);
     } catch (error) {
-      if (process.env.NODE_ENV === 'development')
-        if (process.env.NODE_ENV === 'development')
-          console.error('Error showing local notification:', error);
+      // console.error('Error showing local notification:', error);
     }
   }
 
@@ -224,11 +217,9 @@ export class PushNotificationService {
         subscriptionsUpdatedAt: new Date(),
       });
 
-      // if (process.env.NODE_ENV === 'development') console.log(`📢 Subscribed to topic: ${topic}`);
+      // if (process.env.NODE_ENV === 'development') // console.log(`📢 Subscribed to topic: ${topic}`);
     } catch (error) {
-      if (process.env.NODE_ENV === 'development')
-        if (process.env.NODE_ENV === 'development')
-          console.error(`Error subscribing to topic ${topic}:`, error);
+      // console.error(`Error subscribing to topic ${topic}:`, error);
     }
   }
 
@@ -241,11 +232,9 @@ export class PushNotificationService {
         subscriptionsUpdatedAt: new Date(),
       });
 
-      // if (process.env.NODE_ENV === 'development') console.log(`📢 Unsubscribed from topic: ${topic}`);
+      // if (process.env.NODE_ENV === 'development') // console.log(`📢 Unsubscribed from topic: ${topic}`);
     } catch (error) {
-      if (process.env.NODE_ENV === 'development')
-        if (process.env.NODE_ENV === 'development')
-          console.error(`Error unsubscribing from topic ${topic}:`, error);
+      // console.error(`Error unsubscribing from topic ${topic}:`, error);
     }
   }
 
@@ -266,11 +255,9 @@ export class PushNotificationService {
         'preferences.updatedAt': new Date(),
       });
 
-      // if (process.env.NODE_ENV === 'development') console.log('🔔 Notification preferences updated');
+      // if (process.env.NODE_ENV === 'development') // console.log('🔔 Notification preferences updated');
     } catch (error) {
-      if (process.env.NODE_ENV === 'development')
-        if (process.env.NODE_ENV === 'development')
-          console.error('Error updating notification preferences:', error);
+      // console.error('Error updating notification preferences:', error);
     }
   }
 
@@ -284,11 +271,9 @@ export class PushNotificationService {
         fcmTokenUpdatedAt: new Date(),
       });
 
-      // if (process.env.NODE_ENV === 'development') console.log('🔕 Push notifications disabled');
+      // if (process.env.NODE_ENV === 'development') // console.log('🔕 Push notifications disabled');
     } catch (error) {
-      if (process.env.NODE_ENV === 'development')
-        if (process.env.NODE_ENV === 'development')
-          console.error('Error disabling push notifications:', error);
+      // console.error('Error disabling push notifications:', error);
     }
   }
 
@@ -320,7 +305,7 @@ export class PushNotificationService {
       // Just close the notification
       //         break;
       default:
-      // if (process.env.NODE_ENV === 'development') console.log('Unknown notification action:', action);
+      // if (process.env.NODE_ENV === 'development') // console.log('Unknown notification action:', action);
     }
   }
 

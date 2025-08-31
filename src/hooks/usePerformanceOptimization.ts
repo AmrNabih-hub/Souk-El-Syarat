@@ -21,11 +21,11 @@ export const usePerformanceMonitor = () => {
         }
 
         if (entry.entryType === 'paint') {
-          // if (process.env.NODE_ENV === 'development') console.log(`${entry.name}: ${entry.startTime}ms`);
+          // if (process.env.NODE_ENV === 'development') // console.log(`${entry.name}: ${entry.startTime}ms`);
         }
 
         if (entry.entryType === 'largest-contentful-paint') {
-          // if (process.env.NODE_ENV === 'development') console.log(`LCP: ${entry.startTime}ms`);
+          // if (process.env.NODE_ENV === 'development') // console.log(`LCP: ${entry.startTime}ms`);
         }
       });
     });
@@ -142,11 +142,11 @@ export const useServiceWorker = () => {
       window.addEventListener('load', async () => {
         try {
           const registration = await navigator.serviceWorker.register('/sw.js');
-          // if (process.env.NODE_ENV === 'development') console.log('Service Worker registered:', registration);
+          // if (process.env.NODE_ENV === 'development') // console.log('Service Worker registered:', registration);
         } catch (error) {
           if (process.env.NODE_ENV === 'development')
             if (process.env.NODE_ENV === 'development')
-              console.error('Service Worker registration failed:', error);
+              // console.error('Service Worker registration failed:', error);
         }
       });
     }

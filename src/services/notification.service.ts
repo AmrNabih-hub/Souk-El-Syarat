@@ -44,7 +44,7 @@ export class NotificationService {
       });
       return docRef.id;
     } catch (error) {
-      if (process.env.NODE_ENV === 'development') console.error('Error creating notification:', error);
+      if (process.env.NODE_ENV === 'development') // console.error('Error creating notification:', error);
       throw new Error('Failed to create notification');
     }
   }
@@ -67,7 +67,7 @@ export class NotificationService {
         } as Notification;
       });
     } catch (error) {
-      if (process.env.NODE_ENV === 'development') console.error('Error getting user notifications:', error);
+      if (process.env.NODE_ENV === 'development') // console.error('Error getting user notifications:', error);
       throw new Error('Failed to get user notifications');
     }
   }
@@ -81,7 +81,7 @@ export class NotificationService {
         updatedAt: serverTimestamp()
       });
     } catch (error) {
-      if (process.env.NODE_ENV === 'development') if (process.env.NODE_ENV === 'development') console.error('Error marking notification as read:', error);
+      if (process.env.NODE_ENV === 'development') if (process.env.NODE_ENV === 'development') // console.error('Error marking notification as read:', error);
       throw new Error('Failed to mark notification as read');
     }
   }
@@ -106,7 +106,7 @@ export class NotificationService {
       
       await batch.commit();
     } catch (error) {
-      if (process.env.NODE_ENV === 'development') if (process.env.NODE_ENV === 'development') console.error('Error marking all notifications as read:', error);
+      if (process.env.NODE_ENV === 'development') if (process.env.NODE_ENV === 'development') // console.error('Error marking all notifications as read:', error);
       throw new Error('Failed to mark all notifications as read');
     }
   }
@@ -117,7 +117,7 @@ export class NotificationService {
       const docRef = doc(this.notificationsCollection, notificationId);
       await deleteDoc(docRef);
     } catch (error) {
-      if (process.env.NODE_ENV === 'development') if (process.env.NODE_ENV === 'development') console.error('Error deleting notification:', error);
+      if (process.env.NODE_ENV === 'development') if (process.env.NODE_ENV === 'development') // console.error('Error deleting notification:', error);
       throw new Error('Failed to delete notification');
     }
   }
@@ -218,7 +218,7 @@ export class NotificationService {
       }
       return null;
     } catch (error) {
-      if (process.env.NODE_ENV === 'development') if (process.env.NODE_ENV === 'development') console.error('Error getting notification:', error);
+      if (process.env.NODE_ENV === 'development') if (process.env.NODE_ENV === 'development') // console.error('Error getting notification:', error);
       throw new Error('Failed to get notification');
     }
   }
@@ -242,7 +242,7 @@ export class NotificationService {
         } as Notification;
       });
     } catch (error) {
-      if (process.env.NODE_ENV === 'development') console.error('Error getting notifications by type:', error);
+      if (process.env.NODE_ENV === 'development') // console.error('Error getting notifications by type:', error);
       throw new Error('Failed to get notifications by type');
     }
   }
@@ -266,7 +266,7 @@ export class NotificationService {
         } as Notification;
       });
     } catch (error) {
-      if (process.env.NODE_ENV === 'development') console.error('Error getting recent notifications:', error);
+      if (process.env.NODE_ENV === 'development') // console.error('Error getting recent notifications:', error);
       throw new Error('Failed to get recent notifications');
     }
   }

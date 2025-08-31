@@ -497,7 +497,7 @@ export class ProcessOrchestratorService {
     } catch (error) {
       if (process.env.NODE_ENV === 'development')
         if (process.env.NODE_ENV === 'development')
-          console.error('Error triggering workflow:', error);
+          // console.error('Error triggering workflow:', error);
       // Track error in analytics
       await AnalyticsService.trackMetric('error', 'workflow_trigger_error', 1, 'count', {
         eventType,
@@ -511,7 +511,7 @@ export class ProcessOrchestratorService {
    */
   private async executeWorkflow(workflow: Workflow, event: ProcessEvent): Promise<void> {
     try {
-      // if (process.env.NODE_ENV === 'development') console.log(`Executing workflow: ${workflow.name} for event: ${event.id}`);
+      // if (process.env.NODE_ENV === 'development') // console.log(`Executing workflow: ${workflow.name} for event: ${event.id}`);
 
       for (const step of workflow.steps) {
         await this.executeWorkflowStep(step, event, workflow);
@@ -533,7 +533,7 @@ export class ProcessOrchestratorService {
     } catch (error) {
       if (process.env.NODE_ENV === 'development')
         if (process.env.NODE_ENV === 'development')
-          console.error(`Error executing workflow ${workflow.id}:`, error);
+          // console.error(`Error executing workflow ${workflow.id}:`, error);
 
       // Track workflow error
       await AnalyticsService.trackMetric('error', 'workflow_execution_error', 1, 'count', {
@@ -553,7 +553,7 @@ export class ProcessOrchestratorService {
     workflow: Workflow
   ): Promise<void> {
     try {
-      // if (process.env.NODE_ENV === 'development') console.log(`Executing step: ${step.name} in workflow: ${workflow.name}`);
+      // if (process.env.NODE_ENV === 'development') // console.log(`Executing step: ${step.name} in workflow: ${workflow.name}`);
 
       switch (step.type) {
         case 'notification':
@@ -586,7 +586,7 @@ export class ProcessOrchestratorService {
     } catch (error) {
       if (process.env.NODE_ENV === 'development')
         if (process.env.NODE_ENV === 'development')
-          console.error(`Error executing step ${step.id}:`, error);
+          // console.error(`Error executing step ${step.id}:`, error);
 
       // Retry logic if configured
       if (step.retryConfig) {
@@ -658,7 +658,7 @@ export class ProcessOrchestratorService {
       case 'product':
         if (action === 'decrease_inventory' && event.data.items) {
           // This would be handled by OrderService.createOrder
-          // if (process.env.NODE_ENV === 'development') console.log('Inventory update handled by order creation');
+          // if (process.env.NODE_ENV === 'development') // console.log('Inventory update handled by order creation');
         }
       //         break;
 
@@ -759,7 +759,7 @@ export class ProcessOrchestratorService {
     const { rules } = step.config;
 
     // This would implement various validation rules
-    // if (process.env.NODE_ENV === 'development') console.log(`Validating ${event.entityType} with rules:`, rules);
+    // if (process.env.NODE_ENV === 'development') // console.log(`Validating ${event.entityType} with rules:`, rules);
 
     // For now, just log - in a real implementation, this would validate data
     // and potentially update the entity status or create validation reports
@@ -770,7 +770,7 @@ export class ProcessOrchestratorService {
    */
   private async executeExternalApiStep(step: WorkflowStep, _event: ProcessEvent): Promise<void> {
     // This would integrate with external APIs like payment gateways, shipping providers, etc.
-    // if (process.env.NODE_ENV === 'development') console.log(`External API call for step: ${step.name}`);
+    // if (process.env.NODE_ENV === 'development') // console.log(`External API call for step: ${step.name}`);
   }
 
   /**
@@ -786,19 +786,19 @@ export class ProcessOrchestratorService {
 
     for (let attempt = 1; attempt <= maxRetries; attempt++) {
       try {
-        // if (process.env.NODE_ENV === 'development') console.log(`Retrying step ${step.id}, attempt ${attempt}/${maxRetries}`);
+        // if (process.env.NODE_ENV === 'development') // console.log(`Retrying step ${step.id}, attempt ${attempt}/${maxRetries}`);
 
         // Wait before retry
         await new Promise(resolve => setTimeout(resolve, delayMs * attempt));
 
         await this.executeWorkflowStep(step, event, workflow);
 
-        // if (process.env.NODE_ENV === 'development') console.log(`Step ${step.id} succeeded on retry attempt ${attempt}`);
+        // if (process.env.NODE_ENV === 'development') // console.log(`Step ${step.id} succeeded on retry attempt ${attempt}`);
         //         return;
       } catch (retryError) {
         if (process.env.NODE_ENV === 'development')
           if (process.env.NODE_ENV === 'development')
-            console.error(`Retry attempt ${attempt} failed for step ${step.id}:`, retryError);
+            // console.error(`Retry attempt ${attempt} failed for step ${step.id}:`, retryError);
 
         if (attempt === maxRetries) {
           throw new Error(`Step ${step.id} failed after ${maxRetries} retries: ${error.message}`);

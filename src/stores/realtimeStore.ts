@@ -111,7 +111,7 @@ export const useRealtimeStore = create<RealtimeState>()(
     // Initialize real-time services
     initialize: async (userId: string) => {
       try {
-        // if (process.env.NODE_ENV === 'development') console.log('🔄 Initializing real-time services for user:', userId);
+        // if (process.env.NODE_ENV === 'development') // console.log('🔄 Initializing real-time services for user:', userId);
 
         // Initialize Firebase real-time services
         const realtimeService = RealtimeService.getInstance();
@@ -159,28 +159,28 @@ export const useRealtimeStore = create<RealtimeState>()(
           isConnected: true,
         });
 
-        // if (process.env.NODE_ENV === 'development') console.log('✅ Real-time services initialized successfully');
+        // if (process.env.NODE_ENV === 'development') // console.log('✅ Real-time services initialized successfully');
       } catch (error) {
-        if (process.env.NODE_ENV === 'development')
-          if (process.env.NODE_ENV === 'development')
-            console.error('❌ Failed to initialize real-time services:', error);
+        if (process.env.NODE_ENV === 'development') {
+            // console.error('❌ Failed to initialize real-time services:', error);
+        }
         set({ isConnected: false });
       }
     },
 
     // Cleanup all listeners
     cleanup: () => {
-      // if (process.env.NODE_ENV === 'development') console.log('🧹 Cleaning up real-time services');
+      // if (process.env.NODE_ENV === 'development') // console.log('🧹 Cleaning up real-time services');
 
       // Clean up all listeners
       get().listeners.forEach((unsubscribe, key) => {
         try {
           unsubscribe();
-          // if (process.env.NODE_ENV === 'development') console.log(`✅ Cleaned up listener: ${key}`);
+          // if (process.env.NODE_ENV === 'development') // console.log(`✅ Cleaned up listener: ${key}`);
         } catch (error) {
-          if (process.env.NODE_ENV === 'development')
-            if (process.env.NODE_ENV === 'development')
-              console.error(`❌ Error cleaning up listener ${key}:`, error);
+          if (process.env.NODE_ENV === 'development') {
+              // console.error(`❌ Error cleaning up listener ${key}:`, error);
+          }
         }
       });
 
@@ -255,11 +255,11 @@ export const useRealtimeStore = create<RealtimeState>()(
           messageType: type,
         });
 
-        // if (process.env.NODE_ENV === 'development') console.log('✅ Message sent successfully');
+        // if (process.env.NODE_ENV === 'development') // console.log('✅ Message sent successfully');
       } catch (error) {
-        if (process.env.NODE_ENV === 'development')
-          if (process.env.NODE_ENV === 'development')
-            console.error('❌ Failed to send message:', error);
+        if (process.env.NODE_ENV === 'development') {
+            // console.error('❌ Failed to send message:', error);
+        }
         throw error;
       }
     },
@@ -281,9 +281,9 @@ export const useRealtimeStore = create<RealtimeState>()(
           },
         }));
       } catch (error) {
-        if (process.env.NODE_ENV === 'development')
-          if (process.env.NODE_ENV === 'development')
-            console.error('❌ Failed to mark message as read:', error);
+        if (process.env.NODE_ENV === 'development') {
+            // console.error('❌ Failed to mark message as read:', error);
+        }
       }
     },
 
@@ -390,9 +390,9 @@ export const useRealtimeStore = create<RealtimeState>()(
         const realtimeService = RealtimeService.getInstance();
         await realtimeService.addActivity(currentUser.id, type as any, data);
       } catch (error) {
-        if (process.env.NODE_ENV === 'development')
-          if (process.env.NODE_ENV === 'development')
-            console.error('❌ Failed to add activity:', error);
+        if (process.env.NODE_ENV === 'development') {
+            // console.error('❌ Failed to add activity:', error);
+        }
       }
     },
   }))
@@ -459,7 +459,7 @@ useRealtimeStore.subscribe(
   state => state.isInitialized,
   (isInitialized, previousIsInitialized) => {
     if (!isInitialized && previousIsInitialized) {
-      // if (process.env.NODE_ENV === 'development') console.log('🔄 Re-initializing real-time services...');
+      // if (process.env.NODE_ENV === 'development') // console.log('🔄 Re-initializing real-time services...');
       // Handle reconnection logic here if needed
     }
   }

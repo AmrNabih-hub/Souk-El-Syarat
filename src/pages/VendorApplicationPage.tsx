@@ -215,7 +215,7 @@ const VendorApplicationPage: React.FC = () => {
       // };
 
       // const applicationId = await VendorService.submitApplication(user.id, applicationData);
-      // if (process.env.NODE_ENV === 'development') console.log('Application submitted with ID:', applicationId);
+      // if (process.env.NODE_ENV === 'development') // console.log('Application submitted with ID:', applicationId);
 
       setApplicationSubmitted(true);
       toast.success(
@@ -224,7 +224,7 @@ const VendorApplicationPage: React.FC = () => {
     } catch (error) {
       if (process.env.NODE_ENV === 'development')
         if (process.env.NODE_ENV === 'development')
-          console.error('Application submission error:', error);
+          // console.error('Application submission error:', error);
       toast.error(language === 'ar' ? 'حدث خطأ في تقديم الطلب' : 'Error submitting application');
     } finally {
       setIsSubmitting(false);

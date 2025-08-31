@@ -70,10 +70,13 @@
     "react-intersection-observer": "^9.16.0",
     "react-router-dom": "^6.20.1",
     "recharts": "^3.1.2",
+    "socket.io-client": "^4.8.1",
     "yup": "^1.4.0",
     "zustand": "^4.4.7"
   },
   "devDependencies": {
+    "@babel/plugin-transform-runtime": "^7.28.3",
+    "@babel/runtime": "^7.28.3",
     "@playwright/test": "^1.40.0",
     "@size-limit/preset-app": "^11.0.0",
     "@tailwindcss/forms": "^0.5.7",

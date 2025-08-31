@@ -27,11 +27,11 @@ const firebaseConfig = {
 };
 
 // 🚨 IMMEDIATE INITIALIZATION - NO ENVIRONMENT CHECKS
-console.log('🚀 Initializing Firebase with bulletproof config...');
+// console.log('🚀 Initializing Firebase with bulletproof config...');
 
 // Initialize Firebase App
 export const app: FirebaseApp = initializeApp(firebaseConfig);
-console.log('✅ Firebase app initialized');
+// console.log('✅ Firebase app initialized');
 
 // Initialize Firebase Services
 export const auth: Auth = getAuth(app);
@@ -40,7 +40,7 @@ export const realtimeDb: Database = getDatabase(app);
 export const storage: FirebaseStorage = getStorage(app);
 export const functions: Functions = getFunctions(app);
 
-console.log('✅ Firebase services initialized');
+// console.log('✅ Firebase services initialized');
 
 // Initialize Analytics and Performance (Production only)
 export let analytics: Analytics | null = null;
@@ -53,30 +53,30 @@ try {
   // Initialize Analytics
   if (typeof window !== 'undefined') {
     analytics = getAnalytics(app);
-    console.log('✅ Analytics initialized');
+    // console.log('✅ Analytics initialized');
   }
 
   // Initialize Performance
   if (typeof window !== 'undefined') {
     performance = getPerformance(app);
-    console.log('✅ Performance initialized');
+    // console.log('✅ Performance initialized');
   }
 
   // Initialize Messaging
   if (typeof window !== 'undefined') {
     messaging = getMessaging(app);
-    console.log('✅ Messaging initialized');
+    // console.log('✅ Messaging initialized');
   }
 
   // 🚨 FIXED RECAPTCHA CONFIGURATION - NO MORE 400 ERRORS
   if (typeof window !== 'undefined') {
     // Disable App Check temporarily to fix reCAPTCHA issues
-    console.log('⚠️ App Check disabled to fix reCAPTCHA errors');
+    // console.log('⚠️ App Check disabled to fix reCAPTCHA errors');
     // appCheck = initializeAppCheck(app, {
     //   provider: new ReCaptchaV3Provider('6LdYsZ0qAAAAAH4f0a2L8W5YmN3jQ9X2kP7bR8sT'),
     //   isTokenAutoRefreshEnabled: true,
     // });
-    // console.log('✅ App Check initialized');
+    // // console.log('✅ App Check initialized');
   }
 } catch (error) {
   console.warn('⚠️ Some Firebase services failed to initialize:', error);
@@ -85,49 +85,49 @@ try {
 // 🚨 IMMEDIATE CONNECTION TEST
 export const testFirebaseConnection = async (): Promise<boolean> => {
   try {
-    console.log('🧪 Testing Firebase connection...');
+    // console.log('🧪 Testing Firebase connection...');
     
     // Test Firestore
     await db._delegate._databaseId;
-    console.log('✅ Firestore connection successful');
+    // console.log('✅ Firestore connection successful');
     
     // Test Auth
     await auth._delegate._config;
-    console.log('✅ Auth connection successful');
+    // console.log('✅ Auth connection successful');
     
     // Test Storage
     await storage._delegate._bucket;
-    console.log('✅ Storage connection successful');
+    // console.log('✅ Storage connection successful');
     
-    console.log('🎉 ALL FIREBASE SERVICES CONNECTED SUCCESSFULLY!');
+    // console.log('🎉 ALL FIREBASE SERVICES CONNECTED SUCCESSFULLY!');
     return true;
   } catch (error) {
-    console.error('❌ Firebase connection test failed:', error);
+    // console.error('❌ Firebase connection test failed:', error);
     return false;
   }
 };
 
 // 🚨 IMMEDIATE VALIDATION
 export const validateFirebaseConfig = (): boolean => {
-  console.log('🔍 Validating Firebase configuration...');
+  // console.log('🔍 Validating Firebase configuration...');
   
   const requiredFields = ['apiKey', 'authDomain', 'projectId', 'storageBucket', 'messagingSenderId', 'appId'];
   
   for (const field of requiredFields) {
     if (!firebaseConfig[field as keyof typeof firebaseConfig]) {
-      console.error(`❌ Missing Firebase config field: ${field}`);
+      // console.error(`❌ Missing Firebase config field: ${field}`);
       return false;
     }
   }
   
-  console.log('✅ Firebase configuration validated');
+  // console.log('✅ Firebase configuration validated');
   return true;
 };
 
 // 🚨 IMMEDIATE INITIALIZATION
 export const initializeFirebase = async (): Promise<boolean> => {
   try {
-    console.log('🚀 Starting bulletproof Firebase initialization...');
+    // console.log('🚀 Starting bulletproof Firebase initialization...');
     
     // Validate configuration
     if (!validateFirebaseConfig()) {
@@ -140,22 +140,22 @@ export const initializeFirebase = async (): Promise<boolean> => {
       throw new Error('Firebase connection test failed');
     }
     
-    console.log('🎉 BULLETPROOF FIREBASE INITIALIZATION COMPLETE!');
+    // console.log('🎉 BULLETPROOF FIREBASE INITIALIZATION COMPLETE!');
     return true;
   } catch (error) {
-    console.error('💥 Firebase initialization failed:', error);
+    // console.error('💥 Firebase initialization failed:', error);
     return false;
   }
 };
 
 // 🚨 IMMEDIATE EXECUTION
-console.log('🚀 EXECUTING BULLETPROOF FIREBASE INITIALIZATION...');
+// console.log('🚀 EXECUTING BULLETPROOF FIREBASE INITIALIZATION...');
 initializeFirebase().then(success => {
   if (success) {
-    console.log('🎉 SOUK EL-SYARAT FIREBASE SETUP COMPLETE!');
-    console.log('🌐 Your app is ready for production!');
+    // console.log('🎉 SOUK EL-SYARAT FIREBASE SETUP COMPLETE!');
+    // console.log('🌐 Your app is ready for production!');
   } else {
-    console.error('💥 CRITICAL: Firebase setup failed!');
+    // console.error('💥 CRITICAL: Firebase setup failed!');
   }
 });
 

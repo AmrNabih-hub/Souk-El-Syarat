@@ -90,7 +90,7 @@ const MarketplacePage: React.FC = () => {
       setProducts(moreProducts);
     } catch (error) {
       if (process.env.NODE_ENV === 'development')
-        if (process.env.NODE_ENV === 'development') console.error('Error loading products:', error);
+        if (process.env.NODE_ENV === 'development') // console.error('Error loading products:', error);
       toast.error(language === 'ar' ? 'خطأ في تحميل المنتجات' : 'Error loading products');
     } finally {
       setIsLoading(false);

@@ -168,7 +168,7 @@ export class EnhancedAuthService {
             });
           }
         } catch (error) {
-          if (process.env.NODE_ENV === 'development') if (process.env.NODE_ENV === 'development') console.error('Error getting user data:', error);
+          if (process.env.NODE_ENV === 'development') if (process.env.NODE_ENV === 'development') // console.error('Error getting user data:', error);
           this.notifyAuthStateChange({
             user: null,
             isLoading: false,
@@ -219,7 +219,7 @@ export class EnhancedAuthService {
     if (auth.currentUser) {
       updateDoc(doc(db, 'users', auth.currentUser.uid), {
         lastActivity: serverTimestamp(),
-      }).catch(console.error);
+      }).catch(// console.error);
     }
   }
 
@@ -504,7 +504,7 @@ export class EnhancedAuthService {
       const instance = EnhancedAuthService.getInstance();
       instance.clearSessionTimer();
 
-      // if (process.env.NODE_ENV === 'development') console.log('User signed out successfully');
+      // if (process.env.NODE_ENV === 'development') // console.log('User signed out successfully');
     } catch (error) {
       throw new Error(this.getAuthErrorMessage(error.code));
     }

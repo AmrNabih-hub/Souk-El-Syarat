@@ -101,7 +101,7 @@ const EnhancedAdminDashboard: React.FC = () => {
     } catch (error) {
       if (process.env.NODE_ENV === 'development')
         if (process.env.NODE_ENV === 'development')
-          console.error('Error loading dashboard data:', error);
+          // console.error('Error loading dashboard data:', error);
       toast.error(language === 'ar' ? 'خطأ في تحميل البيانات' : 'Error loading dashboard data');
     } finally {
       setIsLoading(false);

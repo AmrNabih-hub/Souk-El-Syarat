@@ -8,42 +8,34 @@ import { useRealtimeStore } from '@/stores/realtimeStore';
 import { PushNotificationService } from '@/services/push-notification.service';
 import { AuthService } from '@/services/auth.service';
 
-// Layout Components - Always loaded
+// Layout Components
 import Navbar from '@/components/layout/Navbar';
 import Footer from '@/components/layout/Footer';
 import LoadingScreen from '@/components/ui/LoadingScreen';
 
-// Enhanced lazy loading with retry and preload
-import { lazyWithPreload, batchPreload, componentLoader } from '@/utils/lazyWithRetry';
+// Lazy load pages for better performance
+const HomePage = React.lazy(() => import('@/pages/HomePage'));
+const LoginPage = React.lazy(() => import('@/pages/auth/LoginPage'));
+const RegisterPage = React.lazy(() => import('@/pages/auth/RegisterPage'));
+const ForgotPasswordPage = React.lazy(() => import('@/pages/auth/ForgotPasswordPage'));
+const VendorApplicationPage = React.lazy(() => import('@/pages/VendorApplicationPage'));
+const MarketplacePage = React.lazy(() => import('@/pages/customer/MarketplacePage'));
+const ProductDetailsPage = React.lazy(() => import('@/pages/customer/ProductDetailsPage'));
+const VendorsPage = React.lazy(() => import('@/pages/customer/VendorsPage'));
+const CartPage = React.lazy(() => import('@/pages/customer/CartPage'));
+const ProfilePage = React.lazy(() => import('@/pages/customer/ProfilePage'));
 
-// Lazy load pages with preload capability
-const HomePage = lazyWithPreload(() => import('@/pages/HomePage'));
-const LoginPage = lazyWithPreload(() => import('@/pages/auth/LoginPage'));
-const RegisterPage = lazyWithPreload(() => import('@/pages/auth/RegisterPage'));
-const ForgotPasswordPage = lazyWithPreload(() => import('@/pages/auth/ForgotPasswordPage'));
-const VendorApplicationPage = lazyWithPreload(() => import('@/pages/VendorApplicationPage'));
-const MarketplacePage = lazyWithPreload(() => import('@/pages/customer/MarketplacePage'));
-const ProductDetailsPage = lazyWithPreload(() => import('@/pages/customer/ProductDetailsPage'));
-const VendorsPage = lazyWithPreload(() => import('@/pages/customer/VendorsPage'));
-const CartPage = lazyWithPreload(() => import('@/pages/customer/CartPage'));
-const ProfilePage = lazyWithPreload(() => import('@/pages/customer/ProfilePage'));
+// Dashboard pages
+const AdminDashboard = React.lazy(() => import('@/pages/admin/AdminDashboard'));
+const VendorDashboard = React.lazy(() => import('@/pages/vendor/VendorDashboard'));
+const CustomerDashboard = React.lazy(() => import('@/pages/customer/CustomerDashboard'));
 
-// Dashboard pages - Lower priority
-const AdminDashboard = lazyWithPreload(() => import('@/pages/admin/AdminDashboard'));
-const VendorDashboard = lazyWithPreload(() => import('@/pages/vendor/VendorDashboard'));
-const CustomerDashboard = lazyWithPreload(() => import('@/pages/customer/CustomerDashboard'));
-
-// Register components for priority loading
-componentLoader.register('HomePage', () => HomePage.preload(), 'high');
-componentLoader.register('MarketplacePage', () => MarketplacePage.preload(), 'high');
-componentLoader.register('LoginPage', () => LoginPage.preload(), 'medium');
-
-// Protected Route Component with optimization
+// Protected Route Component
 const ProtectedRoute: React.FC<{
   children: React.ReactNode;
   roles?: string[];
   redirectTo?: string;
-}> = React.memo(({ children, roles, redirectTo = '/login' }) => {
+}> = ({ children, roles, redirectTo = '/login' }) => {
   const { user, isLoading } = useAuthStore();
 
   if (isLoading) {
@@ -59,12 +51,12 @@ const ProtectedRoute: React.FC<{
   }
 
   return <>{children}</>;
-});
+};
 
-// Public Route Component
+// Public Route Component (redirect to dashboard if authenticated)
 const PublicRoute: React.FC<{
   children: React.ReactNode;
-}> = React.memo(({ children }) => {
+}> = ({ children }) => {
   const { user } = useAuthStore();
 
   if (user) {
@@ -82,9 +74,9 @@ const PublicRoute: React.FC<{
   }
 
   return <>{children}</>;
-});
+};
 
-// Optimized page transition animations
+// Page transition animations
 const pageVariants = {
   initial: {
     opacity: 0,
@@ -94,7 +86,7 @@ const pageVariants = {
     opacity: 1,
     x: 0,
     transition: {
-      duration: 0.2, // Faster transitions
+      duration: 0.3,
       ease: 'easeOut',
     },
   },
@@ -102,48 +94,16 @@ const pageVariants = {
     opacity: 0,
     x: 20,
     transition: {
-      duration: 0.2,
+      duration: 0.3,
       ease: 'easeIn',
     },
   },
 };
 
-// Route wrapper for consistent animations
-const AnimatedRoute: React.FC<{ children: React.ReactNode }> = React.memo(({ children }) => (
-  <motion.div
-    variants={pageVariants}
-    initial='initial'
-    animate='animate'
-    exit='exit'
-  >
-    {children}
-  </motion.div>
-));
-
 function App() {
   const { setUser, setLoading, user } = useAuthStore();
   const { language, theme } = useAppStore();
   const { initialize: initializeRealtime, cleanup: cleanupRealtime } = useRealtimeStore();
-
-  // Preload critical components based on user behavior
-  useEffect(() => {
-    // Preload components likely to be needed next
-    if (user) {
-      if (user.role === 'admin') {
-        AdminDashboard.preload();
-      } else if (user.role === 'vendor') {
-        VendorDashboard.preload();
-      } else {
-        // Preload shopping components for customers
-        CartPage.preload();
-        ProductDetailsPage.preload();
-      }
-    } else {
-      // Preload auth pages for non-logged users
-      LoginPage.preload();
-      RegisterPage.preload();
-    }
-  }, [user]);
 
   // Set up authentication state listener
   useEffect(() => {
@@ -168,24 +128,13 @@ function App() {
         }
       });
 
-      // Initialize push notifications with retry
-      const initPushNotifications = async () => {
-        let retries = 3;
-        while (retries > 0) {
-          try {
-            await PushNotificationService.initialize(user.id);
-            break;
-          } catch (error) {
-            retries--;
-            if (retries === 0 && process.env.NODE_ENV === 'development') {
-              // console.error('Failed to initialize push notifications after 3 attempts:', error);
-            }
-            await new Promise(resolve => setTimeout(resolve, 1000));
-          }
+      // Initialize push notifications
+      PushNotificationService.initialize(user.id).catch(error => {
+        // Silent handling - service will continue without push notifications
+        if (process.env.NODE_ENV === 'development') {
+          // console.error('Failed to initialize push notifications:', error);
         }
-      };
-      
-      initPushNotifications();
+      });
 
       // Subscribe to user-specific topics based on role
       if (user.role === 'vendor') {
@@ -218,13 +167,6 @@ function App() {
     document.documentElement.className = theme === 'dark' ? 'dark' : '';
   }, [language, theme]);
 
-  // Preload components on route hover
-  const handleRouteHover = (component: any) => {
-    if (component && typeof component.preload === 'function') {
-      component.preload();
-    }
-  };
-
   return (
     <div className='min-h-screen bg-gradient-to-br from-primary-50 via-white to-secondary-50 transition-all duration-500'>
       <Navbar />
@@ -237,45 +179,70 @@ function App() {
               <Route
                 path='/'
                 element={
-                  <AnimatedRoute>
+                  <motion.div
+                    variants={pageVariants}
+                    initial='initial'
+                    animate='animate'
+                    exit='exit'
+                  >
                     <HomePage />
-                  </AnimatedRoute>
+                  </motion.div>
                 }
               />
 
               <Route
                 path='/marketplace'
                 element={
-                  <AnimatedRoute>
+                  <motion.div
+                    variants={pageVariants}
+                    initial='initial'
+                    animate='animate'
+                    exit='exit'
+                  >
                     <MarketplacePage />
-                  </AnimatedRoute>
+                  </motion.div>
                 }
               />
 
               <Route
                 path='/product/:id'
                 element={
-                  <AnimatedRoute>
+                  <motion.div
+                    variants={pageVariants}
+                    initial='initial'
+                    animate='animate'
+                    exit='exit'
+                  >
                     <ProductDetailsPage />
-                  </AnimatedRoute>
+                  </motion.div>
                 }
               />
 
               <Route
                 path='/vendors'
                 element={
-                  <AnimatedRoute>
+                  <motion.div
+                    variants={pageVariants}
+                    initial='initial'
+                    animate='animate'
+                    exit='exit'
+                  >
                     <VendorsPage />
-                  </AnimatedRoute>
+                  </motion.div>
                 }
               />
 
               <Route
                 path='/vendor/apply'
                 element={
-                  <AnimatedRoute>
+                  <motion.div
+                    variants={pageVariants}
+                    initial='initial'
+                    animate='animate'
+                    exit='exit'
+                  >
                     <VendorApplicationPage />
-                  </AnimatedRoute>
+                  </motion.div>
                 }
               />
 
@@ -284,9 +251,14 @@ function App() {
                 path='/login'
                 element={
                   <PublicRoute>
-                    <AnimatedRoute>
+                    <motion.div
+                      variants={pageVariants}
+                      initial='initial'
+                      animate='animate'
+                      exit='exit'
+                    >
                       <LoginPage />
-                    </AnimatedRoute>
+                    </motion.div>
                   </PublicRoute>
                 }
               />
@@ -295,9 +267,14 @@ function App() {
                 path='/register'
                 element={
                   <PublicRoute>
-                    <AnimatedRoute>
+                    <motion.div
+                      variants={pageVariants}
+                      initial='initial'
+                      animate='animate'
+                      exit='exit'
+                    >
                       <RegisterPage />
-                    </AnimatedRoute>
+                    </motion.div>
                   </PublicRoute>
                 }
               />
@@ -306,9 +283,14 @@ function App() {
                 path='/forgot-password'
                 element={
                   <PublicRoute>
-                    <AnimatedRoute>
+                    <motion.div
+                      variants={pageVariants}
+                      initial='initial'
+                      animate='animate'
+                      exit='exit'
+                    >
                       <ForgotPasswordPage />
-                    </AnimatedRoute>
+                    </motion.div>
                   </PublicRoute>
                 }
               />
@@ -318,9 +300,14 @@ function App() {
                 path='/cart'
                 element={
                   <ProtectedRoute>
-                    <AnimatedRoute>
+                    <motion.div
+                      variants={pageVariants}
+                      initial='initial'
+                      animate='animate'
+                      exit='exit'
+                    >
                       <CartPage />
-                    </AnimatedRoute>
+                    </motion.div>
                   </ProtectedRoute>
                 }
               />
@@ -329,9 +316,14 @@ function App() {
                 path='/profile'
                 element={
                   <ProtectedRoute>
-                    <AnimatedRoute>
+                    <motion.div
+                      variants={pageVariants}
+                      initial='initial'
+                      animate='animate'
+                      exit='exit'
+                    >
                       <ProfilePage />
-                    </AnimatedRoute>
+                    </motion.div>
                   </ProtectedRoute>
                 }
               />
@@ -341,9 +333,14 @@ function App() {
                 path='/dashboard'
                 element={
                   <ProtectedRoute roles={['customer']}>
-                    <AnimatedRoute>
+                    <motion.div
+                      variants={pageVariants}
+                      initial='initial'
+                      animate='animate'
+                      exit='exit'
+                    >
                       <CustomerDashboard />
-                    </AnimatedRoute>
+                    </motion.div>
                   </ProtectedRoute>
                 }
               />
@@ -353,40 +350,62 @@ function App() {
                 path='/vendor/dashboard/*'
                 element={
                   <ProtectedRoute roles={['vendor']}>
-                    <AnimatedRoute>
+                    <motion.div
+                      variants={pageVariants}
+                      initial='initial'
+                      animate='animate'
+                      exit='exit'
+                    >
                       <VendorDashboard />
-                    </AnimatedRoute>
+                    </motion.div>
                   </ProtectedRoute>
                 }
               />
 
               {/* Admin Dashboard */}
               <Route
-                path='/admin/dashboard'
+                path='/admin/dashboard/*'
                 element={
                   <ProtectedRoute roles={['admin']}>
-                    <AnimatedRoute>
+                    <motion.div
+                      variants={pageVariants}
+                      initial='initial'
+                      animate='animate'
+                      exit='exit'
+                    >
                       <AdminDashboard />
-                    </AnimatedRoute>
+                    </motion.div>
                   </ProtectedRoute>
                 }
               />
 
-              {/* 404 Page */}
+              {/* 404 Route */}
               <Route
                 path='*'
                 element={
-                  <AnimatedRoute>
-                    <div className='min-h-screen flex items-center justify-center'>
-                      <div className='text-center'>
-                        <h1 className='text-6xl font-bold text-neutral-900 mb-4'>404</h1>
-                        <p className='text-xl text-neutral-600 mb-8'>
-                          {language === 'ar' ? 'الصفحة غير موجودة' : 'Page not found'}
-                        </p>
-                        <Navigate to='/' replace />
-                      </div>
-                    </div>
-                  </AnimatedRoute>
+                  <motion.div
+                    className='min-h-screen flex flex-col items-center justify-center'
+                    variants={pageVariants}
+                    initial='initial'
+                    animate='animate'
+                    exit='exit'
+                  >
+                    <h1 className='text-6xl font-bold text-primary-500 mb-4'>404</h1>
+                    <h2 className='text-2xl font-semibold text-neutral-700 mb-2'>
+                      الصفحة غير موجودة
+                    </h2>
+                    <p className='text-neutral-600 mb-8 text-center'>
+                      عذراً، لا يمكن العثور على الصفحة التي تبحث عنها
+                    </p>
+                    <motion.a
+                      href='/'
+                      className='btn btn-primary btn-lg'
+                      whileHover={{ scale: 1.05 }}
+                      whileTap={{ scale: 0.95 }}
+                    >
+                      العودة للرئيسية
+                    </motion.a>
+                  </motion.div>
                 }
               />
             </Routes>

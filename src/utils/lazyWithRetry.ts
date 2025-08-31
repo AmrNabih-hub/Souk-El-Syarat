@@ -25,7 +25,7 @@ function retry<T>(
       fn()
         .then(resolve)
         .catch((error) => {
-          console.log(`Attempt ${attemptNumber} failed:`, error);
+          // console.log(`Attempt ${attemptNumber} failed:`, error);
           
           if (attemptNumber <= retries) {
             if (onRetry) {
@@ -168,7 +168,7 @@ export class ComponentLoader {
       await importFn();
       this.queue.delete(name);
     } catch (error) {
-      console.error(`Failed to load component ${name}:`, error);
+      // console.error(`Failed to load component ${name}:`, error);
     } finally {
       this.loading.delete(name);
     }

@@ -92,7 +92,7 @@ export class CacheService {
         },
       });
     } catch (error) {
-      console.error('Failed to initialize IndexedDB:', error);
+      // console.error('Failed to initialize IndexedDB:', error);
     }
   }
 
@@ -244,7 +244,7 @@ export class CacheService {
           return entry.data as T;
         }
       } catch (error) {
-        console.error('Cache get error:', error);
+        // console.error('Cache get error:', error);
       }
     }
 
@@ -259,7 +259,7 @@ export class CacheService {
         localStorage.removeItem(`cache_${key}`);
       }
     } catch (error) {
-      console.error('LocalStorage get error:', error);
+      // console.error('LocalStorage get error:', error);
     }
 
     return null;
@@ -302,7 +302,7 @@ export class CacheService {
         this.currentSize += size;
         await tx.complete;
       } catch (error) {
-        console.error('Cache set error:', error);
+        // console.error('Cache set error:', error);
       }
     }
 
@@ -311,7 +311,7 @@ export class CacheService {
       try {
         localStorage.setItem(`cache_${key}`, JSON.stringify(entry));
       } catch (error) {
-        console.error('LocalStorage set error:', error);
+        // console.error('LocalStorage set error:', error);
       }
     }
   }
@@ -328,14 +328,14 @@ export class CacheService {
         await tx.objectStore('metadata').delete(key);
         await tx.complete;
       } catch (error) {
-        console.error('Cache delete error:', error);
+        // console.error('Cache delete error:', error);
       }
     }
 
     try {
       localStorage.removeItem(`cache_${key}`);
     } catch (error) {
-      console.error('LocalStorage delete error:', error);
+      // console.error('LocalStorage delete error:', error);
     }
   }
 
@@ -352,7 +352,7 @@ export class CacheService {
         await tx.objectStore('metadata').clear();
         await tx.complete;
       } catch (error) {
-        console.error('Cache clear error:', error);
+        // console.error('Cache clear error:', error);
       }
     }
 
@@ -365,7 +365,7 @@ export class CacheService {
         }
       });
     } catch (error) {
-      console.error('LocalStorage clear error:', error);
+      // console.error('LocalStorage clear error:', error);
     }
   }
 
@@ -388,7 +388,7 @@ export class CacheService {
 
       await tx.complete;
     } catch (error) {
-      console.error('Clear by tags error:', error);
+      // console.error('Clear by tags error:', error);
     }
   }
 
@@ -411,7 +411,7 @@ export class CacheService {
 
         await tx.complete;
       } catch (error) {
-        console.error('Update metadata error:', error);
+        // console.error('Update metadata error:', error);
       }
     }
   }

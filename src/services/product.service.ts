@@ -114,7 +114,7 @@ export class ProductService {
 
       return productId;
     } catch (error) {
-      if (process.env.NODE_ENV === 'development') if (process.env.NODE_ENV === 'development') console.error('Error creating product:', error);
+      if (process.env.NODE_ENV === 'development') if (process.env.NODE_ENV === 'development') // console.error('Error creating product:', error);
       throw new Error('Failed to create product');
     }
   }
@@ -137,7 +137,7 @@ export class ProductService {
 
       return productId;
     } catch (error) {
-      if (process.env.NODE_ENV === 'development') if (process.env.NODE_ENV === 'development') console.error('Error creating car product:', error);
+      if (process.env.NODE_ENV === 'development') if (process.env.NODE_ENV === 'development') // console.error('Error creating car product:', error);
       throw new Error('Failed to create car product');
     }
   }
@@ -159,7 +159,7 @@ export class ProductService {
       }
       return null;
     } catch (error) {
-      if (process.env.NODE_ENV === 'development') if (process.env.NODE_ENV === 'development') console.error('Error getting product:', error);
+      if (process.env.NODE_ENV === 'development') if (process.env.NODE_ENV === 'development') // console.error('Error getting product:', error);
       throw new Error('Failed to get product');
     }
   }
@@ -211,7 +211,7 @@ export class ProductService {
 
       return { products, lastDoc: lastDocument };
     } catch (error) {
-      if (process.env.NODE_ENV === 'development') if (process.env.NODE_ENV === 'development') console.error('Error getting vendor products:', error);
+      if (process.env.NODE_ENV === 'development') if (process.env.NODE_ENV === 'development') // console.error('Error getting vendor products:', error);
       throw new Error('Failed to get vendor products');
     }
   }
@@ -307,7 +307,7 @@ export class ProductService {
         },
       };
     } catch (error) {
-      if (process.env.NODE_ENV === 'development') if (process.env.NODE_ENV === 'development') console.error('Error searching products:', error);
+      if (process.env.NODE_ENV === 'development') if (process.env.NODE_ENV === 'development') // console.error('Error searching products:', error);
       throw new Error('Failed to search products');
     }
   }
@@ -335,7 +335,7 @@ export class ProductService {
         } as Product;
       });
     } catch (error) {
-      if (process.env.NODE_ENV === 'development') if (process.env.NODE_ENV === 'development') console.error('Error getting featured products:', error);
+      if (process.env.NODE_ENV === 'development') if (process.env.NODE_ENV === 'development') // console.error('Error getting featured products:', error);
       throw new Error('Failed to get featured products');
     }
   }
@@ -367,7 +367,7 @@ export class ProductService {
         } as Product;
       });
     } catch (error) {
-      if (process.env.NODE_ENV === 'development') if (process.env.NODE_ENV === 'development') console.error('Error getting products by category:', error);
+      if (process.env.NODE_ENV === 'development') if (process.env.NODE_ENV === 'development') // console.error('Error getting products by category:', error);
       throw new Error('Failed to get products by category');
     }
   }
@@ -396,7 +396,7 @@ export class ProductService {
 
       await updateDoc(doc(db, this.COLLECTION_NAME, productId), updateData);
     } catch (error) {
-      if (process.env.NODE_ENV === 'development') if (process.env.NODE_ENV === 'development') console.error('Error updating product:', error);
+      if (process.env.NODE_ENV === 'development') if (process.env.NODE_ENV === 'development') // console.error('Error updating product:', error);
       throw new Error('Failed to update product');
     }
   }
@@ -417,7 +417,7 @@ export class ProductService {
 
       await updateDoc(doc(db, this.COLLECTION_NAME, productId), updateData);
     } catch (error) {
-      if (process.env.NODE_ENV === 'development') if (process.env.NODE_ENV === 'development') console.error('Error updating product status:', error);
+      if (process.env.NODE_ENV === 'development') if (process.env.NODE_ENV === 'development') // console.error('Error updating product status:', error);
       throw new Error('Failed to update product status');
     }
   }
@@ -443,7 +443,7 @@ export class ProductService {
       // Delete product document
       await deleteDoc(doc(db, this.COLLECTION_NAME, productId));
     } catch (error) {
-      if (process.env.NODE_ENV === 'development') if (process.env.NODE_ENV === 'development') console.error('Error deleting product:', error);
+      if (process.env.NODE_ENV === 'development') if (process.env.NODE_ENV === 'development') // console.error('Error deleting product:', error);
       throw new Error('Failed to delete product');
     }
   }
@@ -458,7 +458,7 @@ export class ProductService {
         updatedAt: serverTimestamp(),
       });
     } catch (error) {
-      if (process.env.NODE_ENV === 'development') if (process.env.NODE_ENV === 'development') console.error('Error incrementing product views:', error);
+      if (process.env.NODE_ENV === 'development') if (process.env.NODE_ENV === 'development') // console.error('Error incrementing product views:', error);
       // Don't throw error for view tracking
     }
   }
@@ -479,7 +479,7 @@ export class ProductService {
         updatedAt: serverTimestamp(),
       });
     } catch (error) {
-      if (process.env.NODE_ENV === 'development') if (process.env.NODE_ENV === 'development') console.error('Error toggling product favorite:', error);
+      if (process.env.NODE_ENV === 'development') if (process.env.NODE_ENV === 'development') // console.error('Error toggling product favorite:', error);
       throw new Error('Failed to update favorite status');
     }
   }
@@ -517,7 +517,7 @@ export class ProductService {
 
       return recommendations;
     } catch (error) {
-      if (process.env.NODE_ENV === 'development') if (process.env.NODE_ENV === 'development') console.error('Error getting product recommendations:', error);
+      if (process.env.NODE_ENV === 'development') if (process.env.NODE_ENV === 'development') // console.error('Error getting product recommendations:', error);
       return [];
     }
   }
