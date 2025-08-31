@@ -23,7 +23,9 @@ import {
   requireRole,
   checkDynamicPermission,
   auditLog,
-  rateLimitByRole
+  rateLimitByRole,
+  ROLE_HIERARCHY,
+  PERMISSIONS
 } from './middleware/rbac.middleware';
 
 // Initialize Firebase Admin
