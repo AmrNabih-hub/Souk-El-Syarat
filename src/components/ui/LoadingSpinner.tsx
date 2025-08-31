@@ -83,7 +83,7 @@ export const PulseLoader: React.FC<LoadingSpinnerProps> = ({
   );
 };
 
-export const EgyptianLoader: React.FC<EgyptianLoaderProps> = ({ text }) => {
+export const EgyptianLoader: React.FC<EgyptianLoaderProps> = ({ text, size = 'md' }) => {
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
 
   // Professional automotive marketplace images with high-quality, relevant photos

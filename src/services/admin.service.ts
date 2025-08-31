@@ -23,7 +23,7 @@ import {
   PlatformMetrics,
 } from '@/types';
 
-import { notificationService } from './notification.service';
+import { NotificationService } from './notification.service';
 
 export class AdminService {
   private static COLLECTIONS = {
@@ -292,7 +292,7 @@ export class AdminService {
 
       // Send notifications
       if (status === 'approved') {
-        await notificationService.sendVendorApprovalNotification(
+        await NotificationService.sendVendorApprovalNotification(
           {
             id: applicationData.userId,
             userId: applicationData.userId,
@@ -388,7 +388,7 @@ export class AdminService {
       });
 
       // Send notification to vendor
-      await notificationService.sendSystemNotification({
+      await NotificationService.sendSystemNotification({
         userId: vendorId,
         title: 'Vendor Status Updated',
         message: `Your vendor status has been changed to ${newStatus}. ${reason ? `Reason: ${reason}` : ''}`,

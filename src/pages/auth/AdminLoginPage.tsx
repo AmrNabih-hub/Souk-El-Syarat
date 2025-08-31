@@ -50,7 +50,7 @@ const AdminLoginPage: React.FC = () => {
     formState: { errors, isSubmitting },
     setError,
   } = useForm<AdminLoginFormData>({
-    resolver: yupResolver(adminLoginSchema),
+    resolver: yupResolver(adminLoginSchema) as any,
   });
 
   const onSubmit = async (data: AdminLoginFormData) => {

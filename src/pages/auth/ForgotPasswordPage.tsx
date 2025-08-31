@@ -33,7 +33,7 @@ const ForgotPasswordPage: React.FC = () => {
     formState: { errors, isSubmitting },
     getValues,
   } = useForm<ForgotPasswordFormData>({
-    resolver: yupResolver(forgotPasswordSchema),
+    resolver: yupResolver(forgotPasswordSchema) as any,
   });
 
   const onSubmit = async (data: ForgotPasswordFormData) => {

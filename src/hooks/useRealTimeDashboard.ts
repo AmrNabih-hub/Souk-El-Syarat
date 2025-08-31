@@ -1,4 +1,4 @@
-import React, { useState, useCallback, useEffect } from 'react';
+import { useState, useCallback, useEffect } from 'react';
 
 import { NotificationService } from '@/services/notification.service';
 import { OrderService, Order } from '@/services/order.service';
@@ -11,7 +11,7 @@ export interface DashboardData {
   notifications: Notification[];
   unreadNotificationCount: number;
   orders: Order[];
-  conversations: Conversation[];
+  conversations: any[];
   unreadConversationCount: number;
   businessMetrics: BusinessMetrics | null;
   realTimeStats: RealTimeStats | null;

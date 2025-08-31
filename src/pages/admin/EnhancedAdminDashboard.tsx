@@ -915,7 +915,7 @@ const SystemTab: React.FC<any> = ({ language }) => {
 const StatsCard: React.FC<{
   title: string;
   value: string;
-  icon: React.ComponentType<Record<string, never>>;
+  icon: React.ComponentType<any>;
   trend: string;
   trendDirection: 'up' | 'down';
   color: string;

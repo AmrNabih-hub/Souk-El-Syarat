@@ -37,7 +37,7 @@ const LoginPage: React.FC = () => {
     handleSubmit,
     formState: { errors, isSubmitting },
   } = useForm<LoginFormData>({
-    resolver: yupResolver(loginSchema),
+    resolver: yupResolver(loginSchema) as any,
   });
 
   const onSubmit = async (data: LoginFormData) => {

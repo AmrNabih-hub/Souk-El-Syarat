@@ -195,24 +195,24 @@ const VendorApplicationPage: React.FC = () => {
         throw new Error('User not authenticated');
       }
 
-      const applicationData: VendorApplicationData = {
-        businessName: data.businessName,
-        businessType: data.businessType,
-        description: data.description,
-        contactPerson: data.contactPerson,
-        email: data.email,
-        phoneNumber: data.phoneNumber,
-        whatsappNumber: data.whatsappNumber,
-        address: data.address,
-        businessLicense: data.businessLicense,
-        taxId: data.taxId,
-        website: data.website,
-        socialMedia: data.socialMedia,
-        experience: data.experience,
-        specializations: data.specializations,
-        expectedMonthlyVolume: data.expectedMonthlyVolume,
-        documents: [], // File uploads would be handled here
-      };
+      // const applicationData: VendorApplicationData = {
+      //   businessName: data.businessName,
+      //   businessType: data.businessType,
+      //   description: data.description,
+      //   contactPerson: data.contactPerson,
+      //   email: data.email,
+      //   phoneNumber: data.phoneNumber,
+      //   whatsappNumber: data.whatsappNumber,
+      //   address: data.address,
+      //   businessLicense: data.businessLicense,
+      //   taxId: data.taxId,
+      //   website: data.website,
+      //   socialMedia: data.socialMedia,
+      //   experience: data.experience,
+      //   specializations: data.specializations,
+      //   expectedMonthlyVolume: data.expectedMonthlyVolume,
+      //   documents: [], // File uploads would be handled here
+      // };
 
       // const applicationId = await VendorService.submitApplication(user.id, applicationData);
       // if (process.env.NODE_ENV === 'development') console.log('Application submitted with ID:', applicationId);

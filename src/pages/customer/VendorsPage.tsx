@@ -25,7 +25,7 @@ import clsx from 'clsx';
 const VendorCard: React.FC<{ vendor: Vendor }> = ({ vendor }) => {
   const { language } = useAppStore();
 
-  const businessTypeIcons: Record<string, React.React.ComponentType<Record<string, never>>> = {
+  const businessTypeIcons: Record<string, React.ComponentType<any>> = {
     dealership: BuildingStorefrontIcon,
     parts_supplier: CogIcon,
     service_center: WrenchScrewdriverIcon,
