@@ -1,5 +1,5 @@
 import React from 'react';
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
 
@@ -64,7 +64,7 @@ const RegisterPage: React.FC = () => {
     watch,
     formState: { errors, isSubmitting },
   } = useForm<RegisterFormData>({
-    resolver: yupResolver(registerSchema),
+    resolver: yupResolver(registerSchema) as any,
     defaultValues: {
       role: 'customer',
     },

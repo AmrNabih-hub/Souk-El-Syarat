@@ -108,16 +108,16 @@ Object.defineProperty(window, 'scrollTo', {
 });
 
 // Mock console methods in tests
-const originalConsoleError = console.error;
+const originalConsoleError = // console.error;
 const originalConsoleWarn = console.warn;
 
 beforeAll(() => {
-  console.error = vi.fn();
+  // console.error = vi.fn();
   console.warn = vi.fn();
 });
 
 afterAll(() => {
-  console.error = originalConsoleError;
+  // console.error = originalConsoleError;
   console.warn = originalConsoleWarn;
 });
 

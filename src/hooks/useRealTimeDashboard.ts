@@ -1,4 +1,4 @@
-import React, { useState, useCallback, useEffect } from 'react';
+import { useState, useCallback, useEffect } from 'react';
 
 import { NotificationService } from '@/services/notification.service';
 import { OrderService, Order } from '@/services/order.service';
@@ -11,7 +11,7 @@ export interface DashboardData {
   notifications: Notification[];
   unreadNotificationCount: number;
   orders: Order[];
-  conversations: Conversation[];
+  conversations: any[];
   unreadConversationCount: number;
   businessMetrics: BusinessMetrics | null;
   realTimeStats: RealTimeStats | null;
@@ -151,9 +151,8 @@ export const useRealTimeDashboard = (): DashboardData & DashboardActions => {
 
       setUnsubscribeFunctions(newUnsubscribeFunctions);
     } catch (error) {
-      if (process.env.NODE_ENV === 'development')
-        if (process.env.NODE_ENV === 'development')
-          console.error('Error initializing dashboard subscriptions:', error);
+      if (process.env.NODE_ENV === 'development') {
+      // console.error('Error initializing dashboard subscriptions:', error);
       setData(prev => ({
         ...prev,
         error: 'Failed to initialize real-time connections',
@@ -170,9 +169,8 @@ export const useRealTimeDashboard = (): DashboardData & DashboardActions => {
       try {
         unsubscribe();
       } catch (error) {
-        if (process.env.NODE_ENV === 'development')
-          if (process.env.NODE_ENV === 'development')
-            console.error('Error cleaning up subscription:', error);
+        if (process.env.NODE_ENV === 'development') {
+      // console.error('Error cleaning up subscription:', error);
       }
     });
     setUnsubscribeFunctions([]);
@@ -185,11 +183,12 @@ export const useRealTimeDashboard = (): DashboardData & DashboardActions => {
     if (user?.role === 'admin') {
       try {
         ProcessOrchestratorService.getInstance();
-        // if (process.env.NODE_ENV === 'development') console.log('Process orchestrator initialized');
+        // if (process.env.NODE_ENV === 'development') {
+      // console.log('Process orchestrator initialized');
+    }
       } catch (error) {
-        if (process.env.NODE_ENV === 'development')
-          if (process.env.NODE_ENV === 'development')
-            console.error('Error initializing process orchestrator:', error);
+        if (process.env.NODE_ENV === 'development') {
+      // console.error('Error initializing process orchestrator:', error);
       }
     }
   }, [user?.role]);
@@ -213,9 +212,8 @@ export const useRealTimeDashboard = (): DashboardData & DashboardActions => {
     try {
       await NotificationService.markAsRead(notificationId);
     } catch (error) {
-      if (process.env.NODE_ENV === 'development')
-        if (process.env.NODE_ENV === 'development')
-          console.error('Error marking notification as read:', error);
+      if (process.env.NODE_ENV === 'development') {
+      // console.error('Error marking notification as read:', error);
       setData(prev => ({
         ...prev,
         error: 'Failed to mark notification as read',
@@ -232,9 +230,8 @@ export const useRealTimeDashboard = (): DashboardData & DashboardActions => {
     try {
       await NotificationService.markAllAsRead(user.id);
     } catch (error) {
-      if (process.env.NODE_ENV === 'development')
-        if (process.env.NODE_ENV === 'development')
-          console.error('Error marking all notifications as read:', error);
+      if (process.env.NODE_ENV === 'development') {
+      // console.error('Error marking all notifications as read:', error);
       setData(prev => ({
         ...prev,
         error: 'Failed to mark all notifications as read',
@@ -263,9 +260,8 @@ export const useRealTimeDashboard = (): DashboardData & DashboardActions => {
           metadata: { notes },
         });
       } catch (error) {
-        if (process.env.NODE_ENV === 'development')
-          if (process.env.NODE_ENV === 'development')
-            console.error('Error updating order status:', error);
+        if (process.env.NODE_ENV === 'development') {
+      // console.error('Error updating order status:', error);
         setData(prev => ({
           ...prev,
           error: 'Failed to update order status',
@@ -302,9 +298,8 @@ export const useRealTimeDashboard = (): DashboardData & DashboardActions => {
           metadata: { conversationId },
         });
       } catch (error) {
-        if (process.env.NODE_ENV === 'development')
-          if (process.env.NODE_ENV === 'development')
-            console.error('Error sending message:', error);
+        if (process.env.NODE_ENV === 'development') {
+      // console.error('Error sending message:', error);
         setData(prev => ({
           ...prev,
           error: 'Failed to send message',
@@ -324,9 +319,8 @@ export const useRealTimeDashboard = (): DashboardData & DashboardActions => {
       try {
         await MessagingService.markMessagesAsRead(conversationId, user.id);
       } catch (error) {
-        if (process.env.NODE_ENV === 'development')
-          if (process.env.NODE_ENV === 'development')
-            console.error('Error marking messages as read:', error);
+        if (process.env.NODE_ENV === 'development') {
+      // console.error('Error marking messages as read:', error);
         setData(prev => ({
           ...prev,
           error: 'Failed to mark messages as read',
@@ -358,9 +352,8 @@ export const useRealTimeDashboard = (): DashboardData & DashboardActions => {
 
       setData(prev => ({ ...prev, isLoading: false }));
     } catch (error) {
-      if (process.env.NODE_ENV === 'development')
-        if (process.env.NODE_ENV === 'development')
-          console.error('Error refreshing dashboard data:', error);
+      if (process.env.NODE_ENV === 'development') {
+      // console.error('Error refreshing dashboard data:', error);
       setData(prev => ({
         ...prev,
         error: 'Failed to refresh dashboard data',
@@ -377,7 +370,7 @@ export const useRealTimeDashboard = (): DashboardData & DashboardActions => {
       () => {
         if (user?.role === 'admin') {
           // Refresh analytics data every 5 minutes for admin
-          AnalyticsService.updateRealTimeStats().catch(console.error);
+          AnalyticsService.updateRealTimeStats().catch(// console.error);
         }
       },
       5 * 60 * 1000
@@ -394,7 +387,7 @@ export const useRealTimeDashboard = (): DashboardData & DashboardActions => {
       // Track dashboard view
       AnalyticsService.trackPageView(user.id, 'dashboard_session', 'dashboard', {
         userRole: user.role,
-      }).catch(console.error);
+      }).catch(// console.error);
 
       // Track user as online
       AnalyticsService.trackEvent({
@@ -403,7 +396,7 @@ export const useRealTimeDashboard = (): DashboardData & DashboardActions => {
         sessionId: 'dashboard_session',
         action: 'dashboard_opened',
         label: user.role || 'customer',
-      }).catch(console.error);
+      }).catch(// console.error);
     }
   }, [user]);
 

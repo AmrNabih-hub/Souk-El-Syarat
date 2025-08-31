@@ -50,7 +50,7 @@ const AdminLoginPage: React.FC = () => {
     formState: { errors, isSubmitting },
     setError,
   } = useForm<AdminLoginFormData>({
-    resolver: yupResolver(adminLoginSchema),
+    resolver: yupResolver(adminLoginSchema) as any,
   });
 
   const onSubmit = async (data: AdminLoginFormData) => {
@@ -80,7 +80,7 @@ const AdminLoginPage: React.FC = () => {
       }
     } catch (error) {
       if (process.env.NODE_ENV === 'development')
-        if (process.env.NODE_ENV === 'development') console.error('Admin login error:', error);
+        if (process.env.NODE_ENV === 'development') // console.error('Admin login error:', error);
 
       if (error.message.includes('admin')) {
         setError('adminCode', { message: error.message });

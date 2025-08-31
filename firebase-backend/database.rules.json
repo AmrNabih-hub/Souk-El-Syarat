@@ -1,0 +1,73 @@
+{
+  "rules": {
+    ".read": false,
+    ".write": false,
+    
+    "presence": {
+      "$userId": {
+        ".read": true,
+        ".write": "$userId === auth.uid"
+      }
+    },
+    
+    "chats": {
+      "$conversationId": {
+        ".read": "auth != null && (root.child('conversations').child($conversationId).child('participants').child(auth.uid).exists())",
+        ".write": "auth != null && (root.child('conversations').child($conversationId).child('participants').child(auth.uid).exists())",
+        
+        "messages": {
+          "$messageId": {
+            ".validate": "newData.hasChildren(['content', 'senderId', 'timestamp']) && newData.child('senderId').val() === auth.uid"
+          }
+        }
+      }
+    },
+    
+    "conversations": {
+      "$conversationId": {
+        ".read": "auth != null && data.child('participants').child(auth.uid).exists()",
+        ".write": "auth != null && data.child('participants').child(auth.uid).exists()"
+      }
+    },
+    
+    "notifications": {
+      "$userId": {
+        ".read": "$userId === auth.uid",
+        ".write": false,
+        
+        "$notificationId": {
+          ".write": "$userId === auth.uid && newData.child('read').val() === true"
+        }
+      }
+    },
+    
+    "orders_realtime": {
+      "$orderId": {
+        ".read": "auth != null && (data.child('customerId').val() === auth.uid || data.child('vendorId').val() === auth.uid || root.child('users').child(auth.uid).child('role').val() === 'admin')",
+        ".write": false
+      }
+    },
+    
+    "analytics_realtime": {
+      ".read": "auth != null && (root.child('vendors').child(auth.uid).exists() || root.child('users').child(auth.uid).child('role').val() === 'admin')",
+      ".write": false
+    },
+    
+    "vendor_dashboard": {
+      "$vendorId": {
+        ".read": "$vendorId === auth.uid || root.child('users').child(auth.uid).child('role').val() === 'admin'",
+        ".write": false
+      }
+    },
+    
+    "admin_dashboard": {
+      ".read": "auth != null && root.child('users').child(auth.uid).child('role').val() === 'admin'",
+      ".write": false
+    },
+    
+    "system_status": {
+      ".read": true,
+      ".write": false
+    }
+  }
+}

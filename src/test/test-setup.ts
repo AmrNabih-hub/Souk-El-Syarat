@@ -392,8 +392,8 @@ beforeAll(() => {
   // Mock console methods to reduce noise in tests
   global.console = {
     ...console,
-    // Suppress console.log in tests unless explicitly needed
-    log: process.env.NODE_ENV === 'test' ? vi.fn() : console.log,
+    // Suppress // console.log in tests unless explicitly needed
+    log: process.env.NODE_ENV === 'test' ? vi.fn() : // console.log,
     debug: vi.fn(),
     info: vi.fn(),
     warn: vi.fn(),

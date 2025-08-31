@@ -9,7 +9,7 @@ import App from './App';
 import './index.css';
 
 // 🚨 BULLETPROOF REACT INITIALIZATION
-console.log('🚀 Starting bulletproof React initialization...');
+// console.log('🚀 Starting bulletproof React initialization...');
 
 // Create a client for React Query with bulletproof configuration
 const queryClient = new QueryClient({
@@ -35,24 +35,24 @@ const queryClient = new QueryClient({
   },
 });
 
-console.log('✅ React Query client created');
+// console.log('✅ React Query client created');
 
 // 🚨 BULLETPROOF ROOT ELEMENT CREATION
 const rootElement = document.getElementById('root');
 
 if (!rootElement) {
-  console.error('💥 CRITICAL: Root element not found!');
+  // console.error('💥 CRITICAL: Root element not found!');
   throw new Error('Root element not found');
 }
 
-console.log('✅ Root element found');
+// console.log('✅ Root element found');
 
 // 🚨 BULLETPROOF REACT RENDERING
 try {
-  console.log('🚀 Creating React root...');
+  // console.log('🚀 Creating React root...');
   const root = ReactDOM.createRoot(rootElement);
   
-  console.log('✅ React root created, rendering app...');
+  // console.log('✅ React root created, rendering app...');
   
   root.render(
     <React.StrictMode>
@@ -96,8 +96,8 @@ try {
     </React.StrictMode>
   );
   
-  console.log('🎉 REACT APP RENDERED SUCCESSFULLY!');
-  console.log('🌐 Souk El-Syarat Marketplace is now LIVE!');
+  // console.log('🎉 REACT APP RENDERED SUCCESSFULLY!');
+  // console.log('🌐 Souk El-Syarat Marketplace is now LIVE!');
   
   // Remove preloader after React renders
   const preloader = document.getElementById('preloader');
@@ -109,7 +109,7 @@ try {
   }
   
 } catch (error) {
-  console.error('💥 CRITICAL: React rendering failed:', error);
+  // console.error('💥 CRITICAL: React rendering failed:', error);
   
   // 🚨 EMERGENCY FALLBACK - SHOW WORKING CONTENT
   rootElement.innerHTML = `
@@ -150,5 +150,42 @@ try {
     </div>
   `;
   
+<<<<<<< Current (Your changes)
   console.log('🆘 Emergency fallback content displayed');
+=======
+  // console.log('🆘 Emergency fallback content displayed');
+}
+
+// Register Service Worker for PWA and caching
+if ('serviceWorker' in navigator && process.env.NODE_ENV === 'production') {
+  window.addEventListener('load', () => {
+    navigator.serviceWorker
+      .register('/service-worker.js')
+      .then((registration) => {
+        // console.log('✅ Service Worker registered successfully:', registration);
+        
+        // Check for updates periodically
+        setInterval(() => {
+          registration.update();
+        }, 60000); // Check every minute
+        
+        // Handle updates
+        registration.addEventListener('updatefound', () => {
+          const newWorker = registration.installing;
+          if (newWorker) {
+            newWorker.addEventListener('statechange', () => {
+              if (newWorker.state === 'installed' && navigator.serviceWorker.controller) {
+                // New service worker available
+                // console.log('🔄 New content available! Please refresh.');
+                // You can show a notification to the user here
+              }
+            });
+          }
+        });
+      })
+      .catch((error) => {
+        // console.error('❌ Service Worker registration failed:', error);
+      });
+  });
+>>>>>>> Incoming (Background Agent changes)
 }

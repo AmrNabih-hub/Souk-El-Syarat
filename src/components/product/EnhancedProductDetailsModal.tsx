@@ -80,7 +80,7 @@ export const EnhancedProductDetailsModal: React.FC<EnhancedProductDetailsModalPr
           url: window.location.href,
         });
       } catch (error) {
-        // if (process.env.NODE_ENV === 'development') console.log('Error sharing:', error);
+        // if (process.env.NODE_ENV === 'development') // console.log('Error sharing:', error);
       }
     } else {
       // Fallback: copy to clipboard

@@ -257,7 +257,9 @@ export class OrderService {
         return orderDoc.id;
       });
     } catch (error) {
-      if (process.env.NODE_ENV === 'development') if (process.env.NODE_ENV === 'development') console.error('Error creating order:', error);
+      if (process.env.NODE_ENV === 'development') {
+      // console.error('Error creating order:', error);
+    }
       throw new Error('Failed to create order');
     }
   }
@@ -326,7 +328,9 @@ export class OrderService {
         await this.sendStatusUpdateNotifications(orderData, newStatus);
       });
     } catch (error) {
-      if (process.env.NODE_ENV === 'development') if (process.env.NODE_ENV === 'development') console.error('Error updating order status:', error);
+      if (process.env.NODE_ENV === 'development') {
+      // console.error('Error updating order status:', error);
+    }
       throw new Error('Failed to update order status');
     }
   }
@@ -370,7 +374,9 @@ export class OrderService {
         await this.sendPaymentNotifications(orderData, paymentStatus);
       }
     } catch (error) {
-      if (process.env.NODE_ENV === 'development') if (process.env.NODE_ENV === 'development') console.error('Error updating payment status:', error);
+      if (process.env.NODE_ENV === 'development') {
+      // console.error('Error updating payment status:', error);
+    }
       throw new Error('Failed to update payment status');
     }
   }
@@ -407,7 +413,9 @@ export class OrderService {
       }
       return null;
     } catch (error) {
-      if (process.env.NODE_ENV === 'development') if (process.env.NODE_ENV === 'development') console.error('Error getting order:', error);
+      if (process.env.NODE_ENV === 'development') {
+      // console.error('Error getting order:', error);
+    }
       throw new Error('Failed to get order');
     }
   }
@@ -612,7 +620,8 @@ export class OrderService {
 //           break;
       }
     } catch (error) {
-      if (process.env.NODE_ENV === 'development') if (process.env.NODE_ENV === 'development') console.error('Error sending status update notifications:', error);
+      if (process.env.NODE_ENV === 'development') {
+      // console.error('Error sending status update notifications:', error);
     }
   }
 
@@ -655,7 +664,8 @@ export class OrderService {
 //           break;
       }
     } catch (error) {
-      if (process.env.NODE_ENV === 'development') if (process.env.NODE_ENV === 'development') console.error('Error sending payment notifications:', error);
+      if (process.env.NODE_ENV === 'development') {
+      // console.error('Error sending payment notifications:', error);
     }
   }
 
@@ -702,7 +712,9 @@ export class OrderService {
         });
       });
     } catch (error) {
-      if (process.env.NODE_ENV === 'development') if (process.env.NODE_ENV === 'development') console.error('Error cancelling order:', error);
+      if (process.env.NODE_ENV === 'development') {
+      // console.error('Error cancelling order:', error);
+    }
       throw new Error('Failed to cancel order');
     }
   }

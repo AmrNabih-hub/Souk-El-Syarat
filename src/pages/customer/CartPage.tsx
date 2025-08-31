@@ -79,7 +79,7 @@ const CartPage: React.FC = () => {
     } catch (error) {
       if (process.env.NODE_ENV === 'development')
         if (process.env.NODE_ENV === 'development')
-          console.error('Error loading cart products:', error);
+          // console.error('Error loading cart products:', error);
       toast.error(language === 'ar' ? 'خطأ في تحميل المنتجات' : 'Error loading products');
     } finally {
       setIsLoading(false);

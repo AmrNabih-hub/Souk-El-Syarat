@@ -1,0 +1,9 @@
+{
+  "projects": {
+    "default": "souk-elsayarat-staging",
+    "staging": "souk-elsayarat-staging",
+    "production": "souk-elsayarat-prod"
+  },
+  "targets": {},
+  "etags": {}
+}
