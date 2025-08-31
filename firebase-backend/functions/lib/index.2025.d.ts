@@ -8,4 +8,4 @@ export declare const dailyAnalytics: functions.CloudFunction<unknown>;
 export declare const cleanupSessions: functions.CloudFunction<unknown>;
 export declare const initializeRealtime: functions.HttpsFunction;
 export declare const onUserStatusChange: functions.CloudFunction<functions.Change<functions.database.DataSnapshot>>;
-//# sourceMappingURL=index.d.ts.map
+//# sourceMappingURL=index.2025.d.ts.map

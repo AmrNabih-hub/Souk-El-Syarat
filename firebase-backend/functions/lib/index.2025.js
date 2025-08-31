@@ -893,4 +893,4 @@ exports.onUserStatusChange = functions.database.ref('/status/{uid}').onUpdate(as
     });
 });
 console.log('Souk El-Sayarat Backend 2025 - All systems operational');
-//# sourceMappingURL=index.js.map
+//# sourceMappingURL=index.2025.js.map
