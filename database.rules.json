@@ -1,0 +1,74 @@
+{
+  "rules": {
+    ".read": false,
+    ".write": false,
+    
+    "stats": {
+      ".read": true,
+      ".write": "auth != null && auth.token.role == 'admin'"
+    },
+    
+    "presence": {
+      ".read": true,
+      "$uid": {
+        ".write": "$uid === auth.uid"
+      }
+    },
+    
+    "notifications": {
+      "$uid": {
+        ".read": "$uid === auth.uid || auth.token.role == 'admin'",
+        ".write": "auth != null && (auth.token.role == 'admin' || $uid === auth.uid)"
+      }
+    },
+    
+    "chat": {
+      "rooms": {
+        "$roomId": {
+          ".read": "auth != null",
+          ".write": "auth != null",
+          "messages": {
+            "$messageId": {
+              ".validate": "newData.hasChildren(['text', 'senderId', 'timestamp']) && newData.child('senderId').val() == auth.uid"
+            }
+          }
+        }
+      }
+    },
+    
+    "products": {
+      ".read": true,
+      ".write": "auth != null && auth.token.role in ['admin', 'vendor']",
+      ".indexOn": ["category", "brand", "price", "createdAt"]
+    },
+    
+    "orders": {
+      "$orderId": {
+        ".read": "auth != null && (data.child('userId').val() == auth.uid || data.child('vendorId').val() == auth.uid || auth.token.role == 'admin')",
+        ".write": "auth != null && (data.child('userId').val() == auth.uid || data.child('vendorId').val() == auth.uid || auth.token.role == 'admin')"
+      }
+    },
+    
+    "search": {
+      "queries": {
+        ".read": true,
+        ".write": true
+      },
+      "results": {
+        ".read": true,
+        ".write": false
+      }
+    },
+    
+    "analytics": {
+      ".read": "auth != null && auth.token.role == 'admin'",
+      ".write": false,
+      "pageviews": {
+        ".write": true
+      },
+      "events": {
+        ".write": true
+      }
+    }
+  }
+}
