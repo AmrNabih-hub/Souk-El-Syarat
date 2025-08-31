@@ -19,7 +19,7 @@ test.describe('Basic Application Tests', () => {
     // Check if the page title is correct
     await expect(page).toHaveTitle(/Souk El-Syarat/);
     
-    console.log('✅ Homepage loaded successfully');
+    // console.log('✅ Homepage loaded successfully');
   });
 
   test('Navigation elements are present', async ({ page }) => {
@@ -34,7 +34,7 @@ test.describe('Basic Application Tests', () => {
     const bodyContent = page.locator('body');
     await expect(bodyContent).toBeVisible();
     
-    console.log('✅ Navigation elements are present');
+    // console.log('✅ Navigation elements are present');
   });
 
   test('Application is responsive', async ({ page }) => {
@@ -53,6 +53,6 @@ test.describe('Basic Application Tests', () => {
     
     await expect(page.locator('body')).toBeVisible();
     
-    console.log('✅ Application is responsive');
+    // console.log('✅ Application is responsive');
   });
 });

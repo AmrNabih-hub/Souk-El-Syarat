@@ -195,27 +195,27 @@ const VendorApplicationPage: React.FC = () => {
         throw new Error('User not authenticated');
       }
 
-      const applicationData: VendorApplicationData = {
-        businessName: data.businessName,
-        businessType: data.businessType,
-        description: data.description,
-        contactPerson: data.contactPerson,
-        email: data.email,
-        phoneNumber: data.phoneNumber,
-        whatsappNumber: data.whatsappNumber,
-        address: data.address,
-        businessLicense: data.businessLicense,
-        taxId: data.taxId,
-        website: data.website,
-        socialMedia: data.socialMedia,
-        experience: data.experience,
-        specializations: data.specializations,
-        expectedMonthlyVolume: data.expectedMonthlyVolume,
-        documents: [], // File uploads would be handled here
-      };
+      // const applicationData: VendorApplicationData = {
+      //   businessName: data.businessName,
+      //   businessType: data.businessType,
+      //   description: data.description,
+      //   contactPerson: data.contactPerson,
+      //   email: data.email,
+      //   phoneNumber: data.phoneNumber,
+      //   whatsappNumber: data.whatsappNumber,
+      //   address: data.address,
+      //   businessLicense: data.businessLicense,
+      //   taxId: data.taxId,
+      //   website: data.website,
+      //   socialMedia: data.socialMedia,
+      //   experience: data.experience,
+      //   specializations: data.specializations,
+      //   expectedMonthlyVolume: data.expectedMonthlyVolume,
+      //   documents: [], // File uploads would be handled here
+      // };
 
       // const applicationId = await VendorService.submitApplication(user.id, applicationData);
-      // if (process.env.NODE_ENV === 'development') console.log('Application submitted with ID:', applicationId);
+      // if (process.env.NODE_ENV === 'development') // console.log('Application submitted with ID:', applicationId);
 
       setApplicationSubmitted(true);
       toast.success(
@@ -224,7 +224,7 @@ const VendorApplicationPage: React.FC = () => {
     } catch (error) {
       if (process.env.NODE_ENV === 'development')
         if (process.env.NODE_ENV === 'development')
-          console.error('Application submission error:', error);
+          // console.error('Application submission error:', error);
       toast.error(language === 'ar' ? 'حدث خطأ في تقديم الطلب' : 'Error submitting application');
     } finally {
       setIsSubmitting(false);

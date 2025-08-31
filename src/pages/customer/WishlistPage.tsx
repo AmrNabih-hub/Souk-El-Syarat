@@ -88,7 +88,7 @@ const WishlistPage: React.FC = () => {
     } catch (error) {
       if (process.env.NODE_ENV === 'development')
         if (process.env.NODE_ENV === 'development')
-          console.error('Error loading wishlist products:', error);
+          // console.error('Error loading wishlist products:', error);
       toast.error(language === 'ar' ? 'خطأ في تحميل المنتجات' : 'Error loading products');
     } finally {
       setIsLoading(false);
@@ -129,7 +129,7 @@ const WishlistPage: React.FC = () => {
           url: window.location.origin + `/product/${product.id}`,
         });
       } catch (error) {
-        // if (process.env.NODE_ENV === 'development') console.log('Error sharing:', error);
+        // if (process.env.NODE_ENV === 'development') // console.log('Error sharing:', error);
       }
     } else {
       // Fallback to copying URL

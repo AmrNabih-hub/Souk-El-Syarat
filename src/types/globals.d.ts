@@ -20,3 +20,12 @@ declare global {
 }
 
 export {};
+
+// NodeJS types for timers
+declare namespace NodeJS {
+  interface Timeout {}
+  interface Timer {}
+}
+
+// Notification Permission type
+type NotificationPermission = 'default' | 'denied' | 'granted';

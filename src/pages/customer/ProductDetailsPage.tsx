@@ -69,7 +69,7 @@ const ProductDetailsPage: React.FC = () => {
       setRelatedProducts(related);
     } catch (error) {
       if (process.env.NODE_ENV === 'development')
-        if (process.env.NODE_ENV === 'development') console.error('Error loading product:', error);
+        if (process.env.NODE_ENV === 'development') // console.error('Error loading product:', error);
       toast.error(language === 'ar' ? 'خطأ في تحميل المنتج' : 'Error loading product');
     } finally {
       setIsLoading(false);
@@ -123,7 +123,7 @@ const ProductDetailsPage: React.FC = () => {
           url: window.location.href,
         });
       } catch (error) {
-        // if (process.env.NODE_ENV === 'development') console.log('Error sharing:', error);
+        // if (process.env.NODE_ENV === 'development') // console.log('Error sharing:', error);
       }
     } else {
       navigator.clipboard.writeText(window.location.href);

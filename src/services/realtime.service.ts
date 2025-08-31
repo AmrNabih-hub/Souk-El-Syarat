@@ -53,11 +53,11 @@ export class RealtimeService {
     try {
       // Set initial presence
       await this.setUserOnline(userId, 'dashboard');
-      // if (process.env.NODE_ENV === 'development') console.log('✅ Realtime services initialized for user:', userId);
+      // if (process.env.NODE_ENV === 'development') // console.log('✅ Realtime services initialized for user:', userId);
     } catch (error) {
       if (process.env.NODE_ENV === 'development')
         if (process.env.NODE_ENV === 'development')
-          console.error('❌ Error initializing realtime services:', error);
+          // console.error('❌ Error initializing realtime services:', error);
       throw error;
     }
   }
@@ -147,7 +147,7 @@ export class RealtimeService {
       });
     } catch (error) {
       if (process.env.NODE_ENV === 'development')
-        console.error('❌ Error setting user online:', error);
+        // console.error('❌ Error setting user online:', error);
       throw error;
     }
   }
@@ -162,7 +162,7 @@ export class RealtimeService {
       });
     } catch (error) {
       if (process.env.NODE_ENV === 'development')
-        console.error('❌ Error setting user offline:', error);
+        // console.error('❌ Error setting user offline:', error);
       throw error;
     }
   }
@@ -193,7 +193,7 @@ export class RealtimeService {
       return newMessageRef.key || '';
     } catch (error) {
       if (process.env.NODE_ENV === 'development')
-        console.error('❌ Error sending message:', error);
+        // console.error('❌ Error sending message:', error);
       throw error;
     }
   }
@@ -210,7 +210,7 @@ export class RealtimeService {
       });
     } catch (error) {
       if (process.env.NODE_ENV === 'development')
-        console.error('❌ Error marking message as read:', error);
+        // console.error('❌ Error marking message as read:', error);
       throw error;
     }
   }
@@ -319,7 +319,7 @@ export class RealtimeService {
       });
     } catch (error) {
       if (process.env.NODE_ENV === 'development')
-        console.error('❌ Error adding activity:', error);
+        // console.error('❌ Error adding activity:', error);
       throw error;
     }
   }
@@ -334,7 +334,7 @@ export class RealtimeService {
       });
     } catch (error) {
       if (process.env.NODE_ENV === 'development')
-        console.error('❌ Error updating typing status:', error);
+        // console.error('❌ Error updating typing status:', error);
       throw error;
     }
   }
@@ -350,7 +350,7 @@ export class RealtimeService {
   cleanup(): void {
     // This method is called when the service is no longer needed
     // Individual listeners should be cleaned up by the components using them
-    // if (process.env.NODE_ENV === 'development') console.log('🧹 Realtime service cleanup completed');
+    // if (process.env.NODE_ENV === 'development') // console.log('🧹 Realtime service cleanup completed');
   }
 }
 

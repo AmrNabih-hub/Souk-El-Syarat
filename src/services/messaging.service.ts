@@ -212,7 +212,7 @@ export class MessagingService {
         return conversationDoc.id;
       });
     } catch (error) {
-      if (process.env.NODE_ENV === 'development') if (process.env.NODE_ENV === 'development') console.error('Error creating conversation:', error);
+      if (process.env.NODE_ENV === 'development') if (process.env.NODE_ENV === 'development') // console.error('Error creating conversation:', error);
       throw new Error('Failed to create conversation');
     }
   }
@@ -314,7 +314,7 @@ export class MessagingService {
         return messageDoc.id;
       });
     } catch (error) {
-      if (process.env.NODE_ENV === 'development') if (process.env.NODE_ENV === 'development') console.error('Error sending message:', error);
+      if (process.env.NODE_ENV === 'development') if (process.env.NODE_ENV === 'development') // console.error('Error sending message:', error);
       throw new Error('Failed to send message');
     }
   }
@@ -376,7 +376,7 @@ export class MessagingService {
         });
       });
     } catch (error) {
-      if (process.env.NODE_ENV === 'development') if (process.env.NODE_ENV === 'development') console.error('Error marking messages as read:', error);
+      if (process.env.NODE_ENV === 'development') if (process.env.NODE_ENV === 'development') // console.error('Error marking messages as read:', error);
       throw new Error('Failed to mark messages as read');
     }
   }
@@ -488,7 +488,7 @@ export class MessagingService {
       }
       return null;
     } catch (error) {
-      if (process.env.NODE_ENV === 'development') if (process.env.NODE_ENV === 'development') console.error('Error getting conversation:', error);
+      if (process.env.NODE_ENV === 'development') if (process.env.NODE_ENV === 'development') // console.error('Error getting conversation:', error);
       throw new Error('Failed to get conversation');
     }
   }
@@ -539,7 +539,7 @@ export class MessagingService {
         vendorId: participants.find(p => p.role === 'vendor')?.userId,
       });
     } catch (error) {
-      if (process.env.NODE_ENV === 'development') if (process.env.NODE_ENV === 'development') console.error('Error finding or creating conversation:', error);
+      if (process.env.NODE_ENV === 'development') if (process.env.NODE_ENV === 'development') // console.error('Error finding or creating conversation:', error);
       throw new Error('Failed to find or create conversation');
     }
   }
@@ -559,7 +559,7 @@ export class MessagingService {
         },
       });
     } catch (error) {
-      if (process.env.NODE_ENV === 'development') if (process.env.NODE_ENV === 'development') console.error('Error closing conversation:', error);
+      if (process.env.NODE_ENV === 'development') if (process.env.NODE_ENV === 'development') // console.error('Error closing conversation:', error);
       throw new Error('Failed to close conversation');
     }
   }
@@ -574,7 +574,7 @@ export class MessagingService {
         updatedAt: serverTimestamp(),
       });
     } catch (error) {
-      if (process.env.NODE_ENV === 'development') if (process.env.NODE_ENV === 'development') console.error('Error archiving conversation:', error);
+      if (process.env.NODE_ENV === 'development') if (process.env.NODE_ENV === 'development') // console.error('Error archiving conversation:', error);
       throw new Error('Failed to archive conversation');
     }
   }
@@ -600,7 +600,7 @@ export class MessagingService {
         updatedAt: serverTimestamp(),
       });
     } catch (error) {
-      if (process.env.NODE_ENV === 'development') if (process.env.NODE_ENV === 'development') console.error('Error adding participant:', error);
+      if (process.env.NODE_ENV === 'development') if (process.env.NODE_ENV === 'development') // console.error('Error adding participant:', error);
       throw new Error('Failed to add participant');
     }
   }
@@ -621,7 +621,7 @@ export class MessagingService {
         });
       }
     } catch (error) {
-      if (process.env.NODE_ENV === 'development') if (process.env.NODE_ENV === 'development') console.error('Error removing participant:', error);
+      if (process.env.NODE_ENV === 'development') if (process.env.NODE_ENV === 'development') // console.error('Error removing participant:', error);
       throw new Error('Failed to remove participant');
     }
   }
@@ -638,7 +638,7 @@ export class MessagingService {
         updatedAt: serverTimestamp(),
       });
     } catch (error) {
-      if (process.env.NODE_ENV === 'development') if (process.env.NODE_ENV === 'development') console.error('Error editing message:', error);
+      if (process.env.NODE_ENV === 'development') if (process.env.NODE_ENV === 'development') // console.error('Error editing message:', error);
       throw new Error('Failed to edit message');
     }
   }

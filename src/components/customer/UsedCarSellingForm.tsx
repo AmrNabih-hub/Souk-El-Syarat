@@ -138,7 +138,7 @@ const UsedCarSellingForm: React.FC = () => {
     } catch (error) {
       if (process.env.NODE_ENV === 'development')
         if (process.env.NODE_ENV === 'development')
-          console.error('Error submitting used car:', error);
+          // console.error('Error submitting used car:', error);
       toast.error(language === 'ar' ? 'حدث خطأ أثناء إضافة السيارة' : 'Error adding used car');
     } finally {
       setIsSubmitting(false);

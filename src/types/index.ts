@@ -550,7 +550,8 @@ export type NotificationType =
   | 'product_rejected'
   | 'new_review'
   | 'payment_received'
-  | 'system_announcement';
+  | 'system_announcement'
+  | 'system';
 
 // Form Types
 export interface VendorApplicationForm {
@@ -585,4 +586,54 @@ export interface ProductForm {
   warranty?: Warranty;
   // Car-specific fields
   carDetails?: Partial<CarDetails>;
+}
+
+// Real-time Communication Types
+export interface UserPresence {
+  userId: string;
+  status: 'online' | 'offline' | 'away';
+  lastSeen: Date;
+  currentPage?: string;
+}
+
+export interface ChatMessage {
+  id: string;
+  conversationId: string;
+  senderId: string;
+  senderName: string;
+  senderAvatar?: string;
+  receiverId: string;
+  content: string;
+  type: 'text' | 'image' | 'file' | 'product';
+  attachments?: MessageAttachment[];
+  productId?: string;
+  read: boolean;
+  readAt?: Date;
+  createdAt: Date;
+  updatedAt: Date;
+}
+
+export interface MessageAttachment {
+  id: string;
+  url: string;
+  type: 'image' | 'file';
+  name: string;
+  size: number;
+  mimeType: string;
+}
+
+export interface Conversation {
+  id: string;
+  participants: string[];
+  participantDetails: {
+    [userId: string]: {
+      name: string;
+      avatar?: string;
+      role: UserRole;
+    };
+  };
+  lastMessage?: ChatMessage;
+  unreadCount: number;
+  createdAt: Date;
+  updatedAt: Date;
 }
