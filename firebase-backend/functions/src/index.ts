@@ -866,6 +866,147 @@ app.put('/api/chat/read/:conversationId', authenticateUser, async (req: Request,
 });
 
 // ============================================
+// PRODUCTS ENDPOINTS - FULL CRUD OPERATIONS
+// ============================================
+
+// Get all products with pagination
+app.get('/api/products', async (req: Request, res: Response) => {
+  try {
+    const { 
+      page = 1, 
+      limit = 20, 
+      category, 
+      brand,
+      minPrice,
+      maxPrice,
+      condition,
+      governorate,
+      sortBy = 'createdAt',
+      sortOrder = 'desc'
+    } = req.query;
+    
+    let query = db.collection('products') as any;
+    
+    // Apply filters
+    if (category) query = query.where('category', '==', category);
+    if (brand) query = query.where('brand', '==', brand);
+    if (condition) query = query.where('condition', '==', condition);
+    if (governorate) query = query.where('governorate', '==', governorate);
+    if (minPrice) query = query.where('price', '>=', Number(minPrice));
+    if (maxPrice) query = query.where('price', '<=', Number(maxPrice));
+    
+    // Apply sorting
+    query = query.orderBy(sortBy as string, sortOrder as 'asc' | 'desc');
+    
+    // Apply pagination
+    const startAt = (Number(page) - 1) * Number(limit);
+    query = query.limit(Number(limit)).offset(startAt);
+    
+    const snapshot = await query.get();
+    const products = snapshot.docs.map((doc: any) => ({
+      id: doc.id,
+      ...doc.data()
+    }));
+    
+    // Get total count for pagination
+    const countSnapshot = await db.collection('products').count().get();
+    const totalCount = countSnapshot.data().count;
+    
+    res.json({
+      success: true,
+      data: {
+        products,
+        pagination: {
+          page: Number(page),
+          limit: Number(limit),
+          total: totalCount,
+          totalPages: Math.ceil(totalCount / Number(limit))
+        }
+      }
+    });
+  } catch (error: any) {
+    console.error('Error fetching products:', error);
+    res.status(500).json({
+      success: false,
+      error: error.message || 'Failed to fetch products'
+    });
+  }
+});
+
+// Get single product by ID
+app.get('/api/products/:productId', async (req: Request, res: Response) => {
+  try {
+    const { productId } = req.params;
+    
+    const productDoc = await db.collection('products').doc(productId).get();
+    
+    if (!productDoc.exists) {
+      return res.status(404).json({
+        success: false,
+        error: 'Product not found'
+      });
+    }
+    
+    // Increment view count
+    await productDoc.ref.update({
+      views: admin.firestore.FieldValue.increment(1)
+    });
+    
+    // Get related products
+    const productData = productDoc.data();
+    const relatedSnapshot = await db.collection('products')
+      .where('category', '==', productData?.category)
+      .where('id', '!=', productId)
+      .limit(4)
+      .get();
+    
+    const relatedProducts = relatedSnapshot.docs.map(doc => ({
+      id: doc.id,
+      ...doc.data()
+    }));
+    
+    res.json({
+      success: true,
+      data: {
+        product: {
+          id: productDoc.id,
+          ...productData
+        },
+        relatedProducts
+      }
+    });
+  } catch (error: any) {
+    console.error('Error fetching product:', error);
+    res.status(500).json({
+      success: false,
+      error: error.message || 'Failed to fetch product'
+    });
+  }
+});
+
+// Get categories
+app.get('/api/categories', async (req: Request, res: Response) => {
+  try {
+    const snapshot = await db.collection('categories').orderBy('order', 'asc').get();
+    const categories = snapshot.docs.map(doc => ({
+      id: doc.id,
+      ...doc.data()
+    }));
+    
+    res.json({
+      success: true,
+      data: categories
+    });
+  } catch (error: any) {
+    console.error('Error fetching categories:', error);
+    res.status(500).json({
+      success: false,
+      error: error.message || 'Failed to fetch categories'
+    });
+  }
+});
+
+// ============================================
 // ENHANCED SEARCH WITH REAL-TIME UPDATES
 // ============================================
 
