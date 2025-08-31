@@ -1,0 +1,38 @@
+{
+  "instapay": {
+    "merchant_ipa": "SOUKSAYARAT@CIB",
+    "bank_name": "CIB",
+    "enabled": "true",
+    "merchant_name": "Souk El-Sayarat"
+  },
+  "services": {
+    "use_firebase_auth": "true",
+    "use_cloud_storage": "true",
+    "use_firestore": "true",
+    "enable_analytics": "true",
+    "use_realtime_db": "true"
+  },
+  "marketplace": {
+    "vendor_payout_schedule": "weekly",
+    "min_payout_amount": "100",
+    "payment_processing_fee": "0.029",
+    "platform_commission": "0.025",
+    "currency": "EGP"
+  },
+  "security": {
+    "max_requests_per_minute": "100",
+    "api_key": "1fb1b6e94ef8f6948893eb7d4ca2df68",
+    "jwt_secret": "945987c0984056b9dd970ee0e8307d177848e3bb891cc203bb058ef0364b9d05",
+    "enable_rate_limiting": "true"
+  },
+  "vodafone": {
+    "enabled": "false"
+  },
+  "app": {
+    "domain": "https://souk-el-syarat.web.app",
+    "environment": "production",
+    "name": "Souk El-Syarat",
+    "env": "production",
+    "support_email": "support@souk-el-syarat.com"
+  }
+}

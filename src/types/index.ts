@@ -587,8 +587,6 @@ export interface ProductForm {
   // Car-specific fields
   carDetails?: Partial<CarDetails>;
 }
-<<<<<<< Current (Your changes)
-=======
 
 // Real-time Communication Types
 export interface UserPresence {
@@ -639,4 +637,3 @@ export interface Conversation {
   createdAt: Date;
   updatedAt: Date;
 }
->>>>>>> Incoming (Background Agent changes)

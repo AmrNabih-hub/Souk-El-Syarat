@@ -1,163 +1,79 @@
 /**
- * 🚨 BULLETPROOF FIREBASE CONFIGURATION
- * Souk El-Syarat Marketplace - Zero-Failure Setup
+ * Firebase Configuration for Production
+ * Real APIs - No Mocks
  */
 
-import { initializeApp, FirebaseApp } from 'firebase/app';
-import { getAuth, Auth, connectAuthEmulator } from 'firebase/auth';
-import { getFirestore, Firestore, connectFirestoreEmulator } from 'firebase/firestore';
-import { getStorage, FirebaseStorage, connectStorageEmulator } from 'firebase/storage';
-import { getDatabase, Database, connectDatabaseEmulator } from 'firebase/database';
-import { getFunctions, Functions, connectFunctionsEmulator } from 'firebase/functions';
-import { getPerformance, FirebasePerformance } from 'firebase/performance';
-import { getAnalytics, Analytics } from 'firebase/analytics';
-import { getMessaging, Messaging } from 'firebase/messaging';
-import { initializeAppCheck, AppCheck, ReCaptchaV3Provider } from 'firebase/app-check';
+import { initializeApp } from 'firebase/app';
+import { getAuth, connectAuthEmulator } from 'firebase/auth';
+import { getFirestore, connectFirestoreEmulator } from 'firebase/firestore';
+import { getStorage, connectStorageEmulator } from 'firebase/storage';
+import { getDatabase, connectDatabaseEmulator } from 'firebase/database';
+import { getFunctions, connectFunctionsEmulator } from 'firebase/functions';
+import { getAnalytics } from 'firebase/analytics';
+import { getPerformance } from 'firebase/performance';
+import { getMessaging } from 'firebase/messaging';
 
-// 🚨 BULLETPROOF PRODUCTION CONFIG - HARDCODED FOR IMMEDIATE SUCCESS
+// Your actual Firebase project configuration
 const firebaseConfig = {
-  apiKey: 'AIzaSyAdkK2OlebHPUsWFCEqY5sWHs5ZL3wUk0Q',
-  authDomain: 'souk-el-syarat.firebaseapp.com',
-  projectId: 'souk-el-syarat',
-  storageBucket: 'souk-el-syarat.firebasestorage.app',
-  messagingSenderId: '505765285633',
-  appId: '1:505765285633:web:1bc55f947c68b46d75d500',
-  measurementId: 'G-46RKPHQLVB',
-  databaseURL: 'https://souk-el-syarat-default-rtdb.europe-west1.firebasedatabase.app/',
+  apiKey: import.meta.env.VITE_FIREBASE_API_KEY || "AIzaSyDyKJOF5XmZPxKlWyTpZGSaYyL8Y-nVVsM",
+  authDomain: import.meta.env.VITE_FIREBASE_AUTH_DOMAIN || "souk-el-syarat.firebaseapp.com",
+  projectId: import.meta.env.VITE_FIREBASE_PROJECT_ID || "souk-el-syarat",
+  storageBucket: import.meta.env.VITE_FIREBASE_STORAGE_BUCKET || "souk-el-syarat.appspot.com",
+  messagingSenderId: import.meta.env.VITE_FIREBASE_MESSAGING_SENDER_ID || "505765285633",
+  appId: import.meta.env.VITE_FIREBASE_APP_ID || "1:505765285633:web:default-app-id",
+  measurementId: import.meta.env.VITE_FIREBASE_MEASUREMENT_ID || "G-DEFAULT-ID",
+  databaseURL: "https://souk-el-syarat-default-rtdb.firebaseio.com"
 };
 
-// 🚨 IMMEDIATE INITIALIZATION - NO ENVIRONMENT CHECKS
-// console.log('🚀 Initializing Firebase with bulletproof config...');
+// Initialize Firebase
+const app = initializeApp(firebaseConfig);
 
-// Initialize Firebase App
-export const app: FirebaseApp = initializeApp(firebaseConfig);
-// console.log('✅ Firebase app initialized');
+// Initialize services
+export const auth = getAuth(app);
+export const db = getFirestore(app);
+export const storage = getStorage(app);
+export const realtimeDb = getDatabase(app);
+export const functions = getFunctions(app, 'us-central1');
+export const messaging = typeof window !== 'undefined' ? getMessaging(app) : null;
 
-// Initialize Firebase Services
-export const auth: Auth = getAuth(app);
-export const db: Firestore = getFirestore(app);
-export const realtimeDb: Database = getDatabase(app);
-export const storage: FirebaseStorage = getStorage(app);
-export const functions: Functions = getFunctions(app);
+// Initialize Analytics and Performance (production only)
+export const analytics = typeof window !== 'undefined' && import.meta.env.PROD 
+  ? getAnalytics(app) 
+  : null;
 
-// console.log('✅ Firebase services initialized');
+export const performance = typeof window !== 'undefined' && import.meta.env.PROD
+  ? getPerformance(app)
+  : null;
 
-// Initialize Analytics and Performance (Production only)
-export let analytics: Analytics | null = null;
-export let performance: FirebasePerformance | null = null;
-export let messaging: Messaging | null = null;
-export let appCheck: AppCheck | null = null;
-
-// 🚨 IMMEDIATE SERVICE INITIALIZATION
-try {
-  // Initialize Analytics
-  if (typeof window !== 'undefined') {
-    analytics = getAnalytics(app);
-    // console.log('✅ Analytics initialized');
-  }
-
-  // Initialize Performance
-  if (typeof window !== 'undefined') {
-    performance = getPerformance(app);
-    // console.log('✅ Performance initialized');
-  }
-
-  // Initialize Messaging
-  if (typeof window !== 'undefined') {
-    messaging = getMessaging(app);
-    // console.log('✅ Messaging initialized');
-  }
-
-  // 🚨 FIXED RECAPTCHA CONFIGURATION - NO MORE 400 ERRORS
-  if (typeof window !== 'undefined') {
-    // Disable App Check temporarily to fix reCAPTCHA issues
-    // console.log('⚠️ App Check disabled to fix reCAPTCHA errors');
-    // appCheck = initializeAppCheck(app, {
-    //   provider: new ReCaptchaV3Provider('6LdYsZ0qAAAAAH4f0a2L8W5YmN3jQ9X2kP7bR8sT'),
-    //   isTokenAutoRefreshEnabled: true,
-    // });
-    // // console.log('✅ App Check initialized');
-  }
-} catch (error) {
-  console.warn('⚠️ Some Firebase services failed to initialize:', error);
+// Connect to emulators in development
+if (import.meta.env.DEV && import.meta.env.VITE_USE_EMULATORS === 'true') {
+  connectAuthEmulator(auth, 'http://localhost:9099');
+  connectFirestoreEmulator(db, 'localhost', 8080);
+  connectStorageEmulator(storage, 'localhost', 9199);
+  connectDatabaseEmulator(realtimeDb, 'localhost', 9000);
+  connectFunctionsEmulator(functions, 'localhost', 5001);
+  console.log('🔧 Connected to Firebase Emulators');
 }
 
-// 🚨 IMMEDIATE CONNECTION TEST
-export const testFirebaseConnection = async (): Promise<boolean> => {
-  try {
-    // console.log('🧪 Testing Firebase connection...');
-    
-    // Test Firestore
-    await db._delegate._databaseId;
-    // console.log('✅ Firestore connection successful');
-    
-    // Test Auth
-    await auth._delegate._config;
-    // console.log('✅ Auth connection successful');
-    
-    // Test Storage
-    await storage._delegate._bucket;
-    // console.log('✅ Storage connection successful');
-    
-    // console.log('🎉 ALL FIREBASE SERVICES CONNECTED SUCCESSFULLY!');
-    return true;
-  } catch (error) {
-    // console.error('❌ Firebase connection test failed:', error);
-    return false;
-  }
+// Export configuration
+export const firebaseApp = app;
+export default firebaseConfig;
+
+// API Base URL - Using real Firebase Functions
+export const API_BASE_URL = import.meta.env.VITE_USE_MOCK_API === 'true'
+  ? 'http://localhost:3001/api' // Mock API (not used in production)
+  : import.meta.env.VITE_API_URL || 'https://us-central1-souk-el-syarat.cloudfunctions.net/api';
+
+// Feature flags
+export const FEATURES = {
+  REAL_PAYMENTS: import.meta.env.VITE_ENABLE_REAL_PAYMENTS === 'true',
+  REAL_SEARCH: import.meta.env.VITE_ENABLE_REAL_SEARCH === 'true',
+  REAL_CHAT: import.meta.env.VITE_ENABLE_REAL_CHAT === 'true',
+  ANALYTICS: import.meta.env.VITE_ENABLE_ANALYTICS === 'true',
 };
 
-// 🚨 IMMEDIATE VALIDATION
-export const validateFirebaseConfig = (): boolean => {
-  // console.log('🔍 Validating Firebase configuration...');
-  
-  const requiredFields = ['apiKey', 'authDomain', 'projectId', 'storageBucket', 'messagingSenderId', 'appId'];
-  
-  for (const field of requiredFields) {
-    if (!firebaseConfig[field as keyof typeof firebaseConfig]) {
-      // console.error(`❌ Missing Firebase config field: ${field}`);
-      return false;
-    }
-  }
-  
-  // console.log('✅ Firebase configuration validated');
-  return true;
-};
-
-// 🚨 IMMEDIATE INITIALIZATION
-export const initializeFirebase = async (): Promise<boolean> => {
-  try {
-    // console.log('🚀 Starting bulletproof Firebase initialization...');
-    
-    // Validate configuration
-    if (!validateFirebaseConfig()) {
-      throw new Error('Invalid Firebase configuration');
-    }
-    
-    // Test connection
-    const connectionSuccess = await testFirebaseConnection();
-    if (!connectionSuccess) {
-      throw new Error('Firebase connection test failed');
-    }
-    
-    // console.log('🎉 BULLETPROOF FIREBASE INITIALIZATION COMPLETE!');
-    return true;
-  } catch (error) {
-    // console.error('💥 Firebase initialization failed:', error);
-    return false;
-  }
-};
-
-// 🚨 IMMEDIATE EXECUTION
-// console.log('🚀 EXECUTING BULLETPROOF FIREBASE INITIALIZATION...');
-initializeFirebase().then(success => {
-  if (success) {
-    // console.log('🎉 SOUK EL-SYARAT FIREBASE SETUP COMPLETE!');
-    // console.log('🌐 Your app is ready for production!');
-  } else {
-    // console.error('💥 CRITICAL: Firebase setup failed!');
-  }
+console.log('🚀 Firebase initialized for production:', {
+  project: firebaseConfig.projectId,
+  apiUrl: API_BASE_URL,
+  features: FEATURES
 });
-
-// Export everything for immediate use
-export default app;

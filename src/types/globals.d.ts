@@ -15,20 +15,13 @@ declare global {
       VITE_FIREBASE_MESSAGING_SENDER_ID?: string;
       VITE_FIREBASE_APP_ID?: string;
       VITE_FIREBASE_MEASUREMENT_ID?: string;
+      VITE_ELASTICSEARCH_URL?: string;
+      VITE_ELASTICSEARCH_API_KEY?: string;
     }
+    
+    interface Timeout {}
+    interface Timer {}
   }
 }
 
 export {};
-<<<<<<< Current (Your changes)
-=======
-
-// NodeJS types for timers
-declare namespace NodeJS {
-  interface Timeout {}
-  interface Timer {}
-}
-
-// Notification Permission type
-type NotificationPermission = 'default' | 'denied' | 'granted';
->>>>>>> Incoming (Background Agent changes)

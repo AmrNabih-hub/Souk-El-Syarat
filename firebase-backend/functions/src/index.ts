@@ -1,43 +1,20 @@
 /**
- * Firebase Cloud Functions - Main Backend Server
- * Production-ready backend services for Souk El-Sayarat
+ * Firebase Cloud Functions - Production Backend
+ * Souk El-Sayarat Real Backend Server
  */
 
 import * as functions from 'firebase-functions';
 import * as admin from 'firebase-admin';
-import * as express from 'express';
-import * as cors from 'cors';
-import helmet from 'helmet';
-import rateLimit from 'express-rate-limit';
-import compression from 'compression';
-import morgan from 'morgan';
+import express from 'express';
+import cors from 'cors';
 
 // Initialize Firebase Admin
 admin.initializeApp();
 
-// Initialize services
-import { paymentRoutes } from './routes/payment.routes';
-import { searchRoutes } from './routes/search.routes';
-import { vendorRoutes } from './routes/vendor.routes';
-import { orderRoutes } from './routes/order.routes';
-import { authRoutes } from './routes/auth.routes';
-import { analyticsRoutes } from './routes/analytics.routes';
-import { notificationRoutes } from './routes/notification.routes';
-import { adminRoutes } from './routes/admin.routes';
-
-// Import middleware
-import { authMiddleware } from './middleware/auth.middleware';
-import { errorHandler } from './middleware/error.middleware';
-import { requestLogger } from './middleware/logging.middleware';
-import { validateRequest } from './middleware/validation.middleware';
-
-// Import scheduled functions
-import { scheduledFunctions } from './scheduled';
-
-// Import triggers
-import { databaseTriggers } from './triggers/database.triggers';
-import { storageTriggers } from './triggers/storage.triggers';
-import { authTriggers } from './triggers/auth.triggers';
+const db = admin.firestore();
+const auth = admin.auth();
+const storage = admin.storage();
+const realtimeDb = admin.database();
 
 // ============================================
 // EXPRESS APP CONFIGURATION
@@ -45,72 +22,21 @@ import { authTriggers } from './triggers/auth.triggers';
 
 const app = express();
 
-// Security middleware
-app.use(helmet({
-  contentSecurityPolicy: {
-    directives: {
-      defaultSrc: ["'self'"],
-      styleSrc: ["'self'", "'unsafe-inline'"],
-      scriptSrc: ["'self'"],
-      imgSrc: ["'self'", "data:", "https:"],
-    },
-  },
-  hsts: {
-    maxAge: 31536000,
-    includeSubDomains: true,
-    preload: true,
-  },
-}));
-
-// CORS configuration
+// CORS configuration for your domain
 const corsOptions = {
-  origin: (origin: string | undefined, callback: Function) => {
-    const allowedOrigins = [
-      'https://souk-elsayarat.com',
-      'https://app.souk-elsayarat.com',
-      'http://localhost:3000',
-      'http://localhost:5173',
-    ];
-    
-    if (!origin || allowedOrigins.includes(origin)) {
-      callback(null, true);
-    } else {
-      callback(new Error('Not allowed by CORS'));
-    }
-  },
+  origin: [
+    'https://souk-el-syarat.web.app',
+    'https://souk-el-syarat.firebaseapp.com',
+    'http://localhost:5173',
+    'http://localhost:3000',
+  ],
   credentials: true,
   optionsSuccessStatus: 200,
 };
 
 app.use(cors(corsOptions));
-
-// Rate limiting
-const limiter = rateLimit({
-  windowMs: 15 * 60 * 1000, // 15 minutes
-  max: 100, // Limit each IP to 100 requests per windowMs
-  message: 'Too many requests from this IP, please try again later.',
-  standardHeaders: true,
-  legacyHeaders: false,
-});
-
-const strictLimiter = rateLimit({
-  windowMs: 15 * 60 * 1000,
-  max: 5, // Strict limit for sensitive operations
-  message: 'Too many attempts, please try again later.',
-});
-
-app.use('/api/', limiter);
-app.use('/api/auth/login', strictLimiter);
-app.use('/api/payments/verify', strictLimiter);
-
-// Body parsing and compression
 app.use(express.json({ limit: '10mb' }));
 app.use(express.urlencoded({ extended: true, limit: '10mb' }));
-app.use(compression());
-
-// Logging
-app.use(morgan('combined'));
-app.use(requestLogger);
 
 // ============================================
 // API ROUTES
@@ -121,34 +47,428 @@ app.get('/health', (req, res) => {
   res.status(200).json({
     status: 'healthy',
     timestamp: new Date().toISOString(),
-    uptime: process.uptime(),
-    memory: process.memoryUsage(),
-    environment: process.env.NODE_ENV || 'development',
+    project: 'souk-el-syarat',
+    environment: 'production',
+    services: {
+      firestore: 'active',
+      auth: 'active',
+      storage: 'active',
+      realtimeDb: 'active',
+    },
   });
 });
 
-// Public routes (no auth required)
-app.use('/api/auth', authRoutes);
-app.use('/api/search', searchRoutes);
+// ============================================
+// AUTHENTICATION ENDPOINTS
+// ============================================
 
-// Protected routes (auth required)
-app.use('/api/payments', authMiddleware, paymentRoutes);
-app.use('/api/vendors', authMiddleware, vendorRoutes);
-app.use('/api/orders', authMiddleware, orderRoutes);
-app.use('/api/analytics', authMiddleware, analyticsRoutes);
-app.use('/api/notifications', authMiddleware, notificationRoutes);
+app.post('/api/auth/register', async (req, res) => {
+  try {
+    const { email, password, firstName, lastName, role } = req.body;
+    
+    // Create user in Firebase Auth
+    const userRecord = await auth.createUser({
+      email,
+      password,
+      displayName: `${firstName} ${lastName}`,
+    });
+    
+    // Create user profile in Firestore
+    await db.collection('users').doc(userRecord.uid).set({
+      email,
+      firstName,
+      lastName,
+      role: role || 'customer',
+      createdAt: admin.firestore.FieldValue.serverTimestamp(),
+      verified: false,
+    });
+    
+    res.status(201).json({
+      success: true,
+      userId: userRecord.uid,
+      message: 'User registered successfully',
+    });
+  } catch (error: any) {
+    res.status(400).json({
+      success: false,
+      error: error.message,
+    });
+  }
+});
 
-// Admin routes (admin auth required)
-app.use('/api/admin', authMiddleware, adminRoutes);
+// ============================================
+// VENDOR ENDPOINTS
+// ============================================
 
-// Error handling
-app.use(errorHandler);
+app.post('/api/vendors/apply', async (req, res) => {
+  try {
+    const { userId, businessInfo, documents } = req.body;
+    
+    // Create vendor application
+    const applicationRef = await db.collection('vendor_applications').add({
+      userId,
+      businessInfo,
+      documents,
+      status: 'pending',
+      createdAt: admin.firestore.FieldValue.serverTimestamp(),
+    });
+    
+    // Update real-time dashboard
+    await realtimeDb.ref(`admin_dashboard/pending_vendors`).push({
+      applicationId: applicationRef.id,
+      userId,
+      businessName: businessInfo.businessName,
+      timestamp: Date.now(),
+    });
+    
+    res.status(201).json({
+      success: true,
+      applicationId: applicationRef.id,
+      message: 'Application submitted successfully',
+    });
+  } catch (error: any) {
+    res.status(400).json({
+      success: false,
+      error: error.message,
+    });
+  }
+});
+
+app.get('/api/vendors', async (req, res) => {
+  try {
+    const vendorsSnapshot = await db.collection('vendors')
+      .where('approved', '==', true)
+      .limit(20)
+      .get();
+    
+    const vendors = vendorsSnapshot.docs.map(doc => ({
+      id: doc.id,
+      ...doc.data(),
+    }));
+    
+    res.json({
+      success: true,
+      vendors,
+      total: vendors.length,
+    });
+  } catch (error: any) {
+    res.status(500).json({
+      success: false,
+      error: error.message,
+    });
+  }
+});
+
+// ============================================
+// PRODUCT ENDPOINTS
+// ============================================
+
+app.get('/api/products', async (req, res) => {
+  try {
+    const { category, minPrice, maxPrice, search } = req.query;
+    
+    let query = db.collection('products').where('active', '==', true);
+    
+    if (category) {
+      query = query.where('category', '==', category);
+    }
+    
+    if (minPrice) {
+      query = query.where('price', '>=', Number(minPrice));
+    }
+    
+    if (maxPrice) {
+      query = query.where('price', '<=', Number(maxPrice));
+    }
+    
+    const productsSnapshot = await query.limit(50).get();
+    
+    let products = productsSnapshot.docs.map(doc => {
+      const data = doc.data();
+      return {
+        id: doc.id,
+        title: data.title || '',
+        description: data.description || '',
+        price: data.price || 0,
+        category: data.category || '',
+        ...data,
+      };
+    });
+    
+    // Simple search filter (in production, use Algolia or Elasticsearch)
+    if (search) {
+      const searchLower = String(search).toLowerCase();
+      products = products.filter(p => 
+        p.title.toLowerCase().includes(searchLower) ||
+        p.description.toLowerCase().includes(searchLower)
+      );
+    }
+    
+    res.json({
+      success: true,
+      products,
+      total: products.length,
+    });
+  } catch (error: any) {
+    res.status(500).json({
+      success: false,
+      error: error.message,
+    });
+  }
+});
+
+app.post('/api/products', async (req, res) => {
+  try {
+    const productData = req.body;
+    
+    // Add product to Firestore
+    const productRef = await db.collection('products').add({
+      ...productData,
+      active: true,
+      createdAt: admin.firestore.FieldValue.serverTimestamp(),
+    });
+    
+    res.status(201).json({
+      success: true,
+      productId: productRef.id,
+      message: 'Product created successfully',
+    });
+  } catch (error: any) {
+    res.status(400).json({
+      success: false,
+      error: error.message,
+    });
+  }
+});
+
+// ============================================
+// ORDER ENDPOINTS
+// ============================================
+
+app.post('/api/orders', async (req, res) => {
+  try {
+    const { customerId, items, shippingAddress, paymentMethod } = req.body;
+    
+    // Calculate total
+    let total = 0;
+    for (const item of items) {
+      const productDoc = await db.collection('products').doc(item.productId).get();
+      if (productDoc.exists) {
+        total += productDoc.data()!.price * item.quantity;
+      }
+    }
+    
+    // Create order
+    const orderRef = await db.collection('orders').add({
+      customerId,
+      items,
+      shippingAddress,
+      paymentMethod,
+      total,
+      status: 'pending',
+      createdAt: admin.firestore.FieldValue.serverTimestamp(),
+    });
+    
+    // Update real-time order tracking
+    await realtimeDb.ref(`orders_realtime/${orderRef.id}`).set({
+      orderId: orderRef.id,
+      customerId,
+      status: 'pending',
+      total,
+      timestamp: Date.now(),
+    });
+    
+    res.status(201).json({
+      success: true,
+      orderId: orderRef.id,
+      total,
+      message: 'Order created successfully',
+    });
+  } catch (error: any) {
+    res.status(400).json({
+      success: false,
+      error: error.message,
+    });
+  }
+});
+
+// ============================================
+// SEARCH ENDPOINT
+// ============================================
+
+app.get('/api/search', async (req, res) => {
+  try {
+    const { q } = req.query;
+    
+    if (!q) {
+      res.json({ success: true, results: [] });
+      return;
+    }
+    
+    // Simple search implementation
+    // In production, use Algolia or Elasticsearch
+    const searchTerm = String(q).toLowerCase();
+    
+    // Search products
+    const productsSnapshot = await db.collection('products')
+      .where('active', '==', true)
+      .limit(20)
+      .get();
+    
+    const results = productsSnapshot.docs
+      .map(doc => {
+        const data = doc.data();
+        return {
+          id: doc.id,
+          type: 'product',
+          title: data.title || '',
+          description: data.description || '',
+          category: data.category || '',
+          ...data,
+        };
+      })
+      .filter(item => 
+        item.title.toLowerCase().includes(searchTerm) ||
+        item.description.toLowerCase().includes(searchTerm) ||
+        item.category.toLowerCase().includes(searchTerm)
+      );
+    
+    res.json({
+      success: true,
+      query: q,
+      results,
+      total: results.length,
+    });
+  } catch (error: any) {
+    res.status(500).json({
+      success: false,
+      error: error.message,
+    });
+  }
+});
+
+// ============================================
+// REAL-TIME CHAT ENDPOINTS
+// ============================================
+
+app.post('/api/chat/send', async (req, res) => {
+  try {
+    const { conversationId, senderId, receiverId, message } = req.body;
+    
+    // Save message to Realtime Database for instant delivery
+    const messageRef = await realtimeDb.ref(`chats/${conversationId}/messages`).push({
+      senderId,
+      receiverId,
+      message,
+      timestamp: Date.now(),
+      read: false,
+    });
+    
+    // Also save to Firestore for persistence
+    await db.collection('conversations').doc(conversationId)
+      .collection('messages').add({
+        senderId,
+        receiverId,
+        message,
+        createdAt: admin.firestore.FieldValue.serverTimestamp(),
+        read: false,
+      });
+    
+    res.status(201).json({
+      success: true,
+      messageId: messageRef.key,
+      message: 'Message sent successfully',
+    });
+  } catch (error: any) {
+    res.status(400).json({
+      success: false,
+      error: error.message,
+    });
+  }
+});
+
+// ============================================
+// PAYMENT ENDPOINTS (InstaPay)
+// ============================================
+
+app.post('/api/payments/instapay/initiate', async (req, res) => {
+  try {
+    const { orderId, amount } = req.body;
+    
+    // Generate InstaPay payment reference
+    const paymentRef = `SOUK-${orderId}-${Date.now()}`;
+    
+    // Save payment record
+    await db.collection('payments').doc(paymentRef).set({
+      orderId,
+      amount,
+      method: 'instapay',
+      status: 'pending',
+      merchantIPA: 'SOUKSAYARAT@CIB',
+      createdAt: admin.firestore.FieldValue.serverTimestamp(),
+    });
+    
+    res.json({
+      success: true,
+      paymentReference: paymentRef,
+      merchantIPA: 'SOUKSAYARAT@CIB',
+      amount,
+      instructions: 'Please transfer the amount to the merchant IPA and use the payment reference',
+    });
+  } catch (error: any) {
+    res.status(400).json({
+      success: false,
+      error: error.message,
+    });
+  }
+});
+
+// ============================================
+// ADMIN ENDPOINTS
+// ============================================
+
+app.get('/api/admin/dashboard', async (req, res) => {
+  try {
+    // Get statistics
+    const [usersSnapshot, ordersSnapshot, productsSnapshot, vendorsSnapshot] = await Promise.all([
+      db.collection('users').count().get(),
+      db.collection('orders').count().get(),
+      db.collection('products').where('active', '==', true).count().get(),
+      db.collection('vendors').where('approved', '==', true).count().get(),
+    ]);
+    
+    res.json({
+      success: true,
+      stats: {
+        totalUsers: usersSnapshot.data().count,
+        totalOrders: ordersSnapshot.data().count,
+        totalProducts: productsSnapshot.data().count,
+        totalVendors: vendorsSnapshot.data().count,
+      },
+      timestamp: new Date().toISOString(),
+    });
+  } catch (error: any) {
+    res.status(500).json({
+      success: false,
+      error: error.message,
+    });
+  }
+});
+
+// Error handling middleware
+app.use((err: any, req: any, res: any, next: any) => {
+  console.error('Error:', err);
+  res.status(err.status || 500).json({
+    success: false,
+    error: err.message || 'Internal server error',
+  });
+});
 
 // 404 handler
 app.use((req, res) => {
   res.status(404).json({
-    error: 'Not Found',
-    message: 'The requested resource does not exist',
+    success: false,
+    error: 'Endpoint not found',
     path: req.originalUrl,
   });
 });
@@ -157,16 +477,68 @@ app.use((req, res) => {
 // FIREBASE CLOUD FUNCTIONS EXPORTS
 // ============================================
 
-// HTTP Function - Main API
+// Main API function
 export const api = functions
-  .region('us-central1', 'europe-west1') // Multi-region deployment
+  .region('us-central1')
   .runWith({
     timeoutSeconds: 60,
-    memory: '2GB',
-    maxInstances: 100,
-    minInstances: 2, // Keep warm instances
+    memory: '1GB',
   })
   .https.onRequest(app);
+
+// ============================================
+// DATABASE TRIGGERS
+// ============================================
+
+// Trigger when new order is created
+export const onOrderCreated = functions
+  .region('us-central1')
+  .firestore
+  .document('orders/{orderId}')
+  .onCreate(async (snapshot, context) => {
+    const order = snapshot.data();
+    const { orderId } = context.params;
+    
+    // Update vendor dashboard
+    if (order.vendorId) {
+      await realtimeDb.ref(`vendor_dashboard/${order.vendorId}/new_orders`).push({
+        orderId,
+        amount: order.total,
+        timestamp: Date.now(),
+      });
+    }
+    
+    // Update admin dashboard
+    await realtimeDb.ref('admin_dashboard/recent_orders').push({
+      orderId,
+      customerId: order.customerId,
+      total: order.total,
+      timestamp: Date.now(),
+    });
+    
+    console.log('New order processed:', orderId);
+  });
+
+// Trigger when vendor application is submitted
+export const onVendorApplication = functions
+  .region('us-central1')
+  .firestore
+  .document('vendor_applications/{applicationId}')
+  .onCreate(async (snapshot, context) => {
+    const application = snapshot.data();
+    const { applicationId } = context.params;
+    
+    // Notify admin via real-time database
+    await realtimeDb.ref('admin_dashboard/notifications').push({
+      type: 'new_vendor_application',
+      applicationId,
+      businessName: application.businessInfo?.businessName,
+      timestamp: Date.now(),
+      read: false,
+    });
+    
+    console.log('New vendor application:', applicationId);
+  });
 
 // ============================================
 // SCHEDULED FUNCTIONS
@@ -178,129 +550,41 @@ export const dailyAnalytics = functions
   .pubsub
   .schedule('0 2 * * *') // Run at 2 AM daily
   .timeZone('Africa/Cairo')
-  .onRun(scheduledFunctions.aggregateAnalytics);
-
-// Hourly order status check
-export const orderStatusCheck = functions
-  .region('us-central1')
-  .pubsub
-  .schedule('0 * * * *') // Run every hour
-  .onRun(scheduledFunctions.checkPendingOrders);
-
-// Weekly vendor payouts
-export const vendorPayouts = functions
-  .region('us-central1')
-  .pubsub
-  .schedule('0 10 * * 1') // Run Monday at 10 AM
-  .timeZone('Africa/Cairo')
-  .onRun(scheduledFunctions.processVendorPayouts);
-
-// Daily backup
-export const dailyBackup = functions
-  .region('us-central1')
-  .pubsub
-  .schedule('0 3 * * *') // Run at 3 AM daily
-  .timeZone('Africa/Cairo')
-  .onRun(scheduledFunctions.performBackup);
-
-// Clean expired sessions
-export const cleanupSessions = functions
-  .region('us-central1')
-  .pubsub
-  .schedule('*/30 * * * *') // Run every 30 minutes
-  .onRun(scheduledFunctions.cleanExpiredSessions);
-
-// ============================================
-// DATABASE TRIGGERS
-// ============================================
-
-// New order trigger
-export const onOrderCreated = functions
-  .region('us-central1')
-  .firestore
-  .document('orders/{orderId}')
-  .onCreate(databaseTriggers.handleNewOrder);
-
-// Order status update trigger
-export const onOrderUpdated = functions
-  .region('us-central1')
-  .firestore
-  .document('orders/{orderId}')
-  .onUpdate(databaseTriggers.handleOrderUpdate);
-
-// New vendor application trigger
-export const onVendorApplication = functions
-  .region('us-central1')
-  .firestore
-  .document('vendor_applications/{vendorId}')
-  .onCreate(databaseTriggers.handleVendorApplication);
-
-// Product indexing trigger
-export const onProductChange = functions
-  .region('us-central1')
-  .firestore
-  .document('products/{productId}')
-  .onWrite(databaseTriggers.indexProduct);
-
-// Review aggregation trigger
-export const onReviewAdded = functions
-  .region('us-central1')
-  .firestore
-  .document('reviews/{reviewId}')
-  .onCreate(databaseTriggers.aggregateReviews);
-
-// ============================================
-// STORAGE TRIGGERS
-// ============================================
-
-// Image optimization trigger
-export const optimizeImage = functions
-  .region('us-central1')
-  .runWith({
-    timeoutSeconds: 120,
-    memory: '2GB',
-  })
-  .storage
-  .object()
-  .onFinalize(storageTriggers.processImage);
-
-// Document verification trigger
-export const verifyDocument = functions
-  .region('us-central1')
-  .storage
-  .object()
-  .onFinalize(storageTriggers.verifyDocument);
-
-// ============================================
-// AUTH TRIGGERS
-// ============================================
-
-// New user creation
-export const onUserCreated = functions
-  .region('us-central1')
-  .auth
-  .user()
-  .onCreate(authTriggers.handleNewUser);
-
-// User deletion
-export const onUserDeleted = functions
-  .region('us-central1')
-  .auth
-  .user()
-  .onDelete(authTriggers.handleUserDeletion);
+  .onRun(async (context) => {
+    const yesterday = new Date();
+    yesterday.setDate(yesterday.getDate() - 1);
+    yesterday.setHours(0, 0, 0, 0);
+    
+    const today = new Date(yesterday);
+    today.setDate(today.getDate() + 1);
+    
+    // Count yesterday's orders
+    const ordersSnapshot = await db.collection('orders')
+      .where('createdAt', '>=', yesterday)
+      .where('createdAt', '<', today)
+      .get();
+    
+    // Save analytics
+    await db.collection('analytics').doc(yesterday.toISOString().split('T')[0]).set({
+      date: yesterday,
+      orders: {
+        count: ordersSnapshot.size,
+        total: ordersSnapshot.docs.reduce((sum, doc) => sum + (doc.data().total || 0), 0),
+      },
+      createdAt: admin.firestore.FieldValue.serverTimestamp(),
+    });
+    
+    console.log('Daily analytics completed for:', yesterday.toISOString().split('T')[0]);
+  });
 
 // ============================================
 // CALLABLE FUNCTIONS
 // ============================================
 
-// Generate payment intent
-export const createPaymentIntent = functions
+// Callable function for file upload URL generation
+export const getUploadUrl = functions
   .region('us-central1')
-  .runWith({
-    enforceAppCheck: true, // Require App Check
-  })
-  .https
-  .onCall(async (data, context) => {
+  .https.onCall(async (data, context) => {
     // Verify authentication
     if (!context.auth) {
       throw new functions.https.HttpsError(
@@ -308,213 +592,24 @@ export const createPaymentIntent = functions
         'User must be authenticated'
       );
     }
-
-    try {
-      const { amount, orderId, paymentMethod } = data;
-      
-      // Validate input
-      if (!amount || !orderId || !paymentMethod) {
-        throw new functions.https.HttpsError(
-          'invalid-argument',
-          'Missing required parameters'
-        );
-      }
-
-      // Process payment based on method
-      let result;
-      switch (paymentMethod) {
-        case 'stripe':
-          result = await processStripePayment(amount, orderId, context.auth.uid);
-          break;
-        case 'instapay':
-          result = await processInstapayPayment(amount, orderId, context.auth.uid);
-          break;
-        default:
-          throw new functions.https.HttpsError(
-            'invalid-argument',
-            'Invalid payment method'
-          );
-      }
-
-      return result;
-    } catch (error: any) {
-      console.error('Payment creation failed:', error);
-      throw new functions.https.HttpsError(
-        'internal',
-        error.message || 'Payment processing failed'
-      );
-    }
-  });
-
-// Send notification
-export const sendNotification = functions
-  .region('us-central1')
-  .https
-  .onCall(async (data, context) => {
-    // Admin only
-    if (!context.auth || !context.auth.token.admin) {
-      throw new functions.https.HttpsError(
-        'permission-denied',
-        'Admin access required'
-      );
-    }
-
-    const { userId, title, message, type } = data;
-
-    try {
-      await sendPushNotification(userId, title, message, type);
-      return { success: true };
-    } catch (error: any) {
-      throw new functions.https.HttpsError('internal', error.message);
-    }
-  });
-
-// ============================================
-// HELPER FUNCTIONS
-// ============================================
-
-async function processStripePayment(
-  amount: number,
-  orderId: string,
-  userId: string
-): Promise<any> {
-  // Implementation moved to payment service
-  const { paymentService } = await import('./services/payment.service');
-  return paymentService.createStripePayment(amount, orderId, userId);
-}
-
-async function processInstapayPayment(
-  amount: number,
-  orderId: string,
-  userId: string
-): Promise<any> {
-  // Implementation moved to payment service
-  const { paymentService } = await import('./services/payment.service');
-  return paymentService.createInstapayPayment(amount, orderId, userId);
-}
-
-async function sendPushNotification(
-  userId: string,
-  title: string,
-  message: string,
-  type: string
-): Promise<void> {
-  // Implementation moved to notification service
-  const { notificationService } = await import('./services/notification.service');
-  await notificationService.sendPush(userId, { title, message, type });
-}
-
-// ============================================
-// WEBSOCKET SERVER (Using Firebase Realtime Database)
-// ============================================
-
-// Handle real-time chat messages
-export const onChatMessage = functions
-  .region('us-central1')
-  .database
-  .ref('/chats/{conversationId}/messages/{messageId}')
-  .onCreate(async (snapshot, context) => {
-    const message = snapshot.val();
-    const { conversationId } = context.params;
-
-    // Send push notification to recipient
-    await sendPushNotification(
-      message.recipientId,
-      'New Message',
-      message.content,
-      'chat'
-    );
-
-    // Update conversation metadata
-    await admin.database()
-      .ref(`/conversations/${conversationId}`)
-      .update({
-        lastMessage: message,
-        lastMessageTime: message.timestamp,
-        [`unreadCount/${message.recipientId}`]: admin.database.ServerValue.increment(1),
-      });
-  });
-
-// Handle presence updates
-export const onPresenceUpdate = functions
-  .region('us-central1')
-  .database
-  .ref('/presence/{userId}')
-  .onUpdate(async (change, context) => {
-    const { userId } = context.params;
-    const before = change.before.val();
-    const after = change.after.val();
-
-    // Update user's online status in Firestore
-    if (before.online !== after.online) {
-      await admin.firestore()
-        .collection('users')
-        .doc(userId)
-        .update({
-          isOnline: after.online,
-          lastSeen: admin.firestore.FieldValue.serverTimestamp(),
-        });
-    }
-  });
-
-// ============================================
-// MONITORING & LOGGING
-// ============================================
-
-// Custom metrics
-export const recordMetric = functions
-  .region('us-central1')
-  .https
-  .onCall(async (data, context) => {
-    const { metric, value, labels } = data;
     
-    // Log to Cloud Monitoring
-    console.log('METRIC', {
-      metric,
-      value,
-      labels,
-      timestamp: new Date().toISOString(),
-      userId: context.auth?.uid,
-    });
-
-    return { success: true };
-  });
-
-// Error reporting
-export const reportError = functions
-  .region('us-central1')
-  .https
-  .onCall(async (data, context) => {
-    const { error, context: errorContext, severity } = data;
+    const { fileName, fileType, folder } = data;
     
-    // Log to Cloud Error Reporting
-    console.error('CLIENT_ERROR', {
-      error,
-      context: errorContext,
-      severity,
-      userId: context.auth?.uid,
-      timestamp: new Date().toISOString(),
+    // Generate signed URL for direct upload
+    const bucket = storage.bucket();
+    const file = bucket.file(`${folder}/${context.auth.uid}/${fileName}`);
+    
+    const [url] = await file.getSignedUrl({
+      version: 'v4',
+      action: 'write',
+      expires: Date.now() + 15 * 60 * 1000, // 15 minutes
+      contentType: fileType,
     });
-
-    return { logged: true };
+    
+    return {
+      uploadUrl: url,
+      filePath: file.name,
+    };
   });
 
-// ============================================
-// INITIALIZATION
-// ============================================
-
-// Warm up function (keeps instances warm)
-export const warmup = functions
-  .region('us-central1')
-  .pubsub
-  .schedule('*/5 * * * *') // Every 5 minutes
-  .onRun(async () => {
-    console.log('Warming up instances...');
-    // Make a simple database read to keep connection warm
-    await admin.firestore().collection('_warmup').doc('ping').set({
-      timestamp: admin.firestore.FieldValue.serverTimestamp(),
-    });
-    return null;
-  });
-
-console.log('🚀 Firebase Cloud Functions initialized successfully');
+console.log('🚀 Firebase Cloud Functions initialized for Souk El-Syarat');

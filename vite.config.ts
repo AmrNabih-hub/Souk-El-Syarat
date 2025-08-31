@@ -1,9 +1,9 @@
 import { defineConfig } from 'vite';
 import react from '@vitejs/plugin-react';
 import path from 'path';
-import { visualizer } from 'rollup-plugin-visualizer';
-import compression from 'vite-plugin-compression';
 import { VitePWA } from 'vite-plugin-pwa';
+import { visualizer } from 'rollup-plugin-visualizer';
+import viteCompression from 'vite-plugin-compression';
 
 // https://vitejs.dev/config/
 export default defineConfig({
@@ -17,8 +17,8 @@ export default defineConfig({
       manifest: {
         name: 'Souk El-Sayarat',
         short_name: 'SoukAuto',
-        description: 'Premium Automotive Marketplace',
-        theme_color: '#3B82F6',
+        description: 'Egyptian Automotive Marketplace',
+        theme_color: '#1e40af',
         background_color: '#ffffff',
         display: 'standalone',
         orientation: 'portrait',
@@ -26,22 +26,22 @@ export default defineConfig({
         start_url: '/',
         icons: [
           {
-            src: '/icon-192.png',
+            src: '/pwa-192x192.png',
             sizes: '192x192',
-            type: 'image/png',
+            type: 'image/png'
           },
           {
-            src: '/icon-512.png',
+            src: '/pwa-512x512.png',
             sizes: '512x512',
-            type: 'image/png',
+            type: 'image/png'
           },
           {
-            src: '/icon-512.png',
+            src: '/pwa-512x512.png',
             sizes: '512x512',
             type: 'image/png',
-            purpose: 'any maskable',
-          },
-        ],
+            purpose: 'any maskable'
+          }
+        ]
       },
       workbox: {
         globPatterns: ['**/*.{js,css,html,ico,png,svg,webp}'],
@@ -56,69 +56,69 @@ export default defineConfig({
               cacheName: 'google-fonts-cache',
               expiration: {
                 maxEntries: 10,
-                maxAgeSeconds: 60 * 60 * 24 * 365, // 1 year
+                maxAgeSeconds: 60 * 60 * 24 * 365 // 365 days
               },
               cacheableResponse: {
-                statuses: [0, 200],
-              },
-            },
+                statuses: [0, 200]
+              }
+            }
           },
           {
-            urlPattern: /^https:\/\/images\.unsplash\.com\/.*/i,
+            urlPattern: /^https:\/\/fonts\.gstatic\.com\/.*/i,
             handler: 'CacheFirst',
             options: {
-              cacheName: 'unsplash-images-cache',
+              cacheName: 'gstatic-fonts-cache',
               expiration: {
-                maxEntries: 100,
-                maxAgeSeconds: 60 * 60 * 24 * 30, // 30 days
+                maxEntries: 10,
+                maxAgeSeconds: 60 * 60 * 24 * 365 // 365 days
               },
               cacheableResponse: {
-                statuses: [0, 200],
-              },
-            },
+                statuses: [0, 200]
+              }
+            }
           },
           {
-            urlPattern: /\/api\/.*/i,
+            urlPattern: /^https:\/\/.*\.firebaseapp\.com\/.*/i,
             handler: 'NetworkFirst',
             options: {
               cacheName: 'api-cache',
-              networkTimeoutSeconds: 10,
               expiration: {
                 maxEntries: 50,
-                maxAgeSeconds: 60 * 5, // 5 minutes
+                maxAgeSeconds: 60 * 60 * 24 // 24 hours
               },
               cacheableResponse: {
-                statuses: [0, 200],
-              },
-            },
-          },
-        ],
-      },
+                statuses: [0, 200]
+              }
+            }
+          }
+        ]
+      }
     }),
     
-    // Compression Plugin
-    compression({
+    // Bundle analyzer
+    visualizer({
+      open: false,
+      gzipSize: true,
+      brotliSize: true,
+      filename: 'dist/bundle-analysis.html'
+    }),
+    
+    // Gzip compression
+    viteCompression({
       algorithm: 'gzip',
       ext: '.gz',
-      threshold: 10240, // 10KB
-      deleteOriginFile: false,
+      threshold: 10240,
+      deleteOriginFile: false
     }),
     
-    compression({
+    // Brotli compression
+    viteCompression({
       algorithm: 'brotliCompress',
       ext: '.br',
       threshold: 10240,
-      deleteOriginFile: false,
-    }),
-    
-    // Bundle Visualizer (only in analyze mode)
-    process.env.ANALYZE && visualizer({
-      open: true,
-      filename: 'dist/stats.html',
-      gzipSize: true,
-      brotliSize: true,
-    }),
-  ].filter(Boolean),
+      deleteOriginFile: false
+    })
+  ],
   
   resolve: {
     alias: {
@@ -126,78 +126,48 @@ export default defineConfig({
       '@components': path.resolve(__dirname, './src/components'),
       '@pages': path.resolve(__dirname, './src/pages'),
       '@services': path.resolve(__dirname, './src/services'),
-      '@utils': path.resolve(__dirname, './src/utils'),
       '@hooks': path.resolve(__dirname, './src/hooks'),
-      '@stores': path.resolve(__dirname, './src/stores'),
+      '@utils': path.resolve(__dirname, './src/utils'),
       '@types': path.resolve(__dirname, './src/types'),
       '@assets': path.resolve(__dirname, './src/assets'),
-    },
+      '@stores': path.resolve(__dirname, './src/stores'),
+      '@config': path.resolve(__dirname, './src/config'),
+      '@api': path.resolve(__dirname, './src/api')
+    }
   },
   
   build: {
-    target: 'es2015',
-    minify: 'terser',
-    terserOptions: {
-      compress: {
-        drop_console: process.env.NODE_ENV === 'production',
-        drop_debugger: true,
-        pure_funcs: ['console.log', 'console.info'],
-        passes: 2,
-      },
-      mangle: {
-        safari10: true,
-      },
-      format: {
-        comments: false,
-      },
-    },
+    outDir: 'dist',
+    sourcemap: false, // Disable for production
     
+    // Rollup options for code splitting
     rollupOptions: {
       output: {
-        // Manual chunk splitting for optimal caching
         manualChunks: {
-          // React core
+          // Vendor chunks
           'react-vendor': ['react', 'react-dom', 'react-router-dom'],
-          
-          // UI libraries
-          'ui-vendor': [
-            'framer-motion',
-            '@headlessui/react',
-            '@heroicons/react/24/outline',
-            '@heroicons/react/24/solid',
-            'clsx',
-          ],
-          
-          // Firebase
           'firebase-vendor': [
             'firebase/app',
             'firebase/auth',
             'firebase/firestore',
             'firebase/storage',
-            'firebase/analytics',
-            'firebase/performance',
+            'firebase/database',
+            'firebase/functions'
           ],
-          
-          // Form & validation
-          'form-vendor': [
-            'react-hook-form',
-            '@hookform/resolvers',
-            'yup',
+          'ui-vendor': [
+            'framer-motion',
+            '@headlessui/react',
+            '@heroicons/react'
           ],
-          
-          // State & data
-          'data-vendor': [
-            'zustand',
-            '@tanstack/react-query',
+          'utils-vendor': [
+            'axios',
             'date-fns',
+            'lodash',
+            'yup',
+            'react-hook-form'
           ],
           
-          // Utilities
-          'utils': [
-            'react-hot-toast',
-            'react-dropzone',
-            'react-intersection-observer',
-          ],
+
         },
         
         // Asset file naming
@@ -205,28 +175,34 @@ export default defineConfig({
           const info = assetInfo.name.split('.');
           const ext = info[info.length - 1];
           
-          if (/png|jpe?g|svg|gif|tiff|bmp|ico/i.test(ext)) {
+          if (/\.(png|jpe?g|svg|gif|tiff|bmp|ico|webp)$/i.test(assetInfo.name)) {
             return `assets/images/[name]-[hash][extname]`;
-          } else if (/woff|woff2|eot|ttf|otf/i.test(ext)) {
-            return `assets/fonts/[name]-[hash][extname]`;
-          } else {
-            return `assets/[name]-[hash][extname]`;
           }
+          
+          if (/\.(woff2?|ttf|otf|eot)$/i.test(assetInfo.name)) {
+            return `assets/fonts/[name]-[hash][extname]`;
+          }
+          
+          if (ext === 'css') {
+            return `assets/css/[name]-[hash][extname]`;
+          }
+          
+          return `assets/[name]-[hash][extname]`;
         },
         
+        // Chunk file naming
         chunkFileNames: 'assets/js/[name]-[hash].js',
-        entryFileNames: 'assets/js/[name]-[hash].js',
-      },
+        
+        // Entry file naming
+        entryFileNames: 'assets/js/[name]-[hash].js'
+      }
     },
     
+    // Target modern browsers
+    target: 'es2015',
+    
     // Chunk size warnings
-    chunkSizeWarningLimit: 500, // 500KB
-    
-    // Source maps for production debugging
-    sourcemap: process.env.NODE_ENV === 'production' ? 'hidden' : true,
-    
-    // CSS code splitting
-    cssCodeSplit: true,
+    chunkSizeWarningLimit: 1000, // 1MB
     
     // Asset inlining threshold
     assetsInlineLimit: 4096, // 4KB
@@ -234,20 +210,31 @@ export default defineConfig({
     // Report compressed size
     reportCompressedSize: true,
     
-<<<<<<< Current (Your changes)
-    // CSS optimization
-    css: {
-      preprocessorOptions: {
-        scss: {
-          additionalData: `@import "@/styles/variables.scss";`
-        }
-      }
-    }
-  }
-})
-=======
     // Empty out dir before build
     emptyOutDir: true,
+    
+    // CSS code splitting
+    cssCodeSplit: true,
+    
+    // Minify options
+    minify: 'terser',
+    terserOptions: {
+      compress: {
+        drop_console: true,
+        drop_debugger: true,
+        pure_funcs: ['console.log', 'console.info'],
+        passes: 2
+      },
+      format: {
+        comments: false
+      },
+      mangle: {
+        safari10: true
+      }
+    },
+    
+    // CSS optimization
+    cssMinify: true
   },
   
   optimizeDeps: {
@@ -291,4 +278,3 @@ export default defineConfig({
   // Environment variables prefix
   envPrefix: 'VITE_',
 });
->>>>>>> Incoming (Background Agent changes)

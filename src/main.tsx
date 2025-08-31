@@ -150,14 +150,11 @@ try {
     </div>
   `;
   
-<<<<<<< Current (Your changes)
-  console.log('🆘 Emergency fallback content displayed');
-=======
   // console.log('🆘 Emergency fallback content displayed');
 }
 
 // Register Service Worker for PWA and caching
-if ('serviceWorker' in navigator && process.env.NODE_ENV === 'production') {
+if ('serviceWorker' in navigator && import.meta.env.PROD) {
   window.addEventListener('load', () => {
     navigator.serviceWorker
       .register('/service-worker.js')
@@ -187,5 +184,4 @@ if ('serviceWorker' in navigator && process.env.NODE_ENV === 'production') {
         // console.error('❌ Service Worker registration failed:', error);
       });
   });
->>>>>>> Incoming (Background Agent changes)
 }
