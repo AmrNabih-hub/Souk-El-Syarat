@@ -1,74 +1,68 @@
 {
   "rules": {
-    ".read": false,
-    ".write": false,
+    ".read": "auth != null",
+    ".write": "auth != null",
     
-    "stats": {
+    "products": {
+      ".read": true,
+      ".write": "auth != null && (auth.token.role == 'admin' || auth.token.role == 'vendor')"
+    },
+    
+    "categories": {
       ".read": true,
       ".write": "auth != null && auth.token.role == 'admin'"
     },
     
-    "presence": {
-      ".read": true,
+    "users": {
       "$uid": {
-        ".write": "$uid === auth.uid"
+        ".read": "auth != null && (auth.uid == $uid || auth.token.role == 'admin')",
+        ".write": "auth != null && (auth.uid == $uid || auth.token.role == 'admin')"
       }
     },
     
-    "notifications": {
-      "$uid": {
-        ".read": "$uid === auth.uid || auth.token.role == 'admin'",
-        ".write": "auth != null && (auth.token.role == 'admin' || $uid === auth.uid)"
+    "orders": {
+      "$orderId": {
+        ".read": "auth != null",
+        ".write": "auth != null"
       }
     },
     
-    "chat": {
-      "rooms": {
-        "$roomId": {
-          ".read": "auth != null",
-          ".write": "auth != null",
-          "messages": {
-            "$messageId": {
-              ".validate": "newData.hasChildren(['text', 'senderId', 'timestamp']) && newData.child('senderId').val() == auth.uid"
-            }
+    "chats": {
+      "$chatId": {
+        ".read": "auth != null",
+        ".write": "auth != null",
+        
+        "messages": {
+          "$messageId": {
+            ".read": "auth != null",
+            ".write": "auth != null"
           }
         }
       }
     },
     
-    "products": {
+    "inventory": {
+      "$productId": {
+        ".read": true,
+        ".write": "auth != null && (auth.token.role == 'admin' || auth.token.role == 'vendor')"
+      }
+    },
+    
+    "status": {
+      "$uid": {
+        ".read": true,
+        ".write": "auth != null && auth.uid == $uid"
+      }
+    },
+    
+    "statistics": {
       ".read": true,
-      ".write": "auth != null && auth.token.role in ['admin', 'vendor']",
-      ".indexOn": ["category", "brand", "price", "createdAt"]
+      ".write": "auth != null && auth.token.role == 'admin'"
     },
     
-    "orders": {
-      "$orderId": {
-        ".read": "auth != null && (data.child('userId').val() == auth.uid || data.child('vendorId').val() == auth.uid || auth.token.role == 'admin')",
-        ".write": "auth != null && (data.child('userId').val() == auth.uid || data.child('vendorId').val() == auth.uid || auth.token.role == 'admin')"
-      }
-    },
-    
-    "search": {
-      "queries": {
-        ".read": true,
-        ".write": true
-      },
-      "results": {
-        ".read": true,
-        ".write": false
-      }
-    },
-    
-    "analytics": {
-      ".read": "auth != null && auth.token.role == 'admin'",
-      ".write": false,
-      "pageviews": {
-        ".write": true
-      },
-      "events": {
-        ".write": true
-      }
+    "test": {
+      ".read": true,
+      ".write": true
     }
   }
 }
