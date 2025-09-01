@@ -32,49 +32,16 @@ if (process.env.NODE_ENV === 'production') {
   app.use(morgan('dev')); // Concise colored output for development
 }
 
-// Body parsing with size limits (MUST be before CORS for proper handling)
+// Apply professional CORS configuration
+app.use(corsMiddleware);
+app.use(customCorsMiddleware());
+
+// Body parsing with size limits
 app.use(express.json({ limit: '10mb' }));
 app.use(express.urlencoded({ extended: true, limit: '10mb' }));
 
-// Apply professional CORS configuration
-app.use(corsMiddleware);
-
-// Apply comprehensive security suite FIRST
+// Apply comprehensive security suite
 applySecurity(app);
-
-// Apply custom middleware LAST to override any conflicting headers
-app.use(customCorsMiddleware());
-
-// Additional security enforcement
-app.use((req, res, next) => {
-  // FORCE security headers on EVERY response
-  res.setHeader('X-XSS-Protection', '1; mode=block');
-  res.setHeader('X-Content-Type-Options', 'nosniff');
-  res.setHeader('X-Frame-Options', 'DENY');
-  
-  // Block requests from unauthorized origins
-  const origin = req.headers.origin;
-  if (origin && !isOriginAllowed(origin)) {
-    return res.status(403).json({
-      error: 'Forbidden',
-      message: 'Origin not allowed',
-      origin: origin
-    });
-  }
-  
-  next();
-});
-
-// Helper function to check allowed origins
-function isOriginAllowed(origin: string): boolean {
-  const allowed = [
-    'https://souk-el-syarat.web.app',
-    'https://souk-el-syarat.firebaseapp.com',
-    'http://localhost:3000',
-    'http://localhost:5173'
-  ];
-  return allowed.includes(origin) || /^https:\/\/preview-[\w-]+\.souk-el-syarat\.web\.app$/.test(origin);
-}
 
 // Request ID middleware for tracing
 app.use((req: any, res, next) => {

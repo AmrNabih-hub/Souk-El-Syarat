@@ -65,42 +65,14 @@ if (process.env.NODE_ENV === 'production') {
 else {
     app.use((0, morgan_1.default)('dev')); // Concise colored output for development
 }
-// Body parsing with size limits (MUST be before CORS for proper handling)
-app.use(express_1.default.json({ limit: '10mb' }));
-app.use(express_1.default.urlencoded({ extended: true, limit: '10mb' }));
 // Apply professional CORS configuration
 app.use(cors_config_1.default);
-// Apply comprehensive security suite FIRST
-(0, security_1.applySecurity)(app);
-// Apply custom middleware LAST to override any conflicting headers
 app.use((0, cors_config_1.customCorsMiddleware)());
-// Additional security enforcement
-app.use((req, res, next) => {
-    // FORCE security headers on EVERY response
-    res.setHeader('X-XSS-Protection', '1; mode=block');
-    res.setHeader('X-Content-Type-Options', 'nosniff');
-    res.setHeader('X-Frame-Options', 'DENY');
-    // Block requests from unauthorized origins
-    const origin = req.headers.origin;
-    if (origin && !isOriginAllowed(origin)) {
-        return res.status(403).json({
-            error: 'Forbidden',
-            message: 'Origin not allowed',
-            origin: origin
-        });
-    }
-    next();
-});
-// Helper function to check allowed origins
-function isOriginAllowed(origin) {
-    const allowed = [
-        'https://souk-el-syarat.web.app',
-        'https://souk-el-syarat.firebaseapp.com',
-        'http://localhost:3000',
-        'http://localhost:5173'
-    ];
-    return allowed.includes(origin) || /^https:\/\/preview-[\w-]+\.souk-el-syarat\.web\.app$/.test(origin);
-}
+// Body parsing with size limits
+app.use(express_1.default.json({ limit: '10mb' }));
+app.use(express_1.default.urlencoded({ extended: true, limit: '10mb' }));
+// Apply comprehensive security suite
+(0, security_1.applySecurity)(app);
 // Request ID middleware for tracing
 app.use((req, res, next) => {
     req.id = req.headers['x-request-id'] || `req_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
@@ -557,4 +529,4 @@ app.use((err, req, res, next) => {
 });
 // Export the Express app as a Cloud Function
 exports.api = functions.https.onRequest(app);
-//# sourceMappingURL=index-enhanced.js.map
+//# sourceMappingURL=index-broken.js.map

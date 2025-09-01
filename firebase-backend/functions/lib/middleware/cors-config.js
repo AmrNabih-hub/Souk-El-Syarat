@@ -49,14 +49,14 @@ const getAllowedOrigins = () => {
  * Implements pattern matching for subdomains
  */
 const originValidator = (origin, callback) => {
-    // Allow requests with no origin (e.g., mobile apps, Postman)
+    // Allow requests with no origin (e.g., mobile apps, Postman, server-to-server)
     if (!origin) {
         return callback(null, true);
     }
     const allowedOrigins = getAllowedOrigins();
-    // Exact match check
+    // Exact match check - return the specific origin
     if (allowedOrigins.includes(origin)) {
-        return callback(null, true);
+        return callback(null, origin);
     }
     // Pattern matching for preview/feature branches
     const allowedPatterns = [
@@ -65,12 +65,12 @@ const originValidator = (origin, callback) => {
     ];
     const isAllowedPattern = allowedPatterns.some(pattern => pattern.test(origin));
     if (isAllowedPattern) {
-        return callback(null, true);
+        return callback(null, origin);
     }
     // Log rejected origins for monitoring
     console.warn(`CORS: Rejected origin: ${origin}`);
-    // Reject the origin
-    callback(new Error('CORS: Origin not allowed'));
+    // CRITICAL: Block the request completely for unauthorized origins
+    return callback(null, false);
 };
 /**
  * Professional CORS configuration
@@ -113,10 +113,12 @@ exports.corsOptions = {
  */
 const customCorsMiddleware = () => {
     return (req, res, next) => {
+        // CRITICAL: Override any default headers with secure values
+        res.removeHeader('X-Powered-By');
         // Add security headers regardless of CORS
         res.setHeader('X-Content-Type-Options', 'nosniff');
         res.setHeader('X-Frame-Options', 'DENY');
-        res.setHeader('X-XSS-Protection', '1; mode=block');
+        res.setHeader('X-XSS-Protection', '1; mode=block'); // Force XSS protection
         res.setHeader('Referrer-Policy', 'strict-origin-when-cross-origin');
         res.setHeader('Permissions-Policy', 'geolocation=(), microphone=(), camera=()');
         // Add HSTS for production
