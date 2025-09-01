@@ -1,1038 +1,291 @@
 /**
- * PROFESSIONAL PRODUCTION-READY BACKEND
- * Souk El-Syarat Marketplace
- * Complete Real-time Implementation
+ * Souk El-Sayarat Backend - 2025 Professional Implementation
+ * Complete Firebase Cloud Functions with Real-time Features
  */
 
 import * as functions from 'firebase-functions';
 import * as admin from 'firebase-admin';
-import express, { Request, Response } from 'express';
+import express from 'express';
 import cors from 'cors';
+import helmet from 'helmet';
+import compression from 'compression';
+import rateLimit from 'express-rate-limit';
 
 // Initialize Firebase Admin
-admin.initializeApp();
+if (!admin.apps.length) {
+  admin.initializeApp();
+}
 
-const db = admin.firestore();
-const auth = admin.auth();
-const realtimeDb = admin.database();
-const storage = admin.storage();
+// Import services
+import { modernAuth } from './auth/modern-auth.service';
+import { realtimeService } from './realtime/realtime.service';
 
-// Create Express app with proper typing
+// Initialize Express app
 const app = express();
 
-// Configure CORS for production
-app.use(cors({ 
-  origin: [
-    'https://souk-el-syarat.web.app',
-    'https://souk-el-syarat.firebaseapp.com',
-    'http://localhost:5173',
-    'http://localhost:3000'
-  ],
-  credentials: true 
+// Security middleware
+app.use(helmet({
+  contentSecurityPolicy: {
+    directives: {
+      defaultSrc: ["'self'"],
+      styleSrc: ["'self'", "'unsafe-inline'"],
+      scriptSrc: ["'self'", "'unsafe-inline'", "'unsafe-eval'"],
+      imgSrc: ["'self'", "data:", "https:"],
+    },
+  },
+  crossOriginEmbedderPolicy: false,
 }));
 
+// CORS configuration
+app.use(cors({
+  origin: [
+    'http://localhost:5173',
+    'http://localhost:3000',
+    'https://souk-el-syarat.web.app',
+    'https://souk-el-syarat.firebaseapp.com'
+  ],
+  credentials: true,
+  methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'OPTIONS'],
+  allowedHeaders: ['Content-Type', 'Authorization', 'X-Device-Id', 'X-Fingerprint']
+}));
+
+// Compression
+app.use(compression());
+
+// Body parsing
 app.use(express.json({ limit: '10mb' }));
 app.use(express.urlencoded({ extended: true, limit: '10mb' }));
 
-// ============================================
-// MIDDLEWARE
-// ============================================
+// Rate limiting
+const limiter = rateLimit({
+  windowMs: 15 * 60 * 1000, // 15 minutes
+  max: 100, // limit each IP to 100 requests per windowMs
+  message: 'Too many requests from this IP, please try again later.'
+});
 
-// Auth middleware
-const authenticateUser = async (req: Request, res: Response, next: Function) => {
-  try {
-    const token = req.headers.authorization?.split('Bearer ')[1];
-    if (!token) {
-      return res.status(401).json({ success: false, error: 'No token provided' });
-    }
-    
-    const decodedToken = await auth.verifyIdToken(token);
-    (req as any).user = decodedToken;
-    next();
-  } catch (error) {
-    return res.status(401).json({ success: false, error: 'Invalid token' });
-  }
-};
+app.use('/api/', limiter);
 
-// Admin middleware
-const requireAdmin = async (req: Request, res: Response, next: Function) => {
-  const user = (req as any).user;
-  if (!user) {
-    return res.status(401).json({ success: false, error: 'Unauthorized' });
-  }
-  
-  const userDoc = await db.collection('users').doc(user.uid).get();
-  const userData = userDoc.data();
-  
-  if (userData?.role !== 'admin') {
-    return res.status(403).json({ success: false, error: 'Admin access required' });
-  }
-  
+// Request logging middleware
+app.use((req, res, next) => {
+  console.log(`${new Date().toISOString()} - ${req.method} ${req.path}`);
   next();
-};
+});
 
 // ============================================
-// AUTHENTICATION ENDPOINTS - COMPLETE
+// AUTHENTICATION ENDPOINTS
 // ============================================
 
-// Register new user with real-time sync
-app.post('/api/auth/register', async (req: Request, res: Response) => {
-  try {
-    const { email, password, firstName, lastName, phoneNumber, role = 'customer' } = req.body;
-    
-    // Validate input
-    if (!email || !password || !firstName || !lastName) {
-      return res.status(400).json({
-        success: false,
-        error: 'Missing required fields'
-      });
+// Health check
+app.get('/api/health', (req, res) => {
+  res.json({
+    status: 'healthy',
+    timestamp: new Date().toISOString(),
+    version: '2.0.0',
+    services: {
+      auth: 'active',
+      database: 'active',
+      realtime: 'active',
+      storage: 'active'
     }
+  });
+});
+
+// Passwordless authentication
+app.post('/api/auth/passwordless/init', async (req, res) => {
+  try {
+    const { email, deviceInfo } = req.body;
+    
+    if (!email) {
+      return res.status(400).json({ error: 'Email is required' });
+    }
+    
+    const result = await modernAuth.initPasswordlessAuth(email, deviceInfo || {});
+    
+    if (result.success) {
+      res.json({ success: true, challengeId: result.challengeId });
+    } else {
+      res.status(400).json({ error: 'Failed to initialize authentication' });
+    }
+  } catch (error) {
+    console.error('Passwordless init error:', error);
+    res.status(500).json({ error: 'Internal server error' });
+  }
+});
+
+// Verify passwordless authentication
+app.post('/api/auth/passwordless/verify', async (req, res) => {
+  try {
+    const { challengeId, token } = req.body;
+    
+    if (!challengeId || !token) {
+      return res.status(400).json({ error: 'Challenge ID and token are required' });
+    }
+    
+    const result = await modernAuth.verifyPasswordlessAuth(challengeId, token);
+    
+    if (result.success) {
+      res.json({
+        success: true,
+        authToken: result.authToken,
+        refreshToken: result.refreshToken
+      });
+    } else {
+      res.status(401).json({ error: 'Authentication failed' });
+    }
+  } catch (error) {
+    console.error('Passwordless verify error:', error);
+    res.status(500).json({ error: 'Internal server error' });
+  }
+});
+
+// Traditional signup
+app.post('/api/auth/signup', async (req, res) => {
+  try {
+    const { email, password, role = 'customer', profile } = req.body;
     
     // Create user in Firebase Auth
-    const userRecord = await auth.createUser({
+    const userRecord = await admin.auth().createUser({
       email,
       password,
-      displayName: `${firstName} ${lastName}`,
-      phoneNumber: phoneNumber || undefined
+      emailVerified: false
+    });
+    
+    // Set custom claims
+    await admin.auth().setCustomUserClaims(userRecord.uid, {
+      role,
+      permissions: role === 'vendor' 
+        ? ['read:products', 'create:products', 'update:products', 'delete:products']
+        : ['read:products', 'create:orders']
     });
     
     // Create user profile in Firestore
-    const userProfile = {
+    await admin.firestore().collection('users').doc(userRecord.uid).set({
       email,
-      firstName,
-      lastName,
-      phoneNumber: phoneNumber || null,
       role,
-      displayName: `${firstName} ${lastName}`,
-      isActive: true,
-      emailVerified: false,
+      profile: profile || {},
       createdAt: admin.firestore.FieldValue.serverTimestamp(),
-      updatedAt: admin.firestore.FieldValue.serverTimestamp(),
-      preferences: {
-        language: 'ar',
-        currency: 'EGP',
-        notifications: {
-          email: true,
-          sms: false,
-          push: true
-        }
-      }
-    };
-    
-    await db.collection('users').doc(userRecord.uid).set(userProfile);
-    
-    // Sync to Realtime Database for instant updates
-    await realtimeDb.ref(`users/${userRecord.uid}`).set({
-      displayName: `${firstName} ${lastName}`,
-      email,
-      role,
-      status: 'online',
-      lastSeen: admin.database.ServerValue.TIMESTAMP
+      emailVerified: false,
+      active: true
     });
     
-    // Update stats
-    await realtimeDb.ref('stats/users/total').transaction((current: number) => (current || 0) + 1);
-    await realtimeDb.ref(`stats/users/by-role/${role}`).transaction((current: number) => (current || 0) + 1);
+    // Create custom token
+    const customToken = await admin.auth().createCustomToken(userRecord.uid);
     
-    // Create custom token for immediate login
-    const customToken = await auth.createCustomToken(userRecord.uid);
-    
-    // Log registration event
-    await db.collection('audit_logs').add({
-      action: 'user_registered',
-      userId: userRecord.uid,
-      email,
-      role,
-      timestamp: admin.firestore.FieldValue.serverTimestamp()
-    });
-    
-    res.status(201).json({
+    res.json({
       success: true,
-      message: 'User registered successfully',
-      data: {
-        uid: userRecord.uid,
-        email: userRecord.email,
-        displayName: userRecord.displayName,
-        customToken
-      }
+      uid: userRecord.uid,
+      email: userRecord.email,
+      customToken
     });
-  } catch (error: any) {
-    console.error('Registration error:', error);
-    res.status(400).json({
-      success: false,
-      error: error.message || 'Registration failed'
-    });
+  } catch (error) {
+    console.error('Signup error:', error);
+    res.status(400).json({ error: error.message });
   }
 });
 
-// Login endpoint (for custom login if needed)
-app.post('/api/auth/login', async (req: Request, res: Response) => {
+// Traditional signin
+app.post('/api/auth/signin', async (req, res) => {
   try {
-    const { email, password } = req.body;
+    const { email, idToken } = req.body;
     
-    // Note: Firebase handles login on client-side
-    // This endpoint is for server-side validation if needed
+    // Verify the ID token
+    const decodedToken = await admin.auth().verifyIdToken(idToken);
     
-    // Get user by email
-    const userRecord = await auth.getUserByEmail(email);
+    // Get user data
+    const userDoc = await admin.firestore().collection('users').doc(decodedToken.uid).get();
+    const userData = userDoc.data();
     
     // Update last login
-    await db.collection('users').doc(userRecord.uid).update({
+    await userDoc.ref.update({
       lastLogin: admin.firestore.FieldValue.serverTimestamp()
     });
     
-    // Update realtime status
-    await realtimeDb.ref(`users/${userRecord.uid}/status`).set('online');
-    await realtimeDb.ref(`users/${userRecord.uid}/lastSeen`).set(admin.database.ServerValue.TIMESTAMP);
-    
-    // Create custom token
-    const customToken = await auth.createCustomToken(userRecord.uid);
-    
     res.json({
       success: true,
-      message: 'Login successful',
-      data: {
-        uid: userRecord.uid,
-        email: userRecord.email,
-        customToken
-      }
+      uid: decodedToken.uid,
+      email: decodedToken.email,
+      role: userData?.role || 'customer',
+      profile: userData?.profile || {}
     });
-  } catch (error: any) {
-    res.status(401).json({
-      success: false,
-      error: 'Invalid credentials'
-    });
+  } catch (error) {
+    console.error('Signin error:', error);
+    res.status(401).json({ error: 'Authentication failed' });
   }
 });
 
-// Get user profile with real-time data
-app.get('/api/auth/profile/:userId', authenticateUser, async (req: Request, res: Response) => {
+// Social authentication
+app.post('/api/auth/social', async (req, res) => {
   try {
-    const { userId } = req.params;
+    const { provider, idToken } = req.body;
     
-    // Get from Firestore
-    const userDoc = await db.collection('users').doc(userId).get();
+    const result = await modernAuth.socialAuth(provider, idToken);
     
-    if (!userDoc.exists) {
-      return res.status(404).json({
-        success: false,
-        error: 'User not found'
+    if (result.success) {
+      res.json({
+        success: true,
+        authToken: result.authToken,
+        refreshToken: result.refreshToken
       });
-    }
-    
-    // Get real-time status
-    const realtimeSnapshot = await realtimeDb.ref(`users/${userId}`).once('value');
-    const realtimeData = realtimeSnapshot.val();
-    
-    res.json({
-      success: true,
-      data: {
-        id: userDoc.id,
-        ...userDoc.data(),
-        onlineStatus: realtimeData?.status || 'offline',
-        lastSeen: realtimeData?.lastSeen
-      }
-    });
-  } catch (error: any) {
-    res.status(500).json({
-      success: false,
-      error: error.message
-    });
-  }
-});
-
-// Update user profile
-app.put('/api/auth/profile', authenticateUser, async (req: Request, res: Response) => {
-  try {
-    const userId = (req as any).user.uid;
-    const updates = req.body;
-    
-    // Remove sensitive fields
-    delete updates.role;
-    delete updates.uid;
-    delete updates.email;
-    
-    // Update Firestore
-    await db.collection('users').doc(userId).update({
-      ...updates,
-      updatedAt: admin.firestore.FieldValue.serverTimestamp()
-    });
-    
-    // Update Realtime Database
-    if (updates.displayName) {
-      await realtimeDb.ref(`users/${userId}/displayName`).set(updates.displayName);
-    }
-    
-    res.json({
-      success: true,
-      message: 'Profile updated successfully'
-    });
-  } catch (error: any) {
-    res.status(400).json({
-      success: false,
-      error: error.message
-    });
-  }
-});
-
-// ============================================
-// VENDOR MANAGEMENT - COMPLETE WORKFLOW
-// ============================================
-
-// Apply as vendor with real-time tracking
-app.post('/api/vendors/apply', authenticateUser, async (req: Request, res: Response) => {
-  try {
-    const userId = (req as any).user.uid;
-    const {
-      businessName,
-      businessType,
-      nationalId,
-      commercialRegister,
-      taxNumber,
-      businessAddress,
-      bankAccount,
-      subscriptionPlan,
-      instaPayProof // Base64 image of InstaPay transaction
-    } = req.body;
-    
-    // Create vendor application
-    const applicationData = {
-      userId,
-      businessName,
-      businessType,
-      nationalId,
-      commercialRegister,
-      taxNumber,
-      businessAddress,
-      bankAccount,
-      subscriptionPlan,
-      instaPayProof,
-      status: 'pending',
-      submittedAt: admin.firestore.FieldValue.serverTimestamp(),
-      reviewedAt: null,
-      reviewedBy: null,
-      rejectionReason: null
-    };
-    
-    const applicationRef = await db.collection('vendor_applications').add(applicationData);
-    
-    // Create real-time tracking
-    await realtimeDb.ref(`vendor_applications/${applicationRef.id}`).set({
-      applicationId: applicationRef.id,
-      userId,
-      businessName,
-      status: 'pending',
-      submittedAt: Date.now(),
-      updates: []
-    });
-    
-    // Notify all admins in real-time
-    await realtimeDb.ref('admin/notifications').push({
-      type: 'new_vendor_application',
-      applicationId: applicationRef.id,
-      businessName,
-      userId,
-      timestamp: admin.database.ServerValue.TIMESTAMP,
-      read: false,
-      priority: 'high'
-    });
-    
-    // Send email to admin
-    await db.collection('email_queue').add({
-      to: 'admin@souk-elsyarat.com',
-      template: 'vendor_application',
-      data: {
-        businessName,
-        applicationId: applicationRef.id
-      },
-      status: 'pending'
-    });
-    
-    res.status(201).json({
-      success: true,
-      message: 'Vendor application submitted successfully',
-      data: {
-        applicationId: applicationRef.id,
-        status: 'pending'
-      }
-    });
-  } catch (error: any) {
-    res.status(400).json({
-      success: false,
-      error: error.message
-    });
-  }
-});
-
-// Get vendor application status with real-time updates
-app.get('/api/vendors/application/:applicationId', authenticateUser, async (req: Request, res: Response) => {
-  try {
-    const { applicationId } = req.params;
-    const userId = (req as any).user.uid;
-    
-    // Get application
-    const appDoc = await db.collection('vendor_applications').doc(applicationId).get();
-    
-    if (!appDoc.exists) {
-      return res.status(404).json({
-        success: false,
-        error: 'Application not found'
-      });
-    }
-    
-    const appData = appDoc.data();
-    
-    // Verify ownership
-    if (appData?.userId !== userId && (req as any).user.role !== 'admin') {
-      return res.status(403).json({
-        success: false,
-        error: 'Unauthorized'
-      });
-    }
-    
-    // Get real-time updates
-    const realtimeSnapshot = await realtimeDb.ref(`vendor_applications/${applicationId}`).once('value');
-    const realtimeData = realtimeSnapshot.val();
-    
-    res.json({
-      success: true,
-      data: {
-        id: appDoc.id,
-        ...appData,
-        realtimeUpdates: realtimeData?.updates || []
-      }
-    });
-  } catch (error: any) {
-    res.status(500).json({
-      success: false,
-      error: error.message
-    });
-  }
-});
-
-// Admin approve/reject vendor application
-app.put('/api/vendors/application/:applicationId/review', authenticateUser, requireAdmin, async (req: Request, res: Response) => {
-  try {
-    const { applicationId } = req.params;
-    const { status, rejectionReason } = req.body;
-    const adminId = (req as any).user.uid;
-    
-    if (!['approved', 'rejected'].includes(status)) {
-      return res.status(400).json({
-        success: false,
-        error: 'Invalid status'
-      });
-    }
-    
-    // Get application
-    const appDoc = await db.collection('vendor_applications').doc(applicationId).get();
-    if (!appDoc.exists) {
-      return res.status(404).json({
-        success: false,
-        error: 'Application not found'
-      });
-    }
-    
-    const appData = appDoc.data()!;
-    
-    // Update application
-    const updateData: any = {
-      status,
-      reviewedAt: admin.firestore.FieldValue.serverTimestamp(),
-      reviewedBy: adminId
-    };
-    
-    if (status === 'rejected') {
-      updateData.rejectionReason = rejectionReason;
-    }
-    
-    await db.collection('vendor_applications').doc(applicationId).update(updateData);
-    
-    // If approved, create vendor account
-    if (status === 'approved') {
-      const vendorData = {
-        userId: appData.userId,
-        businessName: appData.businessName,
-        businessType: appData.businessType,
-        nationalId: appData.nationalId,
-        commercialRegister: appData.commercialRegister,
-        taxNumber: appData.taxNumber,
-        businessAddress: appData.businessAddress,
-        bankAccount: appData.bankAccount,
-        subscriptionPlan: appData.subscriptionPlan,
-        subscriptionStatus: 'active',
-        subscriptionExpiry: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000), // 30 days
-        isActive: true,
-        isVerified: true,
-        rating: 0,
-        totalSales: 0,
-        totalProducts: 0,
-        joinedAt: admin.firestore.FieldValue.serverTimestamp()
-      };
-      
-      await db.collection('vendors').doc(appData.userId).set(vendorData);
-      
-      // Update user role
-      await db.collection('users').doc(appData.userId).update({
-        role: 'vendor',
-        vendorId: appData.userId
-      });
-      
-      // Update auth custom claims
-      await auth.setCustomUserClaims(appData.userId, { role: 'vendor' });
-    }
-    
-    // Update real-time status
-    await realtimeDb.ref(`vendor_applications/${applicationId}`).update({
-      status,
-      reviewedAt: Date.now(),
-      reviewedBy: adminId
-    });
-    
-    // Add to updates history
-    await realtimeDb.ref(`vendor_applications/${applicationId}/updates`).push({
-      status,
-      timestamp: admin.database.ServerValue.TIMESTAMP,
-      by: adminId,
-      reason: rejectionReason || null
-    });
-    
-    // Notify user in real-time
-    await realtimeDb.ref(`users/${appData.userId}/notifications`).push({
-      type: 'vendor_application_reviewed',
-      status,
-      applicationId,
-      timestamp: admin.database.ServerValue.TIMESTAMP,
-      read: false
-    });
-    
-    res.json({
-      success: true,
-      message: `Application ${status} successfully`
-    });
-  } catch (error: any) {
-    res.status(400).json({
-      success: false,
-      error: error.message
-    });
-  }
-});
-
-// ============================================
-// SELL CAR APPROVAL SYSTEM
-// ============================================
-
-// Submit car for sale
-app.post('/api/cars/sell', authenticateUser, async (req: Request, res: Response) => {
-  try {
-    const userId = (req as any).user.uid;
-    const {
-      brand,
-      model,
-      year,
-      mileage,
-      condition,
-      price,
-      description,
-      images, // Array of base64 images
-      location,
-      contactNumber
-    } = req.body;
-    
-    // Create car listing (pending approval)
-    const carData = {
-      userId,
-      brand,
-      model,
-      year,
-      mileage,
-      condition,
-      price,
-      description,
-      images,
-      location,
-      contactNumber,
-      status: 'pending_approval',
-      isActive: false,
-      views: 0,
-      inquiries: 0,
-      submittedAt: admin.firestore.FieldValue.serverTimestamp(),
-      approvedAt: null,
-      approvedBy: null,
-      rejectionReason: null
-    };
-    
-    const carRef = await db.collection('car_listings').add(carData);
-    
-    // Create real-time tracking
-    await realtimeDb.ref(`car_listings/${carRef.id}`).set({
-      listingId: carRef.id,
-      userId,
-      status: 'pending_approval',
-      brand,
-      model,
-      price,
-      submittedAt: Date.now()
-    });
-    
-    // Notify admins
-    await realtimeDb.ref('admin/notifications').push({
-      type: 'new_car_listing',
-      listingId: carRef.id,
-      userId,
-      carInfo: `${brand} ${model} ${year}`,
-      price,
-      timestamp: admin.database.ServerValue.TIMESTAMP,
-      read: false,
-      priority: 'medium'
-    });
-    
-    res.status(201).json({
-      success: true,
-      message: 'Car listing submitted for approval',
-      data: {
-        listingId: carRef.id,
-        status: 'pending_approval'
-      }
-    });
-  } catch (error: any) {
-    res.status(400).json({
-      success: false,
-      error: error.message
-    });
-  }
-});
-
-// Get car listing status
-app.get('/api/cars/listing/:listingId/status', authenticateUser, async (req: Request, res: Response) => {
-  try {
-    const { listingId } = req.params;
-    
-    // Get real-time status
-    const realtimeSnapshot = await realtimeDb.ref(`car_listings/${listingId}`).once('value');
-    const realtimeData = realtimeSnapshot.val();
-    
-    if (!realtimeData) {
-      return res.status(404).json({
-        success: false,
-        error: 'Listing not found'
-      });
-    }
-    
-    res.json({
-      success: true,
-      data: realtimeData
-    });
-  } catch (error: any) {
-    res.status(500).json({
-      success: false,
-      error: error.message
-    });
-  }
-});
-
-// Admin approve/reject car listing
-app.put('/api/cars/listing/:listingId/review', authenticateUser, requireAdmin, async (req: Request, res: Response) => {
-  try {
-    const { listingId } = req.params;
-    const { status, rejectionReason } = req.body;
-    const adminId = (req as any).user.uid;
-    
-    if (!['approved', 'rejected'].includes(status)) {
-      return res.status(400).json({
-        success: false,
-        error: 'Invalid status'
-      });
-    }
-    
-    // Update listing
-    const updateData: any = {
-      status,
-      reviewedAt: admin.firestore.FieldValue.serverTimestamp(),
-      reviewedBy: adminId
-    };
-    
-    if (status === 'approved') {
-      updateData.isActive = true;
-      updateData.approvedAt = admin.firestore.FieldValue.serverTimestamp();
-      updateData.approvedBy = adminId;
     } else {
-      updateData.rejectionReason = rejectionReason;
+      res.status(401).json({ error: 'Social authentication failed' });
     }
-    
-    await db.collection('car_listings').doc(listingId).update(updateData);
-    
-    // Update real-time
-    await realtimeDb.ref(`car_listings/${listingId}`).update({
-      status,
-      reviewedAt: Date.now(),
-      reviewedBy: adminId
-    });
-    
-    // Get listing data for notification
-    const listingDoc = await db.collection('car_listings').doc(listingId).get();
-    const listingData = listingDoc.data()!;
-    
-    // Notify user
-    await realtimeDb.ref(`users/${listingData.userId}/notifications`).push({
-      type: 'car_listing_reviewed',
-      status,
-      listingId,
-      carInfo: `${listingData.brand} ${listingData.model}`,
-      timestamp: admin.database.ServerValue.TIMESTAMP,
-      read: false
-    });
-    
-    res.json({
-      success: true,
-      message: `Car listing ${status} successfully`
-    });
-  } catch (error: any) {
-    res.status(400).json({
-      success: false,
-      error: error.message
-    });
+  } catch (error) {
+    console.error('Social auth error:', error);
+    res.status(500).json({ error: 'Internal server error' });
   }
 });
 
-// ============================================
-// REAL-TIME CHAT SYSTEM (Admin2)
-// ============================================
-
-// Send message
-app.post('/api/chat/send', authenticateUser, async (req: Request, res: Response) => {
+// Refresh token
+app.post('/api/auth/refresh', async (req, res) => {
   try {
-    const senderId = (req as any).user.uid;
-    const { receiverId, message, type = 'text' } = req.body;
+    const { refreshToken } = req.body;
     
-    // Create or get conversation
-    const conversationId = [senderId, receiverId].sort().join('_');
+    const result = await modernAuth.refreshAuthToken(refreshToken);
     
-    // Save to Realtime Database for instant delivery
-    const messageRef = await realtimeDb.ref(`chats/${conversationId}/messages`).push({
-      senderId,
-      receiverId,
-      message,
-      type,
-      timestamp: admin.database.ServerValue.TIMESTAMP,
-      read: false
-    });
-    
-    // Also save to Firestore for persistence
-    await db.collection('conversations').doc(conversationId).set({
-      participants: [senderId, receiverId],
-      lastMessage: message,
-      lastMessageTime: admin.firestore.FieldValue.serverTimestamp(),
-      updatedAt: admin.firestore.FieldValue.serverTimestamp()
-    }, { merge: true });
-    
-    await db.collection('conversations').doc(conversationId)
-      .collection('messages').doc(messageRef.key!).set({
-        senderId,
-        receiverId,
-        message,
-        type,
-        timestamp: admin.firestore.FieldValue.serverTimestamp(),
-        read: false
+    if (result.success) {
+      res.json({
+        success: true,
+        authToken: result.authToken
       });
-    
-    // Notify receiver in real-time
-    await realtimeDb.ref(`users/${receiverId}/unread_messages`).transaction((current: number) => (current || 0) + 1);
-    
-    // If receiver is admin2, send special notification
-    const receiverDoc = await db.collection('users').doc(receiverId).get();
-    if (receiverDoc.data()?.role === 'admin2') {
-      await realtimeDb.ref('admin2/new_messages').push({
-        from: senderId,
-        message,
-        timestamp: admin.database.ServerValue.TIMESTAMP,
-        conversationId
-      });
+    } else {
+      res.status(401).json({ error: 'Invalid refresh token' });
     }
-    
-    res.status(201).json({
-      success: true,
-      message: 'Message sent successfully',
-      data: {
-        messageId: messageRef.key,
-        conversationId
-      }
-    });
-  } catch (error: any) {
-    res.status(400).json({
-      success: false,
-      error: error.message
-    });
+  } catch (error) {
+    console.error('Refresh token error:', error);
+    res.status(500).json({ error: 'Internal server error' });
   }
 });
 
-// Get conversations for admin2
-app.get('/api/chat/admin2/conversations', authenticateUser, async (req: Request, res: Response) => {
+// Logout
+app.post('/api/auth/logout', async (req, res) => {
   try {
-    const userId = (req as any).user.uid;
-    
-    // Verify admin2 role
-    const userDoc = await db.collection('users').doc(userId).get();
-    if (userDoc.data()?.role !== 'admin2') {
-      return res.status(403).json({
-        success: false,
-        error: 'Admin2 access required'
-      });
+    const authHeader = req.headers.authorization;
+    if (!authHeader) {
+      return res.status(401).json({ error: 'No authorization header' });
     }
     
-    // Get all conversations where admin2 is participant
-    const snapshot = await db.collection('conversations')
-      .where('participants', 'array-contains', userId)
-      .orderBy('lastMessageTime', 'desc')
-      .get();
+    const token = authHeader.split(' ')[1];
+    const decodedToken = await admin.auth().verifyIdToken(token);
     
-    const conversations = await Promise.all(snapshot.docs.map(async doc => {
-      const data = doc.data();
-      const otherUserId = data.participants.find((p: string) => p !== userId);
-      
-      // Get other user info
-      const otherUserDoc = await db.collection('users').doc(otherUserId).get();
-      const otherUser = otherUserDoc.data();
-      
-      // Get unread count from realtime
-      const unreadSnapshot = await realtimeDb.ref(`chats/${doc.id}/messages`)
-        .orderByChild('read')
-        .equalTo(false)
-        .once('value');
-      
-      const unreadMessages = unreadSnapshot.val() || {};
-      const unreadCount = Object.values(unreadMessages).filter((msg: any) => msg.receiverId === userId).length;
-      
-      return {
-        id: doc.id,
-        ...data,
-        otherUser: {
-          id: otherUserId,
-          displayName: otherUser?.displayName,
-          photoURL: otherUser?.photoURL,
-          role: otherUser?.role
-        },
-        unreadCount
-      };
-    }));
+    await modernAuth.logout(decodedToken.uid);
     
-    res.json({
-      success: true,
-      data: conversations
-    });
-  } catch (error: any) {
-    res.status(500).json({
-      success: false,
-      error: error.message
-    });
-  }
-});
-
-// Mark messages as read
-app.put('/api/chat/read/:conversationId', authenticateUser, async (req: Request, res: Response) => {
-  try {
-    const { conversationId } = req.params;
-    const userId = (req as any).user.uid;
-    
-    // Update all unread messages in realtime
-    const messagesRef = realtimeDb.ref(`chats/${conversationId}/messages`);
-    const snapshot = await messagesRef.once('value');
-    const messages = snapshot.val() || {};
-    
-    const updates: any = {};
-    Object.keys(messages).forEach(key => {
-      if (messages[key].receiverId === userId && !messages[key].read) {
-        updates[`${key}/read`] = true;
-      }
-    });
-    
-    if (Object.keys(updates).length > 0) {
-      await messagesRef.update(updates);
-      
-      // Reset unread counter
-      await realtimeDb.ref(`users/${userId}/unread_messages`).set(0);
-    }
-    
-    res.json({
-      success: true,
-      message: 'Messages marked as read'
-    });
-  } catch (error: any) {
-    res.status(400).json({
-      success: false,
-      error: error.message
-    });
+    res.json({ success: true });
+  } catch (error) {
+    console.error('Logout error:', error);
+    res.status(500).json({ error: 'Internal server error' });
   }
 });
 
 // ============================================
-// PRODUCTS ENDPOINTS - FULL CRUD OPERATIONS
+// PRODUCTS ENDPOINTS
 // ============================================
 
-// Get all products with pagination
-app.get('/api/products', async (req: Request, res: Response) => {
+// Get all products
+app.get('/api/products', async (req, res) => {
   try {
-    const { 
-      page = 1, 
-      limit = 20, 
-      category, 
-      brand,
-      minPrice,
-      maxPrice,
-      condition,
-      governorate,
-      sortBy = 'createdAt',
-      sortOrder = 'desc'
-    } = req.query;
+    const { category, minPrice, maxPrice, search, limit = 20, offset = 0 } = req.query;
     
-    let query = db.collection('products') as any;
-    
-    // Apply filters
-    if (category) query = query.where('category', '==', category);
-    if (brand) query = query.where('brand', '==', brand);
-    if (condition) query = query.where('condition', '==', condition);
-    if (governorate) query = query.where('governorate', '==', governorate);
-    if (minPrice) query = query.where('price', '>=', Number(minPrice));
-    if (maxPrice) query = query.where('price', '<=', Number(maxPrice));
-    
-    // Apply sorting only if not default or if createdAt field exists
-    if (sortBy !== 'createdAt') {
-      try {
-        query = query.orderBy(sortBy as string, sortOrder as 'asc' | 'desc');
-      } catch (error) {
-        console.log('Sorting skipped:', error);
-      }
-    }
-    
-    // Apply pagination
-    const startAt = (Number(page) - 1) * Number(limit);
-    query = query.limit(Number(limit)).offset(startAt);
-    
-    const snapshot = await query.get();
-    const products = snapshot.docs.map((doc: any) => ({
-      id: doc.id,
-      ...doc.data()
-    }));
-    
-    // Get total count for pagination
-    const countSnapshot = await db.collection('products').count().get();
-    const totalCount = countSnapshot.data().count;
-    
-    res.json({
-      success: true,
-      data: {
-        products,
-        pagination: {
-          page: Number(page),
-          limit: Number(limit),
-          total: totalCount,
-          totalPages: Math.ceil(totalCount / Number(limit))
-        }
-      }
-    });
-  } catch (error: any) {
-    console.error('Error fetching products:', error);
-    res.status(500).json({
-      success: false,
-      error: error.message || 'Failed to fetch products'
-    });
-  }
-});
-
-// Get single product by ID
-app.get('/api/products/:productId', async (req: Request, res: Response) => {
-  try {
-    const { productId } = req.params;
-    
-    const productDoc = await db.collection('products').doc(productId).get();
-    
-    if (!productDoc.exists) {
-      return res.status(404).json({
-        success: false,
-        error: 'Product not found'
-      });
-    }
-    
-    // Increment view count
-    await productDoc.ref.update({
-      views: admin.firestore.FieldValue.increment(1)
-    });
-    
-    // Get related products
-    const productData = productDoc.data();
-    const relatedSnapshot = await db.collection('products')
-      .where('category', '==', productData?.category)
-      .where('id', '!=', productId)
-      .limit(4)
-      .get();
-    
-    const relatedProducts = relatedSnapshot.docs.map(doc => ({
-      id: doc.id,
-      ...doc.data()
-    }));
-    
-    res.json({
-      success: true,
-      data: {
-        product: {
-          id: productDoc.id,
-          ...productData
-        },
-        relatedProducts
-      }
-    });
-  } catch (error: any) {
-    console.error('Error fetching product:', error);
-    res.status(500).json({
-      success: false,
-      error: error.message || 'Failed to fetch product'
-    });
-  }
-});
-
-// Get categories
-app.get('/api/categories', async (req: Request, res: Response) => {
-  try {
-    const snapshot = await db.collection('categories').orderBy('order', 'asc').get();
-    const categories = snapshot.docs.map(doc => ({
-      id: doc.id,
-      ...doc.data()
-    }));
-    
-    res.json({
-      success: true,
-      data: categories
-    });
-  } catch (error: any) {
-    console.error('Error fetching categories:', error);
-    res.status(500).json({
-      success: false,
-      error: error.message || 'Failed to fetch categories'
-    });
-  }
-});
-
-// ============================================
-// ENHANCED SEARCH WITH REAL-TIME UPDATES
-// ============================================
-
-app.get('/api/search/products', async (req: Request, res: Response) => {
-  try {
-    const { 
-      q, 
-      category, 
-      minPrice, 
-      maxPrice, 
-      condition,
-      year,
-      brand,
-      sortBy = 'relevance',
-      limit = 20,
-      offset = 0
-    } = req.query;
-    
-    // Build query
-    let query = db.collection('products').where('isActive', '==', true);
+    let query = admin.firestore().collection('products').where('active', '==', true);
     
     if (category) {
       query = query.where('category', '==', category);
@@ -1046,595 +299,732 @@ app.get('/api/search/products', async (req: Request, res: Response) => {
       query = query.where('price', '<=', Number(maxPrice));
     }
     
-    if (condition) {
-      query = query.where('condition', '==', condition);
-    }
+    const snapshot = await query.limit(Number(limit)).offset(Number(offset)).get();
     
-    if (year) {
-      query = query.where('year', '==', Number(year));
-    }
-    
-    if (brand) {
-      query = query.where('brand', '==', brand);
-    }
-    
-    // Add sorting
-    switch (sortBy) {
-      case 'price_asc':
-        query = query.orderBy('price', 'asc');
-        break;
-      case 'price_desc':
-        query = query.orderBy('price', 'desc');
-        break;
-      case 'newest':
-        query = query.orderBy('createdAt', 'desc');
-        break;
-      case 'popular':
-        query = query.orderBy('views', 'desc');
-        break;
-      default:
-        query = query.orderBy('createdAt', 'desc');
-    }
-    
-    // Execute query
-    const snapshot = await query.limit(Number(limit)).get();
-    
-    let products = snapshot.docs.map(doc => ({
+    const products = snapshot.docs.map(doc => ({
       id: doc.id,
-      ...doc.data(),
-      score: 1
+      ...doc.data()
     }));
     
-    // Text search if query provided
-    if (q) {
-      const searchTerm = String(q).toLowerCase();
-      const searchTerms = searchTerm.split(' ').filter(t => t.length > 2);
-      
-      products = products.map((product: any) => {
-        let score = 0;
-        
-        // Score based on title match
-        searchTerms.forEach(term => {
-          if (product.title?.toLowerCase().includes(term)) {
-            score += 10;
-          }
-          if (product.description?.toLowerCase().includes(term)) {
-            score += 5;
-          }
-          if (product.brand?.toLowerCase().includes(term)) {
-            score += 8;
-          }
-          if (product.model?.toLowerCase().includes(term)) {
-            score += 8;
-          }
-        });
-        
-        return { ...product, score };
-      }).filter(p => p.score > 0)
-        .sort((a, b) => b.score - a.score);
-    }
+    res.json({
+      success: true,
+      products,
+      total: snapshot.size
+    });
+  } catch (error) {
+    console.error('Get products error:', error);
+    res.status(500).json({ error: 'Internal server error' });
+  }
+});
+
+// Get single product
+app.get('/api/products/:id', async (req, res) => {
+  try {
+    const doc = await admin.firestore().collection('products').doc(req.params.id).get();
     
-    // Track search in real-time
-    if (q) {
-      await realtimeDb.ref('search_trends').push({
-        query: q,
-        results: products.length,
-        timestamp: admin.database.ServerValue.TIMESTAMP
-      });
+    if (!doc.exists) {
+      return res.status(404).json({ error: 'Product not found' });
     }
     
     res.json({
       success: true,
-      query: q || '',
-      total: products.length,
-      data: products.slice(Number(offset), Number(offset) + Number(limit))
+      product: {
+        id: doc.id,
+        ...doc.data()
+      }
     });
-  } catch (error: any) {
-    res.status(500).json({
-      success: false,
-      error: error.message
-    });
+  } catch (error) {
+    console.error('Get product error:', error);
+    res.status(500).json({ error: 'Internal server error' });
   }
 });
 
-// Get trending searches
-app.get('/api/search/trending', async (req: Request, res: Response) => {
+// Create product
+app.post('/api/products', async (req, res) => {
   try {
-    const snapshot = await realtimeDb.ref('search_trends')
-      .orderByChild('timestamp')
-      .limitToLast(100)
-      .once('value');
+    const authHeader = req.headers.authorization;
+    if (!authHeader) {
+      return res.status(401).json({ error: 'No authorization header' });
+    }
     
-    const searches = snapshot.val() || {};
+    const token = authHeader.split(' ')[1];
+    const decodedToken = await admin.auth().verifyIdToken(token);
     
-    // Aggregate by query
-    const trends: { [key: string]: number } = {};
-    Object.values(searches).forEach((search: any) => {
-      if (search.query) {
-        trends[search.query] = (trends[search.query] || 0) + 1;
-      }
-    });
+    const product = {
+      ...req.body,
+      vendorId: decodedToken.uid,
+      createdAt: admin.firestore.FieldValue.serverTimestamp(),
+      updatedAt: admin.firestore.FieldValue.serverTimestamp(),
+      active: true,
+      views: 0,
+      likes: 0
+    };
     
-    // Sort by frequency
-    const trendingSearches = Object.entries(trends)
-      .map(([query, count]) => ({ query, count }))
-      .sort((a, b) => b.count - a.count)
-      .slice(0, 10);
+    const docRef = await admin.firestore().collection('products').add(product);
+    
+    // Update real-time inventory
+    await realtimeService.updateInventory(docRef.id, product.inventory || 0, 'set');
     
     res.json({
       success: true,
-      data: trendingSearches
+      productId: docRef.id
     });
-  } catch (error: any) {
-    res.status(500).json({
-      success: false,
-      error: error.message
+  } catch (error) {
+    console.error('Create product error:', error);
+    res.status(500).json({ error: 'Internal server error' });
+  }
+});
+
+// Update product
+app.put('/api/products/:id', async (req, res) => {
+  try {
+    const authHeader = req.headers.authorization;
+    if (!authHeader) {
+      return res.status(401).json({ error: 'No authorization header' });
+    }
+    
+    const token = authHeader.split(' ')[1];
+    const decodedToken = await admin.auth().verifyIdToken(token);
+    
+    // Check ownership
+    const doc = await admin.firestore().collection('products').doc(req.params.id).get();
+    if (!doc.exists) {
+      return res.status(404).json({ error: 'Product not found' });
+    }
+    
+    const product = doc.data();
+    if (product.vendorId !== decodedToken.uid) {
+      return res.status(403).json({ error: 'Unauthorized' });
+    }
+    
+    const updates = {
+      ...req.body,
+      updatedAt: admin.firestore.FieldValue.serverTimestamp()
+    };
+    
+    await doc.ref.update(updates);
+    
+    // Update inventory if changed
+    if (updates.inventory !== undefined) {
+      await realtimeService.updateInventory(req.params.id, updates.inventory, 'set');
+    }
+    
+    res.json({ success: true });
+  } catch (error) {
+    console.error('Update product error:', error);
+    res.status(500).json({ error: 'Internal server error' });
+  }
+});
+
+// Delete product
+app.delete('/api/products/:id', async (req, res) => {
+  try {
+    const authHeader = req.headers.authorization;
+    if (!authHeader) {
+      return res.status(401).json({ error: 'No authorization header' });
+    }
+    
+    const token = authHeader.split(' ')[1];
+    const decodedToken = await admin.auth().verifyIdToken(token);
+    
+    // Check ownership
+    const doc = await admin.firestore().collection('products').doc(req.params.id).get();
+    if (!doc.exists) {
+      return res.status(404).json({ error: 'Product not found' });
+    }
+    
+    const product = doc.data();
+    if (product.vendorId !== decodedToken.uid) {
+      return res.status(403).json({ error: 'Unauthorized' });
+    }
+    
+    // Soft delete
+    await doc.ref.update({
+      active: false,
+      deletedAt: admin.firestore.FieldValue.serverTimestamp()
     });
+    
+    res.json({ success: true });
+  } catch (error) {
+    console.error('Delete product error:', error);
+    res.status(500).json({ error: 'Internal server error' });
   }
 });
 
 // ============================================
-// PAYMENT SYSTEM (Cash on Delivery + InstaPay)
+// ORDERS ENDPOINTS
 // ============================================
 
-// Create order with COD
-app.post('/api/orders/create', authenticateUser, async (req: Request, res: Response) => {
+// Create order
+app.post('/api/orders', async (req, res) => {
   try {
-    const customerId = (req as any).user.uid;
-    const { 
-      items, 
-      shippingAddress, 
-      paymentMethod = 'cod',
-      notes 
-    } = req.body;
+    const authHeader = req.headers.authorization;
+    if (!authHeader) {
+      return res.status(401).json({ error: 'No authorization header' });
+    }
     
-    // Calculate total
-    let total = 0;
-    const orderItems = await Promise.all(items.map(async (item: any) => {
-      const productDoc = await db.collection('products').doc(item.productId).get();
-      const product = productDoc.data();
-      
-      if (!product) {
-        throw new Error(`Product ${item.productId} not found`);
-      }
-      
-      const itemTotal = product.price * item.quantity;
-      total += itemTotal;
-      
-      return {
-        productId: item.productId,
-        productName: product.title,
-        vendorId: product.vendorId,
-        price: product.price,
-        quantity: item.quantity,
-        total: itemTotal
-      };
-    }));
+    const token = authHeader.split(' ')[1];
+    const decodedToken = await admin.auth().verifyIdToken(token);
     
-    // Create order
-    const orderData = {
-      customerId,
-      orderNumber: `ORD-${Date.now()}`,
-      items: orderItems,
-      shippingAddress,
-      paymentMethod,
-      paymentStatus: paymentMethod === 'cod' ? 'pending' : 'awaiting_verification',
-      orderStatus: 'pending',
-      total,
-      notes,
+    const order = {
+      ...req.body,
+      customerId: decodedToken.uid,
+      status: 'pending',
       createdAt: admin.firestore.FieldValue.serverTimestamp(),
       updatedAt: admin.firestore.FieldValue.serverTimestamp()
     };
     
-    const orderRef = await db.collection('orders').add(orderData);
+    const docRef = await admin.firestore().collection('orders').add(order);
     
-    // Create real-time tracking
-    await realtimeDb.ref(`orders/${orderRef.id}`).set({
-      orderId: orderRef.id,
-      customerId,
-      orderNumber: orderData.orderNumber,
-      status: 'pending',
-      paymentMethod,
-      total,
-      createdAt: Date.now(),
-      timeline: [{
-        status: 'pending',
-        timestamp: Date.now(),
-        message: 'Order placed successfully'
-      }]
-    });
-    
-    // Notify vendors
-    const vendorIds = [...new Set(orderItems.map(item => item.vendorId))];
-    for (const vendorId of vendorIds) {
-      await realtimeDb.ref(`vendors/${vendorId}/new_orders`).push({
-        orderId: orderRef.id,
-        orderNumber: orderData.orderNumber,
-        timestamp: admin.database.ServerValue.TIMESTAMP
-      });
+    // Update inventory for each item
+    for (const item of order.items) {
+      await realtimeService.updateInventory(item.productId, item.quantity, 'subtract');
     }
     
-    res.status(201).json({
+    // Track order in real-time
+    await realtimeService.updateOrderStatus(docRef.id, 'pending');
+    
+    res.json({
       success: true,
-      message: 'Order created successfully',
-      data: {
-        orderId: orderRef.id,
-        orderNumber: orderData.orderNumber,
-        total,
-        paymentMethod
-      }
+      orderId: docRef.id
     });
-  } catch (error: any) {
-    res.status(400).json({
-      success: false,
-      error: error.message
-    });
+  } catch (error) {
+    console.error('Create order error:', error);
+    res.status(500).json({ error: 'Internal server error' });
   }
 });
 
-// Submit InstaPay proof for vendor subscription
-app.post('/api/vendors/subscription/instapay', authenticateUser, async (req: Request, res: Response) => {
+// Get user orders
+app.get('/api/orders', async (req, res) => {
   try {
-    const vendorId = (req as any).user.uid;
-    const { 
-      transactionImage, // Base64 image
-      transactionNumber,
-      amount,
-      plan 
-    } = req.body;
+    const authHeader = req.headers.authorization;
+    if (!authHeader) {
+      return res.status(401).json({ error: 'No authorization header' });
+    }
     
-    // Create payment verification request
-    const verificationData = {
-      vendorId,
-      type: 'subscription',
-      method: 'instapay',
-      transactionImage,
-      transactionNumber,
-      amount,
-      plan,
-      status: 'pending_verification',
-      submittedAt: admin.firestore.FieldValue.serverTimestamp()
+    const token = authHeader.split(' ')[1];
+    const decodedToken = await admin.auth().verifyIdToken(token);
+    
+    const snapshot = await admin.firestore()
+      .collection('orders')
+      .where('customerId', '==', decodedToken.uid)
+      .orderBy('createdAt', 'desc')
+      .get();
+    
+    const orders = snapshot.docs.map(doc => ({
+      id: doc.id,
+      ...doc.data()
+    }));
+    
+    res.json({
+      success: true,
+      orders
+    });
+  } catch (error) {
+    console.error('Get orders error:', error);
+    res.status(500).json({ error: 'Internal server error' });
+  }
+});
+
+// Update order status
+app.patch('/api/orders/:id/status', async (req, res) => {
+  try {
+    const { status, location } = req.body;
+    
+    const result = await realtimeService.updateOrderStatus(req.params.id, status, location);
+    
+    if (result) {
+      res.json({ success: true });
+    } else {
+      res.status(400).json({ error: 'Failed to update order status' });
+    }
+  } catch (error) {
+    console.error('Update order status error:', error);
+    res.status(500).json({ error: 'Internal server error' });
+  }
+});
+
+// ============================================
+// CHAT ENDPOINTS
+// ============================================
+
+// Send message
+app.post('/api/chat/send', async (req, res) => {
+  try {
+    const authHeader = req.headers.authorization;
+    if (!authHeader) {
+      return res.status(401).json({ error: 'No authorization header' });
+    }
+    
+    const token = authHeader.split(' ')[1];
+    const decodedToken = await admin.auth().verifyIdToken(token);
+    
+    const { chatId, text, attachments } = req.body;
+    
+    const messageId = await realtimeService.sendMessage(chatId, {
+      senderId: decodedToken.uid,
+      text,
+      attachments
+    });
+    
+    res.json({
+      success: true,
+      messageId
+    });
+  } catch (error) {
+    console.error('Send message error:', error);
+    res.status(500).json({ error: 'Internal server error' });
+  }
+});
+
+// Mark message as read
+app.patch('/api/chat/:chatId/messages/:messageId/read', async (req, res) => {
+  try {
+    await realtimeService.updateMessageStatus(req.params.chatId, req.params.messageId, 'read');
+    res.json({ success: true });
+  } catch (error) {
+    console.error('Mark read error:', error);
+    res.status(500).json({ error: 'Internal server error' });
+  }
+});
+
+// ============================================
+// VENDOR ENDPOINTS
+// ============================================
+
+// Apply to become vendor
+app.post('/api/vendor/apply', async (req, res) => {
+  try {
+    const authHeader = req.headers.authorization;
+    if (!authHeader) {
+      return res.status(401).json({ error: 'No authorization header' });
+    }
+    
+    const token = authHeader.split(' ')[1];
+    const decodedToken = await admin.auth().verifyIdToken(token);
+    
+    const application = {
+      userId: decodedToken.uid,
+      ...req.body,
+      status: 'pending',
+      createdAt: admin.firestore.FieldValue.serverTimestamp()
     };
     
-    const verificationRef = await db.collection('payment_verifications').add(verificationData);
+    const docRef = await admin.firestore().collection('vendor_applications').add(application);
     
-    // Notify admin for review
-    await realtimeDb.ref('admin/payment_verifications').push({
-      verificationId: verificationRef.id,
-      vendorId,
-      type: 'subscription',
+    res.json({
+      success: true,
+      applicationId: docRef.id
+    });
+  } catch (error) {
+    console.error('Vendor apply error:', error);
+    res.status(500).json({ error: 'Internal server error' });
+  }
+});
+
+// Get vendor dashboard stats
+app.get('/api/vendor/dashboard', async (req, res) => {
+  try {
+    const authHeader = req.headers.authorization;
+    if (!authHeader) {
+      return res.status(401).json({ error: 'No authorization header' });
+    }
+    
+    const token = authHeader.split(' ')[1];
+    const decodedToken = await admin.auth().verifyIdToken(token);
+    
+    // Get vendor products
+    const productsSnapshot = await admin.firestore()
+      .collection('products')
+      .where('vendorId', '==', decodedToken.uid)
+      .get();
+    
+    // Get vendor orders
+    const ordersSnapshot = await admin.firestore()
+      .collection('orders')
+      .where('vendorId', '==', decodedToken.uid)
+      .get();
+    
+    const stats = {
+      totalProducts: productsSnapshot.size,
+      totalOrders: ordersSnapshot.size,
+      totalRevenue: ordersSnapshot.docs.reduce((sum, doc) => sum + (doc.data().total || 0), 0),
+      activeProducts: productsSnapshot.docs.filter(doc => doc.data().active).length
+    };
+    
+    res.json({
+      success: true,
+      stats
+    });
+  } catch (error) {
+    console.error('Vendor dashboard error:', error);
+    res.status(500).json({ error: 'Internal server error' });
+  }
+});
+
+// ============================================
+// ADMIN ENDPOINTS
+// ============================================
+
+// Get all users (admin only)
+app.get('/api/admin/users', async (req, res) => {
+  try {
+    const authHeader = req.headers.authorization;
+    if (!authHeader) {
+      return res.status(401).json({ error: 'No authorization header' });
+    }
+    
+    const token = authHeader.split(' ')[1];
+    const decodedToken = await admin.auth().verifyIdToken(token);
+    
+    // Check admin role
+    if (decodedToken.role !== 'admin' && decodedToken.role !== 'super_admin') {
+      return res.status(403).json({ error: 'Admin access required' });
+    }
+    
+    const snapshot = await admin.firestore().collection('users').get();
+    const users = snapshot.docs.map(doc => ({
+      id: doc.id,
+      ...doc.data()
+    }));
+    
+    res.json({
+      success: true,
+      users
+    });
+  } catch (error) {
+    console.error('Get users error:', error);
+    res.status(500).json({ error: 'Internal server error' });
+  }
+});
+
+// Approve vendor application
+app.post('/api/admin/vendor/approve/:id', async (req, res) => {
+  try {
+    const authHeader = req.headers.authorization;
+    if (!authHeader) {
+      return res.status(401).json({ error: 'No authorization header' });
+    }
+    
+    const token = authHeader.split(' ')[1];
+    const decodedToken = await admin.auth().verifyIdToken(token);
+    
+    // Check admin role
+    if (decodedToken.role !== 'admin' && decodedToken.role !== 'super_admin') {
+      return res.status(403).json({ error: 'Admin access required' });
+    }
+    
+    // Update application
+    await admin.firestore().collection('vendor_applications').doc(req.params.id).update({
+      status: 'approved',
+      approvedBy: decodedToken.uid,
+      approvedAt: admin.firestore.FieldValue.serverTimestamp()
+    });
+    
+    // Get application data
+    const appDoc = await admin.firestore().collection('vendor_applications').doc(req.params.id).get();
+    const appData = appDoc.data();
+    
+    // Update user role
+    await admin.auth().setCustomUserClaims(appData.userId, {
+      role: 'vendor',
+      permissions: ['read:products', 'create:products', 'update:products', 'delete:products']
+    });
+    
+    await admin.firestore().collection('users').doc(appData.userId).update({
+      role: 'vendor',
+      vendorProfile: appData.vendorProfile || {}
+    });
+    
+    res.json({ success: true });
+  } catch (error) {
+    console.error('Approve vendor error:', error);
+    res.status(500).json({ error: 'Internal server error' });
+  }
+});
+
+// Get analytics
+app.get('/api/admin/analytics', async (req, res) => {
+  try {
+    const authHeader = req.headers.authorization;
+    if (!authHeader) {
+      return res.status(401).json({ error: 'No authorization header' });
+    }
+    
+    const token = authHeader.split(' ')[1];
+    const decodedToken = await admin.auth().verifyIdToken(token);
+    
+    // Check admin role
+    if (decodedToken.role !== 'admin' && decodedToken.role !== 'super_admin') {
+      return res.status(403).json({ error: 'Admin access required' });
+    }
+    
+    // Get analytics from Realtime Database
+    const analyticsRef = admin.database().ref('analytics');
+    const snapshot = await analyticsRef.once('value');
+    const analytics = snapshot.val() || {};
+    
+    res.json({
+      success: true,
+      analytics
+    });
+  } catch (error) {
+    console.error('Get analytics error:', error);
+    res.status(500).json({ error: 'Internal server error' });
+  }
+});
+
+// ============================================
+// SEARCH ENDPOINTS
+// ============================================
+
+// Advanced search
+app.post('/api/search', async (req, res) => {
+  try {
+    const { query, filters = {}, sort = 'relevance', limit = 20, offset = 0 } = req.body;
+    
+    let firestoreQuery = admin.firestore().collection('products').where('active', '==', true);
+    
+    // Apply filters
+    if (filters.category) {
+      firestoreQuery = firestoreQuery.where('category', '==', filters.category);
+    }
+    
+    if (filters.minPrice) {
+      firestoreQuery = firestoreQuery.where('price', '>=', filters.minPrice);
+    }
+    
+    if (filters.maxPrice) {
+      firestoreQuery = firestoreQuery.where('price', '<=', filters.maxPrice);
+    }
+    
+    if (filters.brand) {
+      firestoreQuery = firestoreQuery.where('brand', '==', filters.brand);
+    }
+    
+    // Apply sorting
+    switch (sort) {
+      case 'price_asc':
+        firestoreQuery = firestoreQuery.orderBy('price', 'asc');
+        break;
+      case 'price_desc':
+        firestoreQuery = firestoreQuery.orderBy('price', 'desc');
+        break;
+      case 'newest':
+        firestoreQuery = firestoreQuery.orderBy('createdAt', 'desc');
+        break;
+      case 'popular':
+        firestoreQuery = firestoreQuery.orderBy('views', 'desc');
+        break;
+    }
+    
+    const snapshot = await firestoreQuery.limit(limit).offset(offset).get();
+    
+    let products = snapshot.docs.map(doc => ({
+      id: doc.id,
+      ...doc.data()
+    }));
+    
+    // If query is provided, filter by search terms
+    if (query) {
+      const searchTerms = query.toLowerCase().split(' ');
+      products = products.filter((product: any) => {
+        const searchableText = `${product.title || ''} ${product.description || ''} ${product.brand || ''} ${product.category || ''}`.toLowerCase();
+        return searchTerms.every(term => searchableText.includes(term));
+      });
+    }
+    
+    // Track search analytics
+    await realtimeService.trackEvent('search', {
+      query,
+      filters,
+      resultsCount: products.length
+    });
+    
+    res.json({
+      success: true,
+      products,
+      total: products.length
+    });
+  } catch (error) {
+    console.error('Search error:', error);
+    res.status(500).json({ error: 'Internal server error' });
+  }
+});
+
+// ============================================
+// PAYMENT ENDPOINTS
+// ============================================
+
+// Process payment (Cash on Delivery)
+app.post('/api/payment/cod', async (req, res) => {
+  try {
+    const authHeader = req.headers.authorization;
+    if (!authHeader) {
+      return res.status(401).json({ error: 'No authorization header' });
+    }
+    
+    const token = authHeader.split(' ')[1];
+    const decodedToken = await admin.auth().verifyIdToken(token);
+    
+    const { orderId, deliveryAddress } = req.body;
+    
+    // Update order with payment method
+    await admin.firestore().collection('orders').doc(orderId).update({
+      paymentMethod: 'cod',
+      paymentStatus: 'pending',
+      deliveryAddress,
+      updatedAt: admin.firestore.FieldValue.serverTimestamp()
+    });
+    
+    res.json({
+      success: true,
+      message: 'Cash on delivery payment confirmed'
+    });
+  } catch (error) {
+    console.error('COD payment error:', error);
+    res.status(500).json({ error: 'Internal server error' });
+  }
+});
+
+// Vendor subscription payment (InstaPay receipt)
+app.post('/api/payment/subscription', async (req, res) => {
+  try {
+    const authHeader = req.headers.authorization;
+    if (!authHeader) {
+      return res.status(401).json({ error: 'No authorization header' });
+    }
+    
+    const token = authHeader.split(' ')[1];
+    const decodedToken = await admin.auth().verifyIdToken(token);
+    
+    const { receiptImage, transactionId, amount } = req.body;
+    
+    // Store payment record for admin review
+    const paymentRef = await admin.firestore().collection('subscription_payments').add({
+      vendorId: decodedToken.uid,
+      receiptImage,
+      transactionId,
       amount,
-      timestamp: admin.database.ServerValue.TIMESTAMP,
-      priority: 'high'
+      status: 'pending_review',
+      createdAt: admin.firestore.FieldValue.serverTimestamp()
     });
-    
-    res.status(201).json({
-      success: true,
-      message: 'Payment proof submitted for verification',
-      data: {
-        verificationId: verificationRef.id,
-        status: 'pending_verification'
-      }
-    });
-  } catch (error: any) {
-    res.status(400).json({
-      success: false,
-      error: error.message
-    });
-  }
-});
-
-// Admin verify payment
-app.put('/api/admin/payment/verify/:verificationId', authenticateUser, requireAdmin, async (req: Request, res: Response) => {
-  try {
-    const { verificationId } = req.params;
-    const { status, notes } = req.body;
-    const adminId = (req as any).user.uid;
-    
-    if (!['approved', 'rejected'].includes(status)) {
-      return res.status(400).json({
-        success: false,
-        error: 'Invalid status'
-      });
-    }
-    
-    // Get verification request
-    const verDoc = await db.collection('payment_verifications').doc(verificationId).get();
-    if (!verDoc.exists) {
-      return res.status(404).json({
-        success: false,
-        error: 'Verification request not found'
-      });
-    }
-    
-    const verData = verDoc.data()!;
-    
-    // Update verification
-    await db.collection('payment_verifications').doc(verificationId).update({
-      status,
-      reviewedBy: adminId,
-      reviewedAt: admin.firestore.FieldValue.serverTimestamp(),
-      notes
-    });
-    
-    // If approved and it's subscription payment
-    if (status === 'approved' && verData.type === 'subscription') {
-      // Activate vendor subscription
-      const expiryDate = new Date();
-      expiryDate.setMonth(expiryDate.getMonth() + (verData.plan === 'yearly' ? 12 : 1));
-      
-      await db.collection('vendors').doc(verData.vendorId).update({
-        subscriptionStatus: 'active',
-        subscriptionPlan: verData.plan,
-        subscriptionExpiry: expiryDate,
-        lastPaymentDate: admin.firestore.FieldValue.serverTimestamp()
-      });
-      
-      // Update real-time
-      await realtimeDb.ref(`vendors/${verData.vendorId}/subscription`).set({
-        status: 'active',
-        plan: verData.plan,
-        expiry: expiryDate.getTime()
-      });
-    }
     
     res.json({
       success: true,
-      message: `Payment ${status} successfully`
+      paymentId: paymentRef.id,
+      message: 'Payment receipt submitted for review'
     });
-  } catch (error: any) {
-    res.status(400).json({
-      success: false,
-      error: error.message
-    });
+  } catch (error) {
+    console.error('Subscription payment error:', error);
+    res.status(500).json({ error: 'Internal server error' });
   }
 });
 
 // ============================================
-// REAL-TIME DASHBOARD
+// ERROR HANDLING
 // ============================================
-
-app.get('/api/dashboard/realtime', authenticateUser, async (req: Request, res: Response) => {
-  try {
-    const userId = (req as any).user.uid;
-    const userDoc = await db.collection('users').doc(userId).get();
-    const userRole = userDoc.data()?.role;
-    
-    let dashboardData: any = {};
-    
-    if (userRole === 'admin') {
-      // Admin dashboard
-      const [
-        totalUsers,
-        totalOrders,
-        totalProducts,
-        pendingApplications,
-        pendingListings,
-        activeChats
-      ] = await Promise.all([
-        realtimeDb.ref('stats/users/total').once('value'),
-        realtimeDb.ref('stats/orders/total').once('value'),
-        realtimeDb.ref('stats/products/total').once('value'),
-        db.collection('vendor_applications').where('status', '==', 'pending').count().get(),
-        db.collection('car_listings').where('status', '==', 'pending_approval').count().get(),
-        realtimeDb.ref('admin2/active_chats').once('value')
-      ]);
-      
-      dashboardData = {
-        totalUsers: totalUsers.val() || 0,
-        totalOrders: totalOrders.val() || 0,
-        totalProducts: totalProducts.val() || 0,
-        pendingApplications: pendingApplications.data().count,
-        pendingListings: pendingListings.data().count,
-        activeChats: activeChats.val() || 0
-      };
-    } else if (userRole === 'vendor') {
-      // Vendor dashboard
-      const vendorId = userId;
-      const [
-        products,
-        orders,
-        subscription,
-        rating
-      ] = await Promise.all([
-        db.collection('products').where('vendorId', '==', vendorId).count().get(),
-        db.collection('orders').where('items.vendorId', '==', vendorId).count().get(),
-        realtimeDb.ref(`vendors/${vendorId}/subscription`).once('value'),
-        db.collection('vendors').doc(vendorId).get()
-      ]);
-      
-      dashboardData = {
-        totalProducts: products.data().count,
-        totalOrders: orders.data().count,
-        subscription: subscription.val(),
-        rating: rating.data()?.rating || 0,
-        totalSales: rating.data()?.totalSales || 0
-      };
-    } else if (userRole === 'admin2') {
-      // Admin2 (Chat) dashboard
-      const [
-        activeConversations,
-        unreadMessages,
-        totalMessages
-      ] = await Promise.all([
-        db.collection('conversations').where('participants', 'array-contains', userId).count().get(),
-        realtimeDb.ref(`users/${userId}/unread_messages`).once('value'),
-        realtimeDb.ref('stats/messages/total').once('value')
-      ]);
-      
-      dashboardData = {
-        activeConversations: activeConversations.data().count,
-        unreadMessages: unreadMessages.val() || 0,
-        totalMessages: totalMessages.val() || 0
-      };
-    } else {
-      // Customer dashboard
-      const [
-        orders,
-        listings,
-        messages
-      ] = await Promise.all([
-        db.collection('orders').where('customerId', '==', userId).count().get(),
-        db.collection('car_listings').where('userId', '==', userId).count().get(),
-        realtimeDb.ref(`users/${userId}/unread_messages`).once('value')
-      ]);
-      
-      dashboardData = {
-        totalOrders: orders.data().count,
-        totalListings: listings.data().count,
-        unreadMessages: messages.val() || 0
-      };
-    }
-    
-    res.json({
-      success: true,
-      role: userRole,
-      data: dashboardData,
-      timestamp: new Date().toISOString()
-    });
-  } catch (error: any) {
-    res.status(500).json({
-      success: false,
-      error: error.message
-    });
-  }
-});
-
-// ============================================
-// HEALTH & STATUS
-// ============================================
-
-app.get('/health', (req: Request, res: Response) => {
-  res.json({
-    status: 'healthy',
-    message: 'Souk El-Syarat Professional Backend API',
-    version: '3.0.0',
-    timestamp: new Date().toISOString(),
-    features: {
-      authentication: 'active',
-      realtime: 'active',
-      vendorManagement: 'active',
-      carListings: 'active',
-      chat: 'active',
-      search: 'enhanced',
-      payments: 'cod_instapay',
-      dashboard: 'realtime'
-    }
-  });
-});
-
-app.get('/', (req: Request, res: Response) => {
-  res.redirect('/health');
-});
 
 // 404 handler
-app.use((req: Request, res: Response) => {
+app.use((req, res) => {
   res.status(404).json({
-    success: false,
     error: 'Endpoint not found',
     path: req.path
   });
 });
 
+// Error handler
+app.use((err: any, req: any, res: any, next: any) => {
+  console.error('Unhandled error:', err);
+  res.status(500).json({
+    error: 'Internal server error',
+    message: err.message
+  });
+});
+
+// Export the Express app as a Cloud Function
+export const api = functions.https.onRequest(app);
+
 // ============================================
-// FIREBASE FUNCTIONS EXPORTS
+// SCHEDULED FUNCTIONS
 // ============================================
 
-// Main API with increased resources
-export const api = functions
-  .region('us-central1')
-  .runWith({
-    timeoutSeconds: 300,
-    memory: '2GB'
-  })
-  .https.onRequest(app);
-
-// Real-time triggers
-export const onUserCreated = functions
-  .region('us-central1')
-  .auth.user()
-  .onCreate(async (user) => {
-    // Create user profile
-    await db.collection('users').doc(user.uid).set({
-      email: user.email,
-      displayName: user.displayName || 'User',
-      role: 'customer',
-      isActive: true,
+// Daily analytics aggregation
+export const dailyAnalytics = functions.pubsub.schedule('0 0 * * *').onRun(async (context) => {
+  try {
+    const yesterday = new Date();
+    yesterday.setDate(yesterday.getDate() - 1);
+    const dateStr = yesterday.toISOString().split('T')[0];
+    
+    // Aggregate analytics data
+    const analyticsRef = admin.database().ref(`analytics/daily/${dateStr}`);
+    const snapshot = await analyticsRef.once('value');
+    const data = snapshot.val() || {};
+    
+    // Store in Firestore for long-term storage
+    await admin.firestore().collection('analytics_archive').doc(dateStr).set({
+      date: dateStr,
+      data,
       createdAt: admin.firestore.FieldValue.serverTimestamp()
-    }, { merge: true });
+    });
     
-    // Update stats
-    await realtimeDb.ref('stats/users/total').transaction((current: number) => (current || 0) + 1);
-    
-    console.log('User created:', user.email);
-  });
+    console.log(`Analytics archived for ${dateStr}`);
+  } catch (error) {
+    console.error('Daily analytics error:', error);
+  }
+});
 
-export const onOrderStatusUpdate = functions
-  .region('us-central1')
-  .firestore.document('orders/{orderId}')
-  .onUpdate(async (change, context) => {
-    const before = change.before.data();
-    const after = change.after.data();
-    
-    if (before.orderStatus !== after.orderStatus) {
-      // Update real-time tracking
-      await realtimeDb.ref(`orders/${context.params.orderId}/timeline`).push({
-        status: after.orderStatus,
-        timestamp: Date.now(),
-        message: `Order status updated to ${after.orderStatus}`
-      });
-      
-      // Notify customer
-      await realtimeDb.ref(`users/${after.customerId}/notifications`).push({
-        type: 'order_status_update',
-        orderId: context.params.orderId,
-        newStatus: after.orderStatus,
-        timestamp: admin.database.ServerValue.TIMESTAMP
-      });
-    }
-  });
-
-export const onNewMessage = functions
-  .region('us-central1')
-  .database.ref('/chats/{conversationId}/messages/{messageId}')
-  .onCreate(async (snapshot, context) => {
-    const message = snapshot.val();
-    
-    // Update unread counter
-    await realtimeDb.ref(`users/${message.receiverId}/unread_messages`)
-      .transaction((current: number) => (current || 0) + 1);
-    
-    // Update stats
-    await realtimeDb.ref('stats/messages/total')
-      .transaction((current: number) => (current || 0) + 1);
-  });
-
-// Scheduled functions
-export const checkSubscriptions = functions
-  .region('us-central1')
-  .pubsub.schedule('0 0 * * *') // Daily at midnight
-  .timeZone('Africa/Cairo')
-  .onRun(async () => {
-    // Check vendor subscriptions
-    const expiredSnapshot = await db.collection('vendors')
-      .where('subscriptionExpiry', '<=', new Date())
-      .where('subscriptionStatus', '==', 'active')
+// Cleanup expired sessions
+export const cleanupSessions = functions.pubsub.schedule('every 1 hours').onRun(async (context) => {
+  try {
+    const now = new Date();
+    const expiredSessions = await admin.firestore()
+      .collection('sessions')
+      .where('expiresAt', '<', now)
       .get();
     
-    for (const doc of expiredSnapshot.docs) {
-      await doc.ref.update({
-        subscriptionStatus: 'expired',
-        isActive: false
-      });
-      
-      // Notify vendor
-      await realtimeDb.ref(`vendors/${doc.id}/notifications`).push({
-        type: 'subscription_expired',
-        timestamp: admin.database.ServerValue.TIMESTAMP
-      });
-    }
+    const batch = admin.firestore().batch();
+    expiredSessions.docs.forEach(doc => {
+      batch.delete(doc.ref);
+    });
     
-    console.log(`Checked ${expiredSnapshot.size} expired subscriptions`);
-  });
+    await batch.commit();
+    console.log(`Cleaned up ${expiredSessions.size} expired sessions`);
+  } catch (error) {
+    console.error('Cleanup sessions error:', error);
+  }
+});
 
-console.log('🚀 Professional Backend API v3.0 initialized');
+// ============================================
+// REAL-TIME TRIGGERS
+// ============================================
+
+// Initialize real-time listeners on deploy
+export const initializeRealtime = functions.https.onRequest(async (req, res) => {
+  try {
+    await realtimeService.initializeListeners('products');
+    await realtimeService.initializeListeners('orders');
+    await realtimeService.initializeListeners('chats');
+    
+    res.json({
+      success: true,
+      message: 'Real-time listeners initialized'
+    });
+  } catch (error) {
+    console.error('Initialize realtime error:', error);
+    res.status(500).json({ error: 'Failed to initialize real-time listeners' });
+  }
+});
+
+// On user status change
+export const onUserStatusChange = functions.database.ref('/status/{uid}').onUpdate(async (change, context) => {
+  const eventStatus = change.after.val();
+  const userStatusFirestoreRef = admin.firestore().doc(`users/${context.params.uid}`);
+  
+  return userStatusFirestoreRef.update({
+    onlineStatus: eventStatus.state,
+    lastSeen: admin.firestore.FieldValue.serverTimestamp()
+  });
+});
+
+console.log('Souk El-Sayarat Backend 2025 - All systems operational');
