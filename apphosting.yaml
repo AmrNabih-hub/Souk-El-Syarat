@@ -51,4 +51,4 @@ healthCheck:
 
 # Build configuration
 build:
-  buildCommand: npm install && npm run build
+  buildCommand: echo 'Using default build process'
