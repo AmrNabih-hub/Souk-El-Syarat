@@ -200,6 +200,30 @@ async function sendEmail(to, subject, html, template = null) {
 
 // ============= API ENDPOINTS =============
 
+// Root endpoint - for bots and crawlers
+app.get('/', (req, res) => {
+  res.json({
+    name: 'Souk El-Syarat Backend API',
+    version: '1.0.0',
+    status: 'online',
+    documentation: 'https://github.com/AmrNabih-hub/Souk-El-Syarat',
+    endpoints: {
+      health: '/health',
+      auth: '/api/auth/*',
+      products: '/api/products',
+      orders: '/api/orders',
+      categories: '/api/categories',
+      search: '/api/search'
+    }
+  });
+});
+
+// Robots.txt for crawlers
+app.get('/robots.txt', (req, res) => {
+  res.type('text/plain');
+  res.send('User-agent: *\nDisallow: /');
+});
+
 // Health check endpoint
 app.get('/health', async (req, res) => {
   const startTime = Date.now();
