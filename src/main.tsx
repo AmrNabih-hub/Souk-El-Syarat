@@ -8,6 +8,10 @@ import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import App from './App';
 import './index.css';
 
+// Import error handling and fixes
+import './utils/error-detector';
+import './utils/console-error-fixes';
+
 // 🚨 BULLETPROOF REACT INITIALIZATION
 // console.log('🚀 Starting bulletproof React initialization...');
 
