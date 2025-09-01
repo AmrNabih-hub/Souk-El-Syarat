@@ -1,0 +1,31 @@
+{
+  "timestamp": "2025-09-01T23:23:53.484Z",
+  "results": {
+    "passed": [
+      "Cloud Functions API",
+      "Frontend Application",
+      "Products List",
+      "Vendors List",
+      "Search Products",
+      "API Root",
+      "CORS Protection",
+      "Authorization",
+      "Performance: Products API",
+      "Performance: Frontend Load"
+    ],
+    "failed": [
+      "App Hosting Backend",
+      "Health Check",
+      "Performance: Health Check"
+    ],
+    "warnings": [
+      "Rate Limiting"
+    ]
+  },
+  "successRate": "71.4",
+  "endpoints": {
+    "appHosting": "https://souk-el-sayarat-backend--souk-el-syarat.europe-west4.hosted.app",
+    "cloudFunctions": "https://us-central1-souk-el-syarat.cloudfunctions.net",
+    "frontend": "https://souk-el-syarat.web.app"
+  }
+}
