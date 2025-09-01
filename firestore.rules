@@ -1,31 +1,18 @@
 rules_version = '2';
 service cloud.firestore {
   match /databases/{database}/documents {
-    // Helper functions
     function isAuthenticated() {
       return request.auth != null;
     }
     
     function isAdmin() {
       return isAuthenticated() && 
-        request.auth.token.role in ['admin', 'super_admin'];
+        get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role == 'admin';
     }
     
-    function isVendor() {
-      return isAuthenticated() && 
-        request.auth.token.role in ['vendor', 'verified_vendor'];
-    }
-    
-    function isOwner(userId) {
-      return isAuthenticated() && request.auth.uid == userId;
-    }
-    
-    // Public read for products and categories
     match /products/{productId} {
       allow read: if true;
-      allow create: if isAdmin() || isVendor();
-      allow update: if isAdmin() || 
-        (isVendor() && resource.data.vendor.id == request.auth.uid);
+      allow create, update: if isAuthenticated();
       allow delete: if isAdmin();
     }
     
@@ -34,65 +21,15 @@ service cloud.firestore {
       allow write: if isAdmin();
     }
     
-    // User profiles
     match /users/{userId} {
       allow read: if isAuthenticated();
-      allow create: if isAuthenticated();
-      allow update: if isOwner(userId) || isAdmin();
+      allow create: if true;
+      allow update: if request.auth.uid == userId || isAdmin();
       allow delete: if isAdmin();
     }
     
-    // Orders
     match /orders/{orderId} {
-      allow read: if isAuthenticated() && 
-        (isOwner(resource.data.userId) || 
-         isOwner(resource.data.vendorId) ||
-         isAdmin());
-      allow create: if isAuthenticated();
-      allow update: if isAuthenticated() && 
-        (isOwner(resource.data.userId) || 
-         isOwner(resource.data.vendorId) ||
-         isAdmin());
-      allow delete: if isAdmin();
-    }
-    
-    // Vendor applications
-    match /vendorApplications/{applicationId} {
-      allow read: if isAdmin() || isOwner(resource.data.userId);
-      allow create: if isAuthenticated();
-      allow update: if isAdmin();
-      allow delete: if isAdmin();
-    }
-    
-    // Reviews
-    match /reviews/{reviewId} {
-      allow read: if true;
-      allow create: if isAuthenticated();
-      allow update: if isOwner(resource.data.userId) || isAdmin();
-      allow delete: if isAdmin();
-    }
-    
-    // Chat messages
-    match /chats/{chatId}/messages/{messageId} {
-      allow read: if isAuthenticated() && 
-        (resource.data.senderId == request.auth.uid || 
-         resource.data.receiverId == request.auth.uid ||
-         isAdmin());
-      allow create: if isAuthenticated();
-      allow update: if isOwner(resource.data.senderId) || isAdmin();
-      allow delete: if isAdmin();
-    }
-    
-    // System configuration (admin only)
-    match /config/{document=**} {
-      allow read: if true;
-      allow write: if isAdmin();
-    }
-    
-    // Analytics data
-    match /analytics/{document=**} {
-      allow read: if isAdmin();
-      allow write: if false; // Only server can write
+      allow read, write: if isAuthenticated();
     }
   }
 }
