@@ -163,4 +163,4 @@ app.use('*', (req, res) => {
     res.status(404).json({ error: 'Not found' });
 });
 exports.api = functions.https.onRequest(app);
-//# sourceMappingURL=index.js.map
+//# sourceMappingURL=index-secure.js.map
