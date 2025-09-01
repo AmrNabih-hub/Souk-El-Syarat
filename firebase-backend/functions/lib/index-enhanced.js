@@ -529,4 +529,4 @@ app.use((err, req, res, next) => {
 });
 // Export the Express app as a Cloud Function
 exports.api = functions.https.onRequest(app);
-//# sourceMappingURL=index.js.map
+//# sourceMappingURL=index-enhanced.js.map
