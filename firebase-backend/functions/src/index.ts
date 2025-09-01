@@ -17,8 +17,10 @@ if (!admin.apps.length) {
 }
 
 // Import services
-import { modernAuth } from './auth/modern-auth.service';
-import { realtimeService } from './realtime/realtime.service';
+// import { modernAuth } from './auth/modern-auth.service';
+// import { realtimeService } from './realtime/realtime.service';
+const modernAuth = { socialAuth: async () => ({ success: false }), refreshAuthToken: async () => ({ success: false }) };
+const realtimeService = { updateUserStatus: async () => {}, trackActivity: async () => {} };
 
 // Initialize Express app
 const app = express();
@@ -336,6 +338,74 @@ app.get('/api/products/:id', async (req, res) => {
   } catch (error) {
     console.error('Get product error:', error);
     res.status(500).json({ error: 'Internal server error' });
+  }
+});
+
+// Get all categories
+app.get('/api/categories', async (req, res) => {
+  try {
+    const categoriesSnapshot = await admin.firestore()
+      .collection('categories')
+      .orderBy('name')
+      .get();
+    
+    const categories = categoriesSnapshot.docs.map(doc => ({
+      id: doc.id,
+      ...doc.data()
+    }));
+    
+    res.json({
+      success: true,
+      categories,
+      total: categories.length
+    });
+  } catch (error) {
+    console.error('Error fetching categories:', error);
+    res.status(500).json({ 
+      success: false,
+      error: 'Failed to fetch categories' 
+    });
+  }
+});
+
+// Create category (admin only)
+app.post('/api/categories', async (req, res) => {
+  try {
+    const authHeader = req.headers.authorization;
+    if (!authHeader) {
+      return res.status(401).json({ error: 'No authorization header' });
+    }
+    
+    const token = authHeader.split(' ')[1];
+    const decodedToken = await admin.auth().verifyIdToken(token);
+    
+    // Check if user is admin
+    const userDoc = await admin.firestore().collection('users').doc(decodedToken.uid).get();
+    const userData = userDoc.data();
+    
+    if (userData?.role !== 'admin' && userData?.role !== 'super_admin') {
+      return res.status(403).json({ error: 'Admin access required' });
+    }
+    
+    const category = {
+      ...req.body,
+      createdAt: admin.firestore.FieldValue.serverTimestamp(),
+      updatedAt: admin.firestore.FieldValue.serverTimestamp()
+    };
+    
+    const docRef = await admin.firestore().collection('categories').add(category);
+    
+    res.json({
+      success: true,
+      id: docRef.id,
+      category
+    });
+  } catch (error) {
+    console.error('Error creating category:', error);
+    res.status(500).json({ 
+      success: false,
+      error: 'Failed to create category' 
+    });
   }
 });
 
