@@ -39,7 +39,7 @@ export const performance = null; // Disable performance for now
 // Connect to emulators in development
 if (import.meta.env.DEV && import.meta.env.VITE_USE_EMULATORS === 'true') {
   connectAuthEmulator(auth, 'http://localhost:9099');
-  connectFirestoreEmulator(db, 'localhost', 8080);
+  connectFirestoreEmulator(db, 'localhost', 8088); // Updated port
   connectStorageEmulator(storage, 'localhost', 9199);
   connectDatabaseEmulator(realtimeDb, 'localhost', 9000);
   connectFunctionsEmulator(functions, 'localhost', 5001);
