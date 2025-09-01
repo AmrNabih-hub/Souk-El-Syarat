@@ -85,6 +85,10 @@ export class AuthService {
             const user: User = {
               id: firebaseUser.uid,
               ...userData,
+              preferences: {
+                ...userData.preferences,
+                language: userData.preferences.language as 'ar' | 'en',
+              },
               createdAt: new Date(),
               updatedAt: new Date(),
             };
@@ -172,6 +176,10 @@ export class AuthService {
       const user: User = {
         id: firebaseUser.uid,
         ...userData,
+        preferences: {
+          ...userData.preferences,
+          language: userData.preferences.language as 'ar' | 'en',
+        },
         createdAt: new Date(),
         updatedAt: new Date(),
       };
@@ -205,7 +213,7 @@ export class AuthService {
           createdAt: serverTimestamp(),
           updatedAt: serverTimestamp(),
           preferences: {
-            language: 'ar',
+            language: 'ar' as 'ar' | 'en',
             currency: 'EGP',
             notifications: {
               email: true,
@@ -281,7 +289,7 @@ export class AuthService {
           createdAt: serverTimestamp(),
           updatedAt: serverTimestamp(),
           preferences: {
-            language: 'ar',
+            language: 'ar' as 'ar' | 'en',
             currency: 'EGP',
             notifications: {
               email: true,
@@ -445,10 +453,6 @@ export class AuthService {
   static getCurrentUser(): FirebaseUser | null {
     return auth.currentUser;
   }
-<<<<<<< Current (Your changes)
-}
-=======
-
   // Check if email is verified
   static async checkEmailVerified(): Promise<boolean> {
     const user = auth.currentUser;
@@ -487,4 +491,3 @@ export class AuthService {
 
 // Initialize auth on load
 AuthService.initializeAuth();
->>>>>>> Incoming (Background Agent changes)
