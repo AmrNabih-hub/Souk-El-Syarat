@@ -88,6 +88,7 @@ export class AuthService {
               preferences: {
                 ...userData.preferences,
                 language: userData.preferences.language as 'ar' | 'en',
+                currency: userData.preferences.currency as 'EGP' | 'USD',
               },
               createdAt: new Date(),
               updatedAt: new Date(),
@@ -179,6 +180,7 @@ export class AuthService {
         preferences: {
           ...userData.preferences,
           language: userData.preferences.language as 'ar' | 'en',
+          currency: userData.preferences.currency as 'EGP' | 'USD',
         },
         createdAt: new Date(),
         updatedAt: new Date(),
@@ -214,7 +216,7 @@ export class AuthService {
           updatedAt: serverTimestamp(),
           preferences: {
             language: 'ar' as 'ar' | 'en',
-            currency: 'EGP',
+            currency: 'EGP' as 'EGP' | 'USD',
             notifications: {
               email: true,
               sms: false,
@@ -228,6 +230,11 @@ export class AuthService {
         return {
           id: firebaseUser.uid,
           ...userData,
+          preferences: {
+            ...userData.preferences,
+            language: userData.preferences.language as 'ar' | 'en',
+            currency: userData.preferences.currency as 'EGP' | 'USD',
+          },
           createdAt: new Date(),
           updatedAt: new Date(),
         };
@@ -290,7 +297,7 @@ export class AuthService {
           updatedAt: serverTimestamp(),
           preferences: {
             language: 'ar' as 'ar' | 'en',
-            currency: 'EGP',
+            currency: 'EGP' as 'EGP' | 'USD',
             notifications: {
               email: true,
               sms: false,
@@ -304,6 +311,11 @@ export class AuthService {
         return {
           id: firebaseUser.uid,
           ...userData,
+          preferences: {
+            ...userData.preferences,
+            language: userData.preferences.language as 'ar' | 'en',
+            currency: userData.preferences.currency as 'EGP' | 'USD',
+          },
           createdAt: new Date(),
           updatedAt: new Date(),
         };
