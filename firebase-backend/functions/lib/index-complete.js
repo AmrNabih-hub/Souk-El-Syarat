@@ -146,4 +146,4 @@ app.use('*', (req, res) => {
 });
 // Export
 exports.api = functions.https.onRequest(app);
-//# sourceMappingURL=index.js.map
+//# sourceMappingURL=index-complete.js.map
