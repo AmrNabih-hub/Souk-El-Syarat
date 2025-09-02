@@ -1,7 +1,5 @@
 {
   "firestore": {
-    "database": "(default)",
-    "location": "nam5",
     "rules": "firestore.rules",
     "indexes": "firestore.indexes.json"
   },
@@ -11,10 +9,7 @@
       "codebase": "default",
       "ignore": [
         "node_modules",
-        ".git",
-        "firebase-debug.log",
-        "firebase-debug.*.log",
-        "*.local"
+        ".git"
       ],
       "predeploy": [
         "npm --prefix \"$RESOURCE_DIR\" run lint",
@@ -29,57 +24,10 @@
       "**/.*",
       "**/node_modules/**"
     ],
-    "cleanUrls": true,
-    "trailingSlash": false,
     "rewrites": [
-      {
-        "source": "**/*.@(js|css|png|jpg|jpeg|gif|svg|webp|ico|woff|woff2|ttf|eot)",
-        "destination": "/$1"
-      },
       {
         "source": "**",
         "destination": "/index.html"
-      }
-    ],
-    "headers": [
-      {
-        "source": "**/*.@(js|css)",
-        "headers": [
-          {
-            "key": "Cache-Control",
-            "value": "max-age=31536000"
-          }
-        ]
-      },
-      {
-        "source": "**/*.@(jpg|jpeg|gif|png|svg|webp)",
-        "headers": [
-          {
-            "key": "Cache-Control",
-            "value": "max-age=31536000"
-          }
-        ]
-      },
-      {
-        "source": "**",
-        "headers": [
-          {
-            "key": "X-Content-Type-Options",
-            "value": "nosniff"
-          },
-          {
-            "key": "X-Frame-Options",
-            "value": "DENY"
-          },
-          {
-            "key": "X-XSS-Protection",
-            "value": "1; mode=block"
-          },
-          {
-            "key": "Referrer-Policy",
-            "value": "strict-origin-when-cross-origin"
-          }
-        ]
       }
     ]
   },
@@ -89,38 +37,8 @@
   "database": {
     "rules": "database.rules.json"
   },
-  "emulators": {
-    "auth": {
-      "port": 9099
-    },
-    "functions": {
-      "port": 5001
-    },
-    "firestore": {
-      "port": 8080
-    },
-    "hosting": {
-      "port": 5000
-    },
-    "storage": {
-      "port": 9199
-    },
-    "ui": {
-      "enabled": true,
-      "port": 4000
-    },
-    "singleProjectMode": true
-  },
   "apphosting": {
     "backendId": "souk-el-sayarat-backend",
-    "rootDir": "/",
-    "ignore": [
-      "node_modules",
-      ".git",
-      "firebase-debug.log",
-      "firebase-debug.*.log",
-      "functions"
-    ],
     "alwaysDeployFromSource": true
   }
 }

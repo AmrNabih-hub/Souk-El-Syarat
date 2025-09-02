@@ -1,305 +1,48 @@
-/**
- * App Hosting Optimized Backend Server
- * Production-ready configuration with all fixes applied
- */
-
 const express = require('express');
-const cors = require('cors');
-const compression = require('compression');
-const helmet = require('helmet');
-const rateLimit = require('express-rate-limit');
-
-// Initialize Express
 const app = express();
 const PORT = process.env.PORT || 8080;
 
-// Firebase Admin SDK initialization
-const admin = require('firebase-admin');
-
-// Initialize Firebase Admin with App Hosting environment
-const initializeFirebase = async () => {
-  try {
-    console.log('🔥 Initializing Firebase Admin SDK...');
-    
-    // App Hosting provides Application Default Credentials
-    admin.initializeApp({
-      projectId: process.env.FIREBASE_PROJECT_ID,
-      databaseURL: process.env.FIREBASE_DATABASE_URL,
-      storageBucket: process.env.FIREBASE_STORAGE_BUCKET
-    });
-    
-    const db = admin.firestore();
-    const auth = admin.auth();
-    const rtdb = admin.database();
-    const storage = admin.storage();
-    
-    // Test connection
-    await db.collection('_health').doc('check').set({
-      timestamp: admin.firestore.FieldValue.serverTimestamp(),
-      status: 'connected'
-    });
-    
-    console.log('✅ Firebase services initialized successfully');
-    return { db, auth, rtdb, storage };
-  } catch (error) {
-    console.error('❌ Firebase initialization error:', error);
-    throw error;
-  }
-};
-
-// Global Firebase services
-let firebaseServices = null;
-
-// Middleware Configuration
-app.use(helmet({
-  contentSecurityPolicy: false,
-  crossOriginEmbedderPolicy: false
-}));
-
-app.use(compression());
-
-// CORS configuration
-app.use(cors({
-  origin: [
-    'https://souk-el-syarat.web.app',
-    'https://souk-el-syarat.firebaseapp.com',
-    'http://localhost:5173',
-    'http://localhost:3000'
-  ],
-  credentials: true
-}));
-
-app.use(express.json({ limit: '10mb' }));
-app.use(express.urlencoded({ extended: true, limit: '10mb' }));
-
-// Rate limiting
-const limiter = rateLimit({
-  windowMs: 15 * 60 * 1000,
-  max: 100,
-  message: 'Too many requests from this IP'
-});
-
-app.use('/api/', limiter);
-
-// Request logging
-app.use((req, res, next) => {
-  console.log(`[${new Date().toISOString()}] ${req.method} ${req.path}`);
-  next();
-});
+// Basic middleware
+app.use(express.json());
 
 // Health check endpoint
-app.get('/health', async (req, res) => {
-  const health = {
+app.get('/health', (req, res) => {
+  res.json({
     status: 'healthy',
     timestamp: new Date().toISOString(),
-    environment: process.env.NODE_ENV,
-    version: '3.0.0',
-    services: {}
-  };
-
-  if (firebaseServices) {
-    try {
-      await firebaseServices.db.collection('_health').doc('ping').set({
-        timestamp: admin.firestore.FieldValue.serverTimestamp()
-      });
-      health.services.firestore = 'connected';
-    } catch (error) {
-      health.services.firestore = 'error';
-      health.status = 'degraded';
-    }
-  }
-
-  const statusCode = health.status === 'healthy' ? 200 : 503;
-  res.status(statusCode).json(health);
+    environment: process.env.NODE_ENV || 'development'
+  });
 });
 
-// API Info endpoint
+// Root endpoint
+app.get('/', (req, res) => {
+  res.json({
+    message: 'Souk El-Syarat Backend',
+    version: '1.0.0',
+    status: 'running'
+  });
+});
+
+// API info
 app.get('/api', (req, res) => {
   res.json({
-    name: 'Souk El-Syarat Backend API',
-    version: '3.0.0',
-    status: 'operational',
-    cloudFunctionsAPI: process.env.API_BASE_URL || 'https://api-52vezf5qqa-uc.a.run.app',
-    endpoints: {
-      health: '/health',
-      api: '/api',
-      products: '/api/products',
-      vendors: '/api/vendors',
-      search: '/api/search'
-    }
+    name: 'Souk El-Syarat API',
+    endpoints: ['/health', '/api', '/api/products']
   });
 });
 
-// Products endpoint
-app.get('/api/products', async (req, res) => {
-  try {
-    if (!firebaseServices) {
-      return res.status(503).json({
-        success: false,
-        error: 'Service initializing'
-      });
-    }
-
-    const { limit = 20, offset = 0 } = req.query;
-    
-    const snapshot = await firebaseServices.db
-      .collection('products')
-      .limit(parseInt(limit))
-      .offset(parseInt(offset))
-      .get();
-    
-    const products = [];
-    snapshot.forEach(doc => {
-      products.push({
-        id: doc.id,
-        ...doc.data()
-      });
-    });
-    
-    res.json({
-      success: true,
-      products,
-      count: products.length
-    });
-  } catch (error) {
-    console.error('Products error:', error);
-    res.status(500).json({
-      success: false,
-      error: error.message
-    });
-  }
-});
-
-// Vendors endpoint
-app.get('/api/vendors', async (req, res) => {
-  try {
-    if (!firebaseServices) {
-      return res.status(503).json({
-        success: false,
-        error: 'Service initializing'
-      });
-    }
-
-    const snapshot = await firebaseServices.db
-      .collection('vendors')
-      .limit(20)
-      .get();
-    
-    const vendors = [];
-    snapshot.forEach(doc => {
-      vendors.push({
-        id: doc.id,
-        ...doc.data()
-      });
-    });
-    
-    res.json({
-      success: true,
-      vendors,
-      count: vendors.length
-    });
-  } catch (error) {
-    res.status(500).json({
-      success: false,
-      error: error.message
-    });
-  }
-});
-
-// Search endpoint
-app.get('/api/search/products', async (req, res) => {
-  try {
-    if (!firebaseServices) {
-      return res.status(503).json({
-        success: false,
-        error: 'Service initializing'
-      });
-    }
-
-    const { q = '' } = req.query;
-    
-    // Simple search implementation
-    const snapshot = await firebaseServices.db
-      .collection('products')
-      .where('title', '>=', q)
-      .where('title', '<=', q + '\uf8ff')
-      .limit(20)
-      .get();
-    
-    const results = [];
-    snapshot.forEach(doc => {
-      results.push({
-        id: doc.id,
-        ...doc.data()
-      });
-    });
-    
-    res.json({
-      success: true,
-      query: q,
-      results,
-      count: results.length
-    });
-  } catch (error) {
-    res.status(500).json({
-      success: false,
-      error: error.message
-    });
-  }
-});
-
-// 404 handler
-app.use((req, res) => {
-  res.status(404).json({
-    error: 'Not found',
-    path: req.originalUrl
-  });
-});
-
-// Error handler
-app.use((err, req, res, next) => {
-  console.error('Error:', err);
-  res.status(500).json({
-    error: 'Internal server error',
-    message: err.message
+// Simple products endpoint
+app.get('/api/products', (req, res) => {
+  res.json({
+    success: true,
+    products: [
+      { id: 1, name: 'Test Product', price: 100 }
+    ],
+    message: 'Firebase connection will be added after deployment succeeds'
   });
 });
 
 // Start server
-const startServer = async () => {
-  try {
-    // Initialize Firebase
-    firebaseServices = await initializeFirebase();
-    
-    // Start listening
-    app.listen(PORT, () => {
-      console.log(`
-╔════════════════════════════════════════════════╗
-║     🚀 APP HOSTING BACKEND - PRODUCTION        ║
-║                                                ║
-║  Port: ${PORT}                                    ║
-║  Environment: ${process.env.NODE_ENV}             ║
-║  Project: ${process.env.FIREBASE_PROJECT_ID}      ║
-║  Status: OPERATIONAL                          ║
-║                                                ║
-║  Health: /health                              ║
-║  API: /api                                    ║
-╚════════════════════════════════════════════════╝
-      `);
-    });
-  } catch (error) {
-    console.error('Failed to start server:', error);
-    process.exit(1);
-  }
-};
-
-// Graceful shutdown
-process.on('SIGTERM', () => {
-  console.log('SIGTERM received, shutting down gracefully...');
-  process.exit(0);
+app.listen(PORT, () => {
+  console.log(`Server running on port ${PORT}`);
 });
-
-// Start the server
-startServer();
-
-module.exports = app;

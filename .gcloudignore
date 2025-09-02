@@ -1,0 +1,14 @@
+.gcloudignore
+.git
+.gitignore
+node_modules/
+functions/
+qa-automation/
+emergency-fix/
+fix-scripts/
+*.md
+*.log
+*.sh
+*.txt
+.env*
+firebase-debug.log*
