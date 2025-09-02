@@ -110,5 +110,16 @@
       "port": 4000
     },
     "singleProjectMode": true
+  },
+  "apphosting": {
+    "backendId": "souk-el-sayarat-backend",
+    "rootDir": "/",
+    "ignore": [
+      "node_modules",
+      ".git",
+      "firebase-debug.log",
+      "firebase-debug.*.log",
+      "functions"
+    ]
   }
 }
