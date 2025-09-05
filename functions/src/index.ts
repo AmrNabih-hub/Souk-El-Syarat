@@ -1,18 +1,22 @@
 /**
- * Import function triggers from their respective submodules:
- *
- * import {onCall} from "firebase-functions/v2/https";
- * import {onDocumentWritten} from "firebase-functions/v2/firestore";
- *
- * See a full list of supported triggers at https://firebase.google.com/docs/functions
+ * Firebase Functions for Souk El-Syarat
+ * Complete backend functions including email services
  */
 
-import {setGlobalOptions} from "firebase-functions";
-import {onRequest} from "firebase-functions/https";
+import { setGlobalOptions } from "firebase-functions";
 import * as logger from "firebase-functions/logger";
 
-// Start writing functions
-// https://firebase.google.com/docs/functions/typescript
+// Import email functions
+export {
+  sendWelcomeEmail,
+  sendOrderConfirmationEmail,
+  sendOrderStatusUpdateEmail,
+  sendVendorApplicationEmail,
+  sendVendorApplicationStatusEmail,
+  sendPasswordResetEmail,
+  sendCustomEmail,
+  testEmail,
+} from './emailFunctions';
 
 // For cost control, you can set the maximum number of containers that can be
 // running at the same time. This helps mitigate the impact of unexpected
@@ -26,7 +30,4 @@ import * as logger from "firebase-functions/logger";
 // this will be the maximum concurrent request count.
 setGlobalOptions({ maxInstances: 10 });
 
-// export const helloWorld = onRequest((request, response) => {
-//   logger.info("Hello logs!", {structuredData: true});
-//   response.send("Hello from Firebase!");
-// });
+logger.info("Firebase Functions initialized successfully");

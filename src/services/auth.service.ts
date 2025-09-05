@@ -499,6 +499,50 @@ export class AuthService {
       throw new Error(this.getAuthErrorMessage(error.code, error.message));
     }
   }
+
+  /**
+   * Get user profile from Firestore
+   */
+  static async getUserProfile(userId: string): Promise<User | null> {
+    try {
+      const userDoc = await getDoc(doc(db, 'users', userId));
+      if (userDoc.exists()) {
+        return { id: userId, ...userDoc.data() } as User;
+      }
+      return null;
+    } catch (error) {
+      console.error('Error getting user profile:', error);
+      throw error;
+    }
+  }
+
+  /**
+   * Get user profile with extended data
+   */
+  static async getUserProfileExtended(userId: string): Promise<User & {
+    addresses?: Address[];
+    paymentMethods?: PaymentMethod[];
+  } | null> {
+    try {
+      const userDoc = await getDoc(doc(db, 'users', userId));
+      if (userDoc.exists()) {
+        const userData = userDoc.data();
+        return { 
+          id: userId, 
+          ...userData,
+          addresses: userData.addresses || [],
+          paymentMethods: userData.paymentMethods || []
+        } as User & {
+          addresses?: Address[];
+          paymentMethods?: PaymentMethod[];
+        };
+      }
+      return null;
+    } catch (error) {
+      console.error('Error getting extended user profile:', error);
+      throw error;
+    }
+  }
 }
 
 // Initialize auth on load

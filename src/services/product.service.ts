@@ -57,6 +57,78 @@ export interface UpdateProductData extends Partial<CreateProductData> {
 export class ProductService {
   private static COLLECTION_NAME = 'products';
 
+  // Get vendor product statistics
+  static async getVendorProductStats(vendorId: string): Promise<{
+    total: number;
+    active: number;
+    pending: number;
+    totalViews: number;
+    averageRating: number;
+  }> {
+    try {
+      const productsQuery = query(
+        collection(db, this.COLLECTION_NAME),
+        where('vendorId', '==', vendorId)
+      );
+      
+      const snapshot = await getDocs(productsQuery);
+      const products = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() } as Product));
+      
+      return {
+        total: products.length,
+        active: products.filter(p => p.status === 'active').length,
+        pending: products.filter(p => p.status === 'pending').length,
+        totalViews: products.reduce((sum, product) => sum + product.views, 0),
+        averageRating: products.length > 0 ? products.reduce((sum, product) => sum + product.rating, 0) / products.length : 0
+      };
+    } catch (error) {
+      console.error('Error getting vendor product stats:', error);
+      return { total: 0, active: 0, pending: 0, totalViews: 0, averageRating: 0 };
+    }
+  }
+
+  // Get vendor products
+  static async getVendorProducts(vendorId: string, options: { limit?: number } = {}): Promise<Product[]> {
+    try {
+      const productsQuery = query(
+        collection(db, this.COLLECTION_NAME),
+        where('vendorId', '==', vendorId),
+        orderBy('createdAt', 'desc'),
+        limit(options.limit || 20)
+      );
+      
+      const snapshot = await getDocs(productsQuery);
+      return snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() } as Product));
+    } catch (error) {
+      console.error('Error getting vendor products:', error);
+      return [];
+    }
+  }
+
+  // Get wishlist
+  static async getWishlist(userId: string): Promise<Product[]> {
+    try {
+      // This would typically be stored in a separate wishlist collection
+      // For now, return empty array as placeholder
+      return [];
+    } catch (error) {
+      console.error('Error getting wishlist:', error);
+      return [];
+    }
+  }
+
+  // Remove from wishlist
+  static async removeFromWishlist(userId: string, productId: string): Promise<void> {
+    try {
+      // This would typically remove from a wishlist collection
+      // For now, just log the action
+      console.log(`Removing product ${productId} from wishlist for user ${userId}`);
+    } catch (error) {
+      console.error('Error removing from wishlist:', error);
+      throw error;
+    }
+  }
+
   /**
    * Create a new product
    */

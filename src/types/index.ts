@@ -24,15 +24,33 @@ export interface User {
 export type UserRole = 'customer' | 'vendor' | 'admin';
 
 export interface Address {
+  id?: string;
+  label: string;
   street: string;
   city: string;
   governorate: string;
   postalCode?: string;
   country: string;
+  fullAddress: string;
   coordinates?: {
     lat: number;
     lng: number;
   };
+  isDefault?: boolean;
+  createdAt?: Date;
+  updatedAt?: Date;
+}
+
+export interface PaymentMethod {
+  id?: string;
+  type: 'credit_card' | 'debit_card' | 'bank_transfer' | 'mobile_wallet';
+  last4: string;
+  brand?: string;
+  expiryMonth?: number;
+  expiryYear?: number;
+  isDefault?: boolean;
+  createdAt?: Date;
+  updatedAt?: Date;
 }
 
 export interface UserPreferences {
