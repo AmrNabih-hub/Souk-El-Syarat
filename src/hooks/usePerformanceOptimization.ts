@@ -142,18 +142,19 @@ export const useServiceWorker = () => {
   useEffect(() => {
     if ('serviceWorker' in navigator) {
       window.addEventListener('load', async () => {
-        try {
-          const registration = await navigator.serviceWorker.register('/sw.js');
-          // if (process.env.NODE_ENV === 'development') {
-      // console.log('Service Worker registered:', registration);
-    }
-        } catch (error) {
-          if (process.env.NODE_ENV === 'development') {
-      // console.error('Service Worker registration failed:', error);
+              try {
+        const registration = await navigator.serviceWorker.register('/sw.js');
+        // if (process.env.NODE_ENV === 'development') {
+        // console.log('Service Worker registered:', registration);
+        // }
+      } catch (error) {
+        if (process.env.NODE_ENV === 'development') {
+          // console.error('Service Worker registration failed:', error);
         }
-      });
-    }
-  }, []);
+      }
+    });
+  }
+}, []);
 };
 
 // Preload critical resources
