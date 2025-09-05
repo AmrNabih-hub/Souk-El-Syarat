@@ -23,6 +23,9 @@ import {
 import { useAuthStore } from '@/stores/authStore';
 import { useAppStore } from '@/stores/appStore';
 import { useRealtimeStore } from '@/stores/realtimeStore';
+import RealTimeOrderService from '@/services/realtime-order.service';
+import ProfessionalPushNotificationService from '@/services/professional-push-notification.service';
+import ProfessionalChatService from '@/services/professional-chat.service';
 
 import { Product, Order, Notification, VendorStats } from '@/types';
 import { ProductService } from '@/services/product.service';
@@ -83,8 +86,58 @@ const VendorDashboard: React.FC = () => {
   useEffect(() => {
     if (user?.id) {
       loadDashboardData();
+      initializeRealTimeServices();
     }
   }, [user?.id]);
+
+  const initializeRealTimeServices = async () => {
+    try {
+      // Initialize real-time order tracking
+      const orderService = RealTimeOrderService.getInstance();
+      await orderService.initialize();
+
+      // Initialize push notifications
+      const pushService = ProfessionalPushNotificationService.getInstance();
+      await pushService.initialize();
+
+      // Initialize chat service
+      const chatService = ProfessionalChatService.getInstance();
+      await chatService.initialize(user!.id);
+
+      // Subscribe to vendor order updates
+      if (orders.length > 0) {
+        orders.forEach(order => {
+          orderService.subscribeToOrderTracking(
+            order.id,
+            (orderData) => {
+              // Update order in state
+              setOrders(prev => prev.map(o => 
+                o.id === order.id ? { ...o, status: orderData.status } : o
+              ));
+              
+              // Show notification for new orders
+              if (orderData.status === 'pending') {
+                pushService.sendLocalNotification({
+                  title: 'New Order Received',
+                  body: `New order #${order.id.slice(-8)} from customer`,
+                  category: 'order_update',
+                  priority: 'high'
+                });
+              }
+            }
+          );
+        });
+      }
+
+      // Subscribe to vendor notifications
+      pushService.addNotificationHandler('order_update', (notification) => {
+        toast.success(notification.body);
+      });
+
+    } catch (error) {
+      console.error('Error initializing real-time services:', error);
+    }
+  };
 
   const loadDashboardData = async () => {
     try {

@@ -21,6 +21,8 @@ import {
 import { useAuthStore } from '@/stores/authStore';
 import { useAppStore } from '@/stores/appStore';
 import { useRealtimeStore } from '@/stores/realtimeStore';
+import RealTimeOrderService from '@/services/realtime-order.service';
+import ProfessionalPushNotificationService from '@/services/professional-push-notification.service';
 
 import { Order, Product, Notification, Address, PaymentMethod } from '@/types';
 import { OrderService } from '@/services/order.service';
@@ -75,8 +77,46 @@ const CustomerDashboard: React.FC = () => {
   useEffect(() => {
     if (user?.id) {
       loadDashboardData();
+      initializeRealTimeServices();
     }
   }, [user?.id]);
+
+  const initializeRealTimeServices = async () => {
+    try {
+      // Initialize real-time order tracking
+      const orderService = RealTimeOrderService.getInstance();
+      await orderService.initialize();
+
+      // Initialize push notifications
+      const pushService = ProfessionalPushNotificationService.getInstance();
+      await pushService.initialize();
+
+      // Subscribe to order updates
+      if (orders.length > 0) {
+        orders.forEach(order => {
+          orderService.subscribeToOrderTracking(
+            order.id,
+            (orderData) => {
+              // Update order in state
+              setOrders(prev => prev.map(o => 
+                o.id === order.id ? { ...o, status: orderData.status } : o
+              ));
+              
+              // Show notification
+              pushService.sendLocalNotification({
+                title: 'Order Update',
+                body: `Your order #${order.id.slice(-8)} status: ${orderData.status}`,
+                category: 'order_update',
+                priority: 'normal'
+              });
+            }
+          );
+        });
+      }
+    } catch (error) {
+      console.error('Error initializing real-time services:', error);
+    }
+  };
 
   const loadDashboardData = async () => {
     try {
