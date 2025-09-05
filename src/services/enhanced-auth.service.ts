@@ -507,7 +507,7 @@ export class EnhancedAuthService {
 
       // if (process.env.NODE_ENV === 'development') {
       // console.log('User signed out successfully');
-    }
+      // }
     } catch (error) {
       throw new Error(this.getAuthErrorMessage(error.code));
     }

@@ -152,7 +152,8 @@ export const useRealTimeDashboard = (): DashboardData & DashboardActions => {
       setUnsubscribeFunctions(newUnsubscribeFunctions);
     } catch (error) {
       if (process.env.NODE_ENV === 'development') {
-      // console.error('Error initializing dashboard subscriptions:', error);
+        // console.error('Error initializing dashboard subscriptions:', error);
+      }
       setData(prev => ({
         ...prev,
         error: 'Failed to initialize real-time connections',
@@ -170,7 +171,8 @@ export const useRealTimeDashboard = (): DashboardData & DashboardActions => {
         unsubscribe();
       } catch (error) {
         if (process.env.NODE_ENV === 'development') {
-      // console.error('Error cleaning up subscription:', error);
+          // console.error('Error cleaning up subscription:', error);
+        }
       }
     });
     setUnsubscribeFunctions([]);
@@ -184,11 +186,12 @@ export const useRealTimeDashboard = (): DashboardData & DashboardActions => {
       try {
         ProcessOrchestratorService.getInstance();
         // if (process.env.NODE_ENV === 'development') {
-      // console.log('Process orchestrator initialized');
-    }
+        // console.log('Process orchestrator initialized');
+        // }
       } catch (error) {
         if (process.env.NODE_ENV === 'development') {
-      // console.error('Error initializing process orchestrator:', error);
+          // console.error('Error initializing process orchestrator:', error);
+        }
       }
     }
   }, [user?.role]);
@@ -213,7 +216,8 @@ export const useRealTimeDashboard = (): DashboardData & DashboardActions => {
       await NotificationService.markAsRead(notificationId);
     } catch (error) {
       if (process.env.NODE_ENV === 'development') {
-      // console.error('Error marking notification as read:', error);
+        // console.error('Error marking notification as read:', error);
+      }
       setData(prev => ({
         ...prev,
         error: 'Failed to mark notification as read',
