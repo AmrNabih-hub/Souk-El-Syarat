@@ -185,7 +185,7 @@ const WishlistPage: React.FC = () => {
             <div className='flex items-center justify-between'>
               <div>
                 <h1 className='text-3xl font-bold text-neutral-900 flex items-center'>
-                  <HeartSolid className='w-8 h-8 mr-3 text-red-500' />
+                  <HeartSolid className='w-8 h-8 mr-3 text-accent-500' />
                   {language === 'ar' ? 'قائمة المفضلة' : 'My Wishlist'}
                 </h1>
                 <p className='text-neutral-600 mt-1'>
@@ -243,7 +243,7 @@ const WishlistPage: React.FC = () => {
             <div className='flex items-center justify-between'>
               <div>
                 <h1 className='text-3xl font-bold text-neutral-900 flex items-center'>
-                  <HeartSolid className='w-8 h-8 mr-3 text-red-500' />
+                  <HeartSolid className='w-8 h-8 mr-3 text-accent-500' />
                   {language === 'ar' ? 'قائمة المفضلة' : 'My Wishlist'}
                 </h1>
                 <p className='text-neutral-600 mt-1'>
@@ -284,7 +284,7 @@ const WishlistPage: React.FC = () => {
                     <div className='relative aspect-[4/3] overflow-hidden bg-neutral-100'>
                       {/* Discount Badge */}
                       {product.originalPrice && product.originalPrice > product.price && (
-                        <div className='absolute top-3 left-3 z-10 bg-red-500 text-white px-2 py-1 rounded-full text-xs font-bold'>
+                        <div className='absolute top-3 left-3 z-10 bg-accent-500 text-white px-2 py-1 rounded-full text-xs font-bold'>
                           -
                           {Math.round(
                             ((product.originalPrice - product.price) / product.originalPrice) * 100
@@ -299,7 +299,7 @@ const WishlistPage: React.FC = () => {
                           onClick={() => handleRemoveFromWishlist(product.id)}
                           className='p-2 bg-white/90 backdrop-blur-sm rounded-full shadow-sm hover:bg-white transition-colors'
                         >
-                          <HeartSolid className='w-5 h-5 text-red-500' />
+                          <HeartSolid className='w-5 h-5 text-accent-500' />
                         </button>
                       </div>
 
@@ -342,7 +342,7 @@ const WishlistPage: React.FC = () => {
                         <span
                           className={`inline-block px-2 py-1 text-xs rounded-full font-medium ${
                             product.category === 'cars'
-                              ? 'bg-blue-100 text-blue-800'
+                              ? 'bg-secondary-100 text-secondary-800'
                               : product.category === 'parts'
                                 ? 'bg-green-100 text-green-800'
                                 : product.category === 'services'
@@ -399,7 +399,7 @@ const WishlistPage: React.FC = () => {
                               {language === 'ar' ? 'متوفر' : 'In Stock'}
                             </span>
                           ) : (
-                            <span className='text-red-600'>
+                            <span className='text-accent-600'>
                               {language === 'ar' ? 'غير متوفر' : 'Out of Stock'}
                             </span>
                           )}
@@ -432,7 +432,7 @@ const WishlistPage: React.FC = () => {
 
                         <motion.button
                           onClick={() => handleRemoveFromWishlist(product.id)}
-                          className='p-2 border border-neutral-300 rounded-lg text-neutral-400 hover:text-red-500 hover:border-red-300 transition-colors'
+                          className='p-2 border border-neutral-300 rounded-lg text-neutral-400 hover:text-accent-500 hover:border-red-300 transition-colors'
                           whileHover={{ scale: 1.05 }}
                           whileTap={{ scale: 0.95 }}
                         >

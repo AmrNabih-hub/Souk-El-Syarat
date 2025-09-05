@@ -70,8 +70,8 @@ export class AuthService {
               createdAt: serverTimestamp(),
               updatedAt: serverTimestamp(),
               preferences: {
-                language: 'ar',
-                currency: 'EGP',
+                language: 'ar' as 'ar' | 'en',
+                currency: 'EGP' as 'EGP' | 'USD',
                 notifications: {
                   email: true,
                   sms: false,
@@ -108,8 +108,8 @@ export class AuthService {
               createdAt: userData.createdAt?.toDate() || new Date(),
               updatedAt: userData.updatedAt?.toDate() || new Date(),
               preferences: userData.preferences || {
-                language: 'ar',
-                currency: 'EGP',
+                language: 'ar' as 'ar' | 'en',
+                currency: 'EGP' as 'EGP' | 'USD',
                 notifications: {
                   email: true,
                   sms: false,
@@ -150,20 +150,20 @@ export class AuthService {
       // Update profile
       await updateProfile(firebaseUser, { displayName }).catch(console.warn);
 
-      // Create user document in Firestore
+      // Create user document in Firestore with proper role
       const userData = {
         email: firebaseUser.email!,
         displayName,
         phoneNumber: firebaseUser.phoneNumber || null,
         photoURL: firebaseUser.photoURL || null,
-        role,
+        role, // Use the provided role parameter
         isActive: true,
         emailVerified: firebaseUser.emailVerified,
         createdAt: serverTimestamp(),
         updatedAt: serverTimestamp(),
         preferences: {
-          language: 'ar',
-          currency: 'EGP',
+          language: 'ar' as 'ar' | 'en',
+          currency: 'EGP' as 'EGP' | 'USD',
           notifications: {
             email: true,
             sms: false,

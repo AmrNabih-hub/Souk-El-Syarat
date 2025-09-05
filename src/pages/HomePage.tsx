@@ -341,7 +341,7 @@ const HomePage: React.FC = () => {
               <p className='text-neutral-600 mb-4'>متخصص في BMW، Mercedes، Audi</p>
               <div className='flex items-center justify-center mb-4'>
                 {[...Array(5)].map((_, i) => (
-                  <StarIcon key={i} className='w-5 h-5 text-yellow-400 fill-current' />
+                  <StarIcon key={i} className='w-5 h-5 text-primary-400 fill-current' />
                 ))}
                 <span className='ml-2 font-semibold text-neutral-700'>4.9</span>
               </div>
@@ -385,7 +385,7 @@ const HomePage: React.FC = () => {
                 {[...Array(5)].map((_, i) => (
                   <StarIcon
                     key={i}
-                    className={`w-5 h-5 ${i < 4 ? 'text-yellow-400 fill-current' : 'text-neutral-300'}`}
+                    className={`w-5 h-5 ${i < 4 ? 'text-primary-400 fill-current' : 'text-neutral-300'}`}
                   />
                 ))}
                 <span className='ml-2 font-semibold text-neutral-700'>4.8</span>
@@ -428,7 +428,7 @@ const HomePage: React.FC = () => {
               <p className='text-neutral-600 mb-4'>خدمات VIP للسيارات الفاخرة</p>
               <div className='flex items-center justify-center mb-4'>
                 {[...Array(5)].map((_, i) => (
-                  <StarIcon key={i} className='w-5 h-5 text-yellow-400 fill-current' />
+                  <StarIcon key={i} className='w-5 h-5 text-primary-400 fill-current' />
                 ))}
                 <span className='ml-2 font-semibold text-neutral-700'>4.9</span>
               </div>
@@ -541,7 +541,7 @@ const HomePage: React.FC = () => {
                 <div className='absolute top-4 left-4 bg-primary-500 text-white px-3 py-1 rounded-full text-sm font-semibold'>
                   جديد
                 </div>
-                <div className='absolute top-4 right-4 bg-red-500 text-white px-3 py-1 rounded-full text-sm font-semibold'>
+                <div className='absolute top-4 right-4 bg-accent-500 text-white px-3 py-1 rounded-full text-sm font-semibold'>
                   ٦% خصم
                 </div>
               </div>
@@ -619,7 +619,7 @@ const HomePage: React.FC = () => {
                   alt='Ceramic Coating Service'
                   className='w-full h-full object-cover transition-transform duration-300 hover:scale-110'
                 />
-                <div className='absolute top-4 left-4 bg-blue-500 text-white px-3 py-1 rounded-full text-sm font-semibold'>
+                <div className='absolute top-4 left-4 bg-secondary-500 text-white px-3 py-1 rounded-full text-sm font-semibold'>
                   خدمة
                 </div>
               </div>

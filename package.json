@@ -51,7 +51,6 @@
     "validate:ci": "npm run lint:ci && npm run format:check && npm run type-check:ci && npm run test:coverage"
   },
   "dependencies": {
-    "@dataconnect/generated": "file:dataconnect-generated/js/example-connector",
     "@faker-js/faker": "^10.0.0",
     "@headlessui/react": "^1.7.17",
     "@heroicons/react": "^2.0.18",

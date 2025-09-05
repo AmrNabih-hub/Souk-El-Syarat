@@ -187,13 +187,13 @@ const Navbar: React.FC = () => {
                 <motion.div whileHover={{ scale: 1.1 }} whileTap={{ scale: 0.9 }}>
                   <Link
                     to='/wishlist'
-                    className='relative p-2 text-neutral-600 hover:text-red-500 transition-colors group'
+                    className='relative p-2 text-neutral-600 hover:text-accent-500 transition-colors group'
                     title={language === 'ar' ? 'قائمة المفضلة' : 'Wishlist'}
                   >
-                    <HeartIcon className='w-5 h-5 group-hover:text-red-500' />
+                    <HeartIcon className='w-5 h-5 group-hover:text-accent-500' />
                     {favorites.length > 0 && (
                       <motion.span
-                        className='absolute -top-1 -right-1 w-5 h-5 bg-red-500 text-white text-xs rounded-full flex items-center justify-center font-medium shadow-sm'
+                        className='absolute -top-1 -right-1 w-5 h-5 bg-accent-500 text-white text-xs rounded-full flex items-center justify-center font-medium shadow-sm'
                         initial={{ scale: 0 }}
                         animate={{ scale: 1 }}
                         transition={{ type: 'spring', stiffness: 300 }}
@@ -296,7 +296,7 @@ const Navbar: React.FC = () => {
 
                         <button
                           onClick={handleSignOut}
-                          className='block w-full text-left px-4 py-2 text-sm text-red-600 hover:bg-red-50 transition-colors'
+                          className='block w-full text-left px-4 py-2 text-sm text-accent-600 hover:bg-accent-50 transition-colors'
                         >
                           {language === 'ar' ? 'تسجيل الخروج' : 'Sign Out'}
                         </button>

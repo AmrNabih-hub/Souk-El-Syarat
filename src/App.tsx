@@ -12,6 +12,9 @@ import { AuthService } from '@/services/auth.service';
 import Navbar from '@/components/layout/Navbar';
 import Footer from '@/components/layout/Footer';
 import LoadingScreen from '@/components/ui/LoadingScreen';
+import AuthErrorBoundary from '@/components/error/AuthErrorBoundary';
+import AuthLoadingScreen from '@/components/ui/AuthLoadingScreen';
+import PerformanceOptimizer from '@/components/ui/PerformanceOptimizer';
 
 // Enhanced lazy loading with retry and preload
 import { lazyWithPreload, batchPreload, componentLoader } from '@/utils/lazyWithRetry';
@@ -47,7 +50,7 @@ const ProtectedRoute: React.FC<{
   const { user, isLoading } = useAuthStore();
 
   if (isLoading) {
-    return <LoadingScreen message='جاري التحقق من الصلاحيات...' />;
+    return <AuthLoadingScreen message='جاري التحقق من الصلاحيات...' subMessage='Verifying permissions...' />;
   }
 
   if (!user) {
@@ -226,13 +229,15 @@ function App() {
   };
 
   return (
-    <div className='min-h-screen bg-gradient-to-br from-primary-50 via-white to-secondary-50 transition-all duration-500'>
-      <Navbar />
+    <PerformanceOptimizer>
+      <AuthErrorBoundary>
+        <div className='min-h-screen bg-gradient-to-br from-primary-50 via-white to-secondary-50 transition-all duration-500'>
+          <Navbar />
 
-      <main className='flex-1'>
-        <AnimatePresence mode='wait'>
-          <Suspense fallback={<LoadingScreen />}>
-            <Routes>
+          <main className='flex-1'>
+            <AnimatePresence mode='wait'>
+              <Suspense fallback={<LoadingScreen />}>
+                <Routes>
               {/* Public Routes */}
               <Route
                 path='/'
@@ -391,12 +396,14 @@ function App() {
               />
             </Routes>
           </Suspense>
-        </AnimatePresence>
-      </main>
+              </AnimatePresence>
+            </main>
 
-      <Footer />
-    </div>
-  );
+            <Footer />
+          </div>
+        </AuthErrorBoundary>
+      </PerformanceOptimizer>
+    );
 }
 
 export default App;
