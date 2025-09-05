@@ -18,6 +18,8 @@ import {
   StarIcon,
   TrendingUpIcon,
   TrendingDownIcon,
+  ArchiveBoxIcon,
+  DocumentTextIcon,
 } from '@heroicons/react/24/outline';
 
 import { useAuthStore } from '@/stores/authStore';
@@ -26,6 +28,8 @@ import { useRealtimeStore } from '@/stores/realtimeStore';
 import RealTimeOrderService from '@/services/realtime-order.service';
 import ProfessionalPushNotificationService from '@/services/professional-push-notification.service';
 import ProfessionalChatService from '@/services/professional-chat.service';
+import VendorApplicationService from '@/services/vendor-application.service';
+import InventoryManagementService from '@/services/inventory-management.service';
 
 import { Product, Order, Notification, VendorStats } from '@/types';
 import { ProductService } from '@/services/product.service';
@@ -63,7 +67,7 @@ const VendorDashboard: React.FC = () => {
   const { language } = useAppStore();
   const { notifications, unreadNotifications } = useRealtimeStore();
   
-  const [activeTab, setActiveTab] = useState<'overview' | 'products' | 'orders' | 'analytics' | 'notifications' | 'settings'>('overview');
+  const [activeTab, setActiveTab] = useState<'overview' | 'products' | 'inventory' | 'orders' | 'analytics' | 'notifications' | 'settings' | 'application'>('overview');
   const [isLoading, setIsLoading] = useState(true);
   const [stats, setStats] = useState<VendorDashboardStats | null>(null);
   const [products, setProducts] = useState<Product[]>([]);
@@ -73,13 +77,20 @@ const VendorDashboard: React.FC = () => {
   const [productModalOpen, setProductModalOpen] = useState(false);
   const [orderModalOpen, setOrderModalOpen] = useState(false);
   const [isProcessing, setIsProcessing] = useState(false);
+  const [inventoryItems, setInventoryItems] = useState<any[]>([]);
+  const [inventoryStats, setInventoryStats] = useState<any>(null);
+  const [vendorApplication, setVendorApplication] = useState<any>(null);
+  const [showInventoryModal, setShowInventoryModal] = useState(false);
+  const [showApplicationModal, setShowApplicationModal] = useState(false);
 
   const tabs: DashboardTab[] = [
     { id: 'overview', name: language === 'ar' ? 'نظرة عامة' : 'Overview', icon: ChartBarIcon },
     { id: 'products', name: language === 'ar' ? 'المنتجات' : 'Products', icon: BuildingStorefrontIcon, count: stats?.totalProducts },
+    { id: 'inventory', name: language === 'ar' ? 'المخزون' : 'Inventory', icon: ArchiveBoxIcon, count: inventoryStats?.totalProducts },
     { id: 'orders', name: language === 'ar' ? 'الطلبات' : 'Orders', icon: ShoppingBagIcon, count: stats?.totalOrders },
     { id: 'analytics', name: language === 'ar' ? 'التحليلات' : 'Analytics', icon: TrendingUpIcon },
     { id: 'notifications', name: language === 'ar' ? 'الإشعارات' : 'Notifications', icon: BellIcon, count: unreadNotifications },
+    { id: 'application', name: language === 'ar' ? 'طلب البائع' : 'Application', icon: DocumentTextIcon },
     { id: 'settings', name: language === 'ar' ? 'الإعدادات' : 'Settings', icon: ClockIcon },
   ];
 
@@ -155,6 +166,16 @@ const VendorDashboard: React.FC = () => {
       // Load recent orders
       const recentOrders = await OrderService.getVendorOrders(user!.id, { limit: 10 });
 
+      // Load inventory data
+      const inventoryService = InventoryManagementService.getInstance();
+      const inventoryData = await inventoryService.getVendorInventory(user!.id);
+      const inventoryStatsData = await inventoryService.getInventoryStats(user!.id);
+
+      // Load vendor application
+      const applicationService = VendorApplicationService.getInstance();
+      const userApplications = await applicationService.getUserVendorApplications(user!.id);
+      const latestApplication = userApplications.length > 0 ? userApplications[0] : null;
+
       setStats({
         totalProducts: productStats.total,
         activeProducts: productStats.active,
@@ -171,6 +192,9 @@ const VendorDashboard: React.FC = () => {
 
       setProducts(recentProducts);
       setOrders(recentOrders);
+      setInventoryItems(inventoryData);
+      setInventoryStats(inventoryStatsData);
+      setVendorApplication(latestApplication);
     } catch (error) {
       console.error('Error loading dashboard data:', error);
       toast.error(language === 'ar' ? 'خطأ في تحميل البيانات' : 'Error loading dashboard data');
@@ -900,6 +924,267 @@ const VendorDashboard: React.FC = () => {
                       </div>
                     </div>
                   </div>
+                </motion.div>
+              )}
+
+              {activeTab === 'inventory' && (
+                <motion.div
+                  key="inventory"
+                  initial={{ opacity: 0, x: 20 }}
+                  animate={{ opacity: 1, x: 0 }}
+                  exit={{ opacity: 0, x: -20 }}
+                  className="space-y-6"
+                >
+                  <div className="flex items-center justify-between">
+                    <h3 className="text-lg font-semibold text-neutral-900">
+                      {language === 'ar' ? 'إدارة المخزون' : 'Inventory Management'}
+                    </h3>
+                    <button
+                      onClick={() => setShowInventoryModal(true)}
+                      className="px-4 py-2 bg-primary-600 text-white rounded-lg hover:bg-primary-700 transition-colors"
+                    >
+                      {language === 'ar' ? 'إضافة منتج' : 'Add Product'}
+                    </button>
+                  </div>
+
+                  {/* Inventory Stats */}
+                  {inventoryStats && (
+                    <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+                      <div className="bg-white p-4 rounded-lg border border-neutral-200">
+                        <div className="flex items-center">
+                          <ArchiveBoxIcon className="h-8 w-8 text-blue-600" />
+                          <div className="ml-3">
+                            <p className="text-sm font-medium text-neutral-600">
+                              {language === 'ar' ? 'إجمالي المنتجات' : 'Total Products'}
+                            </p>
+                            <p className="text-2xl font-bold text-neutral-900">{inventoryStats.totalProducts}</p>
+                          </div>
+                        </div>
+                      </div>
+                      <div className="bg-white p-4 rounded-lg border border-neutral-200">
+                        <div className="flex items-center">
+                          <CheckCircleIcon className="h-8 w-8 text-green-600" />
+                          <div className="ml-3">
+                            <p className="text-sm font-medium text-neutral-600">
+                              {language === 'ar' ? 'منتجات نشطة' : 'Active Products'}
+                            </p>
+                            <p className="text-2xl font-bold text-neutral-900">{inventoryStats.activeProducts}</p>
+                          </div>
+                        </div>
+                      </div>
+                      <div className="bg-white p-4 rounded-lg border border-neutral-200">
+                        <div className="flex items-center">
+                          <ExclamationTriangleIcon className="h-8 w-8 text-yellow-600" />
+                          <div className="ml-3">
+                            <p className="text-sm font-medium text-neutral-600">
+                              {language === 'ar' ? 'مخزون منخفض' : 'Low Stock'}
+                            </p>
+                            <p className="text-2xl font-bold text-neutral-900">{inventoryStats.lowStockItems}</p>
+                          </div>
+                        </div>
+                      </div>
+                      <div className="bg-white p-4 rounded-lg border border-neutral-200">
+                        <div className="flex items-center">
+                          <XCircleIcon className="h-8 w-8 text-red-600" />
+                          <div className="ml-3">
+                            <p className="text-sm font-medium text-neutral-600">
+                              {language === 'ar' ? 'نفد المخزون' : 'Out of Stock'}
+                            </p>
+                            <p className="text-2xl font-bold text-neutral-900">{inventoryStats.outOfStockItems}</p>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  )}
+
+                  {/* Inventory Items */}
+                  <div className="bg-white border border-neutral-200 rounded-lg">
+                    <div className="p-4 border-b border-neutral-200">
+                      <h4 className="text-lg font-semibold text-neutral-900">
+                        {language === 'ar' ? 'منتجات المخزون' : 'Inventory Items'}
+                      </h4>
+                    </div>
+                    <div className="overflow-x-auto">
+                      <table className="w-full">
+                        <thead className="bg-neutral-50">
+                          <tr>
+                            <th className="px-4 py-3 text-left text-xs font-medium text-neutral-500 uppercase tracking-wider">
+                              {language === 'ar' ? 'المنتج' : 'Product'}
+                            </th>
+                            <th className="px-4 py-3 text-left text-xs font-medium text-neutral-500 uppercase tracking-wider">
+                              {language === 'ar' ? 'المخزون' : 'Stock'}
+                            </th>
+                            <th className="px-4 py-3 text-left text-xs font-medium text-neutral-500 uppercase tracking-wider">
+                              {language === 'ar' ? 'السعر' : 'Price'}
+                            </th>
+                            <th className="px-4 py-3 text-left text-xs font-medium text-neutral-500 uppercase tracking-wider">
+                              {language === 'ar' ? 'الحالة' : 'Status'}
+                            </th>
+                            <th className="px-4 py-3 text-left text-xs font-medium text-neutral-500 uppercase tracking-wider">
+                              {language === 'ar' ? 'الإجراءات' : 'Actions'}
+                            </th>
+                          </tr>
+                        </thead>
+                        <tbody className="bg-white divide-y divide-neutral-200">
+                          {inventoryItems.map((item) => (
+                            <tr key={item.id}>
+                              <td className="px-4 py-4 whitespace-nowrap">
+                                <div className="flex items-center">
+                                  <div className="flex-shrink-0 h-10 w-10">
+                                    <img
+                                      className="h-10 w-10 rounded-lg object-cover"
+                                      src={item.images?.[0] || '/placeholder-product.jpg'}
+                                      alt={item.productName}
+                                    />
+                                  </div>
+                                  <div className="ml-4">
+                                    <div className="text-sm font-medium text-neutral-900">
+                                      {item.productName}
+                                    </div>
+                                    <div className="text-sm text-neutral-500">
+                                      {item.sku}
+                                    </div>
+                                  </div>
+                                </div>
+                              </td>
+                              <td className="px-4 py-4 whitespace-nowrap">
+                                <div className="text-sm text-neutral-900">
+                                  {item.inventory.quantity}
+                                </div>
+                                <div className="text-sm text-neutral-500">
+                                  {language === 'ar' ? 'متاح' : 'Available'}: {item.inventory.availableQuantity}
+                                </div>
+                              </td>
+                              <td className="px-4 py-4 whitespace-nowrap">
+                                <div className="text-sm text-neutral-900">
+                                  EGP {item.pricing.sellingPrice.toLocaleString()}
+                                </div>
+                                <div className="text-sm text-neutral-500">
+                                  {language === 'ar' ? 'التكلفة' : 'Cost'}: EGP {item.pricing.cost.toLocaleString()}
+                                </div>
+                              </td>
+                              <td className="px-4 py-4 whitespace-nowrap">
+                                <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${
+                                  item.status === 'active' ? 'bg-green-100 text-green-800' :
+                                  item.status === 'pending_approval' ? 'bg-yellow-100 text-yellow-800' :
+                                  item.status === 'inactive' ? 'bg-red-100 text-red-800' :
+                                  'bg-gray-100 text-gray-800'
+                                }`}>
+                                  {language === 'ar' ? 
+                                    (item.status === 'active' ? 'نشط' :
+                                     item.status === 'pending_approval' ? 'في انتظار الموافقة' :
+                                     item.status === 'inactive' ? 'غير نشط' : item.status) :
+                                    item.status.charAt(0).toUpperCase() + item.status.slice(1)
+                                  }
+                                </span>
+                              </td>
+                              <td className="px-4 py-4 whitespace-nowrap text-sm font-medium">
+                                <button className="text-primary-600 hover:text-primary-900 mr-3">
+                                  {language === 'ar' ? 'تعديل' : 'Edit'}
+                                </button>
+                                <button className="text-red-600 hover:text-red-900">
+                                  {language === 'ar' ? 'حذف' : 'Delete'}
+                                </button>
+                              </td>
+                            </tr>
+                          ))}
+                        </tbody>
+                      </table>
+                    </div>
+                  </div>
+                </motion.div>
+              )}
+
+              {activeTab === 'application' && (
+                <motion.div
+                  key="application"
+                  initial={{ opacity: 0, x: 20 }}
+                  animate={{ opacity: 1, x: 0 }}
+                  exit={{ opacity: 0, x: -20 }}
+                  className="space-y-6"
+                >
+                  <h3 className="text-lg font-semibold text-neutral-900">
+                    {language === 'ar' ? 'طلب البائع' : 'Vendor Application'}
+                  </h3>
+
+                  {vendorApplication ? (
+                    <div className="bg-white border border-neutral-200 rounded-lg p-6">
+                      <div className="flex items-center justify-between mb-4">
+                        <h4 className="text-lg font-semibold text-neutral-900">
+                          {language === 'ar' ? 'حالة الطلب' : 'Application Status'}
+                        </h4>
+                        <span className={`inline-flex items-center px-3 py-1 rounded-full text-sm font-medium ${
+                          vendorApplication.status === 'approved' ? 'bg-green-100 text-green-800' :
+                          vendorApplication.status === 'rejected' ? 'bg-red-100 text-red-800' :
+                          vendorApplication.status === 'under_review' ? 'bg-yellow-100 text-yellow-800' :
+                          'bg-blue-100 text-blue-800'
+                        }`}>
+                          {language === 'ar' ? 
+                            (vendorApplication.status === 'approved' ? 'موافق عليه' :
+                             vendorApplication.status === 'rejected' ? 'مرفوض' :
+                             vendorApplication.status === 'under_review' ? 'قيد المراجعة' :
+                             vendorApplication.status === 'pending' ? 'في الانتظار' : vendorApplication.status) :
+                            vendorApplication.status.charAt(0).toUpperCase() + vendorApplication.status.slice(1)
+                          }
+                        </span>
+                      </div>
+
+                      <div className="space-y-4">
+                        <div>
+                          <label className="block text-sm font-medium text-neutral-700 mb-1">
+                            {language === 'ar' ? 'اسم العمل' : 'Business Name'}
+                          </label>
+                          <p className="text-neutral-900">{vendorApplication.businessName}</p>
+                        </div>
+                        <div>
+                          <label className="block text-sm font-medium text-neutral-700 mb-1">
+                            {language === 'ar' ? 'نوع العمل' : 'Business Type'}
+                          </label>
+                          <p className="text-neutral-900">
+                            {language === 'ar' ? 
+                              (vendorApplication.businessType === 'individual' ? 'فردي' : 'شركة') :
+                              vendorApplication.businessType.charAt(0).toUpperCase() + vendorApplication.businessType.slice(1)
+                            }
+                          </p>
+                        </div>
+                        <div>
+                          <label className="block text-sm font-medium text-neutral-700 mb-1">
+                            {language === 'ar' ? 'تاريخ التقديم' : 'Submitted At'}
+                          </label>
+                          <p className="text-neutral-900">
+                            {new Date(vendorApplication.submittedAt).toLocaleDateString()}
+                          </p>
+                        </div>
+                        {vendorApplication.reviewNotes && (
+                          <div>
+                            <label className="block text-sm font-medium text-neutral-700 mb-1">
+                              {language === 'ar' ? 'ملاحظات المراجعة' : 'Review Notes'}
+                            </label>
+                            <p className="text-neutral-900">{vendorApplication.reviewNotes}</p>
+                          </div>
+                        )}
+                      </div>
+                    </div>
+                  ) : (
+                    <div className="bg-white border border-neutral-200 rounded-lg p-6 text-center">
+                      <DocumentTextIcon className="w-16 h-16 text-neutral-300 mx-auto mb-4" />
+                      <h4 className="text-lg font-semibold text-neutral-900 mb-2">
+                        {language === 'ar' ? 'لم يتم تقديم طلب بائع' : 'No Vendor Application'}
+                      </h4>
+                      <p className="text-neutral-600 mb-4">
+                        {language === 'ar' ? 
+                          'لم تقم بتقديم طلب بائع بعد. قم بتقديم طلبك لتصبح بائعاً في منصتنا.' :
+                          'You haven\'t submitted a vendor application yet. Submit your application to become a vendor on our platform.'
+                        }
+                      </p>
+                      <button
+                        onClick={() => setShowApplicationModal(true)}
+                        className="px-6 py-3 bg-primary-600 text-white rounded-lg hover:bg-primary-700 transition-colors"
+                      >
+                        {language === 'ar' ? 'تقديم طلب بائع' : 'Submit Vendor Application'}
+                      </button>
+                    </div>
+                  )}
                 </motion.div>
               )}
             </AnimatePresence>
