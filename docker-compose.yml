@@ -233,7 +233,7 @@ services:
       - souk-network
     restart: unless-stopped
     healthcheck:
-      test: ["CMD", "redis-cli", "ping"]
+      test: ["CMD", "redis-cli", "-a", "redis_password", "ping"]
       interval: 30s
       timeout: 10s
       retries: 3
@@ -307,7 +307,7 @@ services:
   grafana:
     image: grafana/grafana:latest
     ports:
-      - "3001:3000"
+      - "3007:3000"
     environment:
       - GF_SECURITY_ADMIN_PASSWORD=admin
     volumes:

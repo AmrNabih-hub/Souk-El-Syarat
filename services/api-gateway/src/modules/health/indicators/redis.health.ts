@@ -5,12 +5,12 @@ import { createClient, RedisClientType } from 'redis';
 @Injectable()
 export class RedisHealthIndicator {
   private readonly logger = new Logger(RedisHealthIndicator.name);
-  private client: RedisClientType | null = null;
 
   constructor(private readonly configService: ConfigService) {}
 
   async check() {
     const startTime = Date.now();
+    let client: RedisClientType | null = null;
     
     try {
       // Get Redis configuration
@@ -18,33 +18,32 @@ export class RedisHealthIndicator {
       const port = this.configService.get<number>('REDIS_PORT', 6379);
       const password = this.configService.get<string>('REDIS_PASSWORD');
 
-      // Create client if not exists
-      if (!this.client) {
-        this.client = createClient({
-          socket: {
-            host,
-            port,
-          },
-          password,
-        });
+      // Create client for this check
+      client = createClient({
+        socket: {
+          host,
+          port,
+          connectTimeout: 5000,
+        },
+        password,
+      });
 
-        this.client.on('error', (err) => {
-          this.logger.error('Redis client error:', err);
-        });
+      client.on('error', (err) => {
+        this.logger.error('Redis client error:', err);
+      });
 
-        await this.client.connect();
-      }
+      await client.connect();
 
       // Test the connection with PING
-      const pong = await this.client.ping();
+      const pong = await client.ping();
       
       if (pong !== 'PONG') {
         throw new Error('Redis PING did not return PONG');
       }
 
       // Get Redis info
-      const info = await this.client.info('server');
-      const memory = await this.client.info('memory');
+      const info = await client.info('server');
+      const memory = await client.info('memory');
       
       const responseTime = Date.now() - startTime;
       
@@ -76,6 +75,11 @@ export class RedisHealthIndicator {
           errno: error.errno,
         },
       };
+    } finally {
+      // Always close the client
+      if (client && client.isOpen) {
+        await client.quit();
+      }
     }
   }
 
@@ -97,12 +101,5 @@ export class RedisHealthIndicator {
   private extractConnectedClients(info: string): number {
     const clientsMatch = info.match(/connected_clients:([^\r\n]+)/);
     return clientsMatch ? parseInt(clientsMatch[1]) : 0;
-  }
-
-  async onModuleDestroy() {
-    if (this.client && this.client.isOpen) {
-      await this.client.quit();
-      this.logger.log('Redis client disconnected');
-    }
   }
 }

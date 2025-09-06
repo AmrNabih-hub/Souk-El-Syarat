@@ -1,11 +1,10 @@
 import { Injectable, Logger } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
-import { createConnection, Connection } from 'typeorm';
+import { Client } from 'pg';
 
 @Injectable()
 export class DatabaseHealthIndicator {
   private readonly logger = new Logger(DatabaseHealthIndicator.name);
-  private connection: Connection | null = null;
 
   constructor(private readonly configService: ConfigService) {}
 
@@ -20,22 +19,20 @@ export class DatabaseHealthIndicator {
       const password = this.configService.get<string>('DATABASE_PASSWORD', 'postgres');
       const database = this.configService.get<string>('DATABASE_NAME', 'souk_el_syarat');
 
-      // Create connection if not exists
-      if (!this.connection) {
-        this.connection = await createConnection({
-          type: 'postgres',
-          host,
-          port,
-          username,
-          password,
-          database,
-          synchronize: false,
-          logging: false,
-        });
-      }
+      // Create PostgreSQL client
+      const client = new Client({
+        host,
+        port,
+        user: username,
+        password,
+        database,
+        connectionTimeoutMillis: 5000,
+      });
 
-      // Test the connection
-      await this.connection.query('SELECT 1');
+      // Connect and test
+      await client.connect();
+      const result = await client.query('SELECT 1 as test');
+      await client.end();
       
       const responseTime = Date.now() - startTime;
       
@@ -48,7 +45,7 @@ export class DatabaseHealthIndicator {
           host,
           port,
           database,
-          connectionId: this.connection?.isConnected ? 'connected' : 'disconnected',
+          testResult: result.rows[0]?.test,
         },
       };
     } catch (error) {
@@ -64,16 +61,8 @@ export class DatabaseHealthIndicator {
           error: error.message,
           code: error.code,
           errno: error.errno,
-          sqlState: error.sqlState,
         },
       };
-    }
-  }
-
-  async onModuleDestroy() {
-    if (this.connection && this.connection.isConnected) {
-      await this.connection.close();
-      this.logger.log('Database connection closed');
     }
   }
 }
