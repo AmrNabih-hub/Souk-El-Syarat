@@ -15,7 +15,7 @@ import {
 } from '@heroicons/react/24/outline';
 
 import { useAppStore } from '@/stores/appStore';
-import { EnhancedAuthService } from '@/services/enhanced-auth.service';
+import { EnhancedSecurityAuthService } from '@/services/enhanced-security-auth.service';
 import LoadingSpinner from '@/components/ui/LoadingSpinner';
 import toast from 'react-hot-toast';
 
@@ -59,7 +59,7 @@ const AdminLoginPage: React.FC = () => {
       setError('root', { message: '' });
 
       // Attempt admin authentication
-      const user = await EnhancedAuthService.adminSignIn({
+      const user = await EnhancedSecurityAuthService.secureSignIn(email, password);
         email: data.email,
         password: data.password,
         adminCode: data.adminCode,

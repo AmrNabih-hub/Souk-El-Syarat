@@ -734,7 +734,8 @@ export class OrderService {
       }
     } catch (error) {
       if (process.env.NODE_ENV === 'development') {
-      // console.error('Error sending status update notifications:', error);
+        // console.error('Error sending status update notifications:', error);
+      }
     }
   }
 
@@ -778,7 +779,8 @@ export class OrderService {
       }
     } catch (error) {
       if (process.env.NODE_ENV === 'development') {
-      // console.error('Error sending payment notifications:', error);
+        // console.error('Error sending payment notifications:', error);
+      }
     }
   }
 

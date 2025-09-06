@@ -16,8 +16,8 @@ import {
   XCircleIcon,
   TruckIcon,
   StarIcon,
-  TrendingUpIcon,
-  TrendingDownIcon,
+  ChartBarIcon,
+  ArrowTrendingUpIcon,
   ArchiveBoxIcon,
   DocumentTextIcon,
 } from '@heroicons/react/24/outline';
@@ -38,7 +38,7 @@ import { NotificationService } from '@/services/notification.service';
 import { VendorService } from '@/services/vendor.service';
 
 import { EgyptianLoader, LoadingSpinner } from '@/components/ui/CustomIcons';
-import { OptimizedImage } from '@/components/ui/OptimizedImage';
+// import { OptimizedImage } from '@/components/ui/OptimizedImage';
 import toast from 'react-hot-toast';
 
 interface VendorDashboardStats {
@@ -88,7 +88,7 @@ const VendorDashboard: React.FC = () => {
     { id: 'products', name: language === 'ar' ? 'المنتجات' : 'Products', icon: BuildingStorefrontIcon, count: stats?.totalProducts },
     { id: 'inventory', name: language === 'ar' ? 'المخزون' : 'Inventory', icon: ArchiveBoxIcon, count: inventoryStats?.totalProducts },
     { id: 'orders', name: language === 'ar' ? 'الطلبات' : 'Orders', icon: ShoppingBagIcon, count: stats?.totalOrders },
-    { id: 'analytics', name: language === 'ar' ? 'التحليلات' : 'Analytics', icon: TrendingUpIcon },
+    { id: 'analytics', name: language === 'ar' ? 'التحليلات' : 'Analytics', icon: ChartBarIcon },
     { id: 'notifications', name: language === 'ar' ? 'الإشعارات' : 'Notifications', icon: BellIcon, count: unreadNotifications },
     { id: 'application', name: language === 'ar' ? 'طلب البائع' : 'Application', icon: DocumentTextIcon },
     { id: 'settings', name: language === 'ar' ? 'الإعدادات' : 'Settings', icon: ClockIcon },
