@@ -8,6 +8,10 @@ import { AuthModule } from './modules/auth/auth.module';
 import { SecurityModule } from './modules/security/security.module';
 import { PerformanceModule } from './modules/performance/performance.module';
 import { RealtimeModule } from './modules/realtime/realtime.module';
+import { EnterpriseModule } from './modules/enterprise/enterprise.module';
+import { MicroservicesModule } from './modules/microservices/microservices.module';
+import { UltimateTestingModule } from './modules/testing/ultimate-testing.module';
+import { AIModule } from './modules/ai/ai.module';
 import { TestModule } from './test/test.module';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
@@ -81,6 +85,10 @@ import { CorsMiddleware } from './modules/security/middleware/cors.middleware';
     SecurityModule,
     PerformanceModule,
     RealtimeModule,
+    EnterpriseModule,
+    MicroservicesModule,
+    UltimateTestingModule,
+    AIModule,
     TestModule,
   ],
   controllers: [AppController, TestController, PerformanceController, RealtimeController],
