@@ -3,125 +3,42 @@
  * Enterprise-level rate limiting and DDoS protection
  */
 
+import { ref, set, get, push, remove } from 'firebase/database';
+import { realtimeDb } from '@/config/firebase.config';
+
 export interface RateLimitRule {
   id: string;
   name: string;
-  maxRequests: number;
-  windowMs: number;
-  blockDurationMs: number;
+  windowMs: number; // Time window in milliseconds
+  maxRequests: number; // Maximum requests per window
   skipSuccessfulRequests?: boolean;
   skipFailedRequests?: boolean;
   keyGenerator?: (req: any) => string;
+  onLimitReached?: (key: string, rule: RateLimitRule) => void;
 }
 
 export interface RateLimitResult {
   allowed: boolean;
   remaining: number;
-  resetTime: number;
-  retryAfter?: number;
+  resetTime: Date;
+  retryAfter?: number; // Seconds to wait before retry
   reason?: string;
 }
 
-export interface RateLimitConfig {
-  global: RateLimitRule;
-  endpoints: Record<string, RateLimitRule>;
-  users: Record<string, RateLimitRule>;
-  ipAddresses: Record<string, RateLimitRule>;
+export interface RateLimitStats {
+  totalRequests: number;
+  blockedRequests: number;
+  allowedRequests: number;
+  topBlockedIPs: Array<{ ip: string; count: number }>;
+  topBlockedUsers: Array<{ userId: string; count: number }>;
 }
 
 export class RateLimitingService {
   private static instance: RateLimitingService;
-  private requestCounts: Map<string, { count: number; resetTime: number }> = new Map();
-  private blockedIPs: Map<string, number> = new Map();
-  private blockedUsers: Map<string, number> = new Map();
-  private suspiciousIPs: Map<string, { count: number; lastSeen: number }> = new Map();
-
-  // Default rate limiting rules
-  private static readonly DEFAULT_CONFIG: RateLimitConfig = {
-    global: {
-      id: 'global',
-      name: 'Global Rate Limit',
-      maxRequests: 1000,
-      windowMs: 15 * 60 * 1000, // 15 minutes
-      blockDurationMs: 60 * 60 * 1000, // 1 hour
-    },
-    endpoints: {
-      '/api/auth/login': {
-        id: 'login',
-        name: 'Login Rate Limit',
-        maxRequests: 5,
-        windowMs: 15 * 60 * 1000, // 15 minutes
-        blockDurationMs: 30 * 60 * 1000, // 30 minutes
-      },
-      '/api/auth/signup': {
-        id: 'signup',
-        name: 'Signup Rate Limit',
-        maxRequests: 3,
-        windowMs: 60 * 60 * 1000, // 1 hour
-        blockDurationMs: 2 * 60 * 60 * 1000, // 2 hours
-      },
-      '/api/auth/reset-password': {
-        id: 'reset-password',
-        name: 'Password Reset Rate Limit',
-        maxRequests: 3,
-        windowMs: 60 * 60 * 1000, // 1 hour
-        blockDurationMs: 2 * 60 * 60 * 1000, // 2 hours
-      },
-      '/api/products': {
-        id: 'products',
-        name: 'Products API Rate Limit',
-        maxRequests: 100,
-        windowMs: 15 * 60 * 1000, // 15 minutes
-        blockDurationMs: 30 * 60 * 1000, // 30 minutes
-      },
-      '/api/orders': {
-        id: 'orders',
-        name: 'Orders API Rate Limit',
-        maxRequests: 50,
-        windowMs: 15 * 60 * 1000, // 15 minutes
-        blockDurationMs: 30 * 60 * 1000, // 30 minutes
-      },
-      '/api/upload': {
-        id: 'upload',
-        name: 'File Upload Rate Limit',
-        maxRequests: 10,
-        windowMs: 60 * 60 * 1000, // 1 hour
-        blockDurationMs: 2 * 60 * 60 * 1000, // 2 hours
-      },
-    },
-    users: {
-      'customer': {
-        id: 'customer',
-        name: 'Customer Rate Limit',
-        maxRequests: 200,
-        windowMs: 15 * 60 * 1000, // 15 minutes
-        blockDurationMs: 30 * 60 * 1000, // 30 minutes
-      },
-      'vendor': {
-        id: 'vendor',
-        name: 'Vendor Rate Limit',
-        maxRequests: 500,
-        windowMs: 15 * 60 * 1000, // 15 minutes
-        blockDurationMs: 30 * 60 * 1000, // 30 minutes
-      },
-      'admin': {
-        id: 'admin',
-        name: 'Admin Rate Limit',
-        maxRequests: 1000,
-        windowMs: 15 * 60 * 1000, // 15 minutes
-        blockDurationMs: 30 * 60 * 1000, // 30 minutes
-      },
-    },
-    ipAddresses: {
-      'default': {
-        id: 'ip-default',
-        name: 'IP Address Rate Limit',
-        maxRequests: 100,
-        windowMs: 15 * 60 * 1000, // 15 minutes
-        blockDurationMs: 60 * 60 * 1000, // 1 hour
-      },
-    },
-  };
+  private rateLimitRules: Map<string, RateLimitRule> = new Map();
+  private requestCounts: Map<string, { count: number; resetTime: Date }> = new Map();
+  private blockedIPs: Set<string> = new Set();
+  private blockedUsers: Set<string> = new Set();
 
   static getInstance(): RateLimitingService {
     if (!RateLimitingService.instance) {
@@ -130,436 +47,479 @@ export class RateLimitingService {
     return RateLimitingService.instance;
   }
 
+  constructor() {
+    this.initializeDefaultRules();
+    this.startCleanupInterval();
+  }
+
+  /**
+   * Initialize default rate limiting rules
+   */
+  private initializeDefaultRules(): void {
+    // Authentication rate limiting
+    this.addRateLimitRule({
+      id: 'auth_login',
+      name: 'Login Attempts',
+      windowMs: 15 * 60 * 1000, // 15 minutes
+      maxRequests: 5,
+      keyGenerator: (req) => `auth_login:${this.getClientIP(req)}`,
+      onLimitReached: (key, rule) => this.handleRateLimitExceeded(key, rule, 'login')
+    });
+
+    // API rate limiting
+    this.addRateLimitRule({
+      id: 'api_general',
+      name: 'General API',
+      windowMs: 60 * 1000, // 1 minute
+      maxRequests: 100,
+      keyGenerator: (req) => `api:${this.getClientIP(req)}`,
+      onLimitReached: (key, rule) => this.handleRateLimitExceeded(key, rule, 'api')
+    });
+
+    // File upload rate limiting
+    this.addRateLimitRule({
+      id: 'file_upload',
+      name: 'File Upload',
+      windowMs: 60 * 60 * 1000, // 1 hour
+      maxRequests: 50,
+      keyGenerator: (req) => `upload:${this.getClientIP(req)}`,
+      onLimitReached: (key, rule) => this.handleRateLimitExceeded(key, rule, 'upload')
+    });
+
+    // Search rate limiting
+    this.addRateLimitRule({
+      id: 'search',
+      name: 'Search Requests',
+      windowMs: 60 * 1000, // 1 minute
+      maxRequests: 30,
+      keyGenerator: (req) => `search:${this.getClientIP(req)}`,
+      onLimitReached: (key, rule) => this.handleRateLimitExceeded(key, rule, 'search')
+    });
+
+    // Admin operations rate limiting
+    this.addRateLimitRule({
+      id: 'admin_operations',
+      name: 'Admin Operations',
+      windowMs: 60 * 1000, // 1 minute
+      maxRequests: 20,
+      keyGenerator: (req) => `admin:${this.getUserId(req)}`,
+      onLimitReached: (key, rule) => this.handleRateLimitExceeded(key, rule, 'admin')
+    });
+
+    // Vendor operations rate limiting
+    this.addRateLimitRule({
+      id: 'vendor_operations',
+      name: 'Vendor Operations',
+      windowMs: 60 * 1000, // 1 minute
+      maxRequests: 30,
+      keyGenerator: (req) => `vendor:${this.getUserId(req)}`,
+      onLimitReached: (key, rule) => this.handleRateLimitExceeded(key, rule, 'vendor')
+    });
+  }
+
+  /**
+   * Add a rate limiting rule
+   */
+  addRateLimitRule(rule: RateLimitRule): void {
+    this.rateLimitRules.set(rule.id, rule);
+  }
+
   /**
    * Check if request is allowed based on rate limiting rules
    */
-  static async checkRateLimit(
-    key: string,
-    endpoint?: string,
-    userRole?: string,
-    ipAddress?: string
-  ): Promise<RateLimitResult> {
-    const instance = RateLimitingService.getInstance();
-    
-    try {
-      // Check if IP is blocked
-      if (ipAddress && instance.isIPBlocked(ipAddress)) {
-        return {
-          allowed: false,
-          remaining: 0,
-          resetTime: instance.blockedIPs.get(ipAddress) || 0,
-          reason: 'IP address is blocked'
-        };
-      }
-
-      // Check if user is blocked
-      if (userRole && instance.isUserBlocked(key)) {
-        return {
-          allowed: false,
-          remaining: 0,
-          resetTime: instance.blockedUsers.get(key) || 0,
-          reason: 'User is blocked'
-        };
-      }
-
-      // Get applicable rate limit rules
-      const rules = instance.getApplicableRules(endpoint, userRole, ipAddress);
-      
-      // Check each rule
-      for (const rule of rules) {
-        const result = await instance.checkRule(key, rule);
-        if (!result.allowed) {
-          // Block IP if too many violations
-          if (ipAddress) {
-            instance.trackSuspiciousActivity(ipAddress);
-          }
-          
-          return result;
-        }
-      }
-
-      // All rules passed
-      const globalRule = instance.DEFAULT_CONFIG.global;
-      const globalKey = `global:${ipAddress || 'unknown'}`;
-      const globalResult = await instance.checkRule(globalKey, globalRule);
-      
-      return globalResult;
-
-    } catch (error) {
-      console.error('Rate limiting error:', error);
-      // Fail open - allow request if rate limiting fails
+  async checkRateLimit(ruleId: string, request: any): Promise<RateLimitResult> {
+    const rule = this.rateLimitRules.get(ruleId);
+    if (!rule) {
       return {
         allowed: true,
-        remaining: 999,
-        resetTime: Date.now() + 15 * 60 * 1000
+        remaining: Infinity,
+        resetTime: new Date(Date.now() + 60000)
       };
     }
-  }
 
-  /**
-   * Record a request for rate limiting
-   */
-  static async recordRequest(
-    key: string,
-    endpoint?: string,
-    userRole?: string,
-    ipAddress?: string,
-    success: boolean = true
-  ): Promise<void> {
-    const instance = RateLimitingService.getInstance();
+    const key = rule.keyGenerator ? rule.keyGenerator(request) : `default:${this.getClientIP(request)}`;
+    const now = new Date();
     
-    try {
-      // Record global request
-      const globalKey = `global:${ipAddress || 'unknown'}`;
-      instance.recordRequestForKey(globalKey, instance.DEFAULT_CONFIG.global, success);
-
-      // Record endpoint-specific request
-      if (endpoint && instance.DEFAULT_CONFIG.endpoints[endpoint]) {
-        const endpointKey = `endpoint:${endpoint}:${key}`;
-        instance.recordRequestForKey(endpointKey, instance.DEFAULT_CONFIG.endpoints[endpoint], success);
-      }
-
-      // Record user-specific request
-      if (userRole && instance.DEFAULT_CONFIG.users[userRole]) {
-        const userKey = `user:${userRole}:${key}`;
-        instance.recordRequestForKey(userKey, instance.DEFAULT_CONFIG.users[userRole], success);
-      }
-
-      // Record IP-specific request
-      if (ipAddress) {
-        const ipKey = `ip:${ipAddress}`;
-        instance.recordRequestForKey(ipKey, instance.DEFAULT_CONFIG.ipAddresses.default, success);
-      }
-
-    } catch (error) {
-      console.error('Error recording request:', error);
-    }
-  }
-
-  /**
-   * Get rate limit status for a key
-   */
-  static getRateLimitStatus(key: string, endpoint?: string, userRole?: string): RateLimitResult {
-    const instance = RateLimitingService.getInstance();
-    
-    try {
-      const rules = instance.getApplicableRules(endpoint, userRole);
-      const results: RateLimitResult[] = [];
-
-      for (const rule of rules) {
-        const result = instance.checkRuleSync(key, rule);
-        results.push(result);
-      }
-
-      // Return the most restrictive result
-      const mostRestrictive = results.reduce((prev, current) => {
-        if (!current.allowed) return current;
-        if (!prev.allowed) return prev;
-        return current.remaining < prev.remaining ? current : prev;
-      });
-
-      return mostRestrictive;
-
-    } catch (error) {
-      console.error('Error getting rate limit status:', error);
+    // Check if IP or user is blocked
+    if (this.isBlocked(key)) {
       return {
-        allowed: true,
-        remaining: 999,
-        resetTime: Date.now() + 15 * 60 * 1000
+        allowed: false,
+        remaining: 0,
+        resetTime: new Date(now.getTime() + rule.windowMs),
+        retryAfter: Math.ceil(rule.windowMs / 1000),
+        reason: 'IP or user is blocked'
       };
     }
-  }
-
-  /**
-   * Block an IP address
-   */
-  static blockIP(ipAddress: string, durationMs: number = 60 * 60 * 1000): void {
-    const instance = RateLimitingService.getInstance();
-    instance.blockedIPs.set(ipAddress, Date.now() + durationMs);
-    console.warn(`IP address ${ipAddress} blocked for ${durationMs}ms`);
-  }
-
-  /**
-   * Block a user
-   */
-  static blockUser(userId: string, durationMs: number = 60 * 60 * 1000): void {
-    const instance = RateLimitingService.getInstance();
-    instance.blockedUsers.set(userId, Date.now() + durationMs);
-    console.warn(`User ${userId} blocked for ${durationMs}ms`);
-  }
-
-  /**
-   * Unblock an IP address
-   */
-  static unblockIP(ipAddress: string): void {
-    const instance = RateLimitingService.getInstance();
-    instance.blockedIPs.delete(ipAddress);
-    console.log(`IP address ${ipAddress} unblocked`);
-  }
-
-  /**
-   * Unblock a user
-   */
-  static unblockUser(userId: string): void {
-    const instance = RateLimitingService.getInstance();
-    instance.blockedUsers.delete(userId);
-    console.log(`User ${userId} unblocked`);
-  }
-
-  /**
-   * Get blocked IPs
-   */
-  static getBlockedIPs(): string[] {
-    const instance = RateLimitingService.getInstance();
-    const now = Date.now();
-    const blocked: string[] = [];
-
-    for (const [ip, blockTime] of instance.blockedIPs.entries()) {
-      if (blockTime > now) {
-        blocked.push(ip);
-      } else {
-        instance.blockedIPs.delete(ip);
-      }
-    }
-
-    return blocked;
-  }
-
-  /**
-   * Get blocked users
-   */
-  static getBlockedUsers(): string[] {
-    const instance = RateLimitingService.getInstance();
-    const now = Date.now();
-    const blocked: string[] = [];
-
-    for (const [user, blockTime] of instance.blockedUsers.entries()) {
-      if (blockTime > now) {
-        blocked.push(user);
-      } else {
-        instance.blockedUsers.delete(user);
-      }
-    }
-
-    return blocked;
-  }
-
-  /**
-   * Get suspicious IPs
-   */
-  static getSuspiciousIPs(): Array<{ ip: string; count: number; lastSeen: number }> {
-    const instance = RateLimitingService.getInstance();
-    const suspicious: Array<{ ip: string; count: number; lastSeen: number }> = [];
-
-    for (const [ip, data] of instance.suspiciousIPs.entries()) {
-      suspicious.push({
-        ip,
-        count: data.count,
-        lastSeen: data.lastSeen
-      });
-    }
-
-    return suspicious.sort((a, b) => b.count - a.count);
-  }
-
-  // Private helper methods
-
-  private getApplicableRules(endpoint?: string, userRole?: string, ipAddress?: string): RateLimitRule[] {
-    const rules: RateLimitRule[] = [];
-
-    // Add global rule
-    rules.push(this.DEFAULT_CONFIG.global);
-
-    // Add endpoint-specific rule
-    if (endpoint && this.DEFAULT_CONFIG.endpoints[endpoint]) {
-      rules.push(this.DEFAULT_CONFIG.endpoints[endpoint]);
-    }
-
-    // Add user role-specific rule
-    if (userRole && this.DEFAULT_CONFIG.users[userRole]) {
-      rules.push(this.DEFAULT_CONFIG.users[userRole]);
-    }
-
-    // Add IP-specific rule
-    if (ipAddress) {
-      rules.push(this.DEFAULT_CONFIG.ipAddresses.default);
-    }
-
-    return rules;
-  }
-
-  private async checkRule(key: string, rule: RateLimitRule): Promise<RateLimitResult> {
-    const fullKey = `${rule.id}:${key}`;
-    const now = Date.now();
-    const windowStart = now - rule.windowMs;
 
     // Get current count
-    const current = this.requestCounts.get(fullKey);
+    const currentCount = this.requestCounts.get(key);
+    const resetTime = currentCount ? currentCount.resetTime : new Date(now.getTime() + rule.windowMs);
     
-    if (!current || current.resetTime < now) {
-      // New window
-      this.requestCounts.set(fullKey, {
-        count: 1,
-        resetTime: now + rule.windowMs
-      });
+    // Check if window has expired
+    if (now >= resetTime) {
+      this.requestCounts.delete(key);
+      this.requestCounts.set(key, { count: 1, resetTime: new Date(now.getTime() + rule.windowMs) });
+      
+      await this.logRateLimitEvent(key, ruleId, 1, rule.maxRequests, true);
       
       return {
         allowed: true,
         remaining: rule.maxRequests - 1,
-        resetTime: now + rule.windowMs
+        resetTime: new Date(now.getTime() + rule.windowMs)
       };
     }
 
     // Check if limit exceeded
-    if (current.count >= rule.maxRequests) {
-      // Block if configured
-      if (rule.blockDurationMs > 0) {
-        const blockKey = `block:${rule.id}:${key}`;
-        this.requestCounts.set(blockKey, {
-          count: 1,
-          resetTime: now + rule.blockDurationMs
-        });
+    if (currentCount && currentCount.count >= rule.maxRequests) {
+      await this.logRateLimitEvent(key, ruleId, currentCount.count, rule.maxRequests, false);
+      
+      if (rule.onLimitReached) {
+        rule.onLimitReached(key, rule);
       }
 
       return {
         allowed: false,
         remaining: 0,
-        resetTime: current.resetTime,
-        retryAfter: Math.ceil((current.resetTime - now) / 1000),
-        reason: `Rate limit exceeded for ${rule.name}`
+        resetTime: resetTime,
+        retryAfter: Math.ceil((resetTime.getTime() - now.getTime()) / 1000),
+        reason: 'Rate limit exceeded'
       };
     }
 
     // Increment count
-    current.count++;
-    this.requestCounts.set(fullKey, current);
+    const newCount = (currentCount?.count || 0) + 1;
+    this.requestCounts.set(key, { count: newCount, resetTime });
+
+    await this.logRateLimitEvent(key, ruleId, newCount, rule.maxRequests, true);
 
     return {
       allowed: true,
-      remaining: rule.maxRequests - current.count,
-      resetTime: current.resetTime
+      remaining: rule.maxRequests - newCount,
+      resetTime: resetTime
     };
   }
 
-  private checkRuleSync(key: string, rule: RateLimitRule): RateLimitResult {
-    const fullKey = `${rule.id}:${key}`;
-    const now = Date.now();
-    const current = this.requestCounts.get(fullKey);
+  /**
+   * Check multiple rate limits
+   */
+  async checkMultipleRateLimits(ruleIds: string[], request: any): Promise<RateLimitResult[]> {
+    const results = await Promise.all(
+      ruleIds.map(ruleId => this.checkRateLimit(ruleId, request))
+    );
 
-    if (!current || current.resetTime < now) {
+    return results;
+  }
+
+  /**
+   * Check if key is blocked
+   */
+  private isBlocked(key: string): boolean {
+    const ip = this.extractIPFromKey(key);
+    const userId = this.extractUserIdFromKey(key);
+    
+    return this.blockedIPs.has(ip) || (userId && this.blockedUsers.has(userId));
+  }
+
+  /**
+   * Handle rate limit exceeded
+   */
+  private handleRateLimitExceeded(key: string, rule: RateLimitRule, type: string): void {
+    const ip = this.extractIPFromKey(key);
+    const userId = this.extractUserIdFromKey(key);
+
+    // Block IP for repeated violations
+    this.blockedIPs.add(ip);
+    
+    if (userId) {
+      this.blockedUsers.add(userId);
+    }
+
+    // Log security event
+    this.logSecurityEvent(key, `rate_limit_exceeded_${type}`, {
+      ruleId: rule.id,
+      ruleName: rule.name,
+      ip,
+      userId,
+      windowMs: rule.windowMs,
+      maxRequests: rule.maxRequests
+    });
+
+    // Auto-unblock after extended period
+    setTimeout(() => {
+      this.blockedIPs.delete(ip);
+      if (userId) {
+        this.blockedUsers.delete(userId);
+      }
+    }, 24 * 60 * 60 * 1000); // 24 hours
+  }
+
+  /**
+   * Extract IP from key
+   */
+  private extractIPFromKey(key: string): string {
+    const parts = key.split(':');
+    return parts[parts.length - 1] || 'unknown';
+  }
+
+  /**
+   * Extract user ID from key
+   */
+  private extractUserIdFromKey(key: string): string | null {
+    const parts = key.split(':');
+    return parts.length > 1 ? parts[1] : null;
+  }
+
+  /**
+   * Get client IP from request
+   */
+  private getClientIP(request: any): string {
+    return request?.ip || 
+           request?.headers?.['x-forwarded-for']?.split(',')[0]?.trim() ||
+           request?.connection?.remoteAddress ||
+           'unknown';
+  }
+
+  /**
+   * Get user ID from request
+   */
+  private getUserId(request: any): string {
+    return request?.user?.id || 
+           request?.userId || 
+           'anonymous';
+  }
+
+  /**
+   * Log rate limit event
+   */
+  private async logRateLimitEvent(
+    key: string, 
+    ruleId: string, 
+    count: number, 
+    maxRequests: number, 
+    allowed: boolean
+  ): Promise<void> {
+    try {
+      const eventRef = ref(realtimeDb, `rateLimitLogs/${Date.now()}_${Math.random().toString(36).substr(2, 9)}`);
+      await set(eventRef, {
+        key,
+        ruleId,
+        count,
+        maxRequests,
+        allowed,
+        timestamp: new Date().toISOString(),
+        ip: this.extractIPFromKey(key),
+        userId: this.extractUserIdFromKey(key)
+      });
+    } catch (error) {
+      console.error('Error logging rate limit event:', error);
+    }
+  }
+
+  /**
+   * Log security event
+   */
+  private async logSecurityEvent(key: string, event: string, metadata: any): Promise<void> {
+    try {
+      const eventRef = ref(realtimeDb, `securityEvents/${Date.now()}_${Math.random().toString(36).substr(2, 9)}`);
+      await set(eventRef, {
+        key,
+        event,
+        metadata,
+        timestamp: new Date().toISOString()
+      });
+    } catch (error) {
+      console.error('Error logging security event:', error);
+    }
+  }
+
+  /**
+   * Get rate limiting statistics
+   */
+  async getRateLimitStats(): Promise<RateLimitStats> {
+    try {
+      const statsRef = ref(realtimeDb, 'rateLimitLogs');
+      const snapshot = await get(statsRef);
+      
+      if (!snapshot.exists()) {
+        return {
+          totalRequests: 0,
+          blockedRequests: 0,
+          allowedRequests: 0,
+          topBlockedIPs: [],
+          topBlockedUsers: []
+        };
+      }
+
+      const logs = snapshot.val();
+      const logEntries = Object.values(logs) as any[];
+
+      const totalRequests = logEntries.length;
+      const blockedRequests = logEntries.filter(log => !log.allowed).length;
+      const allowedRequests = totalRequests - blockedRequests;
+
+      // Calculate top blocked IPs
+      const ipCounts: Record<string, number> = {};
+      logEntries.forEach(log => {
+        if (!log.allowed && log.ip) {
+          ipCounts[log.ip] = (ipCounts[log.ip] || 0) + 1;
+        }
+      });
+
+      const topBlockedIPs = Object.entries(ipCounts)
+        .map(([ip, count]) => ({ ip, count }))
+        .sort((a, b) => b.count - a.count)
+        .slice(0, 10);
+
+      // Calculate top blocked users
+      const userCounts: Record<string, number> = {};
+      logEntries.forEach(log => {
+        if (!log.allowed && log.userId) {
+          userCounts[log.userId] = (userCounts[log.userId] || 0) + 1;
+        }
+      });
+
+      const topBlockedUsers = Object.entries(userCounts)
+        .map(([userId, count]) => ({ userId, count }))
+        .sort((a, b) => b.count - a.count)
+        .slice(0, 10);
+
       return {
-        allowed: true,
-        remaining: rule.maxRequests,
-        resetTime: now + rule.windowMs
+        totalRequests,
+        blockedRequests,
+        allowedRequests,
+        topBlockedIPs,
+        topBlockedUsers
+      };
+    } catch (error) {
+      console.error('Error getting rate limit stats:', error);
+      return {
+        totalRequests: 0,
+        blockedRequests: 0,
+        allowedRequests: 0,
+        topBlockedIPs: [],
+        topBlockedUsers: []
       };
     }
+  }
 
-    return {
-      allowed: current.count < rule.maxRequests,
-      remaining: Math.max(0, rule.maxRequests - current.count),
-      resetTime: current.resetTime
+  /**
+   * Block IP address
+   */
+  blockIP(ip: string, duration: number = 24 * 60 * 60 * 1000): void {
+    this.blockedIPs.add(ip);
+    
+    setTimeout(() => {
+      this.blockedIPs.delete(ip);
+    }, duration);
+  }
+
+  /**
+   * Block user
+   */
+  blockUser(userId: string, duration: number = 24 * 60 * 60 * 1000): void {
+    this.blockedUsers.add(userId);
+    
+    setTimeout(() => {
+      this.blockedUsers.delete(userId);
+    }, duration);
+  }
+
+  /**
+   * Unblock IP address
+   */
+  unblockIP(ip: string): void {
+    this.blockedIPs.delete(ip);
+  }
+
+  /**
+   * Unblock user
+   */
+  unblockUser(userId: string): void {
+    this.blockedUsers.delete(userId);
+  }
+
+  /**
+   * Get blocked IPs
+   */
+  getBlockedIPs(): string[] {
+    return Array.from(this.blockedIPs);
+  }
+
+  /**
+   * Get blocked users
+   */
+  getBlockedUsers(): string[] {
+    return Array.from(this.blockedUsers);
+  }
+
+  /**
+   * Clear all rate limiting data
+   */
+  clearAllData(): void {
+    this.requestCounts.clear();
+    this.blockedIPs.clear();
+    this.blockedUsers.clear();
+  }
+
+  /**
+   * Start cleanup interval
+   */
+  private startCleanupInterval(): void {
+    setInterval(() => {
+      this.cleanupExpiredCounts();
+    }, 60 * 1000); // Every minute
+  }
+
+  /**
+   * Cleanup expired counts
+   */
+  private cleanupExpiredCounts(): void {
+    const now = new Date();
+    const expiredKeys: string[] = [];
+
+    for (const [key, count] of this.requestCounts.entries()) {
+      if (now >= count.resetTime) {
+        expiredKeys.push(key);
+      }
+    }
+
+    for (const key of expiredKeys) {
+      this.requestCounts.delete(key);
+    }
+  }
+
+  /**
+   * Middleware for Express.js integration
+   */
+  createRateLimitMiddleware(ruleId: string) {
+    return async (req: any, res: any, next: any) => {
+      try {
+        const result = await this.checkRateLimit(ruleId, req);
+        
+        if (!result.allowed) {
+          res.status(429).json({
+            error: 'Too Many Requests',
+            message: 'Rate limit exceeded',
+            retryAfter: result.retryAfter,
+            resetTime: result.resetTime
+          });
+          return;
+        }
+
+        // Add rate limit headers
+        res.set({
+          'X-RateLimit-Limit': this.rateLimitRules.get(ruleId)?.maxRequests || 0,
+          'X-RateLimit-Remaining': result.remaining,
+          'X-RateLimit-Reset': Math.ceil(result.resetTime.getTime() / 1000)
+        });
+
+        next();
+      } catch (error) {
+        console.error('Rate limiting middleware error:', error);
+        next();
+      }
     };
   }
-
-  private recordRequestForKey(key: string, rule: RateLimitRule, success: boolean): void {
-    const fullKey = `${rule.id}:${key}`;
-    const now = Date.now();
-    const current = this.requestCounts.get(fullKey);
-
-    if (!current || current.resetTime < now) {
-      this.requestCounts.set(fullKey, {
-        count: 1,
-        resetTime: now + rule.windowMs
-      });
-    } else {
-      current.count++;
-      this.requestCounts.set(fullKey, current);
-    }
-  }
-
-  private isIPBlocked(ipAddress: string): boolean {
-    const blockTime = this.blockedIPs.get(ipAddress);
-    if (!blockTime) return false;
-    
-    if (blockTime < Date.now()) {
-      this.blockedIPs.delete(ipAddress);
-      return false;
-    }
-    
-    return true;
-  }
-
-  private isUserBlocked(userId: string): boolean {
-    const blockTime = this.blockedUsers.get(userId);
-    if (!blockTime) return false;
-    
-    if (blockTime < Date.now()) {
-      this.blockedUsers.delete(userId);
-      return false;
-    }
-    
-    return true;
-  }
-
-  private trackSuspiciousActivity(ipAddress: string): void {
-    const now = Date.now();
-    const existing = this.suspiciousIPs.get(ipAddress);
-    
-    if (existing) {
-      existing.count++;
-      existing.lastSeen = now;
-    } else {
-      this.suspiciousIPs.set(ipAddress, {
-        count: 1,
-        lastSeen: now
-      });
-    }
-
-    // Auto-block if too many violations
-    const suspicious = this.suspiciousIPs.get(ipAddress);
-    if (suspicious && suspicious.count > 10) {
-      this.blockIP(ipAddress, 24 * 60 * 60 * 1000); // Block for 24 hours
-    }
-  }
-
-  // Cleanup expired entries
-  private cleanup(): void {
-    const now = Date.now();
-    
-    // Cleanup request counts
-    for (const [key, data] of this.requestCounts.entries()) {
-      if (data.resetTime < now) {
-        this.requestCounts.delete(key);
-      }
-    }
-    
-    // Cleanup blocked IPs
-    for (const [ip, blockTime] of this.blockedIPs.entries()) {
-      if (blockTime < now) {
-        this.blockedIPs.delete(ip);
-      }
-    }
-    
-    // Cleanup blocked users
-    for (const [user, blockTime] of this.blockedUsers.entries()) {
-      if (blockTime < now) {
-        this.blockedUsers.delete(user);
-      }
-    }
-    
-    // Cleanup suspicious IPs (older than 24 hours)
-    for (const [ip, data] of this.suspiciousIPs.entries()) {
-      if (now - data.lastSeen > 24 * 60 * 60 * 1000) {
-        this.suspiciousIPs.delete(ip);
-      }
-    }
-  }
 }
-
-// Initialize cleanup interval
-const rateLimitingService = RateLimitingService.getInstance();
-setInterval(() => {
-  rateLimitingService['cleanup']();
-}, 5 * 60 * 1000); // Cleanup every 5 minutes
 
 export default RateLimitingService;

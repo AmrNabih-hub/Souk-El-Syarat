@@ -161,6 +161,32 @@ service cloud.firestore {
       allow delete: if isAdmin();
     }
     
+    // Inventory - Vendor and admin access only
+    match /inventory/{productId} {
+      allow read: if isAuthenticated() && (isVendor() || isAdmin());
+      allow create: if isAuthenticated() && (isVendor() || isAdmin());
+      allow update: if isAuthenticated() && (isVendor() || isAdmin());
+      allow delete: if isAdmin();
+    }
+    
+    // Inventory alerts - User-specific access
+    match /inventoryAlerts/{alertId} {
+      allow read: if isAuthenticated() && 
+        (resource.data.vendorId == request.auth.uid || isAdmin());
+      allow create: if isAuthenticated() && (isVendor() || isAdmin());
+      allow update: if isAuthenticated() && 
+        (resource.data.vendorId == request.auth.uid || isAdmin());
+      allow delete: if isAdmin();
+    }
+    
+    // Inventory transactions - Vendor and admin access
+    match /inventoryTransactions/{transactionId} {
+      allow read: if isAuthenticated() && (isVendor() || isAdmin());
+      allow create: if isAuthenticated() && (isVendor() || isAdmin());
+      allow update: if isAdmin();
+      allow delete: if isAdmin();
+    }
+    
     // Notifications - User can only access their own
     match /notifications/{notificationId} {
       allow read: if isAuthenticated() && 

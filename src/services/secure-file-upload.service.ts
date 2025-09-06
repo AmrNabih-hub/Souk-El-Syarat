@@ -7,261 +7,452 @@ import { ref, uploadBytes, getDownloadURL, deleteObject } from 'firebase/storage
 import { storage } from '@/config/firebase.config';
 import InputSanitizationService from './input-sanitization.service';
 
-export interface FileUploadOptions {
-  maxSize?: number;
-  allowedTypes?: string[];
-  allowedExtensions?: string[];
-  scanForMalware?: boolean;
-  generateThumbnail?: boolean;
-  compressImage?: boolean;
-  quality?: number;
-}
-
 export interface FileUploadResult {
   success: boolean;
   url?: string;
-  thumbnailUrl?: string;
   fileName: string;
   fileSize: number;
-  mimeType: string;
+  fileType: string;
   errors: string[];
   warnings: string[];
 }
 
-export interface FileValidationResult {
-  isValid: boolean;
-  errors: string[];
-  warnings: string[];
-  sanitizedFileName: string;
+export interface FileValidationRules {
+  maxSize: number; // in bytes
+  allowedTypes: string[];
+  allowedExtensions: string[];
+  scanForMalware: boolean;
+  requireVirusScan: boolean;
+}
+
+export interface UploadProgress {
+  loaded: number;
+  total: number;
+  percentage: number;
 }
 
 export class SecureFileUploadService {
-  private static instance: SecureFileUploadService;
-  
-  // Default file type restrictions
-  private static readonly DEFAULT_IMAGE_TYPES = [
-    'image/jpeg',
-    'image/jpg', 
-    'image/png',
-    'image/gif',
-    'image/webp',
-    'image/svg+xml'
-  ];
-
-  private static readonly DEFAULT_DOCUMENT_TYPES = [
-    'application/pdf',
-    'application/msword',
-    'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
-    'application/vnd.ms-excel',
-    'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
-  ];
-
-  private static readonly DEFAULT_VIDEO_TYPES = [
-    'video/mp4',
-    'video/webm',
-    'video/ogg'
-  ];
-
-  // File size limits (in bytes)
-  private static readonly DEFAULT_SIZE_LIMITS = {
-    image: 5 * 1024 * 1024, // 5MB
-    document: 10 * 1024 * 1024, // 10MB
-    video: 50 * 1024 * 1024, // 50MB
-    default: 5 * 1024 * 1024 // 5MB
+  private static readonly DEFAULT_IMAGE_RULES: FileValidationRules = {
+    maxSize: 5 * 1024 * 1024, // 5MB
+    allowedTypes: ['image/jpeg', 'image/png', 'image/gif', 'image/webp'],
+    allowedExtensions: ['jpg', 'jpeg', 'png', 'gif', 'webp'],
+    scanForMalware: true,
+    requireVirusScan: true
   };
 
-  // Dangerous file extensions
+  private static readonly DEFAULT_DOCUMENT_RULES: FileValidationRules = {
+    maxSize: 10 * 1024 * 1024, // 10MB
+    allowedTypes: [
+      'application/pdf',
+      'application/msword',
+      'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
+      'image/jpeg',
+      'image/png'
+    ],
+    allowedExtensions: ['pdf', 'doc', 'docx', 'jpg', 'jpeg', 'png'],
+    scanForMalware: true,
+    requireVirusScan: true
+  };
+
   private static readonly DANGEROUS_EXTENSIONS = [
-    '.exe', '.bat', '.cmd', '.com', '.pif', '.scr', '.vbs', '.js', '.jar',
-    '.php', '.asp', '.aspx', '.jsp', '.py', '.rb', '.pl', '.sh', '.ps1'
+    'exe', 'bat', 'cmd', 'com', 'pif', 'scr', 'vbs', 'js', 'jar',
+    'php', 'asp', 'aspx', 'jsp', 'py', 'rb', 'pl', 'sh', 'ps1'
   ];
 
-  // MIME type validation patterns
-  private static readonly MIME_TYPE_PATTERNS = {
-    image: /^image\//,
-    document: /^(application\/(pdf|msword|vnd\.openxmlformats-officedocument)|text\/)/,
-    video: /^video\//,
-    audio: /^audio\//
-  };
-
-  static getInstance(): SecureFileUploadService {
-    if (!SecureFileUploadService.instance) {
-      SecureFileUploadService.instance = new SecureFileUploadService();
-    }
-    return SecureFileUploadService.instance;
-  }
+  private static readonly MALWARE_SIGNATURES = [
+    /eval\s*\(/gi,
+    /document\.write/gi,
+    /window\.location/gi,
+    /<script/gi,
+    /javascript:/gi,
+    /vbscript:/gi,
+    /onload\s*=/gi,
+    /onerror\s*=/gi,
+    /onclick\s*=/gi,
+  ];
 
   /**
-   * Validate file before upload
+   * Upload image file with security validation
    */
-  static async validateFile(
-    file: File, 
-    options: FileUploadOptions = {}
-  ): Promise<FileValidationResult> {
-    const errors: string[] = [];
-    const warnings: string[] = [];
-
-    try {
-      // Validate file name
-      const fileNameValidation = InputSanitizationService.validateFileName(file.name);
-      if (!fileNameValidation.isValid) {
-        errors.push(...fileNameValidation.errors);
-      }
-
-      // Check file size
-      const maxSize = options.maxSize || this.getDefaultSizeLimit(file.type);
-      if (file.size > maxSize) {
-        errors.push(`File size exceeds limit of ${this.formatFileSize(maxSize)}`);
-      }
-
-      // Check file type
-      const allowedTypes = options.allowedTypes || this.getAllowedTypes(file.type);
-      if (!allowedTypes.includes(file.type)) {
-        errors.push(`File type ${file.type} is not allowed`);
-      }
-
-      // Check file extension
-      const fileExtension = this.getFileExtension(file.name).toLowerCase();
-      const allowedExtensions = options.allowedExtensions || this.getAllowedExtensions(file.type);
-      if (!allowedExtensions.includes(fileExtension)) {
-        errors.push(`File extension .${fileExtension} is not allowed`);
-      }
-
-      // Check for dangerous extensions
-      if (this.DANGEROUS_EXTENSIONS.includes(fileExtension)) {
-        errors.push(`File extension .${fileExtension} is not allowed for security reasons`);
-      }
-
-      // Validate MIME type matches extension
-      if (!this.validateMimeTypeMatch(file.type, fileExtension)) {
-        warnings.push('File MIME type does not match file extension');
-      }
-
-      // Check for empty file
-      if (file.size === 0) {
-        errors.push('File is empty');
-      }
-
-      // Additional security checks
-      await this.performSecurityChecks(file, errors, warnings);
-
-      return {
-        isValid: errors.length === 0,
-        errors,
-        warnings,
-        sanitizedFileName: fileNameValidation.sanitizedValue
-      };
-
-    } catch (error) {
-      return {
-        isValid: false,
-        errors: [`File validation error: ${error}`],
-        warnings: [],
-        sanitizedFileName: file.name
-      };
-    }
+  static async uploadImage(
+    file: File,
+    path: string,
+    userId: string,
+    onProgress?: (progress: UploadProgress) => void
+  ): Promise<FileUploadResult> {
+    return this.uploadFile(file, path, userId, this.DEFAULT_IMAGE_RULES, onProgress);
   }
 
   /**
-   * Upload file securely
+   * Upload document file with security validation
+   */
+  static async uploadDocument(
+    file: File,
+    path: string,
+    userId: string,
+    onProgress?: (progress: UploadProgress) => void
+  ): Promise<FileUploadResult> {
+    return this.uploadFile(file, path, userId, this.DEFAULT_DOCUMENT_RULES, onProgress);
+  }
+
+  /**
+   * Main file upload method with comprehensive security
    */
   static async uploadFile(
     file: File,
     path: string,
-    options: FileUploadOptions = {}
+    userId: string,
+    rules: FileValidationRules,
+    onProgress?: (progress: UploadProgress) => void
   ): Promise<FileUploadResult> {
     const errors: string[] = [];
     const warnings: string[] = [];
 
     try {
-      // Validate file first
-      const validation = await this.validateFile(file, options);
-      if (!validation.isValid) {
+      // Step 1: Basic file validation
+      const basicValidation = await this.validateBasicFile(file, rules);
+      if (!basicValidation.isValid) {
         return {
           success: false,
           fileName: file.name,
           fileSize: file.size,
-          mimeType: file.type,
-          errors: validation.errors,
-          warnings: validation.warnings
+          fileType: file.type,
+          errors: basicValidation.errors,
+          warnings: basicValidation.warnings
         };
       }
 
-      // Sanitize file name
-      const sanitizedFileName = validation.sanitizedFileName;
-      const timestamp = Date.now();
-      const uniqueFileName = `${timestamp}_${sanitizedFileName}`;
-      const fullPath = `${path}/${uniqueFileName}`;
+      errors.push(...basicValidation.errors);
+      warnings.push(...basicValidation.warnings);
 
-      // Create storage reference
+      // Step 2: Security validation
+      const securityValidation = await this.validateFileSecurity(file);
+      if (!securityValidation.isValid) {
+        return {
+          success: false,
+          fileName: file.name,
+          fileSize: file.size,
+          fileType: file.type,
+          errors: [...errors, ...securityValidation.errors],
+          warnings: [...warnings, ...securityValidation.warnings]
+        };
+      }
+
+      errors.push(...securityValidation.errors);
+      warnings.push(...securityValidation.warnings);
+
+      // Step 3: Malware scanning
+      if (rules.scanForMalware) {
+        const malwareScan = await this.scanFileForMalware(file);
+        if (!malwareScan.isClean) {
+          if (rules.requireVirusScan) {
+            return {
+              success: false,
+              fileName: file.name,
+              fileSize: file.size,
+              fileType: file.type,
+              errors: [...errors, ...malwareScan.threats],
+              warnings: [...warnings, ...malwareScan.warnings]
+            };
+          } else {
+            warnings.push(...malwareScan.threats);
+          }
+        }
+      }
+
+      // Step 4: Generate secure filename
+      const secureFileName = this.generateSecureFileName(file.name, userId);
+      const fullPath = `${path}/${secureFileName}`;
+
+      // Step 5: Upload to Firebase Storage
       const storageRef = ref(storage, fullPath);
-
-      // Process file if needed
-      let processedFile = file;
-      if (options.compressImage && this.isImageFile(file.type)) {
-        processedFile = await this.compressImage(file, options.quality || 0.8);
-      }
-
-      // Upload file
-      const uploadResult = await uploadBytes(storageRef, processedFile);
       
-      // Get download URL
-      const downloadURL = await getDownloadURL(uploadResult.ref);
-
-      // Generate thumbnail if requested
-      let thumbnailURL: string | undefined;
-      if (options.generateThumbnail && this.isImageFile(file.type)) {
-        thumbnailURL = await this.generateThumbnail(processedFile, fullPath);
+      // Create upload task with progress tracking
+      const uploadTask = uploadBytes(storageRef, file);
+      
+      // Monitor upload progress
+      if (onProgress) {
+        uploadTask.on('state_changed', (snapshot) => {
+          const progress = {
+            loaded: snapshot.bytesTransferred,
+            total: snapshot.totalBytes,
+            percentage: (snapshot.bytesTransferred / snapshot.totalBytes) * 100
+          };
+          onProgress(progress);
+        });
       }
+
+      await uploadTask;
+      const downloadURL = await getDownloadURL(storageRef);
+
+      // Step 6: Log successful upload
+      await this.logFileUpload(userId, file.name, fullPath, 'success');
 
       return {
         success: true,
         url: downloadURL,
-        thumbnailUrl: thumbnailURL,
-        fileName: uniqueFileName,
-        fileSize: processedFile.size,
-        mimeType: file.type,
+        fileName: secureFileName,
+        fileSize: file.size,
+        fileType: file.type,
         errors: [],
-        warnings: [...validation.warnings, ...warnings]
+        warnings
       };
 
-    } catch (error) {
+    } catch (error: any) {
+      console.error('File upload error:', error);
+      
+      // Log failed upload
+      await this.logFileUpload(userId, file.name, path, 'error', error.message);
+
       return {
         success: false,
         fileName: file.name,
         fileSize: file.size,
-        mimeType: file.type,
-        errors: [`Upload failed: ${error}`],
+        fileType: file.type,
+        errors: [...errors, `Upload failed: ${error.message}`],
         warnings
       };
     }
   }
 
   /**
-   * Upload multiple files
+   * Validate basic file properties
    */
-  static async uploadMultipleFiles(
-    files: File[],
-    path: string,
-    options: FileUploadOptions = {}
-  ): Promise<FileUploadResult[]> {
-    const results: FileUploadResult[] = [];
+  private static async validateBasicFile(
+    file: File,
+    rules: FileValidationRules
+  ): Promise<{ isValid: boolean; errors: string[]; warnings: string[] }> {
+    const errors: string[] = [];
+    const warnings: string[] = [];
 
-    for (const file of files) {
-      const result = await this.uploadFile(file, path, options);
-      results.push(result);
+    // Check file size
+    if (file.size > rules.maxSize) {
+      errors.push(`File size (${this.formatFileSize(file.size)}) exceeds maximum allowed size (${this.formatFileSize(rules.maxSize)})`);
     }
 
-    return results;
+    // Check file type
+    if (!rules.allowedTypes.includes(file.type)) {
+      errors.push(`File type '${file.type}' is not allowed. Allowed types: ${rules.allowedTypes.join(', ')}`);
+    }
+
+    // Check file extension
+    const extension = this.getFileExtension(file.name).toLowerCase();
+    if (!rules.allowedExtensions.includes(extension)) {
+      errors.push(`File extension '.${extension}' is not allowed. Allowed extensions: ${rules.allowedExtensions.join(', ')}`);
+    }
+
+    // Check for dangerous extensions
+    if (this.DANGEROUS_EXTENSIONS.includes(extension)) {
+      errors.push(`File extension '.${extension}' is potentially dangerous and not allowed`);
+    }
+
+    // Check filename length
+    if (file.name.length > 255) {
+      errors.push('Filename is too long (maximum 255 characters)');
+    }
+
+    // Check for suspicious characters in filename
+    if (!/^[a-zA-Z0-9._-]+$/.test(file.name)) {
+      warnings.push('Filename contains special characters that may cause issues');
+    }
+
+    return {
+      isValid: errors.length === 0,
+      errors,
+      warnings
+    };
   }
 
   /**
-   * Delete file from storage
+   * Validate file security
+   */
+  private static async validateFileSecurity(file: File): Promise<{ isValid: boolean; errors: string[]; warnings: string[] }> {
+    const errors: string[] = [];
+    const warnings: string[] = [];
+
+    // Read file content for analysis
+    const content = await this.readFileContent(file);
+
+    // Check for suspicious patterns
+    for (const pattern of this.MALWARE_SIGNATURES) {
+      if (pattern.test(content)) {
+        errors.push(`Suspicious content detected: ${pattern.source}`);
+      }
+    }
+
+    // Check for executable signatures
+    if (this.hasExecutableSignature(content)) {
+      errors.push('File appears to contain executable code');
+    }
+
+    // Check for embedded scripts
+    if (this.hasEmbeddedScripts(content)) {
+      warnings.push('File may contain embedded scripts');
+    }
+
+    // Check file header
+    const header = content.substring(0, 100);
+    if (this.hasSuspiciousHeader(header)) {
+      errors.push('File has suspicious header signature');
+    }
+
+    return {
+      isValid: errors.length === 0,
+      errors,
+      warnings
+    };
+  }
+
+  /**
+   * Scan file for malware
+   */
+  private static async scanFileForMalware(file: File): Promise<{ isClean: boolean; threats: string[]; warnings: string[] }> {
+    const threats: string[] = [];
+    const warnings: string[] = [];
+
+    try {
+      // Read file content
+      const content = await this.readFileContent(file);
+
+      // Check for known malware patterns
+      const malwarePatterns = [
+        /eval\s*\(/gi,
+        /document\.write/gi,
+        /window\.location/gi,
+        /<script[^>]*>.*?<\/script>/gi,
+        /javascript:/gi,
+        /vbscript:/gi,
+        /onload\s*=/gi,
+        /onerror\s*=/gi,
+        /onclick\s*=/gi,
+        /<iframe/gi,
+        /<object/gi,
+        /<embed/gi,
+      ];
+
+      for (const pattern of malwarePatterns) {
+        if (pattern.test(content)) {
+          threats.push(`Malware pattern detected: ${pattern.source}`);
+        }
+      }
+
+      // Check for suspicious file combinations
+      if (file.type.startsWith('image/') && content.includes('<script')) {
+        threats.push('Image file contains script tags');
+      }
+
+      // Check for data URIs
+      if (content.includes('data:')) {
+        warnings.push('File contains data URIs which may be suspicious');
+      }
+
+      // Check for external references
+      if (content.includes('http://') || content.includes('https://')) {
+        warnings.push('File contains external references');
+      }
+
+      return {
+        isClean: threats.length === 0,
+        threats,
+        warnings
+      };
+
+    } catch (error) {
+      console.error('Malware scan error:', error);
+      return {
+        isClean: false,
+        threats: ['Unable to scan file for malware'],
+        warnings: []
+      };
+    }
+  }
+
+  /**
+   * Generate secure filename
+   */
+  private static generateSecureFileName(originalName: string, userId: string): string {
+    const timestamp = Date.now();
+    const randomString = Math.random().toString(36).substring(2, 15);
+    const extension = this.getFileExtension(originalName);
+    
+    // Sanitize filename
+    const sanitizedName = InputSanitizationService.sanitizeString(originalName).sanitizedValue;
+    const cleanName = sanitizedName.replace(/[^a-zA-Z0-9._-]/g, '_');
+    
+    return `${userId}_${timestamp}_${randomString}_${cleanName}.${extension}`;
+  }
+
+  /**
+   * Get file extension
+   */
+  private static getFileExtension(filename: string): string {
+    return filename.split('.').pop()?.toLowerCase() || '';
+  }
+
+  /**
+   * Format file size
+   */
+  private static formatFileSize(bytes: number): string {
+    if (bytes === 0) return '0 Bytes';
+    const k = 1024;
+    const sizes = ['Bytes', 'KB', 'MB', 'GB'];
+    const i = Math.floor(Math.log(bytes) / Math.log(k));
+    return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
+  }
+
+  /**
+   * Read file content as text
+   */
+  private static async readFileContent(file: File): Promise<string> {
+    return new Promise((resolve, reject) => {
+      const reader = new FileReader();
+      reader.onload = (e) => resolve(e.target?.result as string || '');
+      reader.onerror = (e) => reject(e);
+      reader.readAsText(file);
+    });
+  }
+
+  /**
+   * Check for executable signatures
+   */
+  private static hasExecutableSignature(content: string): boolean {
+    const executableSignatures = [
+      'MZ', // DOS/Windows executable
+      'PE', // Portable Executable
+      'ELF', // Linux executable
+      '#!/', // Shell script
+      '<?php', // PHP script
+      '<%', // ASP script
+    ];
+
+    return executableSignatures.some(sig => content.startsWith(sig));
+  }
+
+  /**
+   * Check for embedded scripts
+   */
+  private static hasEmbeddedScripts(content: string): boolean {
+    return /<script|javascript:|vbscript:|on\w+\s*=/gi.test(content);
+  }
+
+  /**
+   * Check for suspicious header
+   */
+  private static hasSuspiciousHeader(header: string): boolean {
+    const suspiciousHeaders = [
+      'MZ', 'PE', 'ELF', '#!/', '<?php', '<%', 'eval(', 'document.write'
+    ];
+
+    return suspiciousHeaders.some(sig => header.includes(sig));
+  }
+
+  /**
+   * Delete uploaded file
    */
   static async deleteFile(filePath: string): Promise<boolean> {
     try {
-      const storageRef = ref(storage, filePath);
-      await deleteObject(storageRef);
+      const fileRef = ref(storage, filePath);
+      await deleteObject(fileRef);
       return true;
     } catch (error) {
       console.error('Error deleting file:', error);
@@ -270,303 +461,48 @@ export class SecureFileUploadService {
   }
 
   /**
-   * Get file extension
+   * Log file upload activity
    */
-  private static getFileExtension(fileName: string): string {
-    return fileName.split('.').pop() || '';
-  }
-
-  /**
-   * Get default size limit for file type
-   */
-  private static getDefaultSizeLimit(mimeType: string): number {
-    if (this.MIME_TYPE_PATTERNS.image.test(mimeType)) {
-      return this.DEFAULT_SIZE_LIMITS.image;
-    }
-    if (this.MIME_TYPE_PATTERNS.document.test(mimeType)) {
-      return this.DEFAULT_SIZE_LIMITS.document;
-    }
-    if (this.MIME_TYPE_PATTERNS.video.test(mimeType)) {
-      return this.DEFAULT_SIZE_LIMITS.video;
-    }
-    return this.DEFAULT_SIZE_LIMITS.default;
-  }
-
-  /**
-   * Get allowed types for file category
-   */
-  private static getAllowedTypes(mimeType: string): string[] {
-    if (this.MIME_TYPE_PATTERNS.image.test(mimeType)) {
-      return this.DEFAULT_IMAGE_TYPES;
-    }
-    if (this.MIME_TYPE_PATTERNS.document.test(mimeType)) {
-      return this.DEFAULT_DOCUMENT_TYPES;
-    }
-    if (this.MIME_TYPE_PATTERNS.video.test(mimeType)) {
-      return this.DEFAULT_VIDEO_TYPES;
-    }
-    return [];
-  }
-
-  /**
-   * Get allowed extensions for file category
-   */
-  private static getAllowedExtensions(mimeType: string): string[] {
-    if (this.MIME_TYPE_PATTERNS.image.test(mimeType)) {
-      return ['.jpg', '.jpeg', '.png', '.gif', '.webp', '.svg'];
-    }
-    if (this.MIME_TYPE_PATTERNS.document.test(mimeType)) {
-      return ['.pdf', '.doc', '.docx', '.xls', '.xlsx', '.txt'];
-    }
-    if (this.MIME_TYPE_PATTERNS.video.test(mimeType)) {
-      return ['.mp4', '.webm', '.ogg'];
-    }
-    return [];
-  }
-
-  /**
-   * Validate MIME type matches file extension
-   */
-  private static validateMimeTypeMatch(mimeType: string, extension: string): boolean {
-    const extensionMimeMap: Record<string, string[]> = {
-      '.jpg': ['image/jpeg'],
-      '.jpeg': ['image/jpeg'],
-      '.png': ['image/png'],
-      '.gif': ['image/gif'],
-      '.webp': ['image/webp'],
-      '.svg': ['image/svg+xml'],
-      '.pdf': ['application/pdf'],
-      '.doc': ['application/msword'],
-      '.docx': ['application/vnd.openxmlformats-officedocument.wordprocessingml.document'],
-      '.xls': ['application/vnd.ms-excel'],
-      '.xlsx': ['application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'],
-      '.txt': ['text/plain'],
-      '.mp4': ['video/mp4'],
-      '.webm': ['video/webm'],
-      '.ogg': ['video/ogg']
-    };
-
-    const expectedMimeTypes = extensionMimeMap[extension.toLowerCase()];
-    return expectedMimeTypes ? expectedMimeTypes.includes(mimeType) : false;
-  }
-
-  /**
-   * Check if file is an image
-   */
-  private static isImageFile(mimeType: string): boolean {
-    return this.MIME_TYPE_PATTERNS.image.test(mimeType);
-  }
-
-  /**
-   * Perform additional security checks
-   */
-  private static async performSecurityChecks(
-    file: File, 
-    errors: string[], 
-    warnings: string[]
+  private static async logFileUpload(
+    userId: string,
+    fileName: string,
+    filePath: string,
+    status: 'success' | 'error',
+    errorMessage?: string
   ): Promise<void> {
-    // Check file header (magic numbers)
-    const buffer = await file.arrayBuffer();
-    const uint8Array = new Uint8Array(buffer);
-    
-    // Check for executable signatures
-    const executableSignatures = [
-      [0x4D, 0x5A], // PE executable
-      [0x7F, 0x45, 0x4C, 0x46], // ELF executable
-      [0xFE, 0xED, 0xFA, 0xCE], // Mach-O executable
-      [0xFE, 0xED, 0xFA, 0xCF], // Mach-O executable (64-bit)
-      [0xCE, 0xFA, 0xED, 0xFE], // Mach-O executable (reverse)
-      [0xCF, 0xFA, 0xED, 0xFE]  // Mach-O executable (64-bit reverse)
-    ];
-
-    for (const signature of executableSignatures) {
-      if (this.checkSignature(uint8Array, signature)) {
-        errors.push('File appears to be an executable, which is not allowed');
-        break;
-      }
-    }
-
-    // Check for ZIP bombs (compressed files that expand to huge sizes)
-    if (file.type === 'application/zip' || file.name.endsWith('.zip')) {
-      warnings.push('ZIP files are not allowed for security reasons');
-    }
-
-    // Check file size vs content ratio
-    if (file.size > 0) {
-      const contentRatio = uint8Array.length / file.size;
-      if (contentRatio < 0.1) {
-        warnings.push('File content ratio is suspiciously low');
-      }
-    }
-  }
-
-  /**
-   * Check file signature
-   */
-  private static checkSignature(data: Uint8Array, signature: number[]): boolean {
-    if (data.length < signature.length) return false;
-    
-    for (let i = 0; i < signature.length; i++) {
-      if (data[i] !== signature[i]) return false;
-    }
-    
-    return true;
-  }
-
-  /**
-   * Compress image file
-   */
-  private static async compressImage(file: File, quality: number = 0.8): Promise<File> {
-    return new Promise((resolve, reject) => {
-      const canvas = document.createElement('canvas');
-      const ctx = canvas.getContext('2d');
-      const img = new Image();
-
-      img.onload = () => {
-        // Calculate new dimensions (max 1920x1080)
-        const maxWidth = 1920;
-        const maxHeight = 1080;
-        let { width, height } = img;
-
-        if (width > maxWidth || height > maxHeight) {
-          const ratio = Math.min(maxWidth / width, maxHeight / height);
-          width *= ratio;
-          height *= ratio;
-        }
-
-        canvas.width = width;
-        canvas.height = height;
-
-        // Draw and compress
-        ctx?.drawImage(img, 0, 0, width, height);
-        canvas.toBlob(
-          (blob) => {
-            if (blob) {
-              const compressedFile = new File([blob], file.name, {
-                type: file.type,
-                lastModified: Date.now()
-              });
-              resolve(compressedFile);
-            } else {
-              reject(new Error('Failed to compress image'));
-            }
-          },
-          file.type,
-          quality
-        );
+    try {
+      const logEntry = {
+        userId,
+        fileName,
+        filePath,
+        status,
+        errorMessage,
+        timestamp: new Date().toISOString(),
+        userAgent: navigator.userAgent
       };
 
-      img.onerror = () => reject(new Error('Failed to load image'));
-      img.src = URL.createObjectURL(file);
-    });
-  }
-
-  /**
-   * Generate thumbnail for image
-   */
-  private static async generateThumbnail(file: File, originalPath: string): Promise<string> {
-    return new Promise((resolve, reject) => {
-      const canvas = document.createElement('canvas');
-      const ctx = canvas.getContext('2d');
-      const img = new Image();
-
-      img.onload = () => {
-        // Thumbnail dimensions
-        const thumbSize = 200;
-        const { width, height } = img;
-        const ratio = Math.min(thumbSize / width, thumbSize / height);
-        
-        canvas.width = width * ratio;
-        canvas.height = height * ratio;
-
-        // Draw thumbnail
-        ctx?.drawImage(img, 0, 0, canvas.width, canvas.height);
-        
-        canvas.toBlob(async (blob) => {
-          if (blob) {
-            try {
-              const thumbFile = new File([blob], `thumb_${file.name}`, {
-                type: 'image/jpeg',
-                lastModified: Date.now()
-              });
-              
-              const thumbPath = originalPath.replace(/\.[^/.]+$/, '_thumb.jpg');
-              const thumbRef = ref(storage, thumbPath);
-              await uploadBytes(thumbRef, thumbFile);
-              const thumbURL = await getDownloadURL(thumbRef);
-              resolve(thumbURL);
-            } catch (error) {
-              reject(error);
-            }
-          } else {
-            reject(new Error('Failed to generate thumbnail'));
-          }
-        }, 'image/jpeg', 0.7);
-      };
-
-      img.onerror = () => reject(new Error('Failed to load image for thumbnail'));
-      img.src = URL.createObjectURL(file);
-    });
-  }
-
-  /**
-   * Format file size for display
-   */
-  private static formatFileSize(bytes: number): string {
-    if (bytes === 0) return '0 Bytes';
-    
-    const k = 1024;
-    const sizes = ['Bytes', 'KB', 'MB', 'GB'];
-    const i = Math.floor(Math.log(bytes) / Math.log(k));
-    
-    return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
-  }
-
-  /**
-   * Get file type category
-   */
-  static getFileTypeCategory(mimeType: string): 'image' | 'document' | 'video' | 'audio' | 'other' {
-    if (this.MIME_TYPE_PATTERNS.image.test(mimeType)) return 'image';
-    if (this.MIME_TYPE_PATTERNS.document.test(mimeType)) return 'document';
-    if (this.MIME_TYPE_PATTERNS.video.test(mimeType)) return 'video';
-    if (this.MIME_TYPE_PATTERNS.audio.test(mimeType)) return 'audio';
-    return 'other';
-  }
-
-  /**
-   * Get upload options for file type
-   */
-  static getUploadOptionsForType(fileType: 'image' | 'document' | 'video'): FileUploadOptions {
-    switch (fileType) {
-      case 'image':
-        return {
-          maxSize: this.DEFAULT_SIZE_LIMITS.image,
-          allowedTypes: this.DEFAULT_IMAGE_TYPES,
-          allowedExtensions: ['.jpg', '.jpeg', '.png', '.gif', '.webp', '.svg'],
-          generateThumbnail: true,
-          compressImage: true,
-          quality: 0.8
-        };
-      case 'document':
-        return {
-          maxSize: this.DEFAULT_SIZE_LIMITS.document,
-          allowedTypes: this.DEFAULT_DOCUMENT_TYPES,
-          allowedExtensions: ['.pdf', '.doc', '.docx', '.xls', '.xlsx', '.txt'],
-          scanForMalware: true
-        };
-      case 'video':
-        return {
-          maxSize: this.DEFAULT_SIZE_LIMITS.video,
-          allowedTypes: this.DEFAULT_VIDEO_TYPES,
-          allowedExtensions: ['.mp4', '.webm', '.ogg']
-        };
-      default:
-        return {
-          maxSize: this.DEFAULT_SIZE_LIMITS.default,
-          allowedTypes: [],
-          allowedExtensions: []
-        };
+      // Store in Firestore for audit trail
+      // This would be implemented with your Firestore service
+      console.log('File upload log:', logEntry);
+    } catch (error) {
+      console.error('Error logging file upload:', error);
     }
+  }
+
+  /**
+   * Get file upload statistics
+   */
+  static async getUploadStatistics(userId: string): Promise<{
+    totalUploads: number;
+    totalSize: number;
+    recentUploads: any[];
+  }> {
+    // This would query your database for upload statistics
+    return {
+      totalUploads: 0,
+      totalSize: 0,
+      recentUploads: []
+    };
   }
 }
 
