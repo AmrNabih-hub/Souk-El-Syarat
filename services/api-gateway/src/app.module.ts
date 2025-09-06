@@ -6,10 +6,14 @@ import { PassportModule } from '@nestjs/passport';
 import { HealthModule } from './modules/health/health.module';
 import { AuthModule } from './modules/auth/auth.module';
 import { SecurityModule } from './modules/security/security.module';
+import { PerformanceModule } from './modules/performance/performance.module';
+import { RealtimeModule } from './modules/realtime/realtime.module';
 import { TestModule } from './test/test.module';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import { TestController } from './test/test.controller';
+import { PerformanceController } from './modules/performance/performance.controller';
+import { RealtimeController } from './modules/realtime/realtime.controller';
 import { SecurityHeadersMiddleware } from './modules/security/middleware/security-headers.middleware';
 import { RateLimitingMiddleware } from './modules/security/middleware/rate-limiting.middleware';
 import { InputValidationMiddleware } from './modules/security/middleware/input-validation.middleware';
@@ -75,9 +79,11 @@ import { CorsMiddleware } from './modules/security/middleware/cors.middleware';
     HealthModule,
     AuthModule,
     SecurityModule,
+    PerformanceModule,
+    RealtimeModule,
     TestModule,
   ],
-  controllers: [AppController, TestController],
+  controllers: [AppController, TestController, PerformanceController, RealtimeController],
   providers: [AppService],
 })
 export class AppModule implements NestModule {
