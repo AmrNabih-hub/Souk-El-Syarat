@@ -4,6 +4,7 @@ import { ThrottlerModule } from '@nestjs/throttler';
 import { JwtModule } from '@nestjs/jwt';
 import { PassportModule } from '@nestjs/passport';
 import { HealthModule } from './modules/health/health.module';
+import { AuthModule } from './modules/auth/auth.module';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
 
@@ -63,8 +64,9 @@ import { AppService } from './app.service';
     // Passport
     PassportModule.register({ defaultStrategy: 'jwt' }),
 
-    // Core modules (only implemented ones)
+    // Core modules
     HealthModule,
+    AuthModule,
   ],
   controllers: [AppController],
   providers: [AppService],
