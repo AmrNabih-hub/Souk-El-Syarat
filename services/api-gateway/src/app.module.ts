@@ -1,14 +1,19 @@
-import { Module } from '@nestjs/common';
+import { Module, MiddlewareConsumer, NestModule } from '@nestjs/common';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { ThrottlerModule } from '@nestjs/throttler';
 import { JwtModule } from '@nestjs/jwt';
 import { PassportModule } from '@nestjs/passport';
 import { HealthModule } from './modules/health/health.module';
 import { AuthModule } from './modules/auth/auth.module';
+import { SecurityModule } from './modules/security/security.module';
 import { TestModule } from './test/test.module';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import { TestController } from './test/test.controller';
+import { SecurityHeadersMiddleware } from './modules/security/middleware/security-headers.middleware';
+import { RateLimitingMiddleware } from './modules/security/middleware/rate-limiting.middleware';
+import { InputValidationMiddleware } from './modules/security/middleware/input-validation.middleware';
+import { CorsMiddleware } from './modules/security/middleware/cors.middleware';
 
 @Module({
   imports: [
@@ -69,9 +74,28 @@ import { TestController } from './test/test.controller';
     // Core modules
     HealthModule,
     AuthModule,
+    SecurityModule,
     TestModule,
   ],
   controllers: [AppController, TestController],
   providers: [AppService],
 })
-export class AppModule {}
+export class AppModule implements NestModule {
+  configure(consumer: MiddlewareConsumer) {
+    consumer
+      .apply(CorsMiddleware)
+      .forRoutes('*');
+    
+    consumer
+      .apply(SecurityHeadersMiddleware)
+      .forRoutes('*');
+    
+    consumer
+      .apply(RateLimitingMiddleware)
+      .forRoutes('*');
+    
+    consumer
+      .apply(InputValidationMiddleware)
+      .forRoutes('*');
+  }
+}
