@@ -12,12 +12,18 @@ import { EnterpriseModule } from './modules/enterprise/enterprise.module';
 import { MicroservicesModule } from './modules/microservices/microservices.module';
 import { UltimateTestingModule } from './modules/testing/ultimate-testing.module';
 import { AIModule } from './modules/ai/ai.module';
+import { UltimateSimulationModule } from './modules/simulation/ultimate-simulation.module';
 import { TestModule } from './test/test.module';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import { TestController } from './test/test.controller';
 import { PerformanceController } from './modules/performance/performance.controller';
 import { RealtimeController } from './modules/realtime/realtime.controller';
+import { EnterpriseController } from './modules/enterprise/enterprise.controller';
+import { MicroservicesController } from './modules/microservices/microservices.controller';
+import { UltimateTestingController } from './modules/testing/ultimate-testing.controller';
+import { AIController } from './modules/ai/ai.controller';
+import { UltimateSimulationController } from './modules/simulation/ultimate-simulation.controller';
 import { SecurityHeadersMiddleware } from './modules/security/middleware/security-headers.middleware';
 import { RateLimitingMiddleware } from './modules/security/middleware/rate-limiting.middleware';
 import { InputValidationMiddleware } from './modules/security/middleware/input-validation.middleware';
@@ -53,11 +59,11 @@ import { CorsMiddleware } from './modules/security/middleware/cors.middleware';
             limit: 100,
           },
         ],
-        storage: {
-          host: configService.get('REDIS_HOST', 'localhost'),
-          port: configService.get('REDIS_PORT', 6379),
-          password: configService.get('REDIS_PASSWORD'),
-        },
+        // storage: {
+        //   host: configService.get('REDIS_HOST', 'localhost'),
+        //   port: configService.get('REDIS_PORT', 6379),
+        //   password: configService.get('REDIS_PASSWORD'),
+        // },
       }),
       inject: [ConfigService],
     }),
@@ -89,9 +95,20 @@ import { CorsMiddleware } from './modules/security/middleware/cors.middleware';
     MicroservicesModule,
     UltimateTestingModule,
     AIModule,
+    UltimateSimulationModule,
     TestModule,
   ],
-  controllers: [AppController, TestController, PerformanceController, RealtimeController],
+  controllers: [
+    AppController, 
+    TestController, 
+    PerformanceController, 
+    RealtimeController,
+    EnterpriseController,
+    MicroservicesController,
+    UltimateTestingController,
+    AIController,
+    UltimateSimulationController,
+  ],
   providers: [AppService],
 })
 export class AppModule implements NestModule {

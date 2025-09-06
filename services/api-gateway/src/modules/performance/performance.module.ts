@@ -14,8 +14,8 @@ import { PerformanceMonitoringService } from './performance-monitoring.service';
     CacheModule.registerAsync({
       imports: [ConfigModule],
       useFactory: async (configService) => ({
-        ttl: configService.get<number>('CACHE_TTL', 300), // 5 minutes default
-        max: configService.get<number>('CACHE_MAX_ITEMS', 1000),
+        ttl: configService.get('CACHE_TTL', 300), // 5 minutes default
+        max: configService.get('CACHE_MAX_ITEMS', 1000),
         store: 'memory', // In-memory cache
       }),
       inject: ['ConfigService'],

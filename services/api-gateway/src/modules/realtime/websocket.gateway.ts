@@ -1,22 +1,22 @@
-import { WebSocketGateway, WebSocketServer, SubscribeMessage, MessageBody, ConnectedSocket, OnGatewayConnection, OnGatewayDisconnect } from '@nestjs/websockets';
+import { WebSocketGateway as WSGateway, WebSocketServer, SubscribeMessage, MessageBody, ConnectedSocket, OnGatewayConnection, OnGatewayDisconnect } from '@nestjs/websockets';
 import { Logger } from '@nestjs/common';
 import { Server, Socket } from 'socket.io';
 import { RealtimeService } from './realtime.service';
 import { EventService } from './event.service';
 import { NotificationService } from './notification.service';
 
-@WebSocketGateway({
+@WSGateway({
   cors: {
     origin: ['http://localhost:3000', 'https://soukel-syarat.com'],
     credentials: true,
   },
   namespace: '/realtime',
 })
-export class WebSocketGateway implements OnGatewayConnection, OnGatewayDisconnect {
+export class RealtimeWebSocketGateway implements OnGatewayConnection, OnGatewayDisconnect {
   @WebSocketServer()
   server: Server;
 
-  private readonly logger = new Logger(WebSocketGateway.name);
+  private readonly logger = new Logger(RealtimeWebSocketGateway.name);
   private readonly connectedClients = new Map<string, {
     socket: Socket;
     userId?: string;

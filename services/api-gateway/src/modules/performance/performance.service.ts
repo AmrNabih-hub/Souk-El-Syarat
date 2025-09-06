@@ -95,7 +95,7 @@ export class PerformanceService {
       // Cache result if enabled
       if (this.performanceConfig.enableCaching) {
         const cacheKey = this.generateCacheKey(context);
-        await this.cachingService.set(cacheKey, result, this.performanceConfig.cacheTTL);
+        await this.cachingService.set(cacheKey, result, { ttl: this.performanceConfig.cacheTTL });
       }
 
       // Record metrics
@@ -159,7 +159,7 @@ export class PerformanceService {
       // Cache result
       if (this.performanceConfig.enableCaching) {
         const cacheKey = `db_query:${queryName}`;
-        await this.cachingService.set(cacheKey, result, this.performanceConfig.cacheTTL);
+        await this.cachingService.set(cacheKey, result, { ttl: this.performanceConfig.cacheTTL });
       }
 
       const queryTime = Date.now() - startTime;

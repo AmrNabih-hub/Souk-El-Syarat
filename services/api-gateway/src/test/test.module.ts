@@ -17,11 +17,11 @@ import { TestRunnerService } from './test-runner.service';
     JwtModule.registerAsync({
       imports: [ConfigModule],
       useFactory: async (configService) => ({
-        secret: configService.get<string>('JWT_SECRET', 'test-secret'),
+        secret: configService.get('JWT_SECRET', 'test-secret'),
         signOptions: {
-          expiresIn: configService.get<string>('JWT_EXPIRES_IN', '15m'),
-          issuer: configService.get<string>('JWT_ISSUER', 'souk-el-syarat'),
-          audience: configService.get<string>('JWT_AUDIENCE', 'souk-el-syarat-api'),
+          expiresIn: configService.get('JWT_EXPIRES_IN', '15m'),
+          issuer: configService.get('JWT_ISSUER', 'souk-el-syarat'),
+          audience: configService.get('JWT_AUDIENCE', 'souk-el-syarat-api'),
         },
       }),
       inject: ['ConfigService'],

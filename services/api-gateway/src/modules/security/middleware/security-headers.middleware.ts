@@ -1,6 +1,6 @@
 import { Injectable, NestMiddleware, Logger } from '@nestjs/common';
 import { Request, Response, NextFunction } from 'express';
-import * as helmet from 'helmet';
+import helmet from 'helmet';
 
 @Injectable()
 export class SecurityHeadersMiddleware implements NestMiddleware {
@@ -9,7 +9,7 @@ export class SecurityHeadersMiddleware implements NestMiddleware {
   use(req: Request, res: Response, next: NextFunction) {
     try {
       // Apply Helmet security headers
-      helmet({
+      const helmetMiddleware = helmet({
         contentSecurityPolicy: {
           directives: {
             defaultSrc: ["'self'"],
@@ -34,7 +34,9 @@ export class SecurityHeadersMiddleware implements NestMiddleware {
         xssFilter: true,
         referrerPolicy: { policy: 'same-origin' },
         hidePoweredBy: true,
-      })(req, res, next);
+      });
+      
+      helmetMiddleware(req, res, next);
 
       // Additional custom security headers
       res.setHeader('X-Content-Type-Options', 'nosniff');

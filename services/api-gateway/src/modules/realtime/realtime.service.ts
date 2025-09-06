@@ -1,5 +1,5 @@
 import { Injectable, Logger } from '@nestjs/common';
-import { WebSocketGateway } from './websocket.gateway';
+import { RealtimeWebSocketGateway } from './websocket.gateway';
 import { EventService } from './event.service';
 import { NotificationService } from './notification.service';
 import { RealtimeMonitoringService } from './realtime-monitoring.service';
@@ -37,7 +37,7 @@ export class RealtimeService {
   private readonly responseTimes: number[] = [];
 
   constructor(
-    private readonly webSocketGateway: WebSocketGateway,
+    private readonly webSocketGateway: RealtimeWebSocketGateway,
     private readonly eventService: EventService,
     private readonly notificationService: NotificationService,
     private readonly realtimeMonitoringService: RealtimeMonitoringService,
