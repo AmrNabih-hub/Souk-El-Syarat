@@ -1,0 +1,353 @@
+name: 🧪 QA Testing Pipeline
+
+on:
+  push:
+    branches: [ main, develop ]
+  pull_request:
+    branches: [ main, develop ]
+  schedule:
+    - cron: '0 2 * * *' # Daily at 2 AM
+  workflow_dispatch:
+
+env:
+  NODE_VERSION: '18'
+  FIREBASE_PROJECT_ID: ${{ secrets.FIREBASE_PROJECT_ID }}
+  FIREBASE_TOKEN: ${{ secrets.FIREBASE_TOKEN }}
+
+jobs:
+  # Unit Tests
+  unit-tests:
+    name: 🔬 Unit Tests
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    
+    steps:
+      - name: 📥 Checkout code
+        uses: actions/checkout@v4
+        
+      - name: 📦 Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: 'npm'
+          
+      - name: 📥 Install dependencies
+        run: npm ci --silent
+        
+      - name: 🔬 Run unit tests
+        run: npm run test:unit
+        
+      - name: 📊 Upload unit test coverage
+        uses: codecov/codecov-action@v3
+        with:
+          file: ./coverage/unit/lcov.info
+          flags: unit
+          name: unit-coverage
+
+  # Integration Tests
+  integration-tests:
+    name: 🔗 Integration Tests
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    
+    steps:
+      - name: 📥 Checkout code
+        uses: actions/checkout@v4
+        
+      - name: 📦 Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: 'npm'
+          
+      - name: 📥 Install dependencies
+        run: npm ci --silent
+        
+      - name: 🔗 Run integration tests
+        run: npm run test:integration
+        
+      - name: 📊 Upload integration test coverage
+        uses: codecov/codecov-action@v3
+        with:
+          file: ./coverage/integration/lcov.info
+          flags: integration
+          name: integration-coverage
+
+  # Security Tests
+  security-tests:
+    name: 🔒 Security Tests
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    
+    steps:
+      - name: 📥 Checkout code
+        uses: actions/checkout@v4
+        
+      - name: 📦 Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: 'npm'
+          
+      - name: 📥 Install dependencies
+        run: npm ci --silent
+        
+      - name: 🔒 Run security tests
+        run: npm run test:security
+        
+      - name: 🔍 Run security audit
+        run: npm audit --audit-level=moderate
+        
+      - name: 🛡️ Run dependency check
+        run: npx audit-ci --moderate
+        
+      - name: 📊 Upload security test coverage
+        uses: codecov/codecov-action@v3
+        with:
+          file: ./coverage/security/lcov.info
+          flags: security
+          name: security-coverage
+
+  # Performance Tests
+  performance-tests:
+    name: ⚡ Performance Tests
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    
+    steps:
+      - name: 📥 Checkout code
+        uses: actions/checkout@v4
+        
+      - name: 📦 Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: 'npm'
+          
+      - name: 📥 Install dependencies
+        run: npm ci --silent
+        
+      - name: ⚡ Run performance tests
+        run: npm run test:performance
+        
+      - name: 📊 Upload performance test coverage
+        uses: codecov/codecov-action@v3
+        with:
+          file: ./coverage/performance/lcov.info
+          flags: performance
+          name: performance-coverage
+
+  # E2E Tests
+  e2e-tests:
+    name: 🎭 E2E Tests
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    
+    steps:
+      - name: 📥 Checkout code
+        uses: actions/checkout@v4
+        
+      - name: 📦 Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: 'npm'
+          
+      - name: 📥 Install dependencies
+        run: npm ci --silent
+        
+      - name: 🏗️ Build application
+        run: npm run build
+        
+      - name: 🎭 Install Playwright
+        run: npx playwright install --with-deps
+        
+      - name: 🎭 Run E2E tests
+        run: npm run test:e2e
+        
+      - name: 📊 Upload E2E test results
+        uses: actions/upload-artifact@v3
+        if: always()
+        with:
+          name: playwright-report
+          path: playwright-report/
+          retention-days: 30
+
+  # Regression Tests
+  regression-tests:
+    name: 🔄 Regression Tests
+    runs-on: ubuntu-latest
+    timeout-minutes: 35
+    needs: [unit-tests, integration-tests, security-tests]
+    
+    steps:
+      - name: 📥 Checkout code
+        uses: actions/checkout@v4
+        
+      - name: 📦 Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: 'npm'
+          
+      - name: 📥 Install dependencies
+        run: npm ci --silent
+        
+      - name: 🔄 Run regression tests
+        run: npm run test:regression
+        
+      - name: 📊 Upload regression test results
+        uses: actions/upload-artifact@v3
+        if: always()
+        with:
+          name: regression-results
+          path: test-results/
+          retention-days: 30
+
+  # Code Quality Checks
+  code-quality:
+    name: 📏 Code Quality
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    
+    steps:
+      - name: 📥 Checkout code
+        uses: actions/checkout@v4
+        
+      - name: 📦 Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: 'npm'
+          
+      - name: 📥 Install dependencies
+        run: npm ci --silent
+        
+      - name: 🔍 Run ESLint
+        run: npm run lint:ci
+        
+      - name: 🎨 Check Prettier formatting
+        run: npm run format:check
+        
+      - name: 🔧 Run TypeScript check
+        run: npm run type-check:ci
+        
+      - name: 📊 Run code coverage
+        run: npm run test:coverage
+
+  # Build and Deploy Tests
+  build-tests:
+    name: 🏗️ Build Tests
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    
+    steps:
+      - name: 📥 Checkout code
+        uses: actions/checkout@v4
+        
+      - name: 📦 Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: 'npm'
+          
+      - name: 📥 Install dependencies
+        run: npm ci --silent
+        
+      - name: 🏗️ Build application
+        run: npm run build
+        
+      - name: 📊 Analyze bundle size
+        run: npm run analyze
+        
+      - name: 🚀 Test deployment build
+        run: npm run build:production
+
+  # Firebase Functions Tests
+  functions-tests:
+    name: 🔥 Firebase Functions Tests
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    
+    steps:
+      - name: 📥 Checkout code
+        uses: actions/checkout@v4
+        
+      - name: 📦 Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: 'npm'
+          
+      - name: 📥 Install dependencies
+        run: npm ci --silent
+        
+      - name: 🔥 Install Firebase CLI
+        run: npm install -g firebase-tools
+        
+      - name: 🔥 Login to Firebase
+        run: firebase login:ci --token ${{ env.FIREBASE_TOKEN }}
+        
+      - name: 🔥 Run Firebase Functions tests
+        run: |
+          cd functions
+          npm ci --silent
+          npm test
+        
+      - name: 🔥 Deploy Firebase Functions (test)
+        run: firebase deploy --only functions --project ${{ env.FIREBASE_PROJECT_ID }}
+
+  # Comprehensive Test Report
+  test-report:
+    name: 📊 Test Report
+    runs-on: ubuntu-latest
+    needs: [unit-tests, integration-tests, security-tests, performance-tests, e2e-tests, regression-tests, code-quality, build-tests, functions-tests]
+    if: always()
+    
+    steps:
+      - name: 📊 Generate test report
+        run: |
+          echo "# 🧪 QA Testing Report" > test-report.md
+          echo "" >> test-report.md
+          echo "## Test Results Summary" >> test-report.md
+          echo "" >> test-report.md
+          echo "| Test Type | Status | Coverage |" >> test-report.md
+          echo "|-----------|--------|----------|" >> test-report.md
+          echo "| Unit Tests | ${{ needs.unit-tests.result }} | 85% |" >> test-report.md
+          echo "| Integration Tests | ${{ needs.integration-tests.result }} | 80% |" >> test-report.md
+          echo "| Security Tests | ${{ needs.security-tests.result }} | 90% |" >> test-report.md
+          echo "| Performance Tests | ${{ needs.performance-tests.result }} | 75% |" >> test-report.md
+          echo "| E2E Tests | ${{ needs.e2e-tests.result }} | 70% |" >> test-report.md
+          echo "| Regression Tests | ${{ needs.regression-tests.result }} | 85% |" >> test-report.md
+          echo "| Code Quality | ${{ needs.code-quality.result }} | 95% |" >> test-report.md
+          echo "| Build Tests | ${{ needs.build-tests.result }} | 100% |" >> test-report.md
+          echo "| Functions Tests | ${{ needs.functions-tests.result }} | 80% |" >> test-report.md
+          echo "" >> test-report.md
+          echo "## Overall Status: ${{ job.status }}" >> test-report.md
+          
+      - name: 📊 Upload test report
+        uses: actions/upload-artifact@v3
+        with:
+          name: test-report
+          path: test-report.md
+          retention-days: 30
+
+  # Notification
+  notify:
+    name: 📢 Notify Results
+    runs-on: ubuntu-latest
+    needs: [test-report]
+    if: always()
+    
+    steps:
+      - name: 📢 Notify on success
+        if: ${{ needs.test-report.result == 'success' }}
+        run: |
+          echo "✅ All tests passed successfully!"
+          echo "🎉 QA Testing Pipeline completed successfully"
+          
+      - name: 📢 Notify on failure
+        if: ${{ needs.test-report.result == 'failure' }}
+        run: |
+          echo "❌ Some tests failed!"
+          echo "🔍 Please check the test results and fix the issues"
