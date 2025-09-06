@@ -14,19 +14,19 @@
       "isParticipant": "auth != null && (data.participants[auth.uid] != null || auth.token.role == 'admin')"
     },
     
-    // Products - Public read, restricted write
+    // Products - Authenticated read, restricted write
     "products": {
-      ".read": true, // Public read for product catalog
+      ".read": "auth != null", // Only authenticated users can read
       ".write": "auth != null && (auth.token.role == 'admin' || auth.token.role == 'vendor')",
       "$productId": {
-        ".read": true,
+        ".read": "auth != null",
         ".write": "auth != null && (auth.token.role == 'admin' || (auth.token.role == 'vendor' && data.vendorId == auth.uid))"
       }
     },
     
-    // Categories - Public read, admin write only
+    // Categories - Authenticated read, admin write only
     "categories": {
-      ".read": true,
+      ".read": "auth != null",
       ".write": "auth != null && auth.token.role == 'admin'"
     },
     
