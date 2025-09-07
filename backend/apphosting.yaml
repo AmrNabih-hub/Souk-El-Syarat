@@ -1,10 +1,10 @@
-# Firebase App Hosting Configuration for Souk El-Sayarat Backend
+# Firebase App Hosting Configuration
 runConfig:
   cpu: 1
   memoryMiB: 512
   minInstances: 0
   maxInstances: 10
-  concurrency: 100
+  concurrency: 80
   maxRequestsPerContainer: 1000
   timeoutSeconds: 60
 

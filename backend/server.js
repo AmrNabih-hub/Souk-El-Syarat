@@ -24,7 +24,7 @@ app.get('/api/health', (req, res) => {
     status: 'healthy',
     service: 'souk-el-syarat-backend',
     timestamp: new Date().toISOString(),
-    version: '3.0.0-simple',
+    version: '3.0.0-firebase-apphosting',
     uptime: process.uptime(),
     environment: process.env.NODE_ENV || 'production',
     port: PORT
@@ -35,7 +35,7 @@ app.get('/api/health', (req, res) => {
 app.get('/', (req, res) => {
   res.json({
     message: 'Souk El-Sayarat Backend API',
-    version: '3.0.0-simple',
+    version: '3.0.0-firebase-apphosting',
     status: 'operational',
     endpoints: [
       'GET /api/health',
