@@ -9,7 +9,7 @@ import { getStorage, connectStorageEmulator } from 'firebase/storage';
 import { getDatabase, connectDatabaseEmulator } from 'firebase/database';
 import { getFunctions, connectFunctionsEmulator } from 'firebase/functions';
 
-// Use environment variables with CORRECT fallbacks
+// Use environment variables with CORRECT fallbacks - UPDATED CONFIG
 const firebaseConfig = {
   apiKey: import.meta.env.VITE_FIREBASE_API_KEY || "AIzaSyAdkK2OlebHPUsWFCEqY5sWHs5ZL3wUk0Q",
   authDomain: import.meta.env.VITE_FIREBASE_AUTH_DOMAIN || "souk-el-syarat.firebaseapp.com",
@@ -30,6 +30,18 @@ export const db = getFirestore(app);
 export const storage = getStorage(app);
 export const realtimeDb = getDatabase(app);
 export const functions = getFunctions(app, 'us-central1');
+
+// Suppress App Check warnings in development
+if (import.meta.env.DEV) {
+  // Disable App Check warnings for development
+  const originalWarn = console.warn;
+  console.warn = (...args) => {
+    if (args[0] && typeof args[0] === 'string' && args[0].includes('Missing appcheck token')) {
+      return; // Suppress App Check warnings
+    }
+    originalWarn.apply(console, args);
+  };
+}
 
 // Only initialize these in browser environment
 export const analytics = null; // Disable analytics for now to avoid errors

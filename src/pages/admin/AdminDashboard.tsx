@@ -11,6 +11,8 @@ import {
   EyeIcon,
   ChartBarIcon,
   DocumentCheckIcon,
+  BeakerIcon,
+  ChartPieIcon,
 } from '@heroicons/react/24/outline';
 
 import { useAppStore } from '@/stores/appStore';
@@ -33,7 +35,7 @@ interface AdminStats {
 const AdminDashboard: React.FC = () => {
   const { user } = useAuthStore();
   const { language } = useAppStore();
-  const [activeTab, setActiveTab] = useState<'overview' | 'applications' | 'vendors' | 'analytics'>(
+  const [activeTab, setActiveTab] = useState<'overview' | 'applications' | 'vendors' | 'analytics' | 'testing' | 'analysis'>(
     'overview'
   );
   const [isLoading, setIsLoading] = useState(true);
@@ -309,6 +311,16 @@ const AdminDashboard: React.FC = () => {
                 label: language === 'ar' ? 'التحليلات' : 'Analytics',
                 icon: ChartBarIcon,
               },
+              {
+                id: 'testing',
+                label: language === 'ar' ? 'الاختبارات' : 'Testing',
+                icon: BeakerIcon,
+              },
+              {
+                id: 'analysis',
+                label: language === 'ar' ? 'التحليل الشامل' : 'Deep Analysis',
+                icon: ChartPieIcon,
+              },
             ].map(tab => (
               <button
                 key={tab.id}
@@ -491,6 +503,66 @@ const AdminDashboard: React.FC = () => {
             <p className='text-neutral-600'>
               {language === 'ar' ? 'قريباً - تحليلات مفصلة' : 'Coming Soon - Detailed Analytics'}
             </p>
+          </motion.div>
+        )}
+
+        {activeTab === 'testing' && (
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            className='space-y-8'
+          >
+            <div className='bg-white rounded-lg shadow-sm border border-neutral-200 p-6'>
+              <h2 className='text-2xl font-bold text-neutral-900 mb-4'>
+                {language === 'ar' ? 'اختبارات شاملة للتطبيق' : 'Comprehensive App Testing'}
+              </h2>
+              <p className='text-neutral-600 mb-6'>
+                {language === 'ar' 
+                  ? 'تشغيل اختبارات شاملة لجميع وظائف التطبيق والتكاملات والميزات في الوقت الفعلي'
+                  : 'Run comprehensive tests for all app functions, integrations, and real-time features'
+                }
+              </p>
+              <div className='flex space-x-4'>
+                <button className='btn btn-primary'>
+                  <BeakerIcon className='w-5 h-5 mr-2' />
+                  {language === 'ar' ? 'بدء الاختبارات' : 'Start Testing'}
+                </button>
+                <button className='btn btn-outline'>
+                  <EyeIcon className='w-5 h-5 mr-2' />
+                  {language === 'ar' ? 'عرض النتائج' : 'View Results'}
+                </button>
+              </div>
+            </div>
+          </motion.div>
+        )}
+
+        {activeTab === 'analysis' && (
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            className='space-y-8'
+          >
+            <div className='bg-white rounded-lg shadow-sm border border-neutral-200 p-6'>
+              <h2 className='text-2xl font-bold text-neutral-900 mb-4'>
+                {language === 'ar' ? 'التحليل الشامل للتطبيق' : 'Comprehensive App Analysis'}
+              </h2>
+              <p className='text-neutral-600 mb-6'>
+                {language === 'ar' 
+                  ? 'تحليل عميق لجميع مجالات التطبيق والتكاملات ووظائف الوقت الفعلي'
+                  : 'Deep analysis of all app areas, integrations, and real-time functions'
+                }
+              </p>
+              <div className='flex space-x-4'>
+                <button className='btn btn-primary'>
+                  <ChartPieIcon className='w-5 h-5 mr-2' />
+                  {language === 'ar' ? 'بدء التحليل' : 'Start Analysis'}
+                </button>
+                <button className='btn btn-outline'>
+                  <EyeIcon className='w-5 h-5 mr-2' />
+                  {language === 'ar' ? 'عرض التقرير' : 'View Report'}
+                </button>
+              </div>
+            </div>
           </motion.div>
         )}
       </div>

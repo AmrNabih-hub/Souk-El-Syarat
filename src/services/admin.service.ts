@@ -454,7 +454,8 @@ export class AdminService {
       });
     } catch (error) {
       if (process.env.NODE_ENV === 'development') {
-      // console.error('Error updating platform metrics:', error);
+        // console.error('Error updating platform metrics:', error);
+      }
     }
   }
 
@@ -472,7 +473,7 @@ export class AdminService {
     try {
       const metricsSnapshot = await getDocs(
         query(
-          collection(db, this.COLLECTIONS.PLATFORM_METRICS),
+          collection(db, AdminService.COLLECTIONS.PLATFORM_METRICS),
           orderBy('timestamp', 'desc'),
           limit(1)
         )

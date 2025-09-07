@@ -3,7 +3,7 @@
  * Implements advanced caching strategies and offline support
  */
 
-const CACHE_VERSION = 'v1.0.0';
+const CACHE_VERSION = 'v2.4.0'; // Updated for visual fixes
 const CACHE_NAMES = {
   STATIC: `static-${CACHE_VERSION}`,
   DYNAMIC: `dynamic-${CACHE_VERSION}`,
@@ -11,12 +11,22 @@ const CACHE_NAMES = {
   API: `api-${CACHE_VERSION}`,
 };
 
-// Assets to cache on install
+// Cache durations (in seconds) for performance optimization
+const CACHE_DURATIONS = {
+  STATIC: 60 * 60 * 24 * 30,  // 30 days
+  IMAGES: 60 * 60 * 24 * 7,   // 7 days
+  API: 60 * 5,               // 5 minutes
+  DYNAMIC: 60 * 15            // 15 minutes
+};
+
+// Assets to cache on install - Only cache existing assets
 const STATIC_ASSETS = [
   '/',
   '/index.html',
   '/manifest.json',
   '/offline.html',
+  '/images/hero-bg.jpg', // FIXED - now exists
+  '/images/logo.png',    // FIXED - now exists
 ];
 
 // Cache strategies
@@ -51,14 +61,34 @@ const CACHE_STRATEGIES = {
   // Network first, falling back to cache
   networkFirst: async (request, cacheName) => {
     const cache = await caches.open(cacheName);
-    
+
     try {
       const networkResponse = await fetch(request);
-      if (networkResponse.ok) {
-        cache.put(request, networkResponse.clone());
+
+      // Clone the response before caching to avoid stream consumption
+      if (networkResponse.ok && networkResponse.status !== 206) {
+        const responseClone = networkResponse.clone();
+
+        // Add security headers to cached responses
+        const headers = new Headers(responseClone.headers);
+        headers.set('X-Content-Type-Options', 'nosniff');
+        headers.set('X-Frame-Options', 'DENY');
+        headers.set('Cache-Control', `max-age=${CACHE_DURATIONS[cacheName.split('-')[0].toUpperCase()] || 300}`);
+
+        const secureResponse = new Response(responseClone.body, {
+          status: responseClone.status,
+          statusText: responseClone.statusText,
+          headers: headers
+        });
+
+        cache.put(request, secureResponse).catch(err => {
+          console.warn('Failed to cache response:', err);
+        });
       }
+
       return networkResponse;
     } catch (error) {
+      console.warn('Network request failed:', error);
       const cachedResponse = await cache.match(request);
       if (cachedResponse) {
         return cachedResponse;
@@ -71,10 +101,14 @@ const CACHE_STRATEGIES = {
   staleWhileRevalidate: async (request, cacheName) => {
     const cache = await caches.open(cacheName);
     const cachedResponse = await cache.match(request);
-    
+
     const fetchPromise = fetch(request).then(response => {
-      if (response.ok) {
-        cache.put(request, response.clone());
+      // Clone the response before caching to avoid stream consumption
+      if (response.ok && response.status !== 206) {
+        const responseClone = response.clone();
+        cache.put(request, responseClone).catch(err => {
+          console.warn('Failed to cache response:', err);
+        });
       }
       return response;
     });
@@ -160,13 +194,14 @@ self.addEventListener('fetch', (event) => {
     return;
   }
 
-  // Image requests - Cache first
+  // Image requests - Cache first with graceful fallback
   if (request.destination === 'image' || url.pathname.match(/\.(jpg|jpeg|png|gif|webp|svg)$/)) {
     event.respondWith(
       CACHE_STRATEGIES.cacheFirst(request, CACHE_NAMES.IMAGES)
         .catch(() => {
-          // Return placeholder image
-          return caches.match('/images/placeholder.svg');
+          // FIXED: Don't return placeholder for missing images, let them fail gracefully
+          console.warn(`Service Worker: Image not found: ${request.url}`);
+          return new Response('', { status: 404, statusText: 'Image not found' });
         })
     );
     return;

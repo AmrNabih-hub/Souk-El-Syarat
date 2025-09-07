@@ -1,42 +1,15 @@
-# Firebase App Hosting Configuration - Professional Backend Setup
-runtime: nodejs20
+# Firebase App Hosting Configuration
+runConfig:
+  cpu: 1
+  memoryMiB: 512
+  minInstances: 0
+  maxInstances: 10
+  concurrency: 80
+  maxRequestsPerContainer: 1000
+  timeoutSeconds: 60
 
-# Environment Variables
 env:
   - variable: NODE_ENV
     value: production
-  - variable: FIREBASE_PROJECT_ID
-    value: souk-el-syarat
-  - variable: FIREBASE_AUTH_DOMAIN
-    value: souk-el-syarat.firebaseapp.com
-  - variable: FIREBASE_DATABASE_URL
-    value: https://souk-el-syarat-default-rtdb.firebaseio.com
-  - variable: FIREBASE_STORAGE_BUCKET
-    value: souk-el-syarat.firebasestorage.app
-
-# Service Configuration
-service:
-  minInstances: 1
-  maxInstances: 10
-  cpu: 1
-  memory: 512Mi
-  concurrency: 100
-  maxRequestsPerContainer: 1000
-
-# Health Check Configuration
-healthCheck:
-  path: /health
-  checkIntervalSec: 30
-  timeoutSec: 10
-  failureThreshold: 3
-  successThreshold: 1
-  initialDelaySec: 10
-
-# Build Configuration - Skip build for backend
-build:
-  buildCommand: echo 'Backend server ready - no build required'
-
-# Startup Configuration
-run:
-  runtime: nodejs20
-  entrypoint: node server.js
+  - variable: PORT
+    value: "8080"

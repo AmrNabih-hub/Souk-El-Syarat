@@ -74,22 +74,28 @@ const HomePage: React.FC = () => {
   return (
     <div className='min-h-screen fade-in-view'>
       {/* Hero Section */}
-      <section className='relative bg-gradient-to-br from-primary-50 to-secondary-50 overflow-hidden'>
+      <section className='relative bg-gradient-to-br from-primary-600 via-primary-700 to-secondary-800 overflow-hidden'>
         {/* Premium Car Background */}
         <div className='absolute inset-0'>
-          <div className='absolute inset-0 bg-gradient-to-r from-black/80 via-black/60 to-black/40 z-10'></div>
+          <div className='absolute inset-0 bg-gradient-to-r from-black/60 via-black/40 to-black/20 z-10'></div>
           <img
-            src='https://images.unsplash.com/photo-1544636331-e26879cd4d9b?w=1920&h=1080&fit=crop&crop=center'
+            src='https://images.unsplash.com/photo-1544636331-e26879cd4d9b?w=1920&h=1080&fit=crop&crop=center&auto=format&q=80'
             alt='Premium Exotic Car - Souk El-Syarat'
-            className='w-full h-full object-cover object-center scale-105 animate-pulse-soft'
+            className='w-full h-full object-cover object-center'
             style={{ objectPosition: '65% center' }}
             loading='eager'
+            onError={(e) => {
+              // Fallback to gradient background if image fails to load
+              e.currentTarget.style.display = 'none';
+            }}
           />
-          <div className='absolute inset-0 bg-gradient-to-t from-black/70 via-transparent to-black/40 z-5'></div>
-          <div className='absolute inset-0 bg-gradient-to-br from-primary-900/30 to-secondary-900/20 z-8'></div>
+          <div className='absolute inset-0 bg-gradient-to-t from-black/50 via-transparent to-black/20 z-5'></div>
+          <div className='absolute inset-0 bg-gradient-to-br from-primary-900/20 to-secondary-900/10 z-8'></div>
         </div>
         {/* Background Pattern */}
-        <div className='absolute inset-0 pyramid-pattern opacity-10 z-20'></div>
+        <div className='absolute inset-0 opacity-5 z-20'>
+          <div className='w-full h-full bg-gradient-to-br from-white/10 via-transparent to-white/5'></div>
+        </div>
 
         <div className='relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-20 lg:py-32 z-30'>
           <div className='grid lg:grid-cols-2 gap-12 items-center'>
@@ -341,7 +347,7 @@ const HomePage: React.FC = () => {
               <p className='text-neutral-600 mb-4'>متخصص في BMW، Mercedes، Audi</p>
               <div className='flex items-center justify-center mb-4'>
                 {[...Array(5)].map((_, i) => (
-                  <StarIcon key={i} className='w-5 h-5 text-yellow-400 fill-current' />
+                  <StarIcon key={i} className='w-5 h-5 text-primary-400 fill-current' />
                 ))}
                 <span className='ml-2 font-semibold text-neutral-700'>4.9</span>
               </div>
@@ -385,7 +391,7 @@ const HomePage: React.FC = () => {
                 {[...Array(5)].map((_, i) => (
                   <StarIcon
                     key={i}
-                    className={`w-5 h-5 ${i < 4 ? 'text-yellow-400 fill-current' : 'text-neutral-300'}`}
+                    className={`w-5 h-5 ${i < 4 ? 'text-primary-400 fill-current' : 'text-neutral-300'}`}
                   />
                 ))}
                 <span className='ml-2 font-semibold text-neutral-700'>4.8</span>
@@ -428,7 +434,7 @@ const HomePage: React.FC = () => {
               <p className='text-neutral-600 mb-4'>خدمات VIP للسيارات الفاخرة</p>
               <div className='flex items-center justify-center mb-4'>
                 {[...Array(5)].map((_, i) => (
-                  <StarIcon key={i} className='w-5 h-5 text-yellow-400 fill-current' />
+                  <StarIcon key={i} className='w-5 h-5 text-primary-400 fill-current' />
                 ))}
                 <span className='ml-2 font-semibold text-neutral-700'>4.9</span>
               </div>
@@ -541,7 +547,7 @@ const HomePage: React.FC = () => {
                 <div className='absolute top-4 left-4 bg-primary-500 text-white px-3 py-1 rounded-full text-sm font-semibold'>
                   جديد
                 </div>
-                <div className='absolute top-4 right-4 bg-red-500 text-white px-3 py-1 rounded-full text-sm font-semibold'>
+                <div className='absolute top-4 right-4 bg-accent-500 text-white px-3 py-1 rounded-full text-sm font-semibold'>
                   ٦% خصم
                 </div>
               </div>
@@ -619,7 +625,7 @@ const HomePage: React.FC = () => {
                   alt='Ceramic Coating Service'
                   className='w-full h-full object-cover transition-transform duration-300 hover:scale-110'
                 />
-                <div className='absolute top-4 left-4 bg-blue-500 text-white px-3 py-1 rounded-full text-sm font-semibold'>
+                <div className='absolute top-4 left-4 bg-secondary-500 text-white px-3 py-1 rounded-full text-sm font-semibold'>
                   خدمة
                 </div>
               </div>

@@ -42,6 +42,18 @@
     direction: ltr;
   }
 
+  /* Safari Compatibility */
+  * {
+    -webkit-user-select: text;
+    user-select: text;
+  }
+
+  /* Text decoration skip for Safari */
+  a {
+    -webkit-text-decoration-skip: objects;
+    text-decoration-skip: objects;
+  }
+
   /* Scrollbar Styles */
   ::-webkit-scrollbar {
     @apply w-2 h-2;
@@ -59,6 +71,26 @@
   * {
     scrollbar-width: thin;
     scrollbar-color: #d4d4d4 #f5f5f5;
+  }
+
+  /* Safari scrollbar compatibility */
+  ::-webkit-scrollbar {
+    width: 8px;
+    height: 8px;
+  }
+
+  ::-webkit-scrollbar-track {
+    background: #f5f5f5;
+    border-radius: 4px;
+  }
+
+  ::-webkit-scrollbar-thumb {
+    background: #d4d4d4;
+    border-radius: 4px;
+  }
+
+  ::-webkit-scrollbar-thumb:hover {
+    background: #a3a3a3;
   }
 }
 
@@ -162,11 +194,17 @@
 
   /* Glass Morphism */
   .glass {
-    @apply backdrop-blur-sm bg-white/80 border border-white/20;
+    background: rgba(255, 255, 255, 0.8);
+    backdrop-filter: blur(4px);
+    -webkit-backdrop-filter: blur(4px);
+    border: 1px solid rgba(255, 255, 255, 0.2);
   }
 
   .glass-dark {
-    @apply backdrop-blur-sm bg-neutral-900/80 border border-white/10;
+    background: rgba(23, 23, 23, 0.8);
+    backdrop-filter: blur(4px);
+    -webkit-backdrop-filter: blur(4px);
+    border: 1px solid rgba(255, 255, 255, 0.1);
   }
 }
 

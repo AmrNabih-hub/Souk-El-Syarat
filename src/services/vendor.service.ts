@@ -65,6 +65,39 @@ export class VendorService {
   private static COLLECTION_NAME = 'vendors';
   private static APPLICATIONS_COLLECTION_NAME = 'vendor_applications';
 
+  // Get vendor statistics
+  static async getVendorStats(vendorId: string): Promise<{
+    total: number;
+    applications: {
+      pending: number;
+      approved: number;
+      rejected: number;
+    };
+  }> {
+    try {
+      // Get vendor applications stats
+      const applicationsQuery = query(
+        collection(db, this.APPLICATIONS_COLLECTION_NAME),
+        where('vendorId', '==', vendorId)
+      );
+      
+      const applicationsSnapshot = await getDocs(applicationsQuery);
+      const applications = applicationsSnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() } as VendorApplication));
+      
+      return {
+        total: 1, // Assuming vendor exists
+        applications: {
+          pending: applications.filter(a => a.status === 'pending').length,
+          approved: applications.filter(a => a.status === 'approved').length,
+          rejected: applications.filter(a => a.status === 'rejected').length,
+        }
+      };
+    } catch (error) {
+      console.error('Error getting vendor stats:', error);
+      return { total: 0, applications: { pending: 0, approved: 0, rejected: 0 } };
+    }
+  }
+
   /**
    * Submit a vendor application
    */
@@ -75,186 +108,133 @@ export class VendorService {
     try {
       const applicationId = doc(collection(db, this.APPLICATIONS_COLLECTION_NAME)).id;
 
-      // Upload documents if any
-      const documentUrls: string[] = [];
+      // Upload documents if provided
+      let documentUrls: string[] = [];
       if (applicationData.documents && applicationData.documents.length > 0) {
-        for (const document of applicationData.documents) {
-          const documentRef = ref(
-            storage,
-            `vendor_applications/${applicationId}/documents/${document.name}`
-          );
-          await uploadBytes(documentRef, document);
-          const downloadURL = await getDownloadURL(documentRef);
-          documentUrls.push(downloadURL);
-        }
+        documentUrls = await this.uploadDocuments(applicationId, applicationData.documents);
       }
 
-      const application: VendorApplication = {
-        id: applicationId,
+      const application: Omit<VendorApplication, 'id'> = {
         userId,
-        ...applicationData,
-        address: {
-          street: applicationData.address.street,
-          city: applicationData.address.city,
-          governorate: applicationData.address.governorate,
-          postalCode: applicationData.address.postalCode,
-          country: 'Egypt',
-        },
+        businessName: applicationData.businessName,
+        businessType: applicationData.businessType,
+        description: applicationData.description,
+        contactPerson: applicationData.contactPerson,
+        email: applicationData.email,
+        phoneNumber: applicationData.phoneNumber,
+        whatsappNumber: applicationData.whatsappNumber,
+        address: applicationData.address,
+        businessLicense: applicationData.businessLicense,
+        taxId: applicationData.taxId,
+        website: applicationData.website,
+        socialMedia: applicationData.socialMedia,
+        experience: applicationData.experience,
+        specializations: applicationData.specializations,
+        expectedMonthlyVolume: applicationData.expectedMonthlyVolume,
         documents: documentUrls,
         status: 'pending',
-        appliedDate: new Date(),
-        reviewedDate: null,
+        submittedAt: new Date(),
+        reviewedAt: null,
         reviewedBy: null,
         reviewNotes: null,
-        createdAt: new Date(),
-        updatedAt: new Date(),
       };
 
-      await setDoc(doc(db, this.APPLICATIONS_COLLECTION_NAME, applicationId), {
-        ...application,
-        appliedDate: serverTimestamp(),
-        createdAt: serverTimestamp(),
-        updatedAt: serverTimestamp(),
-      });
+      await setDoc(doc(db, this.APPLICATIONS_COLLECTION_NAME, applicationId), application);
 
       return applicationId;
     } catch (error) {
-      if (process.env.NODE_ENV === 'development') if (process.env.NODE_ENV === 'development') // console.error('Error submitting vendor application:', error);
+      console.error('Error submitting vendor application:', error);
       throw new Error('Failed to submit vendor application');
     }
   }
 
   /**
-   * Get vendor application by ID
-   */
-  static async getApplication(applicationId: string): Promise<VendorApplication | null> {
-    try {
-      const docSnap = await getDoc(doc(db, this.APPLICATIONS_COLLECTION_NAME, applicationId));
-      if (docSnap.exists()) {
-        const data = docSnap.data();
-        return {
-          ...(data as any),
-          appliedDate: data.appliedDate.toDate() || new Date(),
-          reviewedDate: data.reviewedDate.toDate() || new Date() || null,
-          createdAt: data.createdAt.toDate() || new Date(),
-          updatedAt: data.updatedAt.toDate() || new Date(),
-        } as VendorApplication;
-      }
-      return null;
-    } catch (error) {
-      if (process.env.NODE_ENV === 'development') if (process.env.NODE_ENV === 'development') // console.error('Error getting vendor application:', error);
-      throw new Error('Failed to get vendor application');
-    }
-  }
-
-  /**
-   * Get vendor applications by user ID
-   */
-  static async getApplicationsByUser(userId: string): Promise<VendorApplication[]> {
-    try {
-      const q = query(
-        collection(db, this.APPLICATIONS_COLLECTION_NAME),
-        where('userId', '==', userId),
-        orderBy('appliedDate', 'desc')
-      );
-
-      const querySnapshot = await getDocs(q);
-      return querySnapshot.docs.map(doc => {
-        const data = doc.data();
-        return {
-          ...(data as any),
-          appliedDate: data.appliedDate.toDate() || new Date(),
-          reviewedDate: data.reviewedDate.toDate() || new Date() || null,
-          createdAt: data.createdAt.toDate() || new Date(),
-          updatedAt: data.updatedAt.toDate() || new Date(),
-        } as VendorApplication;
-      });
-    } catch (error) {
-      if (process.env.NODE_ENV === 'development') if (process.env.NODE_ENV === 'development') // console.error('Error getting user vendor applications:', error);
-      throw new Error('Failed to get vendor applications');
-    }
-  }
-
-  /**
-   * Get all vendor applications (for admin)
+   * Get all vendor applications with filtering and pagination
    */
   static async getAllApplications(
-    status?: VendorStatus,
+    status?: VendorApplication['status'],
     limitCount: number = 20,
     lastDoc?: DocumentSnapshot
-  ): Promise<{ applications: VendorApplication[]; lastDoc: DocumentSnapshot | null }> {
+  ): Promise<{ applications: VendorApplication[]; lastDoc?: DocumentSnapshot }> {
     try {
       let q = query(
         collection(db, this.APPLICATIONS_COLLECTION_NAME),
-        orderBy('appliedDate', 'desc'),
-        limit(limitCount)
+        orderBy('submittedAt', 'desc')
       );
 
       if (status) {
-        q = query(
-          collection(db, this.APPLICATIONS_COLLECTION_NAME),
-          where('status', '==', status),
-          orderBy('appliedDate', 'desc'),
-          limit(limitCount)
-        );
+        q = query(q, where('status', '==', status));
       }
 
       if (lastDoc) {
         q = query(q, startAfter(lastDoc));
       }
 
-      const querySnapshot = await getDocs(q);
-      const applications = querySnapshot.docs.map(doc => {
-        const data = doc.data();
-        return {
-          ...(data as any),
-          appliedDate: data.appliedDate.toDate() || new Date(),
-          reviewedDate: data.reviewedDate.toDate() || new Date() || null,
-          createdAt: data.createdAt.toDate() || new Date(),
-          updatedAt: data.updatedAt.toDate() || new Date(),
-        } as VendorApplication;
-      });
+      q = query(q, limit(limitCount));
 
-      const lastDocument =
-        querySnapshot.docs.length > 0 ? querySnapshot.docs[querySnapshot.docs.length - 1] : null;
+      const snapshot = await getDocs(q);
+      const applications = snapshot.docs.map(doc => ({
+        id: doc.id,
+        ...doc.data(),
+      })) as VendorApplication[];
 
-      return { applications, lastDoc: lastDocument };
+      return {
+        applications,
+        lastDoc: snapshot.docs[snapshot.docs.length - 1],
+      };
     } catch (error) {
-      if (process.env.NODE_ENV === 'development') if (process.env.NODE_ENV === 'development') // console.error('Error getting all vendor applications:', error);
+      console.error('Error getting vendor applications:', error);
       throw new Error('Failed to get vendor applications');
     }
   }
 
   /**
-   * Review vendor application (for admin)
+   * Get vendor application by ID
+   */
+  static async getApplicationById(applicationId: string): Promise<VendorApplication | null> {
+    try {
+      const docRef = doc(db, this.APPLICATIONS_COLLECTION_NAME, applicationId);
+      const docSnap = await getDoc(docRef);
+
+      if (docSnap.exists()) {
+        return { id: docSnap.id, ...docSnap.data() } as VendorApplication;
+      }
+
+      return null;
+    } catch (error) {
+      console.error('Error getting vendor application:', error);
+      throw new Error('Failed to get vendor application');
+    }
+  }
+
+  /**
+   * Review vendor application (approve/reject)
    */
   static async reviewApplication(
     applicationId: string,
-    adminId: string,
+    reviewerId: string,
     status: 'approved' | 'rejected',
-    reviewNotes?: string
+    notes?: string
   ): Promise<void> {
     try {
-      const application = await this.getApplication(applicationId);
-      if (!application) {
-        throw new Error('Application not found');
-      }
-
-      // Update application status
-      await updateDoc(doc(db, this.APPLICATIONS_COLLECTION_NAME, applicationId), {
+      const applicationRef = doc(db, this.APPLICATIONS_COLLECTION_NAME, applicationId);
+      
+      await updateDoc(applicationRef, {
         status,
-        reviewedBy: adminId,
-        reviewedDate: serverTimestamp(),
-        reviewNotes: reviewNotes || null,
-        updatedAt: serverTimestamp(),
+        reviewedAt: serverTimestamp(),
+        reviewedBy: reviewerId,
+        reviewNotes: notes,
       });
 
       // If approved, create vendor profile
       if (status === 'approved') {
-        await this.createVendorFromApplication(application);
+        const application = await this.getApplicationById(applicationId);
+        if (application) {
+          await this.createVendorFromApplication(application);
+        }
       }
     } catch (error) {
-      if (process.env.NODE_ENV === 'development') if (process.env.NODE_ENV === 'development') // console.error('Error reviewing vendor application:', error);
+      console.error('Error reviewing vendor application:', error);
       throw new Error('Failed to review vendor application');
     }
   }
@@ -264,11 +244,9 @@ export class VendorService {
    */
   private static async createVendorFromApplication(application: VendorApplication): Promise<void> {
     try {
-      const vendorId = doc(collection(db, this.COLLECTION_NAME)).id;
-
-      const vendor: Vendor = {
-        id: vendorId,
-        userId: application.userId,
+      const vendorId = application.userId;
+      const vendor: Omit<Vendor, 'id'> = {
+        userId: vendorId,
         businessName: application.businessName,
         businessType: application.businessType,
         description: application.description,
@@ -283,296 +261,209 @@ export class VendorService {
         socialMedia: application.socialMedia,
         experience: application.experience,
         specializations: application.specializations,
-        expectedMonthlyVolume: application.expectedMonthlyVolume,
         status: 'active',
-        rating: 0,
-        totalReviews: 0,
-        totalSales: 0,
-        totalProducts: 0,
-        joinedDate: new Date(),
-        lastActive: new Date(),
         isVerified: true,
-        logo: undefined,
-        coverImage: undefined,
+        rating: 0,
+        totalSales: 0,
+        totalOrders: 0,
+        joinedAt: new Date(),
+        lastActiveAt: new Date(),
         createdAt: new Date(),
         updatedAt: new Date(),
       };
 
-      await setDoc(doc(db, this.COLLECTION_NAME, vendorId), {
-        ...vendor,
-        joinedDate: serverTimestamp(),
-        lastActive: serverTimestamp(),
-        createdAt: serverTimestamp(),
-        updatedAt: serverTimestamp(),
-      });
+      await setDoc(doc(db, this.COLLECTION_NAME, vendorId), vendor);
     } catch (error) {
-      if (process.env.NODE_ENV === 'development') if (process.env.NODE_ENV === 'development') // console.error('Error creating vendor from application:', error);
+      console.error('Error creating vendor from application:', error);
       throw new Error('Failed to create vendor profile');
     }
   }
 
   /**
-   * Get vendor by ID
-   */
-  static async getVendor(vendorId: string): Promise<Vendor | null> {
-    try {
-      const docSnap = await getDoc(doc(db, this.COLLECTION_NAME, vendorId));
-      if (docSnap.exists()) {
-        const data = docSnap.data();
-        return {
-          ...(data as any),
-          joinedDate: data.joinedDate.toDate() || new Date(),
-          lastActive: data.lastActive.toDate() || new Date(),
-          createdAt: data.createdAt.toDate() || new Date(),
-          updatedAt: data.updatedAt.toDate() || new Date(),
-        } as Vendor;
-      }
-      return null;
-    } catch (error) {
-      if (process.env.NODE_ENV === 'development') if (process.env.NODE_ENV === 'development') // console.error('Error getting vendor:', error);
-      throw new Error('Failed to get vendor');
-    }
-  }
-
-  /**
-   * Get vendor by user ID
-   */
-  static async getVendorByUserId(userId: string): Promise<Vendor | null> {
-    try {
-      const q = query(
-        collection(db, this.COLLECTION_NAME),
-        where('userId', '==', userId),
-        limit(1)
-      );
-
-      const querySnapshot = await getDocs(q);
-      if (!querySnapshot.empty) {
-        const data = querySnapshot.docs[0].data();
-        return {
-          ...(data as any),
-          joinedDate: data.joinedDate.toDate() || new Date(),
-          lastActive: data.lastActive.toDate() || new Date(),
-          createdAt: data.createdAt.toDate() || new Date(),
-          updatedAt: data.updatedAt.toDate() || new Date(),
-        } as Vendor;
-      }
-      return null;
-    } catch (error) {
-      if (process.env.NODE_ENV === 'development') if (process.env.NODE_ENV === 'development') // console.error('Error getting vendor by user ID:', error);
-      throw new Error('Failed to get vendor');
-    }
-  }
-
-  /**
-   * Get all vendors
+   * Get all vendors with filtering and pagination
    */
   static async getAllVendors(
     status?: VendorStatus,
     limitCount: number = 20,
     lastDoc?: DocumentSnapshot
-  ): Promise<{ vendors: Vendor[]; lastDoc: DocumentSnapshot | null }> {
+  ): Promise<{ vendors: Vendor[]; lastDoc?: DocumentSnapshot }> {
     try {
       let q = query(
         collection(db, this.COLLECTION_NAME),
-        orderBy('joinedDate', 'desc'),
-        limit(limitCount)
+        orderBy('createdAt', 'desc')
       );
 
       if (status) {
-        q = query(
-          collection(db, this.COLLECTION_NAME),
-          where('status', '==', status),
-          orderBy('joinedDate', 'desc'),
-          limit(limitCount)
-        );
+        q = query(q, where('status', '==', status));
       }
 
       if (lastDoc) {
         q = query(q, startAfter(lastDoc));
       }
 
-      const querySnapshot = await getDocs(q);
-      const vendors = querySnapshot.docs.map(doc => {
-        const data = doc.data();
-        return {
-          ...(data as any),
-          joinedDate: data.joinedDate.toDate() || new Date(),
-          lastActive: data.lastActive.toDate() || new Date(),
-          createdAt: data.createdAt.toDate() || new Date(),
-          updatedAt: data.updatedAt.toDate() || new Date(),
-        } as Vendor;
-      });
+      q = query(q, limit(limitCount));
 
-      const lastDocument =
-        querySnapshot.docs.length > 0 ? querySnapshot.docs[querySnapshot.docs.length - 1] : null;
+      const snapshot = await getDocs(q);
+      const vendors = snapshot.docs.map(doc => ({
+        id: doc.id,
+        ...doc.data(),
+      })) as Vendor[];
 
-      return { vendors, lastDoc: lastDocument };
+      return {
+        vendors,
+        lastDoc: snapshot.docs[snapshot.docs.length - 1],
+      };
     } catch (error) {
-      if (process.env.NODE_ENV === 'development') if (process.env.NODE_ENV === 'development') // console.error('Error getting all vendors:', error);
+      console.error('Error getting vendors:', error);
       throw new Error('Failed to get vendors');
+    }
+  }
+
+  /**
+   * Get vendor by ID
+   */
+  static async getVendorById(vendorId: string): Promise<Vendor | null> {
+    try {
+      const docRef = doc(db, this.COLLECTION_NAME, vendorId);
+      const docSnap = await getDoc(docRef);
+
+      if (docSnap.exists()) {
+        return { id: docSnap.id, ...docSnap.data() } as Vendor;
+      }
+
+      return null;
+    } catch (error) {
+      console.error('Error getting vendor:', error);
+      throw new Error('Failed to get vendor');
     }
   }
 
   /**
    * Update vendor profile
    */
-  static async updateVendor(vendorId: string, updates: VendorUpdateData): Promise<void> {
+  static async updateVendor(
+    vendorId: string,
+    updateData: VendorUpdateData
+  ): Promise<void> {
     try {
-      const updateData: unknown = {
-        ...updates,
+      const vendorRef = doc(db, this.COLLECTION_NAME, vendorId);
+
+      // Upload logo if provided
+      let logoUrl: string | undefined;
+      if (updateData.logo) {
+        logoUrl = await this.uploadLogo(vendorId, updateData.logo);
+      }
+
+      const updateFields: any = {
+        ...updateData,
         updatedAt: serverTimestamp(),
       };
 
-      // Handle logo upload
-      if (updates.logo) {
-        const logoRef = ref(storage, `vendors/${vendorId}/logo.jpg`);
-        await uploadBytes(logoRef, updates.logo);
-        updateData.logo = await getDownloadURL(logoRef);
-        delete updateData.logo; // Remove the File object from updateData
+      if (logoUrl) {
+        updateFields.logoUrl = logoUrl;
       }
 
-      await updateDoc(doc(db, this.COLLECTION_NAME, vendorId), updateData);
+      // Remove logo file from update data
+      delete updateFields.logo;
+
+      await updateDoc(vendorRef, updateFields);
     } catch (error) {
-      if (process.env.NODE_ENV === 'development') if (process.env.NODE_ENV === 'development') // console.error('Error updating vendor:', error);
+      console.error('Error updating vendor:', error);
       throw new Error('Failed to update vendor');
     }
   }
 
   /**
-   * Update vendor status (for admin)
-   */
-  static async updateVendorStatus(vendorId: string, status: VendorStatus): Promise<void> {
-    try {
-      await updateDoc(doc(db, this.COLLECTION_NAME, vendorId), {
-        status,
-        updatedAt: serverTimestamp(),
-      });
-    } catch (error) {
-      if (process.env.NODE_ENV === 'development') if (process.env.NODE_ENV === 'development') // console.error('Error updating vendor status:', error);
-      throw new Error('Failed to update vendor status');
-    }
-  }
-
-  /**
-   * Delete vendor (for admin)
+   * Delete vendor
    */
   static async deleteVendor(vendorId: string): Promise<void> {
     try {
-      // Delete vendor logo if exists
-      const vendor = await this.getVendor(vendorId);
-      if (vendor?.logo) {
-        try {
-          const logoRef = ref(storage, `vendors/${vendorId}/logo.jpg`);
-          await deleteObject(logoRef);
-        } catch (logoError) {
-          // if (process.env.NODE_ENV === 'development') console.warn('Error deleting vendor logo:', logoError);
-        }
-      }
-
-      // Delete vendor document
-      await deleteDoc(doc(db, this.COLLECTION_NAME, vendorId));
+      const vendorRef = doc(db, this.COLLECTION_NAME, vendorId);
+      await deleteDoc(vendorRef);
     } catch (error) {
-      if (process.env.NODE_ENV === 'development') if (process.env.NODE_ENV === 'development') // console.error('Error deleting vendor:', error);
+      console.error('Error deleting vendor:', error);
       throw new Error('Failed to delete vendor');
     }
   }
 
   /**
-   * Search vendors by name or specialization
+   * Upload vendor documents
    */
-  static async searchVendors(searchTerm: string, limitCount: number = 20): Promise<Vendor[]> {
+  private static async uploadDocuments(
+    applicationId: string,
+    documents: File[]
+  ): Promise<string[]> {
     try {
-      // Note: This is a basic search implementation
-      // For production, consider using Algolia or similar service for better search
-      const q = query(
-        collection(db, this.COLLECTION_NAME),
-        where('status', '==', 'active'),
-        orderBy('businessName'),
-        limit(limitCount)
-      );
-
-      const querySnapshot = await getDocs(q);
-      const vendors = querySnapshot.docs.map(doc => {
-        const data = doc.data();
-        return {
-          ...(data as any),
-          joinedDate: data.joinedDate.toDate() || new Date(),
-          lastActive: data.lastActive.toDate() || new Date(),
-          createdAt: data.createdAt.toDate() || new Date(),
-          updatedAt: data.updatedAt.toDate() || new Date(),
-        } as Vendor;
+      const uploadPromises = documents.map(async (doc, index) => {
+        const fileName = `applications/${applicationId}/documents/${index}_${doc.name}`;
+        const storageRef = ref(storage, fileName);
+        await uploadBytes(storageRef, doc);
+        return getDownloadURL(storageRef);
       });
 
-      // Filter by search term (client-side for now)
-      const filteredVendors = vendors.filter(
-        vendor =>
-          vendor.businessName.toLowerCase().includes(searchTerm.toLowerCase()) ||
-          vendor.description.toLowerCase().includes(searchTerm.toLowerCase()) ||
-          vendor.specializations.some(spec => spec.toLowerCase().includes(searchTerm.toLowerCase()))
-      );
-
-      return filteredVendors;
+      return await Promise.all(uploadPromises);
     } catch (error) {
-      if (process.env.NODE_ENV === 'development') if (process.env.NODE_ENV === 'development') // console.error('Error searching vendors:', error);
-      throw new Error('Failed to search vendors');
+      console.error('Error uploading documents:', error);
+      throw new Error('Failed to upload documents');
     }
   }
 
   /**
-   * Get vendor statistics (for admin dashboard)
+   * Upload vendor logo
    */
-  static async getVendorStats(): Promise<{
-    total: number;
-    active: number;
-    pending: number;
-    suspended: number;
-    applications: {
-      pending: number;
-      approved: number;
-      rejected: number;
-    };
-  }> {
+  private static async uploadLogo(vendorId: string, logo: File): Promise<string> {
     try {
-      // Get vendor counts
-      const [activeVendors, pendingVendors, suspendedVendors] = await Promise.all([
-        getDocs(query(collection(db, this.COLLECTION_NAME), where('status', '==', 'active'))),
-        getDocs(query(collection(db, this.COLLECTION_NAME), where('status', '==', 'pending'))),
-        getDocs(query(collection(db, this.COLLECTION_NAME), where('status', '==', 'suspended'))),
-      ]);
-
-      // Get application counts
-      const [pendingApplications, approvedApplications, rejectedApplications] = await Promise.all([
-        getDocs(
-          query(collection(db, this.APPLICATIONS_COLLECTION_NAME), where('status', '==', 'pending'))
-        ),
-        getDocs(
-          query(
-            collection(db, this.APPLICATIONS_COLLECTION_NAME),
-            where('status', '==', 'approved')
-          )
-        ),
-        getDocs(
-          query(
-            collection(db, this.APPLICATIONS_COLLECTION_NAME),
-            where('status', '==', 'rejected')
-          )
-        ),
-      ]);
-
-      return {
-        total: activeVendors.size + pendingVendors.size + suspendedVendors.size,
-        active: activeVendors.size,
-        pending: pendingVendors.size,
-        suspended: suspendedVendors.size,
-        applications: {
-          pending: pendingApplications.size,
-          approved: approvedApplications.size,
-          rejected: rejectedApplications.size,
-        },
-      };
+      const fileName = `vendors/${vendorId}/logo/${logo.name}`;
+      const storageRef = ref(storage, fileName);
+      await uploadBytes(storageRef, logo);
+      return getDownloadURL(storageRef);
     } catch (error) {
-      if (process.env.NODE_ENV === 'development') if (process.env.NODE_ENV === 'development') // console.error('Error getting vendor statistics:', error);
-      throw new Error('Failed to get vendor statistics');
+      console.error('Error uploading logo:', error);
+      throw new Error('Failed to upload logo');
+    }
+  }
+
+  /**
+   * Search vendors
+   */
+  static async searchVendors(
+    searchTerm: string,
+    filters?: {
+      businessType?: BusinessType;
+      specializations?: string[];
+      status?: VendorStatus;
+    },
+    limitCount: number = 20
+  ): Promise<Vendor[]> {
+    try {
+      let q = query(collection(db, this.COLLECTION_NAME));
+
+      // Apply text search (Firestore doesn't support full-text search, so we use array-contains-any for specializations)
+      if (searchTerm) {
+        // This is a simplified search - in production, you'd want to use Algolia or similar
+        q = query(q, where('businessName', '>=', searchTerm));
+      }
+
+      // Apply filters
+      if (filters?.businessType) {
+        q = query(q, where('businessType', '==', filters.businessType));
+      }
+
+      if (filters?.status) {
+        q = query(q, where('status', '==', filters.status));
+      }
+
+      if (filters?.specializations && filters.specializations.length > 0) {
+        q = query(q, where('specializations', 'array-contains-any', filters.specializations));
+      }
+
+      q = query(q, limit(limitCount));
+
+      const snapshot = await getDocs(q);
+      return snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() } as Vendor));
+    } catch (error) {
+      console.error('Error searching vendors:', error);
+      throw new Error('Failed to search vendors');
     }
   }
 }

@@ -146,6 +146,107 @@ export interface CreateOrderData {
 
 export class OrderService {
   private static COLLECTION_NAME = 'orders';
+
+  // Get customer statistics
+  static async getCustomerStats(customerId: string): Promise<{
+    total: number;
+    pending: number;
+    completed: number;
+    totalSpent: number;
+  }> {
+    try {
+      const ordersQuery = query(
+        collection(db, this.COLLECTION_NAME),
+        where('customerId', '==', customerId)
+      );
+      
+      const snapshot = await getDocs(ordersQuery);
+      const orders = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() } as Order));
+      
+      return {
+        total: orders.length,
+        pending: orders.filter(o => ['pending', 'confirmed', 'processing', 'shipped'].includes(o.status)).length,
+        completed: orders.filter(o => o.status === 'delivered').length,
+        totalSpent: orders.reduce((sum, order) => sum + order.total, 0)
+      };
+    } catch (error) {
+      console.error('Error getting customer stats:', error);
+      return { total: 0, pending: 0, completed: 0, totalSpent: 0 };
+    }
+  }
+
+  // Get customer orders
+  static async getCustomerOrders(customerId: string, options: { limit?: number } = {}): Promise<Order[]> {
+    try {
+      const ordersQuery = query(
+        collection(db, this.COLLECTION_NAME),
+        where('customerId', '==', customerId),
+        orderBy('createdAt', 'desc'),
+        limit(options.limit || 20)
+      );
+      
+      const snapshot = await getDocs(ordersQuery);
+      return snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() } as Order));
+    } catch (error) {
+      console.error('Error getting customer orders:', error);
+      return [];
+    }
+  }
+
+  // Get vendor statistics
+  static async getVendorOrderStats(vendorId: string): Promise<{
+    total: number;
+    pending: number;
+    completed: number;
+    totalRevenue: number;
+    monthlyRevenue: number;
+  }> {
+    try {
+      const ordersQuery = query(
+        collection(db, this.COLLECTION_NAME),
+        where('vendorId', '==', vendorId)
+      );
+      
+      const snapshot = await getDocs(ordersQuery);
+      const orders = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() } as Order));
+      
+      const now = new Date();
+      const thisMonth = new Date(now.getFullYear(), now.getMonth(), 1);
+      const monthlyOrders = orders.filter(o => new Date(o.createdAt) >= thisMonth);
+      
+      return {
+        total: orders.length,
+        pending: orders.filter(o => ['pending', 'confirmed', 'processing', 'shipped'].includes(o.status)).length,
+        completed: orders.filter(o => o.status === 'delivered').length,
+        totalRevenue: orders.reduce((sum, order) => sum + order.total, 0),
+        monthlyRevenue: monthlyOrders.reduce((sum, order) => sum + order.total, 0)
+      };
+    } catch (error) {
+      console.error('Error getting vendor order stats:', error);
+      return { total: 0, pending: 0, completed: 0, totalRevenue: 0, monthlyRevenue: 0 };
+    }
+  }
+
+  // Get vendor orders
+  static async getVendorOrders(vendorId: string, options: { limit?: number } = {}): Promise<Order[]> {
+    try {
+      const ordersQuery = query(
+        collection(db, this.COLLECTION_NAME),
+        where('vendorId', '==', vendorId),
+        orderBy('createdAt', 'desc'),
+        limit(options.limit || 20)
+      );
+      
+      const snapshot = await getDocs(ordersQuery);
+      return snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() } as Order));
+    } catch (error) {
+      console.error('Error getting vendor orders:', error);
+      return [];
+    }
+  }
+
+  // Update order status (removed duplicate - using enhanced version below)
+
   private static COUNTERS_COLLECTION = 'counters';
 
   /**
@@ -621,7 +722,8 @@ export class OrderService {
       }
     } catch (error) {
       if (process.env.NODE_ENV === 'development') {
-      // console.error('Error sending status update notifications:', error);
+        // console.error('Error sending status update notifications:', error);
+      }
     }
   }
 
@@ -665,7 +767,8 @@ export class OrderService {
       }
     } catch (error) {
       if (process.env.NODE_ENV === 'development') {
-      // console.error('Error sending payment notifications:', error);
+        // console.error('Error sending payment notifications:', error);
+      }
     }
   }
 

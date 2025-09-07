@@ -11,7 +11,7 @@ class ApiService {
   private baseURL: string;
 
   constructor() {
-    this.baseURL = import.meta.env.VITE_API_BASE_URL || 'https://us-central1-souk-el-syarat.cloudfunctions.net/api';
+    this.baseURL = import.meta.env.VITE_API_BASE_URL || 'https://souk-el-sayarat-backend--souk-el-syarat.europe-west4.hosted.app';
     
     this.api = axios.create({
       baseURL: this.baseURL,

@@ -60,6 +60,17 @@ vi.mock('firebase/storage', () => ({
   uploadBytes: vi.fn(),
   getDownloadURL: vi.fn(),
   deleteObject: vi.fn(),
+  connectStorageEmulator: vi.fn(),
+}));
+
+vi.mock('firebase/database', () => ({
+  getDatabase: vi.fn(),
+  ref: vi.fn(),
+  set: vi.fn(),
+  push: vi.fn(),
+  onValue: vi.fn(),
+  update: vi.fn(),
+  connectDatabaseEmulator: vi.fn(),
 }));
 
 vi.mock('firebase/functions', () => ({
@@ -108,7 +119,7 @@ Object.defineProperty(window, 'scrollTo', {
 });
 
 // Mock console methods in tests
-const originalConsoleError = // console.error;
+const originalConsoleError = console.error;
 const originalConsoleWarn = console.warn;
 
 beforeAll(() => {

@@ -199,7 +199,7 @@ const ProductCard = ({
                       key={i}
                       className={`w-3 h-3 ${
                         i < Math.floor(product.rating)
-                          ? 'text-yellow-400 fill-current'
+                          ? 'text-primary-400 fill-current'
                           : 'text-neutral-300'
                       }`}
                     />
@@ -286,7 +286,7 @@ const ProductCard = ({
                     </span>
                   </>
                 ) : (
-                  <span className='text-red-600'>
+                  <span className='text-accent-600'>
                     {language === 'ar' ? 'غير متوفر' : 'Out of Stock'}
                   </span>
                 )}
@@ -315,7 +315,7 @@ const ProductCard = ({
                 aria-label={isProductFavorite ? 'Remove from favorites' : 'Add to favorites'}
               >
                 {isProductFavorite ? (
-                  <HeartSolid className='w-5 h-5 text-red-500' />
+                  <HeartSolid className='w-5 h-5 text-accent-500' />
                 ) : (
                   <HeartIcon className='w-5 h-5 text-neutral-400' />
                 )}

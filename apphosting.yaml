@@ -1,18 +1,15 @@
-# Minimal App Hosting Configuration that works
+# App Hosting Configuration for Souk El-Sayarat Backend
 runConfig:
   cpu: 1
   memoryMiB: 512
   minInstances: 0
   maxInstances: 10
+  concurrency: 100
+  maxRequestsPerContainer: 1000
+  timeoutSeconds: 60
 
 env:
   - variable: NODE_ENV
     value: production
   - variable: PORT
     value: "8080"
-  - variable: FIREBASE_PROJECT_ID
-    value: souk-el-syarat
-  - variable: FIREBASE_DATABASE_URL
-    value: https://souk-el-syarat-default-rtdb.firebaseio.com
-  - variable: FIREBASE_STORAGE_BUCKET
-    value: souk-el-syarat.firebasestorage.app

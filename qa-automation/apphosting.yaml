@@ -1,6 +1,0 @@
-
-  # Authentication
-  - variable: JWT_SECRET
-    value: "your-super-secret-jwt-key-change-in-production"
-    availability:
-      - RUNTIME

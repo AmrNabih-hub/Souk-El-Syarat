@@ -15,30 +15,21 @@ export default defineConfig({
       registerType: 'autoUpdate',
       includeAssets: ['favicon.ico', 'apple-touch-icon.png', 'masked-icon.svg'],
       manifest: {
-        name: 'Souk El-Sayarat',
-        short_name: 'SoukAuto',
-        description: 'Egyptian Automotive Marketplace',
-        theme_color: '#1e40af',
-        background_color: '#ffffff',
+        name: 'Souk El-Sayarat - Premium Automotive Marketplace',
+        short_name: 'Souk Syarat',
+        description: 'Egypt\'s premier luxury automotive marketplace for cars, parts, and professional services',
+        theme_color: '#d4af37',
+        background_color: '#1a1a1a',
         display: 'standalone',
-        orientation: 'portrait',
+        orientation: 'portrait-primary',
         scope: '/',
         start_url: '/',
+        lang: 'ar',
         icons: [
           {
-            src: '/pwa-192x192.png',
-            sizes: '192x192',
-            type: 'image/png'
-          },
-          {
-            src: '/pwa-512x512.png',
-            sizes: '512x512',
-            type: 'image/png'
-          },
-          {
-            src: '/pwa-512x512.png',
-            sizes: '512x512',
-            type: 'image/png',
+            src: '/app-icon.svg',
+            sizes: 'any',
+            type: 'image/svg+xml',
             purpose: 'any maskable'
           }
         ]
@@ -48,6 +39,8 @@ export default defineConfig({
         cleanupOutdatedCaches: true,
         clientsClaim: true,
         skipWaiting: true,
+        navigateFallback: null,
+        navigateFallbackDenylist: [/^\/_/, /\/[^/?]+\.[^/]+$/],
         runtimeCaching: [
           {
             urlPattern: /^https:\/\/fonts\.googleapis\.com\/.*/i,

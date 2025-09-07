@@ -1,0 +1,24 @@
+{
+  "name": "souk-el-syarat-backend-apphosting",
+  "version": "3.0.0-apphosting",
+  "description": "Backend for Souk El-Sayarat - Firebase App Hosting",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js"
+  },
+  "engines": {
+    "node": ">=18.0.0"
+  },
+  "dependencies": {
+    "express": "^4.18.2",
+    "cors": "^2.8.5"
+  },
+  "keywords": [
+    "firebase",
+    "app-hosting",
+    "backend",
+    "api"
+  ],
+  "author": "Souk El-Sayarat Team",
+  "license": "MIT"
+}

@@ -1,0 +1,91 @@
+{
+  "rules": {
+    // CRITICAL: Deny all access by default
+    ".read": false,
+    ".write": false,
+    
+    // User-specific data - only owner can access
+    "users": {
+      "$uid": {
+        ".read": "auth != null && auth.uid == $uid",
+        ".write": "auth != null && auth.uid == $uid",
+        ".validate": "newData.hasChildren(['email', 'role', 'createdAt'])"
+      }
+    },
+    
+    // Products - public read, admin/vendor write
+    "products": {
+      ".read": "auth != null",
+      ".write": "auth != null && (auth.token.role == 'admin' || auth.token.role == 'vendor')",
+      "$productId": {
+        ".validate": "newData.hasChildren(['name', 'price', 'category', 'vendorId', 'createdAt'])"
+      }
+    },
+    
+    // Categories - public read, admin write
+    "categories": {
+      ".read": "auth != null",
+      ".write": "auth != null && auth.token.role == 'admin'",
+      "$categoryId": {
+        ".validate": "newData.hasChildren(['name', 'description', 'createdAt'])"
+      }
+    },
+    
+    // Orders - user can read own orders, admin can read all
+    "orders": {
+      "$orderId": {
+        ".read": "auth != null && (data.child('userId').val() == auth.uid || auth.token.role == 'admin')",
+        ".write": "auth != null && (data.child('userId').val() == auth.uid || auth.token.role == 'admin')",
+        ".validate": "newData.hasChildren(['userId', 'products', 'total', 'status', 'createdAt'])"
+      }
+    },
+    
+    // Vendor applications - admin only
+    "vendorApplications": {
+      ".read": "auth != null && auth.token.role == 'admin'",
+      ".write": "auth != null && (auth.token.role == 'admin' || auth.token.role == 'vendor')",
+      "$applicationId": {
+        ".validate": "newData.hasChildren(['userId', 'status', 'submittedAt'])"
+      }
+    },
+    
+    // Admin data - admin only
+    "admin": {
+      ".read": "auth != null && auth.token.role == 'admin'",
+      ".write": "auth != null && auth.token.role == 'admin'"
+    },
+    
+    // Analytics - admin only
+    "analytics": {
+      ".read": "auth != null && auth.token.role == 'admin'",
+      ".write": "auth != null && auth.token.role == 'admin'"
+    },
+    
+    // Chat messages - participants only
+    "chat": {
+      "$chatId": {
+        ".read": "auth != null && (data.child('participants').hasChild(auth.uid) || auth.token.role == 'admin')",
+        ".write": "auth != null && (data.child('participants').hasChild(auth.uid) || auth.token.role == 'admin')",
+        "messages": {
+          "$messageId": {
+            ".validate": "newData.hasChildren(['senderId', 'content', 'timestamp'])"
+          }
+        }
+      }
+    },
+    
+    // Notifications - user can read own notifications
+    "notifications": {
+      "$uid": {
+        ".read": "auth != null && auth.uid == $uid",
+        ".write": "auth != null && (auth.uid == $uid || auth.token.role == 'admin')"
+      }
+    },
+    
+    // Test data - deny all access
+    "test": {
+      ".read": false,
+      ".write": false
+    }
+  }
+}

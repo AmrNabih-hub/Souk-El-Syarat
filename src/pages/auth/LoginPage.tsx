@@ -128,6 +128,7 @@ const LoginPage: React.FC = () => {
                   {...register('email')}
                   type='email'
                   id='email'
+                  autoComplete='email'
                   className={`input pl-10 ${errors.email ? 'input-error' : ''}`}
                   placeholder={language === 'ar' ? 'أدخل بريدك الإلكتروني' : 'Enter your email'}
                   dir={language === 'ar' ? 'rtl' : 'ltr'}

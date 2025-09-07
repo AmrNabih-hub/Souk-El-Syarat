@@ -1,68 +1,145 @@
 {
   "rules": {
-    ".read": "auth != null",
-    ".write": "auth != null",
+    // Root level - DENY all access by default
+    ".read": false,
+    ".write": false,
     
-    "products": {
-      ".read": true,
-      ".write": "auth != null && (auth.token.role == 'admin' || auth.token.role == 'vendor')"
+    // Helper functions
+    "functions": {
+      "isAuthenticated": "auth != null",
+      "isOwner": "auth != null && auth.uid == $uid",
+      "isAdmin": "auth != null && auth.token.role == 'admin'",
+      "isVendor": "auth != null && auth.token.role == 'vendor'",
+      "isCustomer": "auth != null && auth.token.role == 'customer'",
+      "isParticipant": "auth != null && (data.participants[auth.uid] != null || auth.token.role == 'admin')"
     },
     
+    // Products - Authenticated read, restricted write
+    "products": {
+      ".read": "auth != null", // Only authenticated users can read
+      ".write": "auth != null && (auth.token.role == 'admin' || auth.token.role == 'vendor')",
+      "$productId": {
+        ".read": "auth != null",
+        ".write": "auth != null && (auth.token.role == 'admin' || (auth.token.role == 'vendor' && data.vendorId == auth.uid))"
+      }
+    },
+    
+    // Categories - Authenticated read, admin write only
     "categories": {
-      ".read": true,
+      ".read": "auth != null",
       ".write": "auth != null && auth.token.role == 'admin'"
     },
     
+    // Users - Strict access control
     "users": {
+      ".read": false,
+      ".write": false,
       "$uid": {
         ".read": "auth != null && (auth.uid == $uid || auth.token.role == 'admin')",
-        ".write": "auth != null && (auth.uid == $uid || auth.token.role == 'admin')"
-      }
-    },
-    
-    "orders": {
-      "$orderId": {
-        ".read": "auth != null",
-        ".write": "auth != null"
-      }
-    },
-    
-    "chats": {
-      "$chatId": {
-        ".read": "auth != null",
-        ".write": "auth != null",
-        
-        "messages": {
-          "$messageId": {
-            ".read": "auth != null",
-            ".write": "auth != null"
-          }
+        ".write": "auth != null && (auth.uid == $uid || auth.token.role == 'admin')",
+        "profile": {
+          ".read": "auth != null && (auth.uid == $uid || auth.token.role == 'admin')",
+          ".write": "auth != null && (auth.uid == $uid || auth.token.role == 'admin')"
+        },
+        "preferences": {
+          ".read": "auth != null && (auth.uid == $uid || auth.token.role == 'admin')",
+          ".write": "auth != null && (auth.uid == $uid || auth.token.role == 'admin')"
         }
       }
     },
     
-    "inventory": {
-      "$productId": {
-        ".read": true,
-        ".write": "auth != null && (auth.token.role == 'admin' || auth.token.role == 'vendor')"
+    // Orders - Strict access control
+    "orders": {
+      ".read": false,
+      ".write": false,
+      "$orderId": {
+        ".read": "auth != null && (data.customerId == auth.uid || data.vendorId == auth.uid || auth.token.role == 'admin')",
+        ".write": "auth != null && (data.customerId == auth.uid || data.vendorId == auth.uid || auth.token.role == 'admin')",
+        "trackingEvents": {
+          ".read": "auth != null && (data.customerId == auth.uid || data.vendorId == auth.uid || auth.token.role == 'admin')",
+          ".write": "auth != null && (data.vendorId == auth.uid || auth.token.role == 'admin')"
+        }
       }
     },
     
-    "status": {
+    // Conversations - Strict access control
+    "conversations": {
+      ".read": false,
+      ".write": false,
+      "$conversationId": {
+        ".read": "auth != null && (data.participants[auth.uid] != null || auth.token.role == 'admin')",
+        ".write": "auth != null && (data.participants[auth.uid] != null || auth.token.role == 'admin')",
+        "messages": {
+          ".read": "auth != null && (data.participants[auth.uid] != null || auth.token.role == 'admin')",
+          ".write": "auth != null && (data.participants[auth.uid] != null || auth.token.role == 'admin')",
+          "$messageId": {
+            ".read": "auth != null && (data.participants[auth.uid] != null || auth.token.role == 'admin')",
+            ".write": "auth != null && (data.participants[auth.uid] != null || auth.token.role == 'admin')"
+          }
+        },
+        "typing": {
+          ".read": "auth != null && (data.participants[auth.uid] != null || auth.token.role == 'admin')",
+          ".write": "auth != null && (data.participants[auth.uid] != null || auth.token.role == 'admin')"
+        }
+      }
+    },
+    
+    // Presence - User can only access their own presence
+    "presence": {
+      ".read": false,
+      ".write": false,
       "$uid": {
-        ".read": true,
+        ".read": "auth != null && (auth.uid == $uid || auth.token.role == 'admin')",
         ".write": "auth != null && auth.uid == $uid"
       }
     },
     
+    // Inventory - Vendor and admin access only
+    "inventory": {
+      ".read": false,
+      ".write": false,
+      "$productId": {
+        ".read": "auth != null && (auth.token.role == 'admin' || auth.token.role == 'vendor')",
+        ".write": "auth != null && (auth.token.role == 'admin' || (auth.token.role == 'vendor' && data.vendorId == auth.uid))"
+      }
+    },
+    
+    // Statistics - Admin only
     "statistics": {
-      ".read": true,
+      ".read": "auth != null && auth.token.role == 'admin'",
       ".write": "auth != null && auth.token.role == 'admin'"
     },
     
+    // Vendor applications - Strict access control
+    "vendorApplications": {
+      ".read": false,
+      ".write": false,
+      "$applicationId": {
+        ".read": "auth != null && (data.userId == auth.uid || auth.token.role == 'admin')",
+        ".write": "auth != null && (data.userId == auth.uid || auth.token.role == 'admin')"
+      }
+    },
+    
+    // Notifications - User can only access their own
+    "notifications": {
+      ".read": false,
+      ".write": false,
+      "$userId": {
+        ".read": "auth != null && (auth.uid == $userId || auth.token.role == 'admin')",
+        ".write": "auth != null && (auth.uid == $userId || auth.token.role == 'admin')"
+      }
+    },
+    
+    // Test data - Admin only
     "test": {
-      ".read": true,
-      ".write": true
+      ".read": "auth != null && auth.token.role == 'admin'",
+      ".write": "auth != null && auth.token.role == 'admin'"
+    },
+    
+    // Deny all other paths
+    "$other": {
+      ".read": false,
+      ".write": false
     }
   }
 }

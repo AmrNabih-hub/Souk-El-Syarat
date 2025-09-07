@@ -1,0 +1,23 @@
+{
+  "name": "souk-el-syarat-api",
+  "version": "3.0.0-simple",
+  "description": "Simple API server for Souk El-Sayarat",
+  "main": "api-server.js",
+  "scripts": {
+    "start": "node api-server.js"
+  },
+  "engines": {
+    "node": ">=18.0.0"
+  },
+  "dependencies": {
+    "express": "^4.18.2",
+    "cors": "^2.8.5"
+  },
+  "keywords": [
+    "api",
+    "backend",
+    "souk-el-syarat"
+  ],
+  "author": "Souk El-Sayarat Team",
+  "license": "MIT"
+}
