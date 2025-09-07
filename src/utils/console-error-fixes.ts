@@ -3,7 +3,7 @@
  * Comprehensive fixes for all runtime console errors
  */
 
-import { auth, analytics, messaging, performance } from '../config/firebase.config';
+import { auth } from '../config/firebase.config';
 
 export class ConsoleErrorFixer {
   static initialize() {
@@ -26,7 +26,7 @@ export class ConsoleErrorFixer {
       // Check if analytics is blocked by ad blockers
       const isAnalyticsBlocked = () => {
         try {
-          return !window.gtag || !window.dataLayer;
+          return !(window as any).gtag || !(window as any).dataLayer;
         } catch {
           return true;
         }
@@ -36,25 +36,11 @@ export class ConsoleErrorFixer {
         console.log('📊 Analytics blocked, disabling Firebase Analytics');
         
         // Create dummy gtag function to prevent errors
-        window.gtag = function() {};
-        window.dataLayer = window.dataLayer || [];
+        (window as any).gtag = function() {};
+        (window as any).dataLayer = (window as any).dataLayer || [];
         
         // Disable analytics calls
-        if (analytics) {
-          try {
-            // Wrap analytics calls to prevent errors
-            const originalLogEvent = analytics.logEvent;
-            analytics.logEvent = (...args: any[]) => {
-              try {
-                originalLogEvent.apply(analytics, args);
-              } catch (e) {
-                // Silently fail
-              }
-            };
-          } catch (e) {
-            // Analytics not available
-          }
-        }
+        // Analytics calls disabled to prevent errors
       }
     }
   }

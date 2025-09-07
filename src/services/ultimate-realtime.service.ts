@@ -164,7 +164,7 @@ export class UltimateRealtimeService {
    */
   private initializeWebSocket(): void {
     try {
-      const wsUrl = process.env.REACT_APP_WEBSOCKET_URL || 'ws://localhost:8080'
+      const wsUrl = import.meta.env.VITE_WEBSOCKET_URL || 'wss://souk-el-sayarat-backend--souk-el-syarat.europe-west4.hosted.app'
       this.websocket = new WebSocket(wsUrl)
 
       this.websocket.onopen = () => {

@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import {
   UserIcon,
@@ -12,10 +12,7 @@ import {
   ClockIcon,
   CheckCircleIcon,
   XCircleIcon,
-  EyeIcon,
-  StarIcon,
   TruckIcon,
-  ChatBubbleLeftRightIcon,
 } from '@heroicons/react/24/outline';
 
 import { useAuthStore } from '@/stores/authStore';
@@ -24,14 +21,14 @@ import { useRealtimeStore } from '@/stores/realtimeStore';
 import RealTimeOrderService from '@/services/realtime-order.service';
 import ProfessionalPushNotificationService from '@/services/professional-push-notification.service';
 
-import { Order, Product, Notification, Address, PaymentMethod } from '@/types';
+import { Order, Product, Address, PaymentMethod } from '@/types';
 import { OrderService } from '@/services/order.service';
 import { ProductService } from '@/services/product.service';
 import { NotificationService } from '@/services/notification.service';
 import { AuthService } from '@/services/auth.service';
 
-import { EgyptianLoader, LoadingSpinner } from '@/components/ui/CustomIcons';
-import { OptimizedImage } from '@/components/ui/OptimizedImage';
+import { EgyptianLoader } from '@/components/ui/LoadingSpinner';
+import OptimizedImage from '@/components/ui/OptimizedImage';
 import toast from 'react-hot-toast';
 
 interface CustomerStats {
@@ -46,7 +43,7 @@ interface CustomerStats {
 interface DashboardTab {
   id: string;
   name: string;
-  icon: React.ComponentType<any>;
+  icon: React.ComponentType<{ className?: string }>;
   count?: number;
 }
 
@@ -79,9 +76,9 @@ const CustomerDashboard: React.FC = () => {
       loadDashboardData();
       initializeRealTimeServices();
     }
-  }, [user?.id]);
+  }, [user?.id, loadDashboardData, initializeRealTimeServices]);
 
-  const initializeRealTimeServices = async () => {
+  const initializeRealTimeServices = useCallback(async () => {
     try {
       // Initialize real-time order tracking
       const orderService = RealTimeOrderService.getInstance();
@@ -96,12 +93,12 @@ const CustomerDashboard: React.FC = () => {
         orders.forEach(order => {
           orderService.subscribeToOrderTracking(
             order.id,
-            (orderData) => {
+            (orderData: { status: string }) => {
               // Update order in state
-              setOrders(prev => prev.map(o => 
-                o.id === order.id ? { ...o, status: orderData.status } : o
+              setOrders(prev => prev.map(o =>
+                o.id === order.id ? { ...o, status: orderData.status as Order['status'] } : o
               ));
-              
+
               // Show notification
               pushService.sendLocalNotification({
                 title: 'Order Update',
@@ -114,11 +111,13 @@ const CustomerDashboard: React.FC = () => {
         });
       }
     } catch (error) {
-      console.error('Error initializing real-time services:', error);
+      if (process.env.NODE_ENV === 'development') {
+        // console.error('Error initializing real-time services:', error);
+      }
     }
-  };
+  }, [orders]);
 
-  const loadDashboardData = async () => {
+  const loadDashboardData = useCallback(async () => {
     try {
       setIsLoading(true);
 
@@ -149,12 +148,14 @@ const CustomerDashboard: React.FC = () => {
       setAddresses(userAddresses);
       setPaymentMethods(userPaymentMethods);
     } catch (error) {
-      console.error('Error loading dashboard data:', error);
+      if (process.env.NODE_ENV === 'development') {
+        // console.error('Error loading dashboard data:', error);
+      }
       toast.error(language === 'ar' ? 'خطأ في تحميل البيانات' : 'Error loading dashboard data');
     } finally {
       setIsLoading(false);
     }
-  };
+  }, [user, language]);
 
   const handleOrderClick = (order: Order) => {
     setSelectedOrder(order);
@@ -167,7 +168,9 @@ const CustomerDashboard: React.FC = () => {
       setWishlist(prev => prev.filter(p => p.id !== productId));
       toast.success(language === 'ar' ? 'تم الحذف من المفضلة' : 'Removed from wishlist');
     } catch (error) {
-      console.error('Error removing from wishlist:', error);
+      if (process.env.NODE_ENV === 'development') {
+        // console.error('Error removing from wishlist:', error);
+      }
       toast.error(language === 'ar' ? 'خطأ في الحذف' : 'Error removing item');
     }
   };
@@ -177,7 +180,9 @@ const CustomerDashboard: React.FC = () => {
       await NotificationService.markAsRead(notificationId);
       toast.success(language === 'ar' ? 'تم تمييز الإشعار كمقروء' : 'Notification marked as read');
     } catch (error) {
-      console.error('Error marking notification as read:', error);
+      if (process.env.NODE_ENV === 'development') {
+        // console.error('Error marking notification as read:', error);
+      }
       toast.error(language === 'ar' ? 'خطأ في تحديث الإشعار' : 'Error updating notification');
     }
   };
@@ -321,7 +326,7 @@ const CustomerDashboard: React.FC = () => {
                 return (
                   <button
                     key={tab.id}
-                    onClick={() => setActiveTab(tab.id as any)}
+                    onClick={() => setActiveTab(tab.id as typeof activeTab)}
                     className={`${
                       activeTab === tab.id
                         ? 'border-primary-500 text-primary-600'

@@ -315,7 +315,7 @@ export type OrderStatus =
 
 export type PaymentStatus = 'pending' | 'paid' | 'failed' | 'refunded' | 'partially_refunded';
 
-export type PaymentMethod =
+export type PaymentMethodType =
   | 'cash_on_delivery'
   | 'credit_card'
   | 'paypal'

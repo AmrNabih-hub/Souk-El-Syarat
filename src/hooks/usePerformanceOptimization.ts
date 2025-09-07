@@ -145,11 +145,12 @@ export const useServiceWorker = () => {
         try {
           const registration = await navigator.serviceWorker.register('/sw.js');
           // if (process.env.NODE_ENV === 'development') {
-      // console.log('Service Worker registered:', registration);
-    }
+          // console.log('Service Worker registered:', registration);
+          // }
         } catch (error) {
           if (process.env.NODE_ENV === 'development') {
-      // console.error('Service Worker registration failed:', error);
+            // console.error('Service Worker registration failed:', error);
+          }
         }
       });
     }

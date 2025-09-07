@@ -163,6 +163,7 @@ const Navbar: React.FC = () => {
               className='p-2 text-neutral-600 hover:text-primary-600 transition-colors'
               whileHover={{ scale: 1.1 }}
               whileTap={{ scale: 0.9 }}
+              title={theme === 'light' ? 'Switch to dark mode' : 'Switch to light mode'}
             >
               {theme === 'light' ? (
                 <MoonIcon className='w-5 h-5' />
@@ -177,6 +178,7 @@ const Navbar: React.FC = () => {
               className='p-2 text-neutral-600 hover:text-primary-600 transition-colors'
               whileHover={{ scale: 1.1 }}
               whileTap={{ scale: 0.9 }}
+              title={language === 'ar' ? 'Switch to English' : 'Switch to Arabic'}
             >
               <GlobeAltIcon className='w-5 h-5' />
             </motion.button>
@@ -327,6 +329,7 @@ const Navbar: React.FC = () => {
               className='lg:hidden p-2 text-neutral-600 hover:text-primary-600 transition-colors'
               whileHover={{ scale: 1.1 }}
               whileTap={{ scale: 0.9 }}
+              title={isMobileMenuOpen ? 'Close menu' : 'Open menu'}
             >
               {isMobileMenuOpen ? (
                 <XMarkIcon className='w-5 h-5' />

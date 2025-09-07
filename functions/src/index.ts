@@ -3,7 +3,6 @@
  * Complete backend functions including email services
  */
 
-import { setGlobalOptions } from "firebase-functions";
 import * as logger from "firebase-functions/logger";
 
 // Import email functions
@@ -28,6 +27,6 @@ export {
 // functions should each use functions.runWith({ maxInstances: 10 }) instead.
 // In the v1 API, each function can only serve one request per container, so
 // this will be the maximum concurrent request count.
-setGlobalOptions({ maxInstances: 10 });
+// setGlobalOptions({ maxInstances: 10 }); // Removed - not available in current version
 
 logger.info("Firebase Functions initialized successfully");

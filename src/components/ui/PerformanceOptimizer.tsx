@@ -19,41 +19,18 @@ const PerformanceOptimizer: React.FC<PerformanceOptimizerProps> = ({
   const [isOptimized, setIsOptimized] = useState(false);
   const [performanceMetrics, setPerformanceMetrics] = useState<any>(null);
 
-  // Preload critical resources
+  // Preload critical resources - DISABLED to prevent conflicts with HTML preloads
   const preloadCriticalResources = useCallback(() => {
     if (!enablePreloading) return;
 
     const endPreload = measurePerformance.measureBundleLoad('critical-resources');
     
-    // Preload critical fonts
-    const fontPreloads = [
-      'https://fonts.googleapis.com/css2?family=Cairo:wght@300;400;600;700&display=swap',
-      'https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap',
-      'https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap',
-    ];
-
-    fontPreloads.forEach(fontUrl => {
-      const link = document.createElement('link');
-      link.rel = 'preload';
-      link.as = 'style';
-      link.href = fontUrl;
-      document.head.appendChild(link);
-    });
-
-    // Preload critical images
-    const criticalImages = [
-      '/images/hero-bg.jpg',
-      '/images/logo.png',
-    ];
-
-    criticalImages.forEach(imageSrc => {
-      const link = document.createElement('link');
-      link.rel = 'preload';
-      link.as = 'image';
-      link.href = imageSrc;
-      document.head.appendChild(link);
-    });
-
+    // FIXED: Disabled dynamic preloading to prevent conflicts with HTML preloads
+    // All critical resources (fonts and images) are now preloaded in index.html
+    // This prevents duplicate preload warnings and ensures proper loading order
+    
+    console.log('PerformanceOptimizer: Preloading disabled - handled by HTML preloads');
+    
     endPreload();
   }, [enablePreloading]);
 

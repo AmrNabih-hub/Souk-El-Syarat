@@ -390,7 +390,7 @@ export class UltimateCDNIntegrationService {
   }
 
   // Image optimization
-  private async optimizeImage(asset: CDNAsset): Promise<CDNOptimization[] {
+  private async optimizeImage(asset: CDNAsset): Promise<CDNOptimization[]> {
     const optimizations: CDNOptimization[] = [];
 
     // Compression optimization

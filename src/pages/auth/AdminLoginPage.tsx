@@ -59,7 +59,7 @@ const AdminLoginPage: React.FC = () => {
       setError('root', { message: '' });
 
       // Attempt admin authentication
-      const user = await EnhancedSecurityAuthService.secureSignIn(email, password);
+      const user = await EnhancedSecurityAuthService.secureSignIn({
         email: data.email,
         password: data.password,
         adminCode: data.adminCode,
@@ -79,8 +79,9 @@ const AdminLoginPage: React.FC = () => {
         });
       }
     } catch (error) {
-      if (process.env.NODE_ENV === 'development')
-        if (process.env.NODE_ENV === 'development') // console.error('Admin login error:', error);
+      if (process.env.NODE_ENV === 'development') {
+        // console.error('Admin login error:', error);
+      }
 
       if (error.message.includes('admin')) {
         setError('adminCode', { message: error.message });

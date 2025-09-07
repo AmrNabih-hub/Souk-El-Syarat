@@ -1,5 +1,8 @@
 {
   "projects": {
-    "default": "souk-el-syarat"
-  }
+    "default": "souk-el-syarat",
+    "production": "souk-el-syarat"
+  },
+  "targets": {},
+  "etags": {}
 }

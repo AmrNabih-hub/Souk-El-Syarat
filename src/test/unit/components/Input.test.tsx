@@ -37,8 +37,9 @@ describe('Input Component', () => {
   })
 
   it('is disabled when disabled prop is true', () => {
-    render(<Input disabled />)
-    expect(screen.getByRole('textbox')).toBeDisabled()
+    const { container } = render(<Input disabled />)
+    const input = container.querySelector('input')
+    expect(input).toBeDisabled()
   })
 
   it('shows label when provided', () => {

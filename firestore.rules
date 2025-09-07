@@ -25,6 +25,7 @@ service cloud.firestore {
         get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role == 'customer';
     }
     
+    // Helper functions for order and conversation access
     function isOrderParticipant(orderData) {
       return isAuthenticated() && 
         (orderData.customerId == request.auth.uid || 
@@ -76,10 +77,7 @@ service cloud.firestore {
     
     // Orders - Strict access control
     match /orders/{orderId} {
-      allow read: if isAuthenticated() && 
-        (resource.data.customerId == request.auth.uid || 
-         resource.data.vendorId == request.auth.uid || 
-         isAdmin());
+      allow read: if isOrderParticipant(resource.data);
       allow create: if isAuthenticated() && isCustomer();
       allow update: if isAuthenticated() && 
         (resource.data.vendorId == request.auth.uid || isAdmin());
@@ -107,11 +105,9 @@ service cloud.firestore {
     
     // Conversations - Strict access control
     match /conversations/{conversationId} {
-      allow read: if isAuthenticated() && 
-        (resource.data.participants[request.auth.uid] != null || isAdmin());
+      allow read: if isConversationParticipant(resource.data);
       allow create: if isAuthenticated();
-      allow update: if isAuthenticated() && 
-        (resource.data.participants[request.auth.uid] != null || isAdmin());
+      allow update: if isConversationParticipant(resource.data);
       allow delete: if isAdmin();
       
       // Conversation messages

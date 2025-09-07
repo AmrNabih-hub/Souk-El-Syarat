@@ -245,19 +245,7 @@ export class OrderService {
     }
   }
 
-  // Update order status
-  static async updateOrderStatus(orderId: string, status: OrderStatus): Promise<void> {
-    try {
-      const orderRef = doc(db, this.COLLECTION_NAME, orderId);
-      await updateDoc(orderRef, {
-        status,
-        updatedAt: serverTimestamp()
-      });
-    } catch (error) {
-      console.error('Error updating order status:', error);
-      throw error;
-    }
-  }
+  // Update order status (removed duplicate - using enhanced version below)
 
   private static COUNTERS_COLLECTION = 'counters';
 

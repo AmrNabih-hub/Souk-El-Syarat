@@ -1,3 +1,4 @@
+import React from 'react'
 import { describe, it, expect, vi, beforeEach } from 'vitest'
 import { render, screen, fireEvent, waitFor } from '@testing-library/react'
 import { EnhancedSecurityAuthService } from '@/services/enhanced-security-auth.service'
@@ -274,17 +275,17 @@ describe('Critical Features Regression Tests', () => {
     it('should maintain button functionality after updates', () => {
       const handleClick = vi.fn()
       const { getByRole } = render(
-        <button onClick={handleClick}>Click me</button>
+        React.createElement('button', { onClick: handleClick }, 'Click me')
       )
-      
+
       fireEvent.click(getByRole('button'))
       expect(handleClick).toHaveBeenCalledTimes(1)
     })
 
     it('should maintain input functionality after updates', () => {
       const handleChange = vi.fn()
-      const { getByRole } = render(
-        <input onChange={handleChange} placeholder="Enter text" />
+      const { getByPlaceholderText } = render(
+        React.createElement('input', { onChange: handleChange, placeholder: 'Enter text' })
       )
       
       const input = getByRole('textbox')
@@ -298,13 +299,13 @@ describe('Critical Features Regression Tests', () => {
     it('should maintain modal functionality after updates', () => {
       const handleClose = vi.fn()
       const { getByRole, getByTestId } = render(
-        <div>
-          <div data-testid="modal-backdrop" onClick={handleClose}>
-            <div onClick={(e) => e.stopPropagation()}>
-              <button onClick={handleClose}>Close</button>
-            </div>
-          </div>
-        </div>
+        React.createElement('div', {},
+          React.createElement('div', { 'data-testid': 'modal-backdrop', onClick: handleClose },
+            React.createElement('div', { onClick: (e) => e.stopPropagation() },
+              React.createElement('button', { onClick: handleClose }, 'Close')
+            )
+          )
+        )
       )
       
       // Test close button
@@ -361,11 +362,11 @@ describe('Critical Features Regression Tests', () => {
       
       // Simulate rendering large dataset
       const { container } = render(
-        <div>
-          {largeDataset.map(item => (
-            <div key={item.id}>{item.name}</div>
-          ))}
-        </div>
+        React.createElement('div', {},
+          largeDataset.map(item =>
+            React.createElement('div', { key: item.id }, item.name)
+          )
+        )
       )
       
       const endTime = performance.now()
