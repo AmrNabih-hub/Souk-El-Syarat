@@ -301,7 +301,7 @@ export const useRealtimeStore = create<RealtimeState>()(
       get().listeners.clear();
 
       // Clean up RealtimeService listeners
-      RealtimeService.cleanup();
+      RealtimeService.getInstance().cleanup();
 
       // Reset state
       set({

@@ -1,5 +1,5 @@
-# Firebase App Hosting Configuration - Automatic Rollouts
-# Optimized for GitHub automatic deployment
+# Firebase App Hosting Configuration - Fixed for 2024
+# Based on latest Firebase documentation
 
 # Build configuration
 buildConfig:

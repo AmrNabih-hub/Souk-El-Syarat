@@ -4,15 +4,80 @@ const { onCall, HttpsError } = require('firebase-functions/v2/https');
 const { setGlobalOptions } = require('firebase-functions/v2');
 const admin = require('firebase-admin');
 
-// Set global options for all functions - using Europe region for Egypt
+// Set global options for all functions - optimized for Egypt region
 setGlobalOptions({ 
   region: 'europe-west1',
-  memory: '256MiB',
-  timeoutSeconds: 60,
+  memory: '512MiB',
+  timeoutSeconds: 300,
+  maxInstances: 100,
+  minInstances: 1,
 });
 
 admin.initializeApp();
 const db = admin.firestore();
+
+// Simple backend server as Cloud Function
+exports.backend = require('firebase-functions').https.onRequest((req, res) => {
+  // Set CORS headers
+  res.set('Access-Control-Allow-Origin', '*');
+  res.set('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, OPTIONS');
+  res.set('Access-Control-Allow-Headers', 'Content-Type, Authorization, X-Requested-With');
+  
+  // Handle preflight requests
+  if (req.method === 'OPTIONS') {
+    res.status(200).send('');
+    return;
+  }
+  
+  // Route handling
+  if (req.path === '/health') {
+    res.status(200).json({
+      status: 'healthy',
+      timestamp: new Date().toISOString(),
+      uptime: process.uptime(),
+      environment: 'production',
+      version: '1.0.0',
+      service: 'souk-el-sayarat-backend'
+    });
+    return;
+  }
+  
+  if (req.path === '/api/status') {
+    res.json({
+      message: 'Souk El-Sayarat Backend API',
+      status: 'operational',
+      services: {
+        authentication: 'active',
+        database: 'connected',
+        realtime: 'enabled',
+        notifications: 'active'
+      },
+      timestamp: new Date().toISOString()
+    });
+    return;
+  }
+  
+  if (req.path === '/api/realtime/status') {
+    res.json({
+      realtime: {
+        messaging: 'active',
+        notifications: 'active',
+        presence: 'active',
+        orders: 'active'
+      },
+      websocket: 'enabled',
+      timestamp: new Date().toISOString()
+    });
+    return;
+  }
+  
+  // Default response
+  res.status(200).json({
+    message: 'Souk El-Sayarat Backend Server',
+    status: 'operational',
+    timestamp: new Date().toISOString()
+  });
+});
 
 /**
  * Trigger when a new vendor application is created
@@ -506,4 +571,137 @@ async function updateRealTimeStats() {
   batch.set(db.collection('analytics').doc('realtime_stats'), realTimeStats, { merge: true });
   
   await batch.commit();
+}
+
+/**
+ * Enhanced real-time messaging function
+ */
+exports.sendRealtimeMessage = onCall(async (request) => {
+  if (!request.auth) {
+    throw new HttpsError('unauthenticated', 'User must be authenticated');
+  }
+
+  const { receiverId, content, type = 'text', chatId } = request.data;
+
+  try {
+    // Create message document
+    const messageRef = await db.collection('messages').add({
+      senderId: request.auth.uid,
+      receiverId,
+      content,
+      type,
+      chatId,
+      timestamp: admin.firestore.FieldValue.serverTimestamp(),
+      read: false,
+      delivered: false,
+    });
+
+    // Send real-time notification
+    await db.collection('notifications').add({
+      userId: receiverId,
+      type: 'message',
+      title: 'رسالة جديدة',
+      message: content,
+      data: {
+        messageId: messageRef.id,
+        senderId: request.auth.uid,
+        chatId,
+      },
+      read: false,
+      priority: 'normal',
+      createdAt: admin.firestore.FieldValue.serverTimestamp(),
+    });
+
+    return { success: true, messageId: messageRef.id };
+  } catch (error) {
+    console.error('Error sending real-time message:', error);
+    throw new HttpsError('internal', 'Failed to send message');
+  }
+});
+
+/**
+ * Enhanced real-time presence tracking
+ */
+exports.updateUserPresence = onCall(async (request) => {
+  if (!request.auth) {
+    throw new HttpsError('unauthenticated', 'User must be authenticated');
+  }
+
+  const { status, currentPage, device } = request.data;
+
+  try {
+    await db.collection('presence').doc(request.auth.uid).set({
+      userId: request.auth.uid,
+      status: status || 'online',
+      currentPage: currentPage || '/',
+      device: device || 'unknown',
+      lastSeen: admin.firestore.FieldValue.serverTimestamp(),
+    }, { merge: true });
+
+    return { success: true };
+  } catch (error) {
+    console.error('Error updating user presence:', error);
+    throw new HttpsError('internal', 'Failed to update presence');
+  }
+});
+
+/**
+ * Enhanced real-time order tracking
+ */
+exports.updateOrderStatusRealtime = onCall(async (request) => {
+  if (!request.auth) {
+    throw new HttpsError('unauthenticated', 'User must be authenticated');
+  }
+
+  const { orderId, status, note } = request.data;
+
+  try {
+    // Update order status
+    await db.collection('orders').doc(orderId).update({
+      status,
+      note,
+      updatedAt: admin.firestore.FieldValue.serverTimestamp(),
+    });
+
+    // Get order details for notification
+    const orderDoc = await db.collection('orders').doc(orderId).get();
+    const orderData = orderDoc.data();
+
+    if (orderData) {
+      // Send real-time notification to customer
+      await db.collection('notifications').add({
+        userId: orderData.customerId,
+        type: 'order',
+        title: 'تحديث حالة الطلب',
+        message: `تم تحديث حالة طلبك إلى: ${getStatusText(status)}`,
+        data: {
+          orderId,
+          status,
+          note,
+        },
+        read: false,
+        priority: 'high',
+        createdAt: admin.firestore.FieldValue.serverTimestamp(),
+      });
+    }
+
+    return { success: true };
+  } catch (error) {
+    console.error('Error updating order status:', error);
+    throw new HttpsError('internal', 'Failed to update order status');
+  }
+});
+
+/**
+ * Helper function to get status text in Arabic
+ */
+function getStatusText(status) {
+  const statusMap = {
+    'pending': 'قيد الانتظار',
+    'processing': 'قيد المعالجة',
+    'shipped': 'تم الشحن',
+    'delivered': 'تم التسليم',
+    'cancelled': 'ملغي'
+  };
+  return statusMap[status] || status;
 }

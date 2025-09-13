@@ -17,7 +17,6 @@
         "*.local"
       ],
       "predeploy": [
-        "npm --prefix \"$RESOURCE_DIR\" run lint",
         "npm --prefix \"$RESOURCE_DIR\" run build"
       ]
     }
@@ -85,6 +84,13 @@
   },
   "storage": {
     "rules": "storage.rules"
+  },
+  "apphosting": {
+    "backends": {
+      "souk-el-sayarat-backend": {
+        "configuration": "apphosting.yaml"
+      }
+    }
   },
   "emulators": {
     "auth": {

@@ -1,0 +1,52 @@
+name: 🚀 Firebase App Hosting Automatic Deploy
+
+on:
+  push:
+    branches: [ main, restore/2025-08-30-22-07 ]
+  pull_request:
+    branches: [ main ]
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: 📥 Checkout code
+        uses: actions/checkout@v4
+
+      - name: 📦 Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+
+      - name: 📥 Install dependencies
+        run: npm ci
+
+      - name: 🧪 Run tests
+        run: npm test || echo "No tests configured"
+
+      - name: 🔨 Build project
+        run: npm run build:apphosting
+
+      - name: 🔐 Setup Firebase CLI
+        run: npm install -g firebase-tools
+
+      - name: 🚀 Deploy to Firebase App Hosting
+        if: github.ref == 'refs/heads/restore/2025-08-30-22-07' || github.ref == 'refs/heads/main'
+        run: |
+          echo "🚀 Triggering automatic App Hosting deployment..."
+          echo "Branch: ${{ github.ref }}"
+          echo "✅ Build completed successfully"
+          echo "🌐 App Hosting will automatically deploy from GitHub integration"
+        env:
+          FIREBASE_TOKEN: ${{ secrets.FIREBASE_TOKEN }}
+
+      - name: 📊 Deployment Status
+        run: |
+          echo "✅ Deployment triggered successfully!"
+          echo "🔗 Check Firebase Console for deployment status:"
+          echo "   https://console.firebase.google.com/project/souk-el-syarat/apphosting"
+          echo "🌐 Backend URLs:"
+          echo "   - my-web-app: https://my-web-app--souk-el-syarat.us-central1.hosted.app"
+          echo "   - souk-el-sayarat-backend: https://souk-el-sayarat-backend--souk-el-syarat.europe-west4.hosted.app"

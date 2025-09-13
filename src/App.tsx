@@ -15,6 +15,7 @@ import LoadingScreen from '@/components/ui/LoadingScreen';
 
 // Real-time Components
 import { ChatWidget } from '@/components/realtime/ChatWidget';
+import BackendStatus from '@/components/BackendStatus';
 
 // Lazy load pages for better performance
 const HomePage = React.lazy(() => import('@/pages/HomePage'));
@@ -173,6 +174,13 @@ function App() {
   return (
     <div className='min-h-screen bg-gradient-to-br from-primary-50 via-white to-secondary-50 transition-all duration-500'>
       <Navbar />
+
+      {/* Backend Status Monitor - Development Only */}
+      {process.env.NODE_ENV === 'development' && (
+        <div className='fixed top-20 right-4 z-50 max-w-sm'>
+          <BackendStatus />
+        </div>
+      )}
 
       <main className='flex-1'>
         <AnimatePresence mode='wait'>

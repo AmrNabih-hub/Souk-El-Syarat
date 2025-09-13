@@ -163,5 +163,24 @@ initializeFirebase().then(success => {
   }
 });
 
+// Backend API configuration - App Hosting
+export const BACKEND_CONFIG = {
+  baseUrl: 'https://souk-el-sayarat-backend--souk-el-syarat.europe-west4.hosted.app',
+  endpoints: {
+    health: '/health',
+    status: '/api/status',
+    realtime: '/api/realtime/status',
+    auth: '/api/auth/verify',
+    login: '/api/auth/login',
+    signup: '/api/auth/signup',
+    logout: '/api/auth/logout',
+    reset: '/api/auth/reset',
+    orders: '/api/orders/process',
+    vendors: '/api/vendors/status',
+    products: '/api/products/status',
+    analytics: '/api/analytics/dashboard'
+  }
+};
+
 // Export everything for immediate use
 export default app;

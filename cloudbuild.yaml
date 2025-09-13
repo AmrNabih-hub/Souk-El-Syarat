@@ -1,0 +1,53 @@
+steps:
+  # Install Node.js dependencies
+  - name: 'node:18'
+    entrypoint: 'npm'
+    args: ['ci', '--silent', '--no-audit', '--no-fund']
+    dir: '.'
+    id: 'install-dependencies'
+    timeout: '300s'
+
+  # Run build command
+  - name: 'node:18'
+    entrypoint: 'npm'
+    args: ['run', 'build']
+    dir: '.'
+    id: 'build-app'
+    timeout: '600s'
+    env:
+      - 'NODE_ENV=production'
+      - 'CI=true'
+
+  # Optional: Run tests before deployment
+  - name: 'node:18'
+    entrypoint: 'npm'
+    args: ['run', 'type-check:ci']
+    dir: '.'
+    id: 'type-check'
+    timeout: '300s'
+    env:
+      - 'NODE_ENV=production'
+      - 'CI=true'
+
+  # Deploy to Google App Engine
+  - name: 'gcr.io/cloud-builders/gcloud'
+    args: ['app', 'deploy', '--version=v${SHORT_SHA}', '--no-promote']
+    dir: '.'
+    id: 'deploy-app-engine'
+    timeout: '600s'
+    env:
+      - 'CLOUDSDK_CORE_DISABLE_PROMPTS=1'
+
+options:
+  machineType: 'E2_HIGHCPU_8'
+  diskSizeGb: '100'
+  logging: 'GCS_ONLY'
+  substitutionOption: 'ALLOW_LOOSE'
+
+timeout: '1200s'
+
+artifacts:
+  objects:
+    location: 'gs://souk-el-syarat.appspot.com/build-artifacts/'
+    paths:
+      - 'dist/**'
