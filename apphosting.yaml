@@ -5,7 +5,7 @@
 buildConfig:
   runtime: nodejs20
   buildCommand: "npm run build:apphosting:ci"
-  installCommand: "npm ci --include=dev --silent --no-audit --no-fund"
+  installCommand: "npm install --include=dev --silent --no-audit --no-fund"
   rootDir: "."
 
 # Runtime configuration
