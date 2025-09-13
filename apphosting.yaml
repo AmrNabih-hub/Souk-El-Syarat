@@ -4,8 +4,8 @@
 # Build configuration
 buildConfig:
   runtime: nodejs20
-  buildCommand: "npm run build:apphosting"
-  installCommand: "npm ci --silent --no-audit --no-fund"
+  buildCommand: "npm run build:apphosting:ci"
+  installCommand: "npm ci --include=dev --silent --no-audit --no-fund"
   rootDir: "."
 
 # Runtime configuration
@@ -21,6 +21,12 @@ runConfig:
 env:
   - variable: NODE_ENV
     value: production
+    availability:
+      - BUILD
+      - RUNTIME
+
+  - variable: CI
+    value: "true"
     availability:
       - BUILD
       - RUNTIME

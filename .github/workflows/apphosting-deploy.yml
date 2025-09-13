@@ -27,7 +27,7 @@ jobs:
         run: npm test || echo "No tests configured"
 
       - name: 🔨 Build project
-        run: npm run build:apphosting
+        run: npm run build:apphosting:ci
 
       - name: 🔐 Setup Firebase CLI
         run: npm install -g firebase-tools
