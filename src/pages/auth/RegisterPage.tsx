@@ -78,7 +78,9 @@ const RegisterPage: React.FC = () => {
   const onSubmit = async (data: RegisterFormData) => {
     try {
       clearError();
+      console.log('🚀 Attempting to sign up with email:', data.email);
       await signUp(data.email, data.password, data.displayName);
+      console.log('✅ Sign up successful');
       toast.success(language === 'ar' ? 'تم إنشاء الحساب بنجاح!' : 'Account created successfully!');
 
       if (data.role === 'vendor') {
@@ -87,18 +89,24 @@ const RegisterPage: React.FC = () => {
         navigate('/');
       }
     } catch (error) {
-      toast.error(error.message || 'Failed to create account');
+      console.error('❌ Sign up failed:', error);
+      const errorMessage = (error as Error).message || 'Failed to create account';
+      toast.error(errorMessage);
     }
   };
 
   const handleGoogleSignUp = async () => {
     try {
       clearError();
+      console.log('🚀 Attempting Google sign up');
       await signInWithGoogle();
+      console.log('✅ Google sign up successful');
       toast.success(language === 'ar' ? 'تم إنشاء الحساب بنجاح!' : 'Account created successfully!');
       navigate('/');
     } catch (error) {
-      toast.error(error.message || 'Failed to sign up with Google');
+      console.error('❌ Google sign up failed:', error);
+      const errorMessage = (error as Error).message || 'Failed to sign up with Google';
+      toast.error(errorMessage);
     }
   };
 

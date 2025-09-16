@@ -51,22 +51,30 @@ const LoginPage: React.FC = () => {
   const onSubmit = async (data: LoginFormData) => {
     try {
       clearError();
+      console.log('🚀 Attempting to sign in with email:', data.email);
       await signIn(data.email, data.password);
+      console.log('✅ Sign in successful');
       toast.success(language === 'ar' ? 'تم تسجيل الدخول بنجاح!' : 'Logged in successfully!');
       navigate('/');
     } catch (error) {
-      toast.error((error as Error).message || 'Failed to sign in');
+      console.error('❌ Sign in failed:', error);
+      const errorMessage = (error as Error).message || 'Failed to sign in';
+      toast.error(errorMessage);
     }
   };
 
   const handleGoogleSignIn = async () => {
     try {
       clearError();
+      console.log('🚀 Attempting Google sign in');
       await signInWithGoogle();
+      console.log('✅ Google sign in successful');
       toast.success(language === 'ar' ? 'تم تسجيل الدخول بنجاح!' : 'Logged in successfully!');
       navigate('/');
     } catch (error) {
-      toast.error((error as Error).message || 'Failed to sign in with Google');
+      console.error('❌ Google sign in failed:', error);
+      const errorMessage = (error as Error).message || 'Failed to sign in with Google';
+      toast.error(errorMessage);
     }
   };
 

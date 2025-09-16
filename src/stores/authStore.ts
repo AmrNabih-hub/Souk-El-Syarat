@@ -1,6 +1,6 @@
 import { create } from 'zustand';
 import { User, AuthState } from '@/types';
-import { AuthService } from '@/services/auth.service';
+import { UnifiedAuthService } from '@/services/unified-auth.service';
 
 interface AuthStore extends AuthState {
   // Actions
@@ -26,7 +26,7 @@ export const useAuthStore = create<AuthStore>((set, get) => ({
   signIn: async (email: string, password: string) => {
     try {
       set({ isLoading: true, error: null });
-      const user = await AuthService.signIn(email, password);
+      const user = await UnifiedAuthService.signIn(email, password);
       set({ user, isLoading: false });
     } catch (error) {
       set({ error: (error as Error).message, isLoading: false });
@@ -37,7 +37,7 @@ export const useAuthStore = create<AuthStore>((set, get) => ({
   signUp: async (email: string, password: string, displayName: string) => {
     try {
       set({ isLoading: true, error: null });
-      const user = await AuthService.signUp(email, password, displayName);
+      const user = await UnifiedAuthService.signUp(email, password, displayName);
       set({ user, isLoading: false });
     } catch (error) {
       set({ error: (error as Error).message, isLoading: false });
@@ -48,7 +48,7 @@ export const useAuthStore = create<AuthStore>((set, get) => ({
   signInWithGoogle: async () => {
     try {
       set({ isLoading: true, error: null });
-      const user = await AuthService.signInWithGoogle();
+      const user = await UnifiedAuthService.signInWithGoogle();
       set({ user, isLoading: false });
     } catch (error) {
       set({ error: (error as Error).message, isLoading: false });
@@ -59,7 +59,7 @@ export const useAuthStore = create<AuthStore>((set, get) => ({
   signOut: async () => {
     try {
       set({ isLoading: true, error: null });
-      await AuthService.signOut();
+      await UnifiedAuthService.signOut();
       set({ user: null, isLoading: false });
     } catch (error) {
       set({ error: (error as Error).message, isLoading: false });
@@ -70,7 +70,7 @@ export const useAuthStore = create<AuthStore>((set, get) => ({
   resetPassword: async (email: string) => {
     try {
       set({ isLoading: true, error: null });
-      await AuthService.resetPassword(email);
+      await UnifiedAuthService.resetPassword(email);
       set({ isLoading: false });
     } catch (error) {
       set({ error: (error as Error).message, isLoading: false });
@@ -84,7 +84,7 @@ export const useAuthStore = create<AuthStore>((set, get) => ({
       if (!user) throw new Error('No user signed in');
 
       set({ isLoading: true, error: null });
-      await AuthService.updateUserProfile(user.id, updates);
+      await UnifiedAuthService.updateUserProfile(user.id, updates);
       set({
         user: { ...user, ...updates },
         isLoading: false,
