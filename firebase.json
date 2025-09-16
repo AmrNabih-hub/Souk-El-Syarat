@@ -89,6 +89,9 @@
     "backends": {
       "souk-el-sayarat-backend": {
         "configuration": "apphosting.yaml"
+      },
+      "my-web-app": {
+        "configuration": "apphosting.yaml"
       }
     }
   },

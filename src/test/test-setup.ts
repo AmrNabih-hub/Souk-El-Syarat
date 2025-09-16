@@ -3,6 +3,7 @@
  * Handles all mocking and test configuration from the root level
  */
 
+import React from 'react';
 import { vi, beforeAll, afterEach } from 'vitest';
 import '@testing-library/jest-dom';
 import { Product, CarProduct } from '@/types';
@@ -15,26 +16,32 @@ vi.mock('framer-motion', () => {
   
   // Create a proper motion mock that ignores animation props
   const createMotionComponent = (Component: string) => {
-    return React.forwardRef(({ children, ...props }: any, ref: any) => {
-      // Filter out all motion-specific props
+    const MotionComponent = React.forwardRef(({ children, ...props }: any, ref: any) => {
+      // Filter out all motion-specific props by creating a new object without them
       const {
-        animate,
-        initial,
-        exit,
-        transition,
-        whileHover,
-        whileTap,
-        whileFocus,
-        whileInView,
-        drag,
-        dragConstraints,
-        onAnimationStart,
-        onAnimationComplete,
+        animate: _animate,
+        initial: _initial,
+        exit: _exit,
+        transition: _transition,
+        whileHover: _whileHover,
+        whileTap: _whileTap,
+        whileFocus: _whileFocus,
+        whileInView: _whileInView,
+        drag: _drag,
+        dragConstraints: _dragConstraints,
+        onAnimationStart: _onAnimationStart,
+        onAnimationComplete: _onAnimationComplete,
         ...restProps
       } = props;
-      
+
+      // eslint-disable-next-line @typescript-eslint/no-unused-vars
+      void _animate, _initial, _exit, _transition, _whileHover, _whileTap, _whileFocus, _whileInView, _drag, _dragConstraints, _onAnimationStart, _onAnimationComplete;
+
       return React.createElement(Component, { ...restProps, ref }, children);
     });
+
+    MotionComponent.displayName = `Motion${Component}`;
+    return MotionComponent;
   };
 
   return {
@@ -71,25 +78,31 @@ vi.mock('framer-motion', () => {
 vi.mock('react-router-dom', () => {
   const React = require('react');
   
+  const Link = React.forwardRef(({ children, to, className, ...props }: any, ref: any) => (
+    React.createElement('a', {
+      href: to,
+      className,
+      ...props,
+      ref,
+      'data-testid': 'router-link'
+    }, children)
+  ));
+  Link.displayName = 'RouterLink';
+
+  const NavLink = React.forwardRef(({ children, to, className, ...props }: any, ref: any) => (
+    React.createElement('a', {
+      href: to,
+      className,
+      ...props,
+      ref,
+      'data-testid': 'router-navlink'
+    }, children)
+  ));
+  NavLink.displayName = 'RouterNavLink';
+
   return {
-    Link: React.forwardRef(({ children, to, className, ...props }: any, ref: any) => (
-      React.createElement('a', { 
-        href: to, 
-        className, 
-        ...props, 
-        ref,
-        'data-testid': 'router-link' 
-      }, children)
-    )),
-    NavLink: React.forwardRef(({ children, to, className, ...props }: any, ref: any) => (
-      React.createElement('a', { 
-        href: to, 
-        className, 
-        ...props, 
-        ref,
-        'data-testid': 'router-navlink' 
-      }, children)
-    )),
+    Link,
+    NavLink,
     useNavigate: () => vi.fn(),
     useLocation: () => ({ pathname: '/', search: '', hash: '', state: null }),
     useParams: () => ({}),
@@ -105,7 +118,7 @@ vi.mock('react-router-dom', () => {
 // =============================================================================
 const createIconMock = (name: string) => {
   const React = require('react');
-  return React.forwardRef(({ className, ...props }: any, ref: any) => (
+  const IconComponent = React.forwardRef(({ className, ...props }: any, ref: any) => (
     React.createElement('svg', {
       'data-testid': `${name.toLowerCase()}-icon`,
       className,
@@ -116,6 +129,9 @@ const createIconMock = (name: string) => {
       stroke: 'currentColor',
     })
   ));
+
+  IconComponent.displayName = `${name}Icon`;
+  return IconComponent;
 };
 
 // Generate all possible hero icons automatically
@@ -177,69 +193,222 @@ vi.mock('@heroicons/react/24/solid', () => createHeroIconsModule());
 // =============================================================================
 // FIREBASE MOCKING - COMPREHENSIVE
 // =============================================================================
-vi.mock('@/config/firebase.config', () => ({
-  db: {
-    app: { name: 'test-app' },
-  },
-  auth: {
+vi.mock('@/config/firebase.config', async (importOriginal) => {
+  const actual = await importOriginal();
+  return {
+    ...(actual && typeof actual === 'object' ? actual : {}),
+    db: {
+      app: { name: 'test-app' },
+    },
+    auth: {
+      currentUser: null,
+    },
+    realtimeDb: {
+      app: { name: 'test-realtime-app' },
+      type: 'database',
+    },
+    storage: {
+      app: { name: 'test-storage-app' },
+    },
+  };
+});
+
+// Create a simple in-memory store for Firebase mocking
+const firestoreStore: Record<string, Record<string, any>> = {};
+
+vi.mock('firebase/firestore', () => {
+  const mockCollection = vi.fn((db: any, collectionName: string) => ({
+    id: collectionName,
+    path: collectionName,
+  }));
+
+  const mockDoc = vi.fn((collectionRef: any, docId: string) => ({
+    id: docId,
+    path: `${collectionRef.path}/${docId}`,
+  }));
+
+  const mockSetDoc = vi.fn(async (docRef: any, data: any) => {
+    const [collectionName, docId] = docRef.path.split('/');
+    if (!firestoreStore[collectionName]) {
+      firestoreStore[collectionName] = {};
+    }
+    firestoreStore[collectionName][docId] = { ...data, id: docId };
+    return Promise.resolve();
+  });
+
+  const mockGetDoc = vi.fn(async (docRef: any) => {
+    const [collectionName, docId] = docRef.path.split('/');
+    const collection = firestoreStore[collectionName] || {};
+    const data = collection[docId];
+
+    if (data) {
+      return Promise.resolve({
+        exists: () => true,
+        data: () => data,
+        id: docId,
+      });
+    }
+
+    return Promise.resolve({
+      exists: () => false,
+      data: () => ({}),
+      id: docId,
+    });
+  });
+
+  const mockGetDocs = vi.fn(async (query: any) => {
+    // For simplicity, return all documents in the collection
+    const collectionName = query.collection?.path || 'test-collection';
+    const collection = firestoreStore[collectionName] || {};
+    const docs = Object.values(collection).map(data => ({
+      data: () => data,
+      id: data.id,
+      exists: () => true,
+    }));
+
+    return Promise.resolve({
+      docs,
+      size: docs.length,
+      empty: docs.length === 0,
+      forEach: (callback: (value: any, index: number, array: any[]) => void) => docs.forEach(callback),
+    });
+  });
+
+  return {
+    getFirestore: vi.fn(() => ({
+      app: { name: 'test-firestore-app' },
+      type: 'firestore',
+    })),
+    connectFirestoreEmulator: vi.fn(),
+    collection: mockCollection,
+    doc: mockDoc,
+    setDoc: mockSetDoc,
+    addDoc: vi.fn(() => Promise.resolve({ id: 'test-doc-id' })),
+    getDocs: mockGetDocs,
+    getDoc: mockGetDoc,
+    updateDoc: vi.fn(async (docRef: any, data: any) => {
+      const [collectionName, docId] = docRef.path.split('/');
+      if (firestoreStore[collectionName] && firestoreStore[collectionName][docId]) {
+        firestoreStore[collectionName][docId] = {
+          ...firestoreStore[collectionName][docId],
+          ...data,
+        };
+      }
+      return Promise.resolve();
+    }),
+    deleteDoc: vi.fn(async (docRef: any) => {
+      const [collectionName, docId] = docRef.path.split('/');
+      if (firestoreStore[collectionName]) {
+        delete firestoreStore[collectionName][docId];
+      }
+      return Promise.resolve();
+    }),
+    query: vi.fn((collectionRef: any) => ({
+      collection: collectionRef,
+      id: 'test-query'
+    })),
+    where: vi.fn((field: string, op: string, value: any) => ({
+      field,
+      operator: op,
+      value,
+    })),
+    orderBy: vi.fn((field: string) => ({
+      field,
+      direction: 'asc',
+    })),
+    limit: vi.fn((count: number) => ({
+      count,
+    })),
+    onSnapshot: vi.fn((query: any, callback: Function) => {
+      // For simplicity, call callback immediately with empty results
+      callback({ docs: [], size: 0 });
+      return vi.fn(); // unsubscribe function
+    }),
+    writeBatch: vi.fn(() => ({
+      update: vi.fn(),
+      commit: vi.fn(() => Promise.resolve()),
+    })),
+    serverTimestamp: vi.fn(() => ({ isEqual: () => false })),
+    Timestamp: {
+      now: vi.fn(() => ({ toDate: () => new Date() })),
+      fromDate: vi.fn((date: Date) => ({ toDate: () => date })),
+    },
+  };
+});
+
+vi.mock('firebase/database', async (importOriginal) => {
+  const actual = await importOriginal();
+  return {
+    ...(actual && typeof actual === 'object' ? actual : {}),
+    getDatabase: vi.fn(() => ({
+      app: { name: 'test-database-app' },
+      type: 'database',
+    })),
+    ref: vi.fn(() => ({ id: 'test-ref' })),
+    set: vi.fn(() => Promise.resolve()),
+    push: vi.fn(() => Promise.resolve({ key: 'test-key' })),
+    onValue: vi.fn((ref, callback) => {
+      callback({ val: () => null });
+      return vi.fn(); // unsubscribe function
+    }),
+    update: vi.fn(() => Promise.resolve()),
+    remove: vi.fn(() => Promise.resolve()),
+    get: vi.fn(() => Promise.resolve({ val: () => ({}) })),
+    child: vi.fn(() => ({ key: 'test-child' })),
+    off: vi.fn(),
+    onDisconnect: vi.fn(() => ({
+      set: vi.fn(() => Promise.resolve()),
+      remove: vi.fn(() => Promise.resolve()),
+    })),
+  };
+});
+
+vi.mock('firebase/auth', () => ({
+  getAuth: vi.fn(() => ({
+    app: { name: 'test-auth-app' },
     currentUser: null,
-  },
-  realtimeDb: {
-    app: { name: 'test-realtime-app' },
-  },
-  storage: {
+  })),
+  connectAuthEmulator: vi.fn(),
+  createUserWithEmailAndPassword: vi.fn(() => Promise.resolve({
+    user: { uid: 'test-uid', email: 'test@example.com' }
+  })),
+  signInWithEmailAndPassword: vi.fn(() => Promise.resolve({
+    user: { uid: 'test-uid', email: 'test@example.com' }
+  })),
+  signOut: vi.fn(() => Promise.resolve()),
+  onAuthStateChanged: vi.fn((callback) => {
+    callback(null);
+    return vi.fn(); // unsubscribe function
+  }),
+}));
+
+vi.mock('firebase/storage', () => ({
+  getStorage: vi.fn(() => ({
     app: { name: 'test-storage-app' },
-  },
+    bucket: 'test-bucket',
+  })),
+  connectStorageEmulator: vi.fn(),
+  ref: vi.fn(() => ({ bucket: 'test-bucket', fullPath: 'test-path' })),
+  uploadBytes: vi.fn(() => Promise.resolve({
+    metadata: { name: 'test-file.jpg' }
+  })),
+  getDownloadURL: vi.fn(() => Promise.resolve('https://test-storage-url.com/test-file.jpg')),
+  deleteObject: vi.fn(() => Promise.resolve()),
 }));
 
-vi.mock('firebase/firestore', () => ({
-  collection: vi.fn(() => ({ id: 'test-collection' })),
-  doc: vi.fn(() => ({ id: 'test-doc' })),
-  addDoc: vi.fn(() => Promise.resolve({ id: 'test-doc-id' })),
-  getDocs: vi.fn(() => Promise.resolve({ 
-    docs: [],
-    size: 0,
-    empty: true 
+vi.mock('firebase/app', () => ({
+  initializeApp: vi.fn(() => ({
+    name: 'test-app',
+    options: { projectId: 'test-project' }
   })),
-  getDoc: vi.fn(() => Promise.resolve({ 
-    exists: () => false,
-    data: () => ({}) 
+  getApp: vi.fn(() => ({
+    name: 'test-app',
+    options: { projectId: 'test-project' }
   })),
-  updateDoc: vi.fn(() => Promise.resolve()),
-  deleteDoc: vi.fn(() => Promise.resolve()),
-  query: vi.fn(() => ({ id: 'test-query' })),
-  where: vi.fn(() => ({ id: 'test-where' })),
-  orderBy: vi.fn(() => ({ id: 'test-orderby' })),
-  limit: vi.fn(() => ({ id: 'test-limit' })),
-  onSnapshot: vi.fn((query, callback) => {
-    callback({ docs: [], size: 0 });
-    return vi.fn(); // unsubscribe function
-  }),
-  writeBatch: vi.fn(() => ({
-    update: vi.fn(),
-    commit: vi.fn(() => Promise.resolve()),
-  })),
-  serverTimestamp: vi.fn(() => ({ isEqual: () => false })),
-  Timestamp: {
-    now: vi.fn(() => ({ toDate: () => new Date() })),
-    fromDate: vi.fn((date) => ({ toDate: () => date })),
-  },
-}));
-
-vi.mock('firebase/database', () => ({
-  ref: vi.fn(() => ({ id: 'test-ref' })),
-  set: vi.fn(() => Promise.resolve()),
-  push: vi.fn(() => Promise.resolve({ key: 'test-key' })),
-  onValue: vi.fn((ref, callback) => {
-    callback({ val: () => null });
-    return vi.fn(); // unsubscribe function
-  }),
-  update: vi.fn(() => Promise.resolve()),
-  remove: vi.fn(() => Promise.resolve()),
 }));
 
 // =============================================================================
-// STORES MOCKING - COMPREHENSIVE  
+// STORES MOCKING - COMPREHENSIVE
 // =============================================================================
 vi.mock('@/stores/appStore', () => ({
   useAppStore: () => ({
@@ -292,6 +461,92 @@ vi.mock('@/services/sample-vendors.service', () => ({
   SampleVendorsService: {
     getTopVendors: vi.fn(() => Promise.resolve([])),
     getAllVendors: vi.fn(() => Promise.resolve([])),
+  },
+}));
+
+vi.mock('@/services/secure-social-auth.service', () => ({
+  secureAuthService: {
+    loginWithEmail: vi.fn(() => Promise.resolve({ user: { uid: 'test-uid', email: 'test@example.com' } })),
+    registerWithEmail: vi.fn(() => Promise.resolve({ user: { uid: 'test-uid', email: 'test@example.com' } })),
+    validateSession: vi.fn(() => true),
+    validateSecurityConfiguration: vi.fn(() => Promise.resolve(true)),
+  },
+}));
+
+vi.mock('@/services/debugging-team.service', () => ({
+  debuggingTeam: {
+    performStaticAnalysis: vi.fn(() => Promise.resolve({
+      totalFiles: 10,
+      issues: [],
+      securityIssues: []
+    })),
+    scanSecurityVulnerabilities: vi.fn(() => Promise.resolve([])),
+    checkPerformanceBottlenecks: vi.fn(() => Promise.resolve([])),
+    runCrossBrowserTests: vi.fn(() => Promise.resolve({ chrome: 'pass' })),
+    testResponsiveDesign: vi.fn(() => Promise.resolve({ mobile: 'pass' })),
+    testAuthenticationEndpoints: vi.fn(() => Promise.resolve({ login: 'pass' })),
+    testDatabaseConnections: vi.fn(() => Promise.resolve({ firestore: 'pass' })),
+    generateReport: vi.fn(() => Promise.resolve({ summary: 'All tests passed' })),
+    verifyAllServices: vi.fn(() => Promise.resolve(true)),
+  },
+  ProfessionalDebuggingTeam: {
+    getInstance: vi.fn(() => ({
+      performStaticAnalysis: vi.fn(() => Promise.resolve({
+        totalFiles: 10,
+        issues: [],
+        securityIssues: []
+      })),
+      scanSecurityVulnerabilities: vi.fn(() => Promise.resolve([])),
+      checkPerformanceBottlenecks: vi.fn(() => Promise.resolve([])),
+      runCrossBrowserTests: vi.fn(() => Promise.resolve({ chrome: 'pass' })),
+      testResponsiveDesign: vi.fn(() => Promise.resolve({ mobile: 'pass' })),
+      testAuthenticationEndpoints: vi.fn(() => Promise.resolve({ login: 'pass' })),
+      testDatabaseConnections: vi.fn(() => Promise.resolve({ firestore: 'pass' })),
+      generateReport: vi.fn(() => Promise.resolve({ summary: 'All tests passed' })),
+      verifyAllServices: vi.fn(() => Promise.resolve(true)),
+    }))
+  },
+}));
+
+vi.mock('@/services/monitoring.service', () => ({
+  monitoringDashboard: {
+    getDashboardData: vi.fn(() => Promise.resolve({
+      performance: { avgLoadTime: 1200 },
+      errors: [],
+      userEvents: []
+    })),
+    isMonitoringActive: vi.fn(() => Promise.resolve(true)),
+    trackUserEvent: vi.fn(() => Promise.resolve()),
+    logErrorEvent: vi.fn(() => Promise.resolve()),
+    recordBusinessMetric: vi.fn(() => Promise.resolve()),
+  },
+}));
+
+vi.mock('@/services/comprehensive-monitoring.service', () => ({
+  monitoringService: {
+    getDashboardData: vi.fn((_period) => Promise.resolve({
+      performance: {
+        responseTime: 150 + Math.random() * 100,
+        throughput: 1000 + Math.random() * 500,
+        errorRate: Math.random() * 0.05
+      },
+      errors: {
+        total: Math.floor(Math.random() * 10),
+        critical: Math.floor(Math.random() * 3),
+        resolved: Math.floor(Math.random() * 8)
+      },
+      userEvents: {
+        pageViews: 5000 + Math.random() * 2000,
+        userSessions: 800 + Math.random() * 400,
+        conversions: 50 + Math.random() * 30
+      },
+      timestamp: new Date()
+    })),
+    isMonitoringActive: vi.fn(() => Promise.resolve(true)),
+    trackUserEvent: vi.fn(() => Promise.resolve()),
+    logErrorEvent: vi.fn(() => Promise.resolve()),
+    recordBusinessMetric: vi.fn(() => Promise.resolve()),
+    recordPerformanceMetrics: vi.fn(() => Promise.resolve()),
   },
 }));
 
@@ -383,10 +638,29 @@ beforeAll(() => {
 
   // Mock IntersectionObserver
   global.IntersectionObserver = class IntersectionObserver {
-    constructor() {}
-    observe() { return null; }
-    disconnect() { return null; }
-    unobserve() { return null; }
+    root: Element | null = null;
+    rootMargin: string = '';
+    thresholds: ReadonlyArray<number> = [];
+
+    constructor(_callback: (entries: IntersectionObserverEntry[], observer: IntersectionObserver) => void, _options?: { root?: Element | null; rootMargin?: string; threshold?: number | number[] }) {
+      // Mock implementation - do nothing
+    }
+
+    observe(_target: Element) {
+      // Mock implementation
+    }
+
+    disconnect() {
+      // Mock implementation
+    }
+
+    unobserve(_target: Element) {
+      // Mock implementation
+    }
+
+    takeRecords(): IntersectionObserverEntry[] {
+      return [];
+    }
   };
 
   // Mock console methods to reduce noise in tests
@@ -425,7 +699,7 @@ export const createMockProduct = (overrides: Partial<Product> = {}): Product => 
       {
         id: 'image-1',
         url: 'https://example.com/test-image.jpg',
-        alt: 'Test Product Image',
+        alt: 'Test Product',
         isPrimary: true,
         order: 1,
       },

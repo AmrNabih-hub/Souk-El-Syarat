@@ -326,6 +326,8 @@ const EnhancedAdminDashboard: React.FC = () => {
                   value={reviewStatus}
                   onChange={e => setReviewStatus(e.target.value as 'approved' | 'rejected')}
                   className='w-full border border-gray-300 rounded-md px-3 py-2'
+                  title={language === 'ar' ? 'حالة المراجعة' : 'Review Status'}
+                  aria-label={language === 'ar' ? 'حالة المراجعة' : 'Review Status'}
                 >
                   <option value='approved'>{language === 'ar' ? 'موافقة' : 'Approve'}</option>
                   <option value='rejected'>{language === 'ar' ? 'رفض' : 'Reject'}</option>
@@ -531,6 +533,8 @@ const ApplicationsTab: React.FC<any> = ({
           value={filterStatus}
           onChange={e => setFilterStatus(e.target.value)}
           className='border border-gray-300 rounded-md px-3 py-2'
+          title={language === 'ar' ? 'تصفية الطلبات' : 'Filter Applications'}
+          aria-label={language === 'ar' ? 'تصفية الطلبات' : 'Filter Applications'}
         >
           <option value='all'>{language === 'ar' ? 'جميع الحالات' : 'All Statuses'}</option>
           <option value='pending'>{language === 'ar' ? 'في الانتظار' : 'Pending'}</option>
@@ -629,6 +633,8 @@ const VendorsTab: React.FC<any> = ({
           value={filterStatus}
           onChange={e => setFilterStatus(e.target.value)}
           className='border border-gray-300 rounded-md px-3 py-2'
+          title={language === 'ar' ? 'تصفية التجار' : 'Filter Vendors'}
+          aria-label={language === 'ar' ? 'تصفية التجار' : 'Filter Vendors'}
         >
           <option value='all'>{language === 'ar' ? 'جميع الحالات' : 'All Statuses'}</option>
           <option value='active'>{language === 'ar' ? 'نشط' : 'Active'}</option>

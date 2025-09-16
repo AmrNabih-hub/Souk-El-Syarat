@@ -18,9 +18,10 @@ import { useAppStore } from '@/stores/appStore';
 import { useAuthStore } from '@/stores/authStore';
 import { BusinessType } from '@/types';
 import LoadingSpinner from '@/components/ui/LoadingSpinner';
+import CustomCheckbox from '@/components/ui/CustomCheckbox';
 import toast from 'react-hot-toast';
 
-import { VendorService, VendorApplicationData } from '@/services/vendor.service';
+import { VendorApplicationData } from '@/services/vendor.service';
 
 interface VendorApplicationFormData {
   businessName: string;
@@ -106,10 +107,11 @@ const VendorApplicationPage: React.FC = () => {
   const {
     register,
     handleSubmit,
-    formState: { errors },
+    watch,
     setValue,
+    formState: { errors },
   } = useForm<VendorApplicationFormData>({
-    resolver: yupResolver(applicationSchema) as any,
+    resolver: yupResolver(applicationSchema),
     defaultValues: {
       email: user?.email || '',
       contactPerson: user?.displayName || '',
@@ -195,27 +197,9 @@ const VendorApplicationPage: React.FC = () => {
         throw new Error('User not authenticated');
       }
 
-      const applicationData: VendorApplicationData = {
-        businessName: data.businessName,
-        businessType: data.businessType,
-        description: data.description,
-        contactPerson: data.contactPerson,
-        email: data.email,
-        phoneNumber: data.phoneNumber,
-        whatsappNumber: data.whatsappNumber,
-        address: data.address,
-        businessLicense: data.businessLicense,
-        taxId: data.taxId,
-        website: data.website,
-        socialMedia: data.socialMedia,
-        experience: data.experience,
-        specializations: data.specializations,
-        expectedMonthlyVolume: data.expectedMonthlyVolume,
-        documents: [], // File uploads would be handled here
-      };
-
+      // TODO: Implement actual vendor application submission
+      // const applicationData: VendorApplicationData = { ... };
       // const applicationId = await VendorService.submitApplication(user.id, applicationData);
-      // if (process.env.NODE_ENV === 'development') console.log('Application submitted with ID:', applicationId);
 
       setApplicationSubmitted(true);
       toast.success(
@@ -666,10 +650,12 @@ const VendorApplicationPage: React.FC = () => {
                           : 'border-neutral-200 hover:border-primary-300'
                       }`}
                     >
-                      <input
-                        type='checkbox'
+                      <CustomCheckbox
+                        id={`specialization-${spec.value}`}
                         checked={selectedSpecializations.includes(spec.value)}
                         onChange={() => handleSpecializationChange(spec.value)}
+                        size='sm'
+                        variant='primary'
                         className='sr-only'
                       />
                       <div
@@ -698,18 +684,18 @@ const VendorApplicationPage: React.FC = () => {
             {/* Terms and Conditions */}
             <div className='space-y-6'>
               <div className='bg-neutral-50 p-6 rounded-lg'>
-                <label className='flex items-start'>
-                  <input
-                    {...register('agreeToTerms')}
-                    type='checkbox'
-                    className={`mt-1 mr-3 ${errors.agreeToTerms ? 'border-red-500' : ''}`}
-                  />
-                  <span className='text-sm text-neutral-700'>
-                    {language === 'ar'
+                <CustomCheckbox
+                  id='agreeToTerms'
+                  checked={watch('agreeToTerms') || false}
+                  onChange={(checked) => setValue('agreeToTerms', checked)}
+                  size='sm'
+                  variant={errors.agreeToTerms ? 'error' : 'primary'}
+                  label={
+                    language === 'ar'
                       ? 'أوافق على الشروط والأحكام وسياسة الخصوصية الخاصة بمنصة سوق السيارات. أفهم أن طلبي سيتم مراجعته من قبل فريق الإدارة وقد يستغرق الأمر 3-5 أيام عمل للحصول على الموافقة.'
-                      : 'I agree to the terms and conditions and privacy policy of Souk El-Syarat platform. I understand that my application will be reviewed by the management team and it may take 3-5 business days to get approval.'}
-                  </span>
-                </label>
+                      : 'I agree to the terms and conditions and privacy policy of Souk El-Syarat platform. I understand that my application will be reviewed by the management team and it may take 3-5 business days to get approval.'
+                  }
+                />
                 {errors.agreeToTerms && (
                   <p className='text-red-500 text-sm mt-2'>{errors.agreeToTerms.message}</p>
                 )}

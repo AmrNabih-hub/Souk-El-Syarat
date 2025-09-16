@@ -6,6 +6,7 @@
 import React, { useState, useEffect } from 'react';
 import { backendService } from '@/services/backend.service';
 import { CheckCircleIcon, XCircleIcon, ExclamationTriangleIcon } from '@heroicons/react/24/outline';
+import { useAppStore } from '@/stores/appStore';
 
 interface BackendStatus {
   backend: boolean;
@@ -15,6 +16,7 @@ interface BackendStatus {
 }
 
 const BackendStatus: React.FC = () => {
+  const { language } = useAppStore();
   const [status, setStatus] = useState<BackendStatus>({
     backend: false,
     health: false,
@@ -68,58 +70,60 @@ const BackendStatus: React.FC = () => {
   };
 
   return (
-    <div className="bg-white rounded-lg shadow-md p-6 border border-gray-200">
-      <div className="flex items-center justify-between mb-4">
-        <h3 className="text-lg font-semibold text-gray-900">
-          Backend Services Status
+    <div className="bg-white/95 backdrop-blur-sm rounded-xl shadow-xl p-4 border border-gray-200/50 max-w-xs">
+      <div className="flex items-center justify-between mb-3">
+        <h3 className="text-sm font-semibold text-gray-900">
+          Backend Status
         </h3>
         <button
           onClick={checkBackendStatus}
           disabled={loading}
-          className="px-3 py-1 text-sm bg-blue-500 text-white rounded hover:bg-blue-600 disabled:opacity-50"
+          className="px-2 py-1 text-xs bg-primary-500 text-white rounded-lg hover:bg-primary-600 disabled:opacity-50 transition-colors"
+          title={language === 'ar' ? 'تحديث الحالة' : 'Refresh Status'}
+          aria-label={language === 'ar' ? 'تحديث الحالة' : 'Refresh Status'}
         >
-          {loading ? 'Checking...' : 'Refresh'}
+          {loading ? '...' : '↻'}
         </button>
       </div>
 
-      <div className="space-y-3">
-        <div className="flex items-center justify-between">
-          <div className="flex items-center space-x-2">
+      <div className="space-y-2">
+        <div className="flex items-center justify-between text-xs">
+          <div className="flex items-center space-x-1.5">
             {getStatusIcon(status.health)}
-            <span className="text-sm font-medium text-gray-700">Health Check</span>
+            <span className="text-gray-700">Health</span>
           </div>
-          <span className={`text-sm font-medium ${getStatusColor(status.health)}`}>
+          <span className={`font-medium ${getStatusColor(status.health)}`}>
             {getStatusText(status.health)}
           </span>
         </div>
 
-        <div className="flex items-center justify-between">
-          <div className="flex items-center space-x-2">
+        <div className="flex items-center justify-between text-xs">
+          <div className="flex items-center space-x-1.5">
             {getStatusIcon(status.api)}
-            <span className="text-sm font-medium text-gray-700">API Status</span>
+            <span className="text-gray-700">API</span>
           </div>
-          <span className={`text-sm font-medium ${getStatusColor(status.api)}`}>
+          <span className={`font-medium ${getStatusColor(status.api)}`}>
             {getStatusText(status.api)}
           </span>
         </div>
 
-        <div className="flex items-center justify-between">
-          <div className="flex items-center space-x-2">
+        <div className="flex items-center justify-between text-xs">
+          <div className="flex items-center space-x-1.5">
             {getStatusIcon(status.realtime)}
-            <span className="text-sm font-medium text-gray-700">Real-time Services</span>
+            <span className="text-gray-700">Real-time</span>
           </div>
-          <span className={`text-sm font-medium ${getStatusColor(status.realtime)}`}>
+          <span className={`font-medium ${getStatusColor(status.realtime)}`}>
             {getStatusText(status.realtime)}
           </span>
         </div>
 
-        <div className="border-t pt-3 mt-3">
-          <div className="flex items-center justify-between">
-            <div className="flex items-center space-x-2">
+        <div className="border-t border-gray-200 pt-2 mt-2">
+          <div className="flex items-center justify-between text-xs">
+            <div className="flex items-center space-x-1.5">
               {getStatusIcon(status.backend)}
-              <span className="text-sm font-bold text-gray-900">Overall Backend</span>
+              <span className="font-semibold text-gray-900">Overall</span>
             </div>
-            <span className={`text-sm font-bold ${getStatusColor(status.backend)}`}>
+            <span className={`font-semibold ${getStatusColor(status.backend)}`}>
               {getStatusText(status.backend)}
             </span>
           </div>
@@ -127,17 +131,14 @@ const BackendStatus: React.FC = () => {
       </div>
 
       {lastChecked && (
-        <div className="mt-4 text-xs text-gray-500 text-center">
-          Last checked: {lastChecked.toLocaleTimeString()}
+        <div className="mt-3 text-xs text-gray-500 text-center">
+          {lastChecked.toLocaleTimeString()}
         </div>
       )}
 
-      <div className="mt-4 p-3 bg-blue-50 rounded-lg">
-        <p className="text-xs text-blue-800">
-          <strong>Backend URL:</strong> https://backend-52vezf5qqa-ew.a.run.app
-        </p>
-        <p className="text-xs text-blue-800 mt-1">
-          <strong>Status:</strong> {status.backend ? 'All services operational' : 'Some services offline'}
+      <div className="mt-3 p-2 bg-gray-50 rounded-lg">
+        <p className="text-xs text-gray-600 text-center">
+          {status.backend ? 'All services operational' : 'Some services offline'}
         </p>
       </div>
     </div>

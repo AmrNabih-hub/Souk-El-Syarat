@@ -16,12 +16,29 @@ setGlobalOptions({
 admin.initializeApp();
 const db = admin.firestore();
 
-// Simple backend server as Cloud Function
+// Professional backend server as Cloud Function with comprehensive CORS
 exports.backend = require('firebase-functions').https.onRequest((req, res) => {
-  // Set CORS headers
-  res.set('Access-Control-Allow-Origin', '*');
-  res.set('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, OPTIONS');
-  res.set('Access-Control-Allow-Headers', 'Content-Type, Authorization, X-Requested-With');
+  // Professional CORS configuration
+  const allowedOrigins = [
+    'http://localhost:5173',
+    'http://localhost:5174', 
+    'http://localhost:5175',
+    'https://souk-el-sayarat.web.app',
+    'https://souk-el-sayarat.firebaseapp.com',
+    'https://souk-el-sayarat--souk-el-syarat.europe-west4.hosted.app'
+  ];
+  
+  const origin = req.headers.origin;
+  if (allowedOrigins.includes(origin)) {
+    res.set('Access-Control-Allow-Origin', origin);
+  } else {
+    res.set('Access-Control-Allow-Origin', '*');
+  }
+  
+  res.set('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, OPTIONS, PATCH');
+  res.set('Access-Control-Allow-Headers', 'Content-Type, Authorization, X-Requested-With, Accept, Origin, Cache-Control, Pragma');
+  res.set('Access-Control-Allow-Credentials', 'true');
+  res.set('Access-Control-Max-Age', '86400'); // 24 hours
   
   // Handle preflight requests
   if (req.method === 'OPTIONS') {
@@ -533,11 +550,11 @@ async function updateRealTimeStats() {
     const data = doc.data();
     return {
       orderId: doc.id,
-      customerName: data.customerName,
-      vendorName: data.vendorName,
-      amount: data.totalAmount,
-      status: data.status,
-      timestamp: data.createdAt,
+      customerName: data.customerName || 'Unknown Customer',
+      vendorName: data.vendorName || 'Unknown Vendor',
+      amount: data.totalAmount || 0,
+      status: data.status || 'unknown',
+      timestamp: data.createdAt || new Date(),
     };
   });
 
@@ -545,9 +562,9 @@ async function updateRealTimeStats() {
     const data = doc.data();
     return {
       userId: doc.id,
-      userName: data.displayName,
+      userName: data.displayName || 'Unknown User',
       userType: data.role || 'customer',
-      timestamp: data.createdAt,
+      timestamp: data.createdAt || new Date(),
     };
   });
 

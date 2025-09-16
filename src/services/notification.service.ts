@@ -20,7 +20,7 @@ import {
   onSnapshot,
   writeBatch,
   serverTimestamp,
-  Timestamp
+  // Timestamp - removed unused import
 } from 'firebase/firestore';
 
 export class NotificationService {

@@ -19,6 +19,7 @@ import {
 import { useAppStore } from '@/stores/appStore';
 import { useAuthStore } from '@/stores/authStore';
 import LoadingSpinner from '@/components/ui/LoadingSpinner';
+import CustomCheckbox from '@/components/ui/CustomCheckbox';
 import toast from 'react-hot-toast';
 
 interface RegisterFormData {
@@ -62,11 +63,13 @@ const RegisterPage: React.FC = () => {
     register,
     handleSubmit,
     watch,
+    setValue,
     formState: { errors, isSubmitting },
   } = useForm<RegisterFormData>({
     resolver: yupResolver(registerSchema),
     defaultValues: {
       role: 'customer',
+      agreeToTerms: false,
     },
   });
 
@@ -373,49 +376,50 @@ const RegisterPage: React.FC = () => {
 
             {/* Terms Agreement */}
             <div className='flex items-start'>
-              <input
-                {...register('agreeToTerms')}
+              <CustomCheckbox
                 id='agreeToTerms'
-                type='checkbox'
-                className='h-4 w-4 text-primary-600 focus:ring-primary-500 border-neutral-300 rounded mt-1'
+                checked={watch('agreeToTerms') || false}
+                onChange={(checked) => setValue('agreeToTerms', checked)}
+                size='sm'
+                variant='primary'
+                label={
+                  language === 'ar' ? (
+                    <>
+                      أوافق على{' '}
+                      <Link
+                        to='/terms'
+                        className='text-primary-600 hover:text-primary-500 font-medium'
+                      >
+                        الشروط والأحكام
+                      </Link>{' '}
+                      و{' '}
+                      <Link
+                        to='/privacy'
+                        className='text-primary-600 hover:text-primary-500 font-medium'
+                      >
+                        سياسة الخصوصية
+                      </Link>
+                    </>
+                  ) : (
+                    <>
+                      I agree to the{' '}
+                      <Link
+                        to='/terms'
+                        className='text-primary-600 hover:text-primary-500 font-medium'
+                      >
+                        Terms & Conditions
+                      </Link>{' '}
+                      and{' '}
+                      <Link
+                        to='/privacy'
+                        className='text-primary-600 hover:text-primary-500 font-medium'
+                      >
+                        Privacy Policy
+                      </Link>
+                    </>
+                  )
+                }
               />
-              <label htmlFor='agreeToTerms' className='ml-3 block text-sm text-neutral-700'>
-                {language === 'ar' ? (
-                  <>
-                    أوافق على{' '}
-                    <Link
-                      to='/terms'
-                      className='text-primary-600 hover:text-primary-500 font-medium'
-                    >
-                      الشروط والأحكام
-                    </Link>{' '}
-                    و{' '}
-                    <Link
-                      to='/privacy'
-                      className='text-primary-600 hover:text-primary-500 font-medium'
-                    >
-                      سياسة الخصوصية
-                    </Link>
-                  </>
-                ) : (
-                  <>
-                    I agree to the{' '}
-                    <Link
-                      to='/terms'
-                      className='text-primary-600 hover:text-primary-500 font-medium'
-                    >
-                      Terms & Conditions
-                    </Link>{' '}
-                    and{' '}
-                    <Link
-                      to='/privacy'
-                      className='text-primary-600 hover:text-primary-500 font-medium'
-                    >
-                      Privacy Policy
-                    </Link>
-                  </>
-                )}
-              </label>
             </div>
             {errors.agreeToTerms && (
               <motion.p

@@ -18,7 +18,7 @@ const queryClient = new QueryClient({
       staleTime: 5 * 60 * 1000, // 5 minutes
       retry: (failureCount, error: unknown) => {
         // Don't retry for auth errors
-        if (error?.status === 401 || error?.status === 403) {
+        if ((error as any)?.status === 401 || (error as any)?.status === 403) {
           return false;
         }
         return failureCount < 3;
@@ -57,12 +57,7 @@ try {
   root.render(
     <React.StrictMode>
       <QueryClientProvider client={queryClient}>
-        <BrowserRouter
-          future={{
-            v7_startTransition: true,
-            v7_relativeSplatPath: true
-          }}
-        >
+        <BrowserRouter>
           <App />
           <Toaster
             position='top-center'
@@ -101,8 +96,19 @@ try {
     </React.StrictMode>
   );
   
-  console.log('🎉 REACT APP RENDERED SUCCESSFULLY!');
-  console.log('🌐 Souk El-Syarat Marketplace is now LIVE!');
+console.log('🎉 REACT APP RENDERED SUCCESSFULLY!');
+console.log('🌐 Souk El-Syarat Marketplace is now LIVE!');
+
+// Register Firebase Messaging Service Worker
+if ('serviceWorker' in navigator) {
+  navigator.serviceWorker.register('/firebase-messaging-sw.js')
+    .then((registration) => {
+      console.log('✅ Firebase Messaging SW registered:', registration);
+    })
+    .catch((error) => {
+      console.warn('⚠️ Firebase Messaging SW registration failed:', error);
+    });
+}
   
   // Remove preloader after React renders
   const preloader = document.getElementById('preloader');

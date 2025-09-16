@@ -9,10 +9,8 @@
 import { 
   ref, 
   set, 
-  push, 
-  update, 
+  update,
   onValue,
-  serverTimestamp,
   DataSnapshot,
   Unsubscribe
 } from 'firebase/database';

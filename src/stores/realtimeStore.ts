@@ -8,6 +8,7 @@ import { subscribeWithSelector } from 'zustand/middleware';
 
 import { PushNotificationService } from '@/services/push-notification.service';
 import { RealtimeService } from '@/services/realtime.service';
+import { PaymentStatus, OrderItem } from '@/types';
 import { AuthService } from '@/services/auth.service';
 import { 
   realtimeInfrastructure, 
@@ -19,13 +20,13 @@ import {
   RealtimeAnalytics
 } from '@/services/realtime-infrastructure.service';
 
-import { UserPresence, ChatMessage, Order, Product, Notification } from '@/types';
+import { ChatMessage, Order, Product, Notification } from '@/types';
 import { Unsubscribe } from 'firebase/firestore';
 
 interface RealtimeState {
   // User presence
-  currentUserPresence: UserPresence | null;
-  onlineUsers: Record<string, UserPresence>;
+  currentUserPresence: RealtimePresence | null;
+  onlineUsers: Record<string, RealtimePresence>;
 
   // Chat system
   activeChats: Record<string, ChatMessage[]>;
@@ -159,6 +160,7 @@ export const useRealtimeStore = create<RealtimeState>()(
           const legacyUsers: Record<string, UserPresence> = {};
           users.forEach(user => {
             legacyUsers[user.userId] = {
+              id: user.userId,
               userId: user.userId,
               status: user.status === 'online' ? 'online' : user.status === 'offline' ? 'offline' : 'away',
               lastSeen: new Date(user.lastSeen),
@@ -211,10 +213,18 @@ export const useRealtimeStore = create<RealtimeState>()(
                 quantity: p.quantity,
                 price: p.price,
                 name: '',
-                image: ''
+                image: '',
+                productSnapshot: {} as Partial<Product>
               })),
               status: o.status,
               totalAmount: o.totalAmount,
+              paymentStatus: 'pending' as PaymentStatus,
+              shippingAddress: {
+                street: '',
+                city: '',
+                governorate: '',
+                country: 'Egypt'
+              },
               createdAt: new Date(o.timestamp),
               updatedAt: new Date(o.timestamp)
             } as Order));
@@ -244,13 +254,40 @@ export const useRealtimeStore = create<RealtimeState>()(
               const legacyProducts: Product[] = products.map(p => ({
                 id: p.id,
                 vendorId: p.vendorId,
+                title: p.name,
                 name: p.name,
                 description: p.description,
                 price: p.price,
                 stock: p.stock,
+                inStock: p.stock > 0,
                 category: p.category,
+                subcategory: '',
                 images: p.images,
                 isAvailable: p.isAvailable,
+                currency: 'EGP',
+                brand: '',
+                model: '',
+                year: 0,
+                condition: 'new',
+                mileage: 0,
+                fuelType: 'gasoline',
+                transmission: 'manual',
+                color: '',
+                features: [],
+                specifications: {},
+                warranty: '',
+                location: '',
+                contactInfo: {
+                  phone: '',
+                  email: ''
+                },
+                status: 'active',
+                rating: 0,
+                reviewCount: 0,
+                tags: [],
+                quantity: p.stock,
+                views: 0,
+                favorites: 0,
                 createdAt: new Date(p.timestamp),
                 updatedAt: new Date(p.lastUpdated)
               } as Product));
@@ -506,7 +543,7 @@ export const useRealtimeStore = create<RealtimeState>()(
 export const realtimeSelectors = {
   // Get online status of a specific user
   isUserOnline: (userId: string) => (state: RealtimeState) =>
-    state.onlineUsers[userId]?.isOnline || false,
+    state.onlineUsers[userId]?.status === 'online' || false,
 
   // Get unread message count for a specific chat
   getUnreadCount: (chatId: string) => (state: RealtimeState) => state.unreadMessages[chatId] || 0,

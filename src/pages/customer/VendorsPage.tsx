@@ -190,6 +190,8 @@ const VendorCard: React.FC<{ vendor: Vendor }> = ({ vendor }) => {
             target='_blank'
             rel='noopener noreferrer'
             className='btn btn-outline px-3'
+            title={language === 'ar' ? 'تواصل عبر واتساب' : 'Contact via WhatsApp'}
+            aria-label={language === 'ar' ? 'تواصل عبر واتساب' : 'Contact via WhatsApp'}
           >
             <PhoneIcon className='w-4 h-4' />
           </a>
@@ -347,6 +349,8 @@ const VendorsPage: React.FC = () => {
                 value={selectedType}
                 onChange={e => setSelectedType(e.target.value)}
                 className='border border-neutral-300 rounded-lg px-4 py-3 focus:ring-2 focus:ring-primary-500 focus:border-primary-500'
+                title={language === 'ar' ? 'نوع التاجر' : 'Vendor Type'}
+                aria-label={language === 'ar' ? 'نوع التاجر' : 'Vendor Type'}
               >
                 {businessTypes.map(type => (
                   <option key={type.value} value={type.value}>
@@ -365,6 +369,8 @@ const VendorsPage: React.FC = () => {
                 value={sortBy}
                 onChange={e => setSortBy(e.target.value as any)}
                 className='border border-neutral-300 rounded-lg px-4 py-3 focus:ring-2 focus:ring-primary-500 focus:border-primary-500'
+                title={language === 'ar' ? 'ترتيب حسب' : 'Sort By'}
+                aria-label={language === 'ar' ? 'ترتيب حسب' : 'Sort By'}
               >
                 {sortOptions.map(option => (
                   <option key={option.value} value={option.value}>

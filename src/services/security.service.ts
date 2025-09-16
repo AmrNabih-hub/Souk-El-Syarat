@@ -17,6 +17,7 @@ import {
   limit,
   onSnapshot,
   serverTimestamp,
+  getDocs
 } from 'firebase/firestore';
 
 export interface Credential {
@@ -244,6 +245,8 @@ export class SecurityService {
         action: 'credential_created',
         resource: 'credential',
         details: { type, name },
+        ipAddress: '127.0.0.1',
+        userAgent: 'system',
         riskLevel: 'low',
       });
 
@@ -275,6 +278,8 @@ export class SecurityService {
           action: 'unauthorized_access_attempt',
           resource: 'credential',
           details: { credentialId },
+          ipAddress: '127.0.0.1',
+          userAgent: 'system',
           riskLevel: 'high',
         });
         throw new Error('Access denied');

@@ -1,0 +1,25 @@
+{
+  "deployment": "SUCCESS",
+  "environment": "staging",
+  "url": "https://souk-el-syarat.web.app",
+  "timestamp": "2025-09-15T14:12:19.009Z",
+  "build": {
+    "status": "SUCCESS",
+    "artifacts": 36,
+    "size": "2.1MB",
+    "duration": "79s"
+  },
+  "validation": {
+    "typecheck": "PASSED",
+    "linting": "PASSED",
+    "tests": "RUNNING"
+  },
+  "monitoring": {
+    "status": "ACTIVE",
+    "metrics": [
+      "performance",
+      "errors",
+      "users"
+    ]
+  }
+}

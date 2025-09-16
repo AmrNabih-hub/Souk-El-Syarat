@@ -3,8 +3,8 @@
  * Comprehensive unit testing for ProductCard component
  */
 
-import React from 'react';
-import { screen, fireEvent } from '@testing-library/react';
+import { screen } from '@testing-library/react';
+import { fireEvent } from '@testing-library/dom';
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 
 import ProductCard from '../ProductCard';
@@ -69,8 +69,8 @@ describe('ProductCard', () => {
       />
     );
 
-    // Find and click add to cart button by aria-label
-    const addToCartButton = screen.getByLabelText('Add to cart');
+    // Find and click add to cart button by text
+    const addToCartButton = screen.getByRole('button', { name: /add to cart/i });
     fireEvent.click(addToCartButton);
 
     expect(mockOnAddToCart).toHaveBeenCalledWith(mockProduct.id, 1);
@@ -85,9 +85,9 @@ describe('ProductCard', () => {
       />
     );
 
-    // Find heart icon using data-testid
-    const favoriteButton = screen.getByTestId('hearticon-icon');
-    fireEvent.click(favoriteButton.parentElement!);
+    // Find favorite button using aria-label instead of incorrect data-testid
+    const favoriteButton = screen.getByLabelText(/add to favorites|remove from favorites/i);
+    fireEvent.click(favoriteButton);
 
     expect(mockOnToggleFavorite).toHaveBeenCalledWith(mockProduct.id, true);
   });

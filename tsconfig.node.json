@@ -9,7 +9,7 @@
     "typeRoots": ["./node_modules/@types"],
     "esModuleInterop": true,
     "forceConsistentCasingInFileNames": true,
-    "strict": false
+    "strict": true
   },
   "include": ["vite.config.ts"],
   "exclude": ["src/**/*"]

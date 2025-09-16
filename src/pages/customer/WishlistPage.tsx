@@ -298,6 +298,8 @@ const WishlistPage: React.FC = () => {
                         <button
                           onClick={() => handleRemoveFromWishlist(product.id)}
                           className='p-2 bg-white/90 backdrop-blur-sm rounded-full shadow-sm hover:bg-white transition-colors'
+                          title={language === 'ar' ? 'إزالة من المفضلة' : 'Remove from Wishlist'}
+                          aria-label={language === 'ar' ? 'إزالة من المفضلة' : 'Remove from Wishlist'}
                         >
                           <HeartSolid className='w-5 h-5 text-red-500' />
                         </button>

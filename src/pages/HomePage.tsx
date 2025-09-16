@@ -82,7 +82,6 @@ const HomePage: React.FC = () => {
             src='https://images.unsplash.com/photo-1544636331-e26879cd4d9b?w=1920&h=1080&fit=crop&crop=center'
             alt='Premium Exotic Car - Souk El-Syarat'
             className='w-full h-full object-cover object-center scale-105 animate-pulse-soft'
-            style={{ objectPosition: '65% center' }}
             loading='eager'
           />
           <div className='absolute inset-0 bg-gradient-to-t from-black/70 via-transparent to-black/40 z-5'></div>

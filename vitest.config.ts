@@ -43,6 +43,7 @@ export default defineConfig({
       'dist/',
       'build/',
       'coverage/',
+      'src/tests/e2e/**',
     ],
   },
   resolve: {

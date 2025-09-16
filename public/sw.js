@@ -41,17 +41,45 @@ self.addEventListener('activate', (event) => {
 
 // Fetch event - serve from cache, fallback to network
 self.addEventListener('fetch', (event) => {
+  // Skip non-GET requests and chrome-extension requests
+  if (event.request.method !== 'GET' || event.request.url.startsWith('chrome-extension://')) {
+    return;
+  }
+
   event.respondWith(
     caches.match(event.request)
       .then((response) => {
         // Return cached version or fetch from network
-        return response || fetch(event.request);
-      })
-      .catch(() => {
-        // If both cache and network fail, show offline page
-        if (event.request.destination === 'document') {
-          return caches.match('/offline.html');
+        if (response) {
+          return response;
         }
+        
+        return fetch(event.request)
+          .then((fetchResponse) => {
+            // Check if we received a valid response
+            if (!fetchResponse || fetchResponse.status !== 200 || fetchResponse.type !== 'basic') {
+              return fetchResponse;
+            }
+
+            // Clone the response for caching
+            const responseToCache = fetchResponse.clone();
+            
+            // Cache the response for future use
+            caches.open(CACHE_NAME)
+              .then((cache) => {
+                cache.put(event.request, responseToCache);
+              });
+
+            return fetchResponse;
+          })
+          .catch(() => {
+            // If both cache and network fail, show offline page for navigation requests
+            if (event.request.destination === 'document') {
+              return caches.match('/offline.html');
+            }
+            // For other requests, return a basic response
+            return new Response('Network error', { status: 408 });
+          });
       })
   );
 });

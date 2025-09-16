@@ -13,7 +13,6 @@ import {
   update, 
   remove,
   onValue,
-  serverTimestamp,
   DataSnapshot,
   Unsubscribe
 } from 'firebase/database';
@@ -383,7 +382,7 @@ export class RealtimeProductService {
         const searchLower = filter.searchQuery.toLowerCase();
         filteredProducts = filteredProducts.filter(p => 
           p.name.toLowerCase().includes(searchLower) ||
-          p.nameAr.includes(filter.searchQuery) ||
+          p.nameAr.toLowerCase().includes(searchLower) ||
           p.description.toLowerCase().includes(searchLower) ||
           p.brand.toLowerCase().includes(searchLower) ||
           p.tags.some(tag => tag.toLowerCase().includes(searchLower))

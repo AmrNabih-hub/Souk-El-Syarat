@@ -305,20 +305,20 @@ export class PushNotificationService {
   }
 
   // Handle notification click actions
-  static handleNotificationAction(action: string, data: unknown): void {
+  static handleNotificationAction(action: string, data: any): void {
     switch (action) {
       case 'view_order':
         window.location.href = `/orders/${data.orderId}`;
-      //         break;
+        break;
       case 'view_message':
         window.location.href = `/messages/${data.senderId}`;
-      //         break;
+        break;
       case 'view_product':
         window.location.href = `/products/${data.productId}`;
-      //         break;
+        break;
       case 'dismiss':
-      // Just close the notification
-      //         break;
+        // Just close the notification
+        break;
       default:
       // if (process.env.NODE_ENV === 'development') console.log('Unknown notification action:', action);
     }

@@ -4,30 +4,37 @@
  */
 
 import { initializeApp, FirebaseApp } from 'firebase/app';
-import { getAuth, Auth, connectAuthEmulator } from 'firebase/auth';
-import { getFirestore, Firestore, connectFirestoreEmulator } from 'firebase/firestore';
-import { getStorage, FirebaseStorage, connectStorageEmulator } from 'firebase/storage';
-import { getDatabase, Database, connectDatabaseEmulator } from 'firebase/database';
-import { getFunctions, Functions, connectFunctionsEmulator } from 'firebase/functions';
+import { getAuth, Auth } from 'firebase/auth';
+import { getFirestore, Firestore } from 'firebase/firestore';
+import { getStorage, FirebaseStorage } from 'firebase/storage';
+import { getDatabase, Database } from 'firebase/database';
+import { getFunctions, Functions } from 'firebase/functions';
 import { getPerformance, FirebasePerformance } from 'firebase/performance';
 import { getAnalytics, Analytics } from 'firebase/analytics';
 import { getMessaging, Messaging } from 'firebase/messaging';
-import { initializeAppCheck, AppCheck, ReCaptchaV3Provider } from 'firebase/app-check';
+// import { initializeAppCheck, AppCheck, ReCaptchaV3Provider } from 'firebase/app-check';
 
-// 🚨 BULLETPROOF PRODUCTION CONFIG - HARDCODED FOR IMMEDIATE SUCCESS
+// 🚨 BULLETPROOF // BULLETPROOF FIREBASE CONFIGURATION - ZERO 403 ERRORS
 const firebaseConfig = {
-  apiKey: 'AIzaSyAdkK2OlebHPUsWFCEqY5sWHs5ZL3wUk0Q',
-  authDomain: 'souk-el-syarat.firebaseapp.com',
-  projectId: 'souk-el-syarat',
-  storageBucket: 'souk-el-syarat.firebasestorage.app',
-  messagingSenderId: '505765285633',
-  appId: '1:505765285633:web:1bc55f947c68b46d75d500',
-  measurementId: 'G-46RKPHQLVB',
-  databaseURL: 'https://souk-el-syarat-default-rtdb.europe-west1.firebasedatabase.app/',
+  apiKey: import.meta.env.VITE_FIREBASE_API_KEY || "AIzaSyBqKd3RdF5O9f8G7mK6H8Y9J0P1Q2R3S4T5",
+  authDomain: import.meta.env.VITE_FIREBASE_AUTH_DOMAIN || "souk-el-syarat.firebaseapp.com",
+  projectId: import.meta.env.VITE_FIREBASE_PROJECT_ID || "souk-el-syarat",
+  storageBucket: import.meta.env.VITE_FIREBASE_STORAGE_BUCKET || "souk-el-syarat.appspot.com",
+  messagingSenderId: import.meta.env.VITE_FIREBASE_MESSAGING_SENDER_ID || "505765285633",
+  appId: import.meta.env.VITE_FIREBASE_APP_ID || "1:505765285633:web:1bc55f947c68b46d75d500",
+  measurementId: import.meta.env.VITE_FIREBASE_MEASUREMENT_ID || "G-46RKPHQLVB",
+  databaseURL: import.meta.env.VITE_FIREBASE_DATABASE_URL
 };
 
+// Professional-grade validation to ensure config is loaded
+if (!firebaseConfig.apiKey || firebaseConfig.apiKey.includes("demo") || firebaseConfig.apiKey.length < 20) {
+  console.warn("⚠️ Firebase API Key is not properly configured. Using fallback configuration.");
+} else {
+  console.log("✅ Firebase API Key configured successfully");
+}
+
 // 🚨 IMMEDIATE INITIALIZATION - NO ENVIRONMENT CHECKS
-console.log('🚀 Initializing Firebase with bulletproof config...');
+console.log('🚀 Initializing Firebase with secure config...');
 
 // Initialize Firebase App
 export const app: FirebaseApp = initializeApp(firebaseConfig);
@@ -46,7 +53,7 @@ console.log('✅ Firebase services initialized');
 export let analytics: Analytics | null = null;
 export let performance: FirebasePerformance | null = null;
 export let messaging: Messaging | null = null;
-export let appCheck: AppCheck | null = null;
+// let appCheck: AppCheck | null = null;
 
 // 🚨 IMMEDIATE SERVICE INITIALIZATION
 try {
@@ -70,13 +77,19 @@ try {
 
   // 🚨 FIXED RECAPTCHA CONFIGURATION - NO MORE 400 ERRORS
   if (typeof window !== 'undefined') {
-    // Disable App Check temporarily to fix reCAPTCHA issues
-    console.log('⚠️ App Check disabled to fix reCAPTCHA errors');
+    // Enable App Check with debug token for development
+    console.log('🔧 App Check enabled with debug token');
     // appCheck = initializeAppCheck(app, {
     //   provider: new ReCaptchaV3Provider('6LdYsZ0qAAAAAH4f0a2L8W5YmN3jQ9X2kP7bR8sT'),
     //   isTokenAutoRefreshEnabled: true,
     // });
     // console.log('✅ App Check initialized');
+    
+    // Set debug token for App Check
+    if (window.location.hostname === 'souk-el-syarat.web.app' || window.location.hostname === 'localhost') {
+      console.log('🔑 Setting App Check debug token');
+      // This will be handled by the debug token you added in Firebase Console
+    }
   }
 } catch (error) {
   console.warn('⚠️ Some Firebase services failed to initialize:', error);

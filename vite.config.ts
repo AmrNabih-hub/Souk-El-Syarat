@@ -1,13 +1,23 @@
 import { defineConfig, loadEnv } from 'vite'
 import react from '@vitejs/plugin-react'
 import path from 'path'
+import tailwindcss from 'tailwindcss'
+import autoprefixer from 'autoprefixer'
 
 // https://vitejs.dev/config/
 export default defineConfig(({ command, mode }) => {
   const env = loadEnv(mode, process.cwd(), '')
   
   return {
-    plugins: [react()],
+    plugins: [
+      react({
+        // Enable React 19 features
+        jsxRuntime: 'automatic',
+        fastRefresh: true,
+        // Enable strict mode for better development experience
+        strictMode: true
+      })
+    ],
     
     resolve: {
       alias: {
@@ -17,12 +27,12 @@ export default defineConfig(({ command, mode }) => {
     
     build: {
       // Optimize for production
-      target: 'es2015',
+      target: 'es2020',
       outDir: 'dist',
       assetsDir: 'assets',
       minify: 'terser',
       
-      // Enable tree shaking
+      // Enable tree shaking and code splitting
       rollupOptions: {
         output: {
           manualChunks: {
@@ -40,7 +50,16 @@ export default defineConfig(({ command, mode }) => {
               'framer-motion',
               '@heroicons/react/24/outline',
               '@heroicons/react/24/solid',
-              'react-hot-toast'
+              'react-hot-toast',
+              'lucide-react'
+            ],
+            'form-vendor': [
+              'react-hook-form',
+              '@hookform/resolvers',
+              'yup'
+            ],
+            'query-vendor': [
+              '@tanstack/react-query'
             ]
           }
         }
@@ -53,7 +72,11 @@ export default defineConfig(({ command, mode }) => {
       chunkSizeWarningLimit: 1000,
       
       // Asset optimization
-      assetsInlineLimit: 4096,
+      assetsInlineLimit: 2048,
+      
+      // Performance optimizations
+      cssCodeSplit: true,
+      reportCompressedSize: false,
     },
     
     server: {
@@ -86,13 +109,15 @@ export default defineConfig(({ command, mode }) => {
       drop: mode === 'production' ? ['console', 'debugger'] : [],
     },
     
-    // CSS optimization
+    // CSS optimization - Tailwind CSS handled by PostCSS config
     css: {
-      preprocessorOptions: {
-        scss: {
-          additionalData: `@import "@/styles/variables.scss";`
-        }
-      }
+      postcss: {
+        plugins: [
+          tailwindcss,
+          autoprefixer,
+        ],
+      },
+      devSourcemap: true
     }
   }
 })

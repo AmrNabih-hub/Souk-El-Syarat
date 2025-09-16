@@ -194,7 +194,11 @@ const AdminDashboard: React.FC = () => {
           {language === 'ar' ? 'رفض' : 'Reject'}
         </button>
 
-        <button className='btn btn-sm btn-outline'>
+        <button 
+          className='btn btn-sm btn-outline'
+          title={language === 'ar' ? 'عرض التفاصيل' : 'View Details'}
+          aria-label={language === 'ar' ? 'عرض التفاصيل' : 'View Details'}
+        >
           <EyeIcon className='w-4 h-4' />
         </button>
       </div>
@@ -412,7 +416,11 @@ const AdminDashboard: React.FC = () => {
                 {language === 'ar' ? 'طلبات التجار' : 'Vendor Applications'}
               </h2>
               <div className='flex items-center space-x-4'>
-                <select className='input'>
+                <select 
+                  className='input'
+                  title={language === 'ar' ? 'تصفية الطلبات' : 'Filter Applications'}
+                  aria-label={language === 'ar' ? 'تصفية الطلبات' : 'Filter Applications'}
+                >
                   <option value='all'>
                     {language === 'ar' ? 'جميع الطلبات' : 'All Applications'}
                   </option>
@@ -456,7 +464,11 @@ const AdminDashboard: React.FC = () => {
                   placeholder={language === 'ar' ? 'البحث في التجار...' : 'Search vendors...'}
                   className='input'
                 />
-                <select className='input'>
+                <select 
+                  className='input'
+                  title={language === 'ar' ? 'تصفية التجار' : 'Filter Vendors'}
+                  aria-label={language === 'ar' ? 'تصفية التجار' : 'Filter Vendors'}
+                >
                   <option value='all'>{language === 'ar' ? 'جميع التجار' : 'All Vendors'}</option>
                   <option value='active'>{language === 'ar' ? 'نشط' : 'Active'}</option>
                   <option value='suspended'>{language === 'ar' ? 'معلق' : 'Suspended'}</option>

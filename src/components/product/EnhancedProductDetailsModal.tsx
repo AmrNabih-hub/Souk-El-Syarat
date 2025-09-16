@@ -109,6 +109,8 @@ export const EnhancedProductDetailsModal: React.FC<EnhancedProductDetailsModalPr
               <button
                 onClick={onClose}
                 className='p-2 rounded-full hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors'
+                aria-label={language === 'ar' ? 'إغلاق' : 'Close'}
+                title={language === 'ar' ? 'إغلاق' : 'Close'}
               >
                 <XMarkIcon className='w-6 h-6' />
               </button>
@@ -126,6 +128,8 @@ export const EnhancedProductDetailsModal: React.FC<EnhancedProductDetailsModalPr
               <button
                 onClick={handleShare}
                 className='p-2 rounded-full hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors'
+                aria-label={language === 'ar' ? 'مشاركة' : 'Share'}
+                title={language === 'ar' ? 'مشاركة' : 'Share'}
               >
                 <ShareIcon className='w-5 h-5' />
               </button>
@@ -178,12 +182,16 @@ export const EnhancedProductDetailsModal: React.FC<EnhancedProductDetailsModalPr
                     <button
                       onClick={prevImage}
                       className='absolute left-4 top-1/2 -translate-y-1/2 p-2 rounded-full bg-black/50 text-white hover:bg-black/70 transition-colors'
+                      aria-label={language === 'ar' ? 'الصورة السابقة' : 'Previous image'}
+                      title={language === 'ar' ? 'الصورة السابقة' : 'Previous image'}
                     >
                       <ChevronLeftIcon className='w-5 h-5' />
                     </button>
                     <button
                       onClick={nextImage}
                       className='absolute right-4 top-1/2 -translate-y-1/2 p-2 rounded-full bg-black/50 text-white hover:bg-black/70 transition-colors'
+                      aria-label={language === 'ar' ? 'الصورة التالية' : 'Next image'}
+                      title={language === 'ar' ? 'الصورة التالية' : 'Next image'}
                     >
                       <ChevronRightIcon className='w-5 h-5' />
                     </button>

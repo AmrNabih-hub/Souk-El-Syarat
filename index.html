@@ -1,90 +1,26 @@
-<!doctype html>
-<html lang="ar" dir="rtl">
+<!DOCTYPE html>
+<html lang="en">
   <head>
     <meta charset="UTF-8" />
-    <link rel="icon" type="image/svg+xml" href="/app-icon.svg" />
     <link rel="apple-touch-icon" href="/app-icon.svg" />
+    <link rel="icon" type="image/svg+xml" href="/app-icon.svg" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <meta name="description" content="سوق السيارات - أكبر منصة للتجارة الإلكترونية في مصر للسيارات وقطع الغيار والخدمات" />
-    <meta name="keywords" content="سيارات, قطع غيار, خدمات سيارات, مصر, تجارة إلكترونية, سوق" />
+    <meta name="description" content="Souk El-Syarat - Professional Arabic Car Marketplace" />
+    <meta name="theme-color" content="#F59E0B" />
+    <title>Souk El-Syarat - Car Marketplace</title>
     
-    <!-- Open Graph -->
-    <meta property="og:title" content="سوق السيارات - Souk El-Syarat" />
-    <meta property="og:description" content="أكبر منصة للتجارة الإلكترونية في مصر للسيارات وقطع الغيار والخدمات" />
-    <meta property="og:type" content="website" />
+    <!-- PWA Manifest -->
+    <link rel="manifest" href="/manifest.json" />
     
-    <!-- Fonts -->
+    <!-- Firebase Messaging Service Worker will be registered in main.tsx -->
+    
+    <!-- Preload critical resources -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Poppins:wght@300;400;500;600;700;800;900&family=Cairo:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
-    
-    <title>سوق السيارات - Souk El-Syarat</title>
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@300;400;500;600;700&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
   </head>
   <body>
-    <!-- Preloader -->
-    <div id="preloader" style="
-      position: fixed;
-      top: 0;
-      left: 0;
-      right: 0;
-      bottom: 0;
-      background: linear-gradient(135deg, #fef3e2 0%, #e0f2fe 100%);
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      z-index: 9999;
-      transition: opacity 0.5s ease-out;
-    ">
-      <div style="text-align: center;">
-        <div style="
-          width: 80px;
-          height: 80px;
-          margin: 0 auto 20px;
-          border: 4px solid rgba(245, 158, 11, 0.3);
-          border-top-color: #f59e0b;
-          border-radius: 50%;
-          animation: spin 1s linear infinite;
-        "></div>
-        <h2 style="
-          font-family: 'Cairo', 'Inter', sans-serif;
-          font-size: 28px;
-          font-weight: bold;
-          background: linear-gradient(90deg, #f59e0b, #0ea5e9);
-          -webkit-background-clip: text;
-          -webkit-text-fill-color: transparent;
-          margin: 0 0 10px 0;
-        ">سوق السيارات</h2>
-        <p style="
-          font-family: 'Cairo', 'Inter', sans-serif;
-          color: #737373;
-          margin: 0;
-        ">جاري التحميل...</p>
-      </div>
-    </div>
-    
-    <style>
-      @keyframes spin {
-        to { transform: rotate(360deg); }
-      }
-    </style>
-    
     <div id="root"></div>
-    
-    <script>
-      // Remove preloader when React app loads
-      window.addEventListener('DOMContentLoaded', function() {
-        setTimeout(function() {
-          const preloader = document.getElementById('preloader');
-          if (preloader) {
-            preloader.style.opacity = '0';
-            setTimeout(function() {
-              preloader.style.display = 'none';
-            }, 500);
-          }
-        }, 100);
-      });
-    </script>
-    
     <script type="module" src="/src/main.tsx"></script>
   </body>
 </html>

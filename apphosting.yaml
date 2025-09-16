@@ -1,21 +1,22 @@
-# Firebase App Hosting Configuration - Automatic Rollouts
-# Optimized for GitHub automatic deployment
+﻿# Firebase App Hosting Configuration - Professional Backend
+# Optimized for production deployment with professional error handling
 
-# Build configuration
+# Build configuration - using Firebase Functions
 buildConfig:
   runtime: nodejs20
-  buildCommand: "npm run build:apphosting:ci"
+  buildCommand: "npm run build:functions"
   installCommand: "npm install --include=dev --silent --no-audit --no-fund"
-  rootDir: "."
+  rootDir: "functions"
 
-# Runtime configuration
+# Runtime configuration - optimized for Functions
 runConfig:
   cpu: 1
-  memoryMiB: 1024
-  minInstances: 0
+  memoryMiB: 512
+  minInstances: 0  # Functions can scale to 0
   maxInstances: 10
   concurrency: 80
-  requestTimeout: 60s
+  requestTimeout: 60s  # Functions timeout
+  startupTimeout: 60s
 
 # Environment variables
 env:
@@ -29,9 +30,4 @@ env:
     value: "true"
     availability:
       - BUILD
-      - RUNTIME
-
-  - variable: PORT
-    value: "8080"
-    availability:
       - RUNTIME

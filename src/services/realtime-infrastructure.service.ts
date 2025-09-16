@@ -133,7 +133,6 @@ export class RealtimeInfrastructureService {
     // Initialize database references
     this.presenceRef = ref(realtimeDb, 'presence');
     this.messagesRef = ref(realtimeDb, 'messages');
-    this.notificationsRef = ref(realtimeDb, 'notifications');
     this.ordersRef = ref(realtimeDb, 'orders');
     this.productsRef = ref(realtimeDb, 'products');
     this.analyticsRef = ref(realtimeDb, 'analytics');

@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo, useCallback } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import {
   MagnifyingGlassIcon,
@@ -14,12 +14,28 @@ import { ProductService } from '@/services/product.service';
 
 import ProductCard from '@/components/product/ProductCard';
 import { EgyptianLoader } from '@/components/ui/LoadingSpinner';
+import CustomCheckbox from '@/components/ui/CustomCheckbox';
+import ErrorBoundary from '@/components/ui/ErrorBoundary';
 import toast from 'react-hot-toast';
+
+// Simple in-memory cache for products - Fixed initialization
+let productCache: {
+  data: Product[] | null;
+  timestamp: number;
+  ttl: number;
+} = {
+  data: null,
+  timestamp: 0,
+  ttl: 5 * 60 * 1000, // 5 minutes
+};
+
+const isCacheValid = (): boolean => {
+  return productCache.data !== null && (Date.now() - productCache.timestamp) < productCache.ttl;
+};
 
 const MarketplacePage: React.FC = () => {
   const { language, addToCart, addToFavorites, removeFromFavorites } = useAppStore();
   const [products, setProducts] = useState<Product[]>([]);
-  const [filteredProducts, setFilteredProducts] = useState<Product[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [searchQuery, setSearchQuery] = useState('');
   const [showFilters, setShowFilters] = useState(false);
@@ -49,55 +65,8 @@ const MarketplacePage: React.FC = () => {
     { value: 'refurbished', label: { ar: 'مجدد', en: 'Refurbished' } },
   ];
 
-  useEffect(() => {
-    loadProducts();
-  }, []);
-
-  useEffect(() => {
-    applyFiltersAndSort();
-  }, [products, filters, sortBy, searchQuery]);
-
-  const loadProducts = async () => {
-    try {
-      setIsLoading(true);
-
-      // Get sample products and add variety
-      const sampleProducts = ProductService.getSampleProducts();
-      const moreProducts: Product[] = [
-        ...sampleProducts,
-        {
-          ...sampleProducts[0],
-          id: 'car-2',
-          title: 'BMW X5 2019 - فل أوبشن',
-          description: 'BMW X5 2019 بحالة ممتازة، فل أوبشن، جلد، فتحة سقف، نافيجيشن.',
-          price: 850000,
-          originalPrice: 950000,
-          images: [
-            {
-              id: 'car-2-img-1',
-              url: 'https://images.unsplash.com/photo-1555215695-3004980ad54e?w=800&h=600&fit=crop',
-              alt: 'BMW X5 2019',
-              isPrimary: true,
-              order: 0,
-            },
-          ],
-          views: 189,
-          favorites: 24,
-          features: ['فتحة سقف', 'جلد', 'نافيجيشن', 'كاميرات محيطة'],
-        },
-      ];
-
-      setProducts(moreProducts);
-    } catch (error) {
-      if (process.env.NODE_ENV === 'development')
-        if (process.env.NODE_ENV === 'development') console.error('Error loading products:', error);
-      toast.error(language === 'ar' ? 'خطأ في تحميل المنتجات' : 'Error loading products');
-    } finally {
-      setIsLoading(false);
-    }
-  };
-
-  const applyFiltersAndSort = () => {
+  // Memoize filtered products for better performance
+  const memoizedFilteredProducts = useMemo(() => {
     let filtered = [...products];
 
     if (searchQuery.trim()) {
@@ -132,21 +101,91 @@ const MarketplacePage: React.FC = () => {
     switch (sortBy) {
       case 'price_low':
         filtered.sort((a, b) => a.price - b.price);
-      //         break;
+        break;
       case 'price_high':
         filtered.sort((a, b) => b.price - a.price);
-      //         break;
+        break;
       case 'popular':
         filtered.sort((a, b) => b.views - a.views);
-      //         break;
+        break;
       case 'newest':
       default:
         filtered.sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
-      //         break;
+        break;
     }
 
-    setFilteredProducts(filtered);
-  };
+    return filtered;
+  }, [products, searchQuery, filters, sortBy]);
+
+  const loadProducts = useCallback(async () => {
+    const startTime = performance.now();
+    try {
+      setIsLoading(true);
+      console.log('🛍️ Loading marketplace products...');
+
+      // Check cache first for faster loading
+      if (isCacheValid()) {
+        console.log(`✅ Loading ${productCache.data!.length} products from cache`);
+        setProducts(productCache.data!);
+        setIsLoading(false);
+        
+        // Performance monitoring for cache hits
+        const loadTime = performance.now() - startTime;
+        console.log(`⚡ Products loaded from cache in ${loadTime.toFixed(2)}ms`);
+        return;
+      }
+
+      // Parallel loading strategy for better performance
+      const loadPromises = [
+        // Try Firebase first (higher priority)
+        ProductService.getPublishedProducts().catch(error => {
+          console.warn('⚠️ Firebase products not available:', error);
+          return null;
+        }),
+        // Always have sample products as backup
+        Promise.resolve(ProductService.getSampleProducts())
+      ];
+
+      const [firebaseProducts, sampleProducts] = await Promise.all(loadPromises);
+      
+      // Use Firebase products if available, otherwise use sample products
+      const productsToUse = (firebaseProducts && firebaseProducts.length > 0) 
+        ? firebaseProducts 
+        : sampleProducts;
+        
+      if (productsToUse && productsToUse.length > 0) {
+        console.log(`✅ Loaded ${productsToUse.length} products (${firebaseProducts ? 'Firebase' : 'Sample'})`);
+        
+        // Update cache with loaded products
+        productCache.data = productsToUse;
+        productCache.timestamp = Date.now();
+        setProducts(productsToUse);
+      } else {
+        throw new Error('No products available from any source');
+      }
+      
+      // Performance monitoring
+      const loadTime = performance.now() - startTime;
+      console.log(`⚡ Products loaded in ${loadTime.toFixed(2)}ms`);
+    } catch (error) {
+      console.error('❌ Error loading products:', error);
+      // Even if there's an error, try to load sample products as last resort
+      try {
+        const sampleProducts = ProductService.getSampleProducts();
+        console.log(`✅ Loaded ${sampleProducts.length} sample products as emergency fallback`);
+        setProducts(sampleProducts);
+      } catch (fallbackError) {
+        console.error('❌ Emergency fallback failed:', fallbackError);
+        toast.error(language === 'ar' ? 'خطأ في تحميل المنتجات' : 'Error loading products');
+      }
+    } finally {
+      setIsLoading(false);
+    }
+  }, [language]);
+
+  useEffect(() => {
+    loadProducts();
+  }, [loadProducts]);
 
   const handleFilterChange = (key: keyof SearchFilters, value: unknown) => {
     setFilters(prev => ({ ...prev, [key]: value }));
@@ -205,7 +244,8 @@ const MarketplacePage: React.FC = () => {
   }
 
   return (
-    <div className='min-h-screen bg-neutral-50'>
+    <ErrorBoundary>
+      <div className='min-h-screen bg-neutral-50'>
       {/* Header */}
       <div className='bg-white border-b border-neutral-200'>
         <div className='max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6'>
@@ -216,8 +256,8 @@ const MarketplacePage: React.FC = () => {
               </h1>
               <p className='text-neutral-600 mt-1'>
                 {language === 'ar'
-                  ? `${filteredProducts.length} منتج متاح`
-                  : `${filteredProducts.length} products available`}
+                  ? `${memoizedFilteredProducts.length} منتج متاح`
+                  : `${memoizedFilteredProducts.length} products available`}
               </p>
             </div>
 
@@ -225,7 +265,7 @@ const MarketplacePage: React.FC = () => {
             <form
               onSubmit={e => {
                 e.preventDefault();
-                applyFiltersAndSort();
+                // Search is handled by the memoized filtering
               }}
               className='flex-1 max-w-md'
             >
@@ -386,17 +426,14 @@ const MarketplacePage: React.FC = () => {
 
                     {/* Stock Filter */}
                     <div>
-                      <label className='flex items-center'>
-                        <input
-                          type='checkbox'
-                          checked={filters.inStock}
-                          onChange={e => handleFilterChange('inStock', e.target.checked)}
-                          className='mr-2'
-                        />
-                        <span className='text-sm text-neutral-700'>
-                          {language === 'ar' ? 'متوفر فقط' : 'In stock only'}
-                        </span>
-                      </label>
+                      <CustomCheckbox
+                        id='inStock'
+                        checked={filters.inStock || false}
+                        onChange={(checked) => handleFilterChange('inStock', checked)}
+                        size='sm'
+                        variant='primary'
+                        label={language === 'ar' ? 'متوفر فقط' : 'In stock only'}
+                      />
                     </div>
                   </motion.div>
                 )}
@@ -414,8 +451,10 @@ const MarketplacePage: React.FC = () => {
                 </span>
                 <select
                   value={sortBy}
-                  onChange={e => setSortBy(e.target.value as any)}
+                  onChange={e => setSortBy(e.target.value as 'newest' | 'price_low' | 'price_high' | 'popular')}
                   className='input text-sm'
+                  aria-label={language === 'ar' ? 'ترتيب المنتجات' : 'Sort products'}
+                  title={language === 'ar' ? 'ترتيب المنتجات' : 'Sort products'}
                 >
                   <option value='newest'>{language === 'ar' ? 'الأحدث' : 'Newest'}</option>
                   <option value='popular'>
@@ -435,40 +474,48 @@ const MarketplacePage: React.FC = () => {
                 <button
                   onClick={() => setViewMode('grid')}
                   className={`p-2 rounded-lg ${viewMode === 'grid' ? 'bg-primary-100 text-primary-600' : 'text-neutral-400 hover:text-neutral-600'}`}
+                  aria-label={language === 'ar' ? 'عرض الشبكة' : 'Grid view'}
+                  title={language === 'ar' ? 'عرض الشبكة' : 'Grid view'}
                 >
                   <Squares2X2Icon className='w-5 h-5' />
                 </button>
                 <button
                   onClick={() => setViewMode('list')}
                   className={`p-2 rounded-lg ${viewMode === 'list' ? 'bg-primary-100 text-primary-600' : 'text-neutral-400 hover:text-neutral-600'}`}
+                  aria-label={language === 'ar' ? 'عرض القائمة' : 'List view'}
+                  title={language === 'ar' ? 'عرض القائمة' : 'List view'}
                 >
                   <ListBulletIcon className='w-5 h-5' />
                 </button>
               </div>
             </div>
 
-            {/* Products Grid */}
-            {filteredProducts.length > 0 ? (
+            {/* Products Grid - Enhanced responsive scaling */}
+            {memoizedFilteredProducts.length > 0 ? (
               <motion.div
-                className={`grid gap-6 ${
-                  viewMode === 'grid' ? 'grid-cols-1 sm:grid-cols-2 lg:grid-cols-3' : 'grid-cols-1'
-                }`}
                 layout
+                className={`grid gap-4 sm:gap-6 ${
+                  viewMode === 'grid'
+                    ? 'grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-5'
+                    : 'grid-cols-1'
+                }`}
               >
                 <AnimatePresence>
-                  {filteredProducts.map(product => (
+                  {memoizedFilteredProducts.map(product => (
                     <motion.div
                       key={product.id}
                       layout
-                      initial={{ opacity: 0, scale: 0.9 }}
+                      initial={{ opacity: 0, scale: 0.95 }}
                       animate={{ opacity: 1, scale: 1 }}
-                      exit={{ opacity: 0, scale: 0.9 }}
-                      transition={{ duration: 0.3 }}
+                      exit={{ opacity: 0, scale: 0.95 }}
+                      transition={{ duration: 0.2 }}
+                      className="h-full"
                     >
                       <ProductCard
                         product={product}
                         onAddToCart={handleAddToCart}
                         onToggleFavorite={handleToggleFavorite}
+                        className="h-full"
                       />
                     </motion.div>
                   ))}
@@ -497,7 +544,8 @@ const MarketplacePage: React.FC = () => {
           </div>
         </div>
       </div>
-    </div>
+      </div>
+    </ErrorBoundary>
   );
 };
 

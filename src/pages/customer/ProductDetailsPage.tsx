@@ -259,6 +259,8 @@ const ProductDetailsPage: React.FC = () => {
                   <button
                     onClick={prevImage}
                     className='absolute left-4 top-1/2 transform -translate-y-1/2 bg-black/50 text-white p-2 rounded-full hover:bg-black/70 transition-colors'
+                    title={language === 'ar' ? 'الصورة السابقة' : 'Previous Image'}
+                    aria-label={language === 'ar' ? 'الصورة السابقة' : 'Previous Image'}
                   >
                     <ChevronLeftIcon className='w-5 h-5' />
                   </button>
@@ -266,6 +268,8 @@ const ProductDetailsPage: React.FC = () => {
                   <button
                     onClick={nextImage}
                     className='absolute right-4 top-1/2 transform -translate-y-1/2 bg-black/50 text-white p-2 rounded-full hover:bg-black/70 transition-colors'
+                    title={language === 'ar' ? 'الصورة التالية' : 'Next Image'}
+                    aria-label={language === 'ar' ? 'الصورة التالية' : 'Next Image'}
                   >
                     <ChevronRightIcon className='w-5 h-5' />
                   </button>
@@ -341,6 +345,8 @@ const ProductDetailsPage: React.FC = () => {
                   <button
                     onClick={handleShare}
                     className='p-2 rounded-full hover:bg-neutral-100 transition-colors'
+                    title={language === 'ar' ? 'مشاركة المنتج' : 'Share Product'}
+                    aria-label={language === 'ar' ? 'مشاركة المنتج' : 'Share Product'}
                   >
                     <ShareIcon className='w-6 h-6 text-neutral-400' />
                   </button>

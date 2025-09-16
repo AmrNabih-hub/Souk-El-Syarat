@@ -1,4 +1,43 @@
 import { auth, db } from '@/config/firebase.config';
+import { onAuthStateChanged } from 'firebase/auth';
+import { doc, getDoc } from 'firebase/firestore';
+import { User } from '@/types';
+
+// Add getCurrentUser method
+export const getCurrentUser = async (): Promise<User | null> => {
+  return new Promise((resolve) => {
+    const unsubscribe = onAuthStateChanged(auth, async (firebaseUser) => {
+      unsubscribe();
+      if (firebaseUser) {
+        try {
+          const userDoc = await getDoc(doc(db, 'users', firebaseUser.uid));
+          if (userDoc.exists()) {
+            const userData = userDoc.data();
+            resolve({
+              id: firebaseUser.uid,
+              email: firebaseUser.email || '',
+              displayName: firebaseUser.displayName || '',
+              phoneNumber: firebaseUser.phoneNumber || undefined,
+              photoURL: firebaseUser.photoURL || undefined,
+              role: userData.role || 'customer',
+              isActive: userData.isActive ?? true,
+              emailVerified: firebaseUser.emailVerified,
+              createdAt: userData.createdAt?.toDate() || new Date(),
+              updatedAt: userData.updatedAt?.toDate() || new Date(),
+            } as User);
+          } else {
+            resolve(null);
+          }
+        } catch (error) {
+          console.error('Error getting current user:', error);
+          resolve(null);
+        }
+      } else {
+        resolve(null);
+      }
+    });
+  });
+};
 import {
   User as FirebaseUser,
   signInWithEmailAndPassword,
@@ -35,6 +74,11 @@ export class AuthService {
   static googleProvider = new GoogleAuthProvider();
   static facebookProvider = new FacebookAuthProvider();
   static twitterProvider = new TwitterAuthProvider();
+
+  // Add getCurrentUser as static method
+  static async getCurrentUser(): Promise<User | null> {
+    return getCurrentUser();
+  }
 
   // 🚨 BULLETPROOF AUTHENTICATION STATE LISTENER
   static onAuthStateChange(callback: (user: User | null) => void) {
@@ -373,5 +417,41 @@ export class AuthService {
     };
 
     return errorMessages[errorCode || ''] || 'An unexpected error occurred. Please try again.';
+  }
+
+  // Get current user
+  async getCurrentUser(): Promise<User | null> {
+    return new Promise((resolve) => {
+      const unsubscribe = onAuthStateChanged(auth, async (firebaseUser) => {
+        unsubscribe();
+        if (firebaseUser) {
+          try {
+            const userDoc = await getDoc(doc(db, 'users', firebaseUser.uid));
+            if (userDoc.exists()) {
+              const userData = userDoc.data();
+              resolve({
+                id: firebaseUser.uid,
+                email: firebaseUser.email || '',
+                displayName: firebaseUser.displayName || '',
+                phoneNumber: firebaseUser.phoneNumber || undefined,
+                photoURL: firebaseUser.photoURL || undefined,
+                role: userData.role || 'customer',
+                isActive: userData.isActive ?? true,
+                emailVerified: firebaseUser.emailVerified,
+                createdAt: userData.createdAt?.toDate() || new Date(),
+                updatedAt: userData.updatedAt?.toDate() || new Date(),
+              } as User);
+            } else {
+              resolve(null);
+            }
+          } catch (error) {
+            console.error('Error getting current user:', error);
+            resolve(null);
+          }
+        } else {
+          resolve(null);
+        }
+      });
+    });
   }
 }

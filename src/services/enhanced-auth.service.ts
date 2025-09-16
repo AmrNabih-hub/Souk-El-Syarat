@@ -99,9 +99,9 @@ export class EnhancedAuthService {
             const user: User = {
               id: firebaseUser.uid,
               ...userData,
-              createdAt: userData.createdAt.toDate() || new Date(),
-              updatedAt: userData.updatedAt.toDate() || new Date(),
-              lastLoginAt: userData.lastLoginAt.toDate() || new Date(),
+              createdAt: userData.createdAt?.toDate() || new Date(),
+              updatedAt: userData.updatedAt?.toDate() || new Date(),
+              lastLoginAt: userData.lastLoginAt?.toDate() || new Date(),
             };
 
             // Update last login time
@@ -168,7 +168,7 @@ export class EnhancedAuthService {
             });
           }
         } catch (error) {
-          if (process.env.NODE_ENV === 'development') if (process.env.NODE_ENV === 'development') console.error('Error getting user data:', error);
+          console.error('Error getting user data:', error);
           this.notifyAuthStateChange({
             user: null,
             isLoading: false,
@@ -206,10 +206,12 @@ export class EnhancedAuthService {
     }, this.ACTIVITY_UPDATE_INTERVAL);
 
     // Track user activity events
-    const events = ['mousedown', 'mousemove', 'keypress', 'scroll', 'touchstart'];
-    events.forEach(event => {
-      document.addEventListener(event, () => this.updateLastActivity(), { passive: true });
-    });
+    if (typeof window !== 'undefined') {
+      const events = ['mousedown', 'mousemove', 'keypress', 'scroll', 'touchstart'];
+      events.forEach(event => {
+        document.addEventListener(event, () => this.updateLastActivity(), { passive: true });
+      });
+    }
   }
 
   /**
@@ -318,7 +320,7 @@ export class EnhancedAuthService {
       });
 
       return { id: firebaseUser.uid, ...userData };
-    } catch (error) {
+    } catch (error: any) {
       throw new Error(this.getAuthErrorMessage(error.code));
     }
   }
@@ -370,11 +372,11 @@ export class EnhancedAuthService {
       return {
         id: firebaseUser.uid,
         ...userData,
-        createdAt: userData.createdAt.toDate() || new Date(),
-        updatedAt: userData.updatedAt.toDate() || new Date(),
-        lastLoginAt: userData.lastLoginAt.toDate() || new Date(),
+        createdAt: userData.createdAt?.toDate() || new Date(),
+        updatedAt: userData.updatedAt?.toDate() || new Date(),
+        lastLoginAt: userData.lastLoginAt?.toDate() || new Date(),
       };
-    } catch (error) {
+    } catch (error: any) {
       throw new Error(this.getAuthErrorMessage(error.code));
     }
   }
@@ -415,11 +417,11 @@ export class EnhancedAuthService {
       return {
         id: firebaseUser.uid,
         ...userData,
-        createdAt: userData.createdAt.toDate() || new Date(),
-        updatedAt: userData.updatedAt.toDate() || new Date(),
-        lastLoginAt: userData.lastLoginAt.toDate() || new Date(),
+        createdAt: userData.createdAt?.toDate() || new Date(),
+        updatedAt: userData.updatedAt?.toDate() || new Date(),
+        lastLoginAt: userData.lastLoginAt?.toDate() || new Date(),
       };
-    } catch (error) {
+    } catch (error: any) {
       throw new Error(this.getAuthErrorMessage(error.code));
     }
   }
@@ -451,9 +453,9 @@ export class EnhancedAuthService {
         return {
           id: firebaseUser.uid,
           ...userData,
-          createdAt: userData.createdAt.toDate() || new Date(),
-          updatedAt: userData.updatedAt.toDate() || new Date(),
-          lastLoginAt: userData.lastLoginAt.toDate() || new Date(),
+          createdAt: userData.createdAt?.toDate() || new Date(),
+          updatedAt: userData.updatedAt?.toDate() || new Date(),
+          lastLoginAt: userData.lastLoginAt?.toDate() || new Date(),
         };
       } else {
         // Create new user from Google sign-in
@@ -488,7 +490,7 @@ export class EnhancedAuthService {
 
         return newUser;
       }
-    } catch (error) {
+    } catch (error: any) {
       throw new Error(this.getAuthErrorMessage(error.code));
     }
   }
@@ -503,9 +505,7 @@ export class EnhancedAuthService {
       // Clear session timer
       const instance = EnhancedAuthService.getInstance();
       instance.clearSessionTimer();
-
-      // if (process.env.NODE_ENV === 'development') console.log('User signed out successfully');
-    } catch (error) {
+    } catch (error: any) {
       throw new Error(this.getAuthErrorMessage(error.code));
     }
   }
@@ -519,7 +519,7 @@ export class EnhancedAuthService {
         url: `${window.location.origin}/login`,
         handleCodeInApp: true,
       });
-    } catch (error) {
+    } catch (error: any) {
       throw new Error(this.getAuthErrorMessage(error.code));
     }
   }
@@ -546,7 +546,7 @@ export class EnhancedAuthService {
         ...updates,
         updatedAt: serverTimestamp(),
       });
-    } catch (error) {
+    } catch (error: any) {
       throw new Error(this.getAuthErrorMessage(error.code));
     }
   }
@@ -561,7 +561,7 @@ export class EnhancedAuthService {
       }
 
       await updatePassword(auth.currentUser, newPassword);
-    } catch (error) {
+    } catch (error: any) {
       throw new Error(this.getAuthErrorMessage(error.code));
     }
   }
@@ -588,7 +588,7 @@ export class EnhancedAuthService {
 
       // Store session for verification
       (window as any).multiFactorSession = session;
-    } catch (error) {
+    } catch (error: any) {
       throw new Error(this.getAuthErrorMessage(error.code));
     }
   }
@@ -622,7 +622,7 @@ export class EnhancedAuthService {
 
       // Clear session
       delete (window as any).multiFactorSession;
-    } catch (error) {
+    } catch (error: any) {
       throw new Error(this.getAuthErrorMessage(error.code));
     }
   }
@@ -646,8 +646,7 @@ export class EnhancedAuthService {
       'auth/requires-recent-login': 'Please sign in again to perform this action',
       'auth/operation-not-allowed': 'This operation is not allowed',
       'auth/account-exists-with-different-credential': 'An account already exists with this email',
-      'auth/credential-already-in-use':
-        'This credential is already associated with another account',
+      'auth/credential-already-in-use': 'This credential is already associated with another account',
       'auth/invalid-credential': 'Invalid credentials',
       'auth/user-token-expired': 'Your session has expired. Please sign in again',
       'auth/user-mismatch': 'User mismatch error',

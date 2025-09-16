@@ -11,6 +11,7 @@ import { useAuthStore } from '@/stores/authStore';
 
 import { ProductService } from '@/services/product.service';
 import LoadingSpinner from '@/components/ui/LoadingSpinner';
+import CustomCheckbox from '@/components/ui/CustomCheckbox';
 import toast from 'react-hot-toast';
 
 const usedCarSchema = yup.object().shape({
@@ -50,6 +51,7 @@ const UsedCarSellingForm: React.FC = () => {
   const {
     register,
     handleSubmit,
+    watch,
     setValue,
     formState: { errors, isValid },
     reset,
@@ -126,7 +128,7 @@ const UsedCarSellingForm: React.FC = () => {
         location: data.location,
       };
 
-      await ProductService.createProduct(user.id, productData as any);
+      await ProductService.createProduct(user?.id || '', productData as any);
 
       toast.success(
         language === 'ar' ? 'تم إضافة السيارة المستعملة بنجاح!' : 'Used car added successfully!'
@@ -474,6 +476,8 @@ const UsedCarSellingForm: React.FC = () => {
                       type='button'
                       onClick={() => removeImage(index)}
                       className='absolute top-2 right-2 p-1 bg-red-600 text-white rounded-full opacity-0 group-hover:opacity-100 transition-opacity'
+                      aria-label={`Remove image ${index + 1}`}
+                      title={`Remove image ${index + 1}`}
                     >
                       <XMarkIcon className='h-4 w-4' />
                     </button>
@@ -535,18 +539,19 @@ const UsedCarSellingForm: React.FC = () => {
 
         {/* Terms and Submit */}
         <div className='bg-gray-50 p-6 rounded-lg'>
-          <div className='flex items-start mb-6'>
-            <input
-              {...register('agreedToTerms')}
-              type='checkbox'
+          <div className='mb-6'>
+            <CustomCheckbox
               id='agreedToTerms'
-              className='h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded mt-1'
+              checked={watch('agreedToTerms') || false}
+              onChange={(checked) => setValue('agreedToTerms', checked)}
+              size='sm'
+              variant={errors.agreedToTerms ? 'error' : 'primary'}
+              label={
+                language === 'ar'
+                  ? 'أوافق على شروط وأحكام الموقع وأؤكد أن جميع المعلومات المقدمة صحيحة'
+                  : 'I agree to the website terms and conditions and confirm that all information provided is accurate'
+              }
             />
-            <label htmlFor='agreedToTerms' className='ml-2 block text-sm text-gray-900'>
-              {language === 'ar'
-                ? 'أوافق على شروط وأحكام الموقع وأؤكد أن جميع المعلومات المقدمة صحيحة'
-                : 'I agree to the website terms and conditions and confirm that all information provided is accurate'}
-            </label>
           </div>
           {errors.agreedToTerms && (
             <p className='mt-1 text-sm text-red-600'>{errors.agreedToTerms.message}</p>

@@ -396,7 +396,7 @@ export class ProductService {
 
       await updateDoc(doc(db, this.COLLECTION_NAME, productId), updateData);
     } catch (error) {
-      if (process.env.NODE_ENV === 'development') if (process.env.NODE_ENV === 'development') console.error('Error updating product:', error);
+      if (process.env.NODE_ENV === 'development') console.error('Error updating product:', error);
       throw new Error('Failed to update product');
     }
   }
@@ -406,7 +406,7 @@ export class ProductService {
    */
   static async updateProductStatus(productId: string, status: ProductStatus): Promise<void> {
     try {
-      const updateData: unknown = {
+      const updateData: Record<string, any> = {
         status,
         updatedAt: serverTimestamp(),
       };
@@ -417,7 +417,7 @@ export class ProductService {
 
       await updateDoc(doc(db, this.COLLECTION_NAME, productId), updateData);
     } catch (error) {
-      if (process.env.NODE_ENV === 'development') if (process.env.NODE_ENV === 'development') console.error('Error updating product status:', error);
+      if (process.env.NODE_ENV === 'development') console.error('Error updating product status:', error);
       throw new Error('Failed to update product status');
     }
   }
@@ -443,7 +443,7 @@ export class ProductService {
       // Delete product document
       await deleteDoc(doc(db, this.COLLECTION_NAME, productId));
     } catch (error) {
-      if (process.env.NODE_ENV === 'development') if (process.env.NODE_ENV === 'development') console.error('Error deleting product:', error);
+      if (process.env.NODE_ENV === 'development') console.error('Error deleting product:', error);
       throw new Error('Failed to delete product');
     }
   }
@@ -458,7 +458,7 @@ export class ProductService {
         updatedAt: serverTimestamp(),
       });
     } catch (error) {
-      if (process.env.NODE_ENV === 'development') if (process.env.NODE_ENV === 'development') console.error('Error incrementing product views:', error);
+      if (process.env.NODE_ENV === 'development') console.error('Error incrementing product views:', error);
       // Don't throw error for view tracking
     }
   }
@@ -479,7 +479,7 @@ export class ProductService {
         updatedAt: serverTimestamp(),
       });
     } catch (error) {
-      if (process.env.NODE_ENV === 'development') if (process.env.NODE_ENV === 'development') console.error('Error toggling product favorite:', error);
+      if (process.env.NODE_ENV === 'development') console.error('Error toggling product favorite:', error);
       throw new Error('Failed to update favorite status');
     }
   }
@@ -517,7 +517,7 @@ export class ProductService {
 
       return recommendations;
     } catch (error) {
-      if (process.env.NODE_ENV === 'development') if (process.env.NODE_ENV === 'development') console.error('Error getting product recommendations:', error);
+      if (process.env.NODE_ENV === 'development') console.error('Error getting product recommendations:', error);
       return [];
     }
   }
@@ -545,6 +545,34 @@ export class ProductService {
       .replace(/\s+/g, '-')
       .replace(/-+/g, '-')
       .trim();
+  }
+
+  /**
+   * Get published products for marketplace
+   */
+  static async getPublishedProducts(limitCount: number = 20): Promise<Product[]> {
+    try {
+      const q = query(
+        collection(db, this.COLLECTION_NAME),
+        where('status', '==', 'published'),
+        orderBy('createdAt', 'desc'),
+        limit(limitCount)
+      );
+
+      const querySnapshot = await getDocs(q);
+      return querySnapshot.docs.map(doc => {
+        const data = doc.data();
+        return {
+          ...(data as any),
+          createdAt: data.createdAt.toDate() || new Date(),
+          updatedAt: data.updatedAt.toDate() || new Date(),
+          publishedAt: data.publishedAt?.toDate() || null,
+        } as Product;
+      });
+    } catch (error) {
+      if (process.env.NODE_ENV === 'development') console.error('Error getting published products:', error);
+      return [];
+    }
   }
 
   /**

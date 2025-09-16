@@ -11,11 +11,13 @@ import { EyeIcon, EyeSlashIcon, UserIcon, LockClosedIcon } from '@heroicons/reac
 import { useAppStore } from '@/stores/appStore';
 import { useAuthStore } from '@/stores/authStore';
 import LoadingSpinner from '@/components/ui/LoadingSpinner';
+import CustomCheckbox from '@/components/ui/CustomCheckbox';
 import toast from 'react-hot-toast';
 
 interface LoginFormData {
   email: string;
   password: string;
+  rememberMe: boolean;
 }
 
 const loginSchema = yup.object().shape({
@@ -24,6 +26,7 @@ const loginSchema = yup.object().shape({
     .string()
     .min(6, 'كلمة المرور يجب أن تكون 6 أحرف على الأقل')
     .required('كلمة المرور مطلوبة'),
+  rememberMe: yup.boolean().default(false),
 });
 
 const LoginPage: React.FC = () => {
@@ -35,9 +38,14 @@ const LoginPage: React.FC = () => {
   const {
     register,
     handleSubmit,
+    watch,
+    setValue,
     formState: { errors, isSubmitting },
   } = useForm<LoginFormData>({
     resolver: yupResolver(loginSchema),
+    defaultValues: {
+      rememberMe: false,
+    },
   });
 
   const onSubmit = async (data: LoginFormData) => {
@@ -47,7 +55,7 @@ const LoginPage: React.FC = () => {
       toast.success(language === 'ar' ? 'تم تسجيل الدخول بنجاح!' : 'Logged in successfully!');
       navigate('/');
     } catch (error) {
-      toast.error(error.message || 'Failed to sign in');
+      toast.error((error as Error).message || 'Failed to sign in');
     }
   };
 
@@ -58,7 +66,7 @@ const LoginPage: React.FC = () => {
       toast.success(language === 'ar' ? 'تم تسجيل الدخول بنجاح!' : 'Logged in successfully!');
       navigate('/');
     } catch (error) {
-      toast.error(error.message || 'Failed to sign in with Google');
+      toast.error((error as Error).message || 'Failed to sign in with Google');
     }
   };
 
@@ -128,6 +136,7 @@ const LoginPage: React.FC = () => {
                   {...register('email')}
                   type='email'
                   id='email'
+                  autoComplete='username'
                   className={`input pl-10 ${errors.email ? 'input-error' : ''}`}
                   placeholder={language === 'ar' ? 'أدخل بريدك الإلكتروني' : 'Enter your email'}
                   dir={language === 'ar' ? 'rtl' : 'ltr'}
@@ -187,15 +196,14 @@ const LoginPage: React.FC = () => {
             {/* Remember Me & Forgot Password */}
             <div className='flex items-center justify-between'>
               <div className='flex items-center'>
-                <input
+                <CustomCheckbox
                   id='remember-me'
-                  name='remember-me'
-                  type='checkbox'
-                  className='h-4 w-4 text-primary-600 focus:ring-primary-500 border-neutral-300 rounded'
+                  checked={watch('rememberMe') || false}
+                  onChange={(checked) => setValue('rememberMe', checked)}
+                  size='sm'
+                  variant='primary'
+                  label={language === 'ar' ? 'تذكرني' : 'Remember me'}
                 />
-                <label htmlFor='remember-me' className='ml-2 block text-sm text-neutral-700'>
-                  {language === 'ar' ? 'تذكرني' : 'Remember me'}
-                </label>
               </div>
 
               <Link

@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Firebase Auth Debug</title>
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore-compat.js"></script>
+</head>
+<body>
+    <h1>Firebase Auth Debug</h1>
+    <div id="status"></div>
+    <button onclick="testAuth()">Test Authentication</button>
+    <button onclick="testSignUp()">Test Sign Up</button>
+    <div id="logs"></div>
+
+    <script>
+        // Firebase configuration
+        const firebaseConfig = {
+            apiKey: "AIzaSyAdkK2OlebHPUsWFCEqY5sWHs5ZL3wUk0Q",
+            authDomain: "souk-el-syarat.firebaseapp.com",
+            projectId: "souk-el-syarat",
+            storageBucket: "souk-el-syarat.firebasestorage.app",
+            messagingSenderId: "505765285633",
+            appId: "1:505765285633:web:1bc55f947c68b46d75d500",
+            measurementId: "G-46RKPHQLVB",
+            databaseURL: "https://souk-el-syarat-default-rtdb.europe-west1.firebasedatabase.app"
+        };
+
+        // Initialize Firebase
+        firebase.initializeApp(firebaseConfig);
+        const auth = firebase.auth();
+        const db = firebase.firestore();
+
+        function log(message) {
+            const logs = document.getElementById('logs');
+            logs.innerHTML += '<div>' + new Date().toLocaleTimeString() + ': ' + message + '</div>';
+            console.log(message);
+        }
+
+        function updateStatus(message, isError = false) {
+            const status = document.getElementById('status');
+            status.innerHTML = '<div style="color: ' + (isError ? 'red' : 'green') + '">' + message + '</div>';
+        }
+
+        async function testAuth() {
+            log('🔍 Testing Firebase Auth initialization...');
+            try {
+                // Test auth state
+                log('✅ Auth object created: ' + (auth ? 'YES' : 'NO'));
+                log('✅ Current user: ' + (auth.currentUser ? auth.currentUser.email : 'None'));
+                
+                // Test auth domain
+                log('✅ Auth domain: ' + auth.app.options.authDomain);
+                
+                // Test project ID
+                log('✅ Project ID: ' + auth.app.options.projectId);
+                
+                updateStatus('Firebase Auth initialized successfully!');
+                
+            } catch (error) {
+                log('❌ Auth initialization error: ' + error.message);
+                updateStatus('Auth initialization failed: ' + error.message, true);
+            }
+        }
+
+        async function testSignUp() {
+            log('🔍 Testing Firebase Sign Up...');
+            try {
+                const email = 'test@example.com';
+                const password = 'testpassword123';
+                
+                log('Attempting to create user with email: ' + email);
+                
+                const userCredential = await auth.createUserWithEmailAndPassword(email, password);
+                log('✅ User created successfully: ' + userCredential.user.email);
+                updateStatus('Sign up successful!');
+                
+            } catch (error) {
+                log('❌ Sign up error: ' + error.code + ' - ' + error.message);
+                updateStatus('Sign up failed: ' + error.message, true);
+                
+                // Check specific error codes
+                if (error.code === 'auth/email-already-in-use') {
+                    log('ℹ️ Email already in use - this is expected for testing');
+                } else if (error.code === 'auth/weak-password') {
+                    log('ℹ️ Password too weak - this is expected for testing');
+                } else if (error.code === 'auth/invalid-email') {
+                    log('ℹ️ Invalid email format - this is expected for testing');
+                } else if (error.code === 'auth/operation-not-allowed') {
+                    log('❌ Email/Password sign-in is not enabled!');
+                } else if (error.code === 'auth/unauthorized-domain') {
+                    log('❌ Domain not authorized!');
+                } else {
+                    log('❌ Unknown error: ' + error.code);
+                }
+            }
+        }
+
+        // Test on page load
+        window.onload = function() {
+            log('🚀 Page loaded, testing Firebase...');
+            testAuth();
+        };
+    </script>
+</body>
+</html>

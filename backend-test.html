@@ -1,0 +1,165 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Souk El-Sayarat Backend Test</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: #f5f5f5;
+        }
+        .container {
+            background: white;
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        .test-section {
+            margin: 20px 0;
+            padding: 20px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+        }
+        .test-button {
+            background: #007bff;
+            color: white;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            margin: 5px;
+        }
+        .test-button:hover {
+            background: #0056b3;
+        }
+        .success { color: #28a745; }
+        .error { color: #dc3545; }
+        .result {
+            margin: 10px 0;
+            padding: 10px;
+            border-radius: 5px;
+            background: #f8f9fa;
+            font-family: monospace;
+            font-size: 12px;
+            max-height: 200px;
+            overflow-y: auto;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🚗 Souk El-Sayarat Backend Test Suite</h1>
+        <p>Test your backend API endpoints easily</p>
+        
+        <div class="test-section">
+            <h3>🔍 Health Check</h3>
+            <button class="test-button" onclick="testHealth()">Test Health</button>
+            <div id="health-result" class="result"></div>
+        </div>
+
+        <div class="test-section">
+            <h3>🚗 Vehicle Endpoints</h3>
+            <button class="test-button" onclick="testVehicles()">Get All Vehicles</button>
+            <button class="test-button" onclick="testVehicle('sample123')">Get Vehicle Details</button>
+            <div id="vehicles-result" class="result"></div>
+        </div>
+
+        <div class="test-section">
+            <h3>📋 Order Endpoints</h3>
+            <button class="test-button" onclick="testOrders()">Get All Orders</button>
+            <button class="test-button" onclick="testUserOrders('sample123')">Get User Orders</button>
+            <div id="orders-result" class="result"></div>
+        </div>
+
+        <div class="test-section">
+            <h3>🔐 Auth Endpoints</h3>
+            <button class="test-button" onclick="testRegister()">Test Registration</button>
+            <button class="test-button" onclick="testLogin()">Test Login</button>
+            <div id="auth-result" class="result"></div>
+        </div>
+    </div>
+
+    <script>
+        const API_BASE = 'http://localhost:8080/api';
+
+        async function makeRequest(url, method = 'GET', data = null) {
+            try {
+                const options = {
+                    method: method,
+                    headers: {
+                        'Content-Type': 'application/json',
+                    }
+                };
+                if (data) {
+                    options.body = JSON.stringify(data);
+                }
+                
+                const response = await fetch(url, options);
+                const result = await response.json();
+                return { success: true, data: result, status: response.status };
+            } catch (error) {
+                return { success: false, error: error.message };
+            }
+        }
+
+        function displayResult(elementId, result) {
+            const element = document.getElementById(elementId);
+            if (result.success) {
+                element.innerHTML = `<span class="success">✅ Success:</span> ${JSON.stringify(result.data, null, 2)}`;
+                element.style.borderLeft = '4px solid #28a745';
+            } else {
+                element.innerHTML = `<span class="error">❌ Error:</span> ${result.error}`;
+                element.style.borderLeft = '4px solid #dc3545';
+            }
+        }
+
+        async function testHealth() {
+            const result = await makeRequest('http://localhost:8080/health');
+            displayResult('health-result', result);
+        }
+
+        async function testVehicles() {
+            const result = await makeRequest(`${API_BASE}/vehicles`);
+            displayResult('vehicles-result', result);
+        }
+
+        async function testVehicle(id) {
+            const result = await makeRequest(`${API_BASE}/vehicles/${id}`);
+            displayResult('vehicles-result', result);
+        }
+
+        async function testOrders() {
+            const result = await makeRequest(`${API_BASE}/orders`);
+            displayResult('orders-result', result);
+        }
+
+        async function testUserOrders(userId) {
+            const result = await makeRequest(`${API_BASE}/orders/user/${userId}`);
+            displayResult('orders-result', result);
+        }
+
+        async function testRegister() {
+            const testUser = {
+                email: 'test@example.com',
+                password: 'password123',
+                name: 'Test User'
+            };
+            const result = await makeRequest(`${API_BASE}/auth/register`, 'POST', testUser);
+            displayResult('auth-result', result);
+        }
+
+        async function testLogin() {
+            const credentials = {
+                email: 'test@example.com',
+                password: 'password123'
+            };
+            const result = await makeRequest(`${API_BASE}/auth/login`, 'POST', credentials);
+            displayResult('auth-result', result);
+        }
+    </script>
+</body>
+</html>

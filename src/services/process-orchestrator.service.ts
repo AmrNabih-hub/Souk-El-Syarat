@@ -558,27 +558,27 @@ export class ProcessOrchestratorService {
       switch (step.type) {
         case 'notification':
           await this.executeNotificationStep(step, event);
-        //           break;
+          break;
 
         case 'status_update':
           await this.executeStatusUpdateStep(step, event);
-        //           break;
+          break;
 
         case 'analytics':
           await this.executeAnalyticsStep(step, event);
-        //           break;
+          break;
 
         case 'messaging':
           await this.executeMessagingStep(step, event);
-        //           break;
+          break;
 
         case 'validation':
           await this.executeValidationStep(step, event);
-        //           break;
+          break;
 
         case 'external_api':
           await this.executeExternalApiStep(step, event);
-        //           break;
+          break;
 
         default:
         // if (process.env.NODE_ENV === 'development') console.warn(`Unknown step type: ${step.type}`);
@@ -615,18 +615,18 @@ export class ProcessOrchestratorService {
       switch (recipient) {
         case 'admin':
           userId = 'admin_user_id'; // Should be configured
-        //           break;
+          break;
         case 'vendor':
           userId = event.data.vendorId || event.triggeredBy;
-        //           break;
+          break;
         case 'customer':
           userId = event.data.customerId || event.triggeredBy;
-        //           break;
+          break;
         case 'applicant':
         case 'user':
         default:
           userId = event.triggeredBy;
-        //           break;
+          break;
       }
 
       await NotificationService.sendTemplatedNotification(userId, template, language, {
@@ -653,14 +653,14 @@ export class ProcessOrchestratorService {
             `Status updated by workflow: ${step.name}`
           );
         }
-      //         break;
+        break;
 
       case 'product':
         if (action === 'decrease_inventory' && event.data.items) {
           // This would be handled by OrderService.createOrder
           // if (process.env.NODE_ENV === 'development') console.log('Inventory update handled by order creation');
         }
-      //         break;
+        break;
 
       default:
       // if (process.env.NODE_ENV === 'development') console.warn(`Unknown entity type for status update: ${entity}`);
@@ -768,7 +768,7 @@ export class ProcessOrchestratorService {
   /**
    * Execute external API step
    */
-  private async executeExternalApiStep(step: WorkflowStep, _event: ProcessEvent): Promise<void> {
+  private async executeExternalApiStep(step: WorkflowStep): Promise<void> {
     // This would integrate with external APIs like payment gateways, shipping providers, etc.
     // if (process.env.NODE_ENV === 'development') console.log(`External API call for step: ${step.name}`);
   }

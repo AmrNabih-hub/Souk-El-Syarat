@@ -197,5 +197,6 @@ export const useBundleAnalytics = () => {
       observer.observe({ entryTypes: ['resource'] });
       return () => observer.disconnect();
     }
+    return undefined;
   }, []);
 };

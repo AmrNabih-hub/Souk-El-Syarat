@@ -125,6 +125,9 @@ export class AdminService {
   /**
    * Subscribe to real-time analytics updates
    */
+  /**
+   * Subscribe to analytics updates in real-time
+   */
   static subscribeToAnalytics(callback: (analytics: AdminAnalytics) => void): () => void {
     const analyticsQuery = query(
       collection(db, this.COLLECTIONS.PLATFORM_METRICS),
@@ -133,9 +136,12 @@ export class AdminService {
     );
 
     return onSnapshot(analyticsQuery, snapshot => {
-      if (!snapshot.empty) {
-        const analyticsData = snapshot.docs[0].data() as AdminAnalytics;
-        callback(analyticsData);
+      if (!snapshot.empty && snapshot.docs.length > 0) {
+        const firstDoc = snapshot.docs[0];
+        if (firstDoc && firstDoc.data) {
+          const analyticsData = firstDoc.data() as AdminAnalytics;
+          callback(analyticsData);
+        }
       }
     });
   }

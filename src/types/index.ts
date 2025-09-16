@@ -23,6 +23,31 @@ export interface User {
 
 export type UserRole = 'customer' | 'vendor' | 'admin';
 
+// Realtime Types
+export interface UserPresence {
+  id: string;
+  userId: string;
+  status: 'online' | 'offline' | 'away';
+  lastSeen: Date;
+  currentPage?: string;
+  deviceInfo?: {
+    userAgent: string;
+    platform: string;
+  };
+}
+
+export interface ChatMessage {
+  id: string;
+  chatId: string;
+  senderId: string;
+  receiverId: string;
+  content: string;
+  type: 'text' | 'image' | 'file';
+  timestamp: Date;
+  read: boolean;
+  delivered: boolean;
+}
+
 export interface Address {
   street: string;
   city: string;
@@ -550,7 +575,12 @@ export type NotificationType =
   | 'product_rejected'
   | 'new_review'
   | 'payment_received'
-  | 'system_announcement';
+  | 'system_announcement'
+  | 'order'
+  | 'message'
+  | 'system'
+  | 'promotion'
+  | 'alert';
 
 // Form Types
 export interface VendorApplicationForm {

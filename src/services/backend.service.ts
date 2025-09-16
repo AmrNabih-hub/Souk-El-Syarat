@@ -4,6 +4,7 @@
  */
 
 import { BACKEND_CONFIG } from '@/config/firebase.config';
+import { handleError } from '@/services/error-handler.service';
 
 interface BackendResponse<T = any> {
   success: boolean;
@@ -66,7 +67,12 @@ class BackendService {
         headers: {
           'Content-Type': 'application/json',
           'Accept': 'application/json',
+          'Access-Control-Allow-Origin': '*',
+          'Access-Control-Allow-Methods': 'GET, POST, PUT, DELETE, OPTIONS',
+          'Access-Control-Allow-Headers': 'Content-Type, Authorization, X-Requested-With',
         },
+        mode: 'cors',
+        credentials: 'omit',
         ...options,
       };
 
@@ -89,6 +95,15 @@ class BackendService {
       };
     } catch (error) {
       console.error('❌ Backend API Error:', error);
+      
+      // Handle error professionally
+      handleError(error, {
+        component: 'BackendService',
+        action: 'makeRequest',
+        timestamp: new Date(),
+        url: url,
+      }, 'high');
+
       return {
         success: false,
         error: error instanceof Error ? error.message : 'Unknown error',
