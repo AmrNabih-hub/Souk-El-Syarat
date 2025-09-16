@@ -1,0 +1,65 @@
+# Optimized App Hosting Configuration for Souk El-Syarat
+# Cost-optimized and production-ready
+
+runtime: nodejs20
+
+# Environment Variables - Consistent across all builds
+env:
+  - variable: NODE_ENV
+    value: production
+  - variable: FIREBASE_PROJECT_ID
+    value: souk-el-syarat
+  - variable: FIREBASE_AUTH_DOMAIN
+    value: souk-el-syarat.firebaseapp.com
+  - variable: FIREBASE_DATABASE_URL
+    value: https://souk-el-syarat-default-rtdb.europe-west1.firebasedatabase.app
+  - variable: FIREBASE_STORAGE_BUCKET
+    value: souk-el-syarat.firebasestorage.app
+  - variable: FIREBASE_MESSAGING_SENDER_ID
+    value: "505765285633"
+  - variable: FIREBASE_APP_ID
+    value: 1:505765285633:web:1bc55f947c68b46d75d500
+  - variable: FIREBASE_MEASUREMENT_ID
+    value: G-46RKPHQLVB
+
+# Build Configuration - Optimized for cost and speed
+build:
+  commands:
+    - echo "🚀 Starting optimized build process..."
+    - npm ci --only=production --silent
+    - echo "✅ Dependencies installed"
+    - npm run build:production
+    - echo "✅ Build completed successfully"
+    - echo "📊 Build size optimization complete"
+
+# Runtime Configuration
+run:
+  commands:
+    - echo "🚀 Starting Souk El-Syarat backend..."
+    - node server.js
+
+# Health Check Configuration
+healthCheck:
+  path: /health
+  timeout: 30s
+  interval: 10s
+
+# Resource Optimization
+resources:
+  cpu: 1
+  memory: 512Mi
+  minInstances: 0
+  maxInstances: 10
+
+# Cost Optimization Settings
+scaling:
+  minInstances: 0
+  maxInstances: 5
+  targetCpuUtilization: 0.6
+  targetMemoryUtilization: 0.8
+
+# Caching Configuration
+caching:
+  enabled: true
+  ttl: 300s
+  maxSize: 100MB

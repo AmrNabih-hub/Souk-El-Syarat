@@ -1,0 +1,46 @@
+{
+  "rules": {
+    "orders": {
+      "$orderId": {
+        ".read": "auth != null && (data.child('customerId').val() == auth.uid || data.child('vendorId').val() == auth.uid || root.child('users').child(auth.uid).child('role').val() == 'admin')",
+        ".write": "auth != null && (data.child('customerId').val() == auth.uid || data.child('vendorId').val() == auth.uid || root.child('users').child(auth.uid).child('role').val() == 'admin')",
+        ".validate": "data.hasChildren(['customerId', 'vendorId', 'status', 'totalAmount'])"
+      }
+    },
+    "chats": {
+      "$chatId": {
+        ".read": "auth != null && (data.child('participants').child(auth.uid).exists() || root.child('users').child(auth.uid).child('role').val() == 'admin')",
+        ".write": "auth != null && (data.child('participants').child(auth.uid).exists() || root.child('users').child(auth.uid).child('role').val() == 'admin')",
+        "messages": {
+          "$messageId": {
+            ".read": "auth != null && (data.child('senderId').val() == auth.uid || root.child('chats').child($chatId).child('participants').child(auth.uid).exists() || root.child('users').child(auth.uid).child('role').val() == 'admin')",
+            ".write": "auth != null && data.child('senderId').val() == auth.uid",
+            ".validate": "data.hasChildren(['senderId', 'content', 'timestamp'])"
+          }
+        }
+      }
+    },
+    "test": {
+      ".read": "auth != null && root.child('users').child(auth.uid).child('role').val() == 'admin'",
+      ".write": "auth != null && root.child('users').child(auth.uid).child('role').val() == 'admin'"
+    },
+    "users": {
+      "$userId": {
+        ".read": "auth != null && (auth.uid == $userId || root.child('users').child(auth.uid).child('role').val() == 'admin')",
+        ".write": "auth != null && (auth.uid == $userId || root.child('users').child(auth.uid).child('role').val() == 'admin')",
+        ".validate": "data.hasChildren(['email', 'role', 'isActive'])"
+      }
+    },
+    "products": {
+      "$productId": {
+        ".read": "auth != null",
+        ".write": "auth != null && (data.child('vendorId').val() == auth.uid || root.child('users').child(auth.uid).child('role').val() == 'admin')",
+        ".validate": "data.hasChildren(['title', 'price', 'vendorId', 'status'])"
+      }
+    },
+    "analytics": {
+      ".read": "auth != null && root.child('users').child(auth.uid).child('role').val() == 'admin'",
+      ".write": "auth != null && root.child('users').child(auth.uid).child('role').val() == 'admin'"
+    }
+  }
+}

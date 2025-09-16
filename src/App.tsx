@@ -6,7 +6,7 @@ import { useAuthStore } from '@/stores/authStore';
 import { useAppStore } from '@/stores/appStore';
 import { useRealtimeStore } from '@/stores/realtimeStore';
 import { PushNotificationService } from '@/services/push-notification.service';
-import { AuthService } from '@/services/auth.service';
+import { unifiedAuthService } from '@/services/unified-auth.service';
 
 // Layout Components
 import Navbar from '@/components/layout/Navbar';
@@ -26,6 +26,7 @@ const HomePage = React.lazy(() => import('@/pages/HomePage'));
 const LoginPage = React.lazy(() => import('@/pages/auth/LoginPage'));
 const RegisterPage = React.lazy(() => import('@/pages/auth/RegisterPage'));
 const ForgotPasswordPage = React.lazy(() => import('@/pages/auth/ForgotPasswordPage'));
+const AuthTestPage = React.lazy(() => import('@/pages/auth/AuthTestPage'));
 const VendorApplicationPage = React.lazy(() => import('@/pages/VendorApplicationPage'));
 const ErrorTestPage = React.lazy(() => import('@/pages/ErrorTestPage'));
 const MarketplacePage = React.lazy(() => import('@/pages/customer/MarketplacePage'));
@@ -191,7 +192,7 @@ function App() {
     
     setLoading(true);
 
-    const unsubscribe = AuthService.onAuthStateChange(user => {
+    const unsubscribe = unifiedAuthService.onAuthStateChange(user => {
       setUser(user);
       setLoading(false);
     });
@@ -349,6 +350,20 @@ function App() {
                       exit='exit'
                     >
                       <ErrorTestPage />
+                    </motion.div>
+                  }
+                />
+
+                <Route
+                  path='/auth-test'
+                  element={
+                    <motion.div
+                      variants={pageVariants}
+                      initial='initial'
+                      animate='animate'
+                      exit='exit'
+                    >
+                      <AuthTestPage />
                     </motion.div>
                   }
                 />

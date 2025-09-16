@@ -14,21 +14,22 @@ import { getAnalytics, Analytics } from 'firebase/analytics';
 import { getMessaging, Messaging } from 'firebase/messaging';
 // import { initializeAppCheck, AppCheck, ReCaptchaV3Provider } from 'firebase/app-check';
 
-// 🚨 BULLETPROOF // BULLETPROOF FIREBASE CONFIGURATION - ZERO 403 ERRORS
+// 🚨 BULLETPROOF FIREBASE CONFIGURATION - ZERO 403 ERRORS
 const firebaseConfig = {
-  apiKey: import.meta.env.VITE_FIREBASE_API_KEY || "AIzaSyBqKd3RdF5O9f8G7mK6H8Y9J0P1Q2R3S4T5",
-  authDomain: import.meta.env.VITE_FIREBASE_AUTH_DOMAIN || "souk-el-syarat.firebaseapp.com",
-  projectId: import.meta.env.VITE_FIREBASE_PROJECT_ID || "souk-el-syarat",
-  storageBucket: import.meta.env.VITE_FIREBASE_STORAGE_BUCKET || "souk-el-syarat.appspot.com",
-  messagingSenderId: import.meta.env.VITE_FIREBASE_MESSAGING_SENDER_ID || "505765285633",
-  appId: import.meta.env.VITE_FIREBASE_APP_ID || "1:505765285633:web:1bc55f947c68b46d75d500",
-  measurementId: import.meta.env.VITE_FIREBASE_MEASUREMENT_ID || "G-46RKPHQLVB",
+  apiKey: import.meta.env.VITE_FIREBASE_API_KEY,
+  authDomain: import.meta.env.VITE_FIREBASE_AUTH_DOMAIN,
+  projectId: import.meta.env.VITE_FIREBASE_PROJECT_ID,
+  storageBucket: import.meta.env.VITE_FIREBASE_STORAGE_BUCKET,
+  messagingSenderId: import.meta.env.VITE_FIREBASE_MESSAGING_SENDER_ID,
+  appId: import.meta.env.VITE_FIREBASE_APP_ID,
+  measurementId: import.meta.env.VITE_FIREBASE_MEASUREMENT_ID,
   databaseURL: import.meta.env.VITE_FIREBASE_DATABASE_URL
 };
 
 // Professional-grade validation to ensure config is loaded
-if (!firebaseConfig.apiKey || firebaseConfig.apiKey.includes("demo") || firebaseConfig.apiKey.length < 20) {
-  console.warn("⚠️ Firebase API Key is not properly configured. Using fallback configuration.");
+if (!firebaseConfig.apiKey || firebaseConfig.apiKey.length < 20) {
+  console.error("❌ Firebase API Key is not properly configured. Please check your .env file.");
+  throw new Error("Firebase configuration is missing or invalid. Please check your environment variables.");
 } else {
   console.log("✅ Firebase API Key configured successfully");
 }

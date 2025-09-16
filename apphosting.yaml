@@ -1,33 +1,34 @@
-﻿# Firebase App Hosting Configuration - Professional Backend
-# Optimized for production deployment with professional error handling
+# EMERGENCY CONFIGURATION - 5 BUDGET
+runtime: nodejs20
 
-# Build configuration - using Firebase Functions
-buildConfig:
-  runtime: nodejs20
-  buildCommand: "npm run build:functions"
-  installCommand: "npm install --include=dev --silent --no-audit --no-fund"
-  rootDir: "functions"
-
-# Runtime configuration - optimized for Functions
-runConfig:
-  cpu: 1
-  memoryMiB: 512
-  minInstances: 0  # Functions can scale to 0
-  maxInstances: 10
-  concurrency: 80
-  requestTimeout: 60s  # Functions timeout
-  startupTimeout: 60s
-
-# Environment variables
+# Minimal environment variables
 env:
   - variable: NODE_ENV
     value: production
-    availability:
-      - BUILD
-      - RUNTIME
+  - variable: FIREBASE_PROJECT_ID
+    value: souk-el-syarat
 
-  - variable: CI
-    value: "true"
-    availability:
-      - BUILD
-      - RUNTIME
+# Ultra-minimal resources
+resources:
+  cpu: 0.25
+  memory: 128Mi
+  minInstances: 0
+  maxInstances: 1
+
+# Aggressive scaling
+scaling:
+  minInstances: 0
+  maxInstances: 1
+  targetCpuUtilization: 0.8
+  targetMemoryUtilization: 0.9
+
+# Minimal build
+build:
+  commands:
+    - npm ci --only=production --silent
+    - npm run build:production
+
+# Minimal runtime
+run:
+  commands:
+    - node server.js
