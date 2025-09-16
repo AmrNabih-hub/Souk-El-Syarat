@@ -1,0 +1,40 @@
+{
+  "budget": {
+    "monthly_limit": 15,
+    "daily_limit": 0.50,
+    "alert_threshold": 0.40,
+    "emergency_threshold": 0.45
+  },
+  "services": {
+    "firebase_hosting": {
+      "cost": 0,
+      "limit": 0,
+      "enabled": true
+    },
+    "firebase_auth": {
+      "cost": 0,
+      "limit": 0,
+      "enabled": true
+    },
+    "firestore": {
+      "cost": 0,
+      "limit": 5,
+      "enabled": true
+    },
+    "functions": {
+      "cost": 0,
+      "limit": 0,
+      "enabled": false
+    },
+    "storage": {
+      "cost": 0,
+      "limit": 2,
+      "enabled": true
+    }
+  },
+  "alerts": {
+    "email": "your-email@example.com",
+    "daily_check": true,
+    "weekly_report": true
+  }
+}

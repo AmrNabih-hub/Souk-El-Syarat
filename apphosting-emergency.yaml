@@ -1,25 +1,34 @@
-﻿# EMERGENCY FIX - Firebase App Hosting Configuration
-buildConfig:
-  runtime: nodejs20
-  buildCommand: "echo 'Emergency deployment'"
-  installCommand: "npm install express --production"
-  rootDir: "."
+# EMERGENCY CONFIGURATION - 5 BUDGET
+runtime: nodejs20
 
-runConfig:
-  cpu: 1
-  memoryMiB: 512
-  minInstances: 1
-  maxInstances: 5
-  concurrency: 50
-  requestTimeout: 60s
-  startupTimeout: 60s
-
+# Minimal environment variables
 env:
   - variable: NODE_ENV
     value: production
-    availability:
-      - RUNTIME
-  - variable: PORT
-    value: "8080"
-    availability:
-      - RUNTIME
+  - variable: FIREBASE_PROJECT_ID
+    value: souk-el-syarat
+
+# Ultra-minimal resources
+resources:
+  cpu: 0.25
+  memory: 128Mi
+  minInstances: 0
+  maxInstances: 1
+
+# Aggressive scaling
+scaling:
+  minInstances: 0
+  maxInstances: 1
+  targetCpuUtilization: 0.8
+  targetMemoryUtilization: 0.9
+
+# Minimal build
+build:
+  commands:
+    - npm ci --only=production --silent
+    - npm run build:production
+
+# Minimal runtime
+run:
+  commands:
+    - node server.js
