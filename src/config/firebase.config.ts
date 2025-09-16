@@ -3,28 +3,37 @@
  * Souk El-Syarat Marketplace - Zero-Failure Setup
  */
 
-import { initializeApp, FirebaseApp } from 'firebase/app';
+import { initializeApp, FirebaseApp, getApps } from 'firebase/app';
 import { getAuth, Auth } from 'firebase/auth';
 import { getFirestore, Firestore } from 'firebase/firestore';
 import { getStorage, FirebaseStorage } from 'firebase/storage';
 import { getDatabase, Database } from 'firebase/database';
 import { getFunctions, Functions } from 'firebase/functions';
 import { getPerformance, FirebasePerformance } from 'firebase/performance';
-import { getAnalytics, Analytics } from 'firebase/analytics';
-import { getMessaging, Messaging } from 'firebase/messaging';
+import { getAnalytics, Analytics, isSupported as isAnalyticsSupported } from 'firebase/analytics';
+import { getMessaging, Messaging, isSupported as isMessagingSupported } from 'firebase/messaging';
 // import { initializeAppCheck, AppCheck, ReCaptchaV3Provider } from 'firebase/app-check';
 
-// 🚨 BULLETPROOF // BULLETPROOF FIREBASE CONFIGURATION - ZERO 403 ERRORS
-const firebaseConfig = {
-  apiKey: import.meta.env.VITE_FIREBASE_API_KEY || "AIzaSyBqKd3RdF5O9f8G7mK6H8Y9J0P1Q2R3S4T5",
-  authDomain: import.meta.env.VITE_FIREBASE_AUTH_DOMAIN || "souk-el-syarat.firebaseapp.com",
-  projectId: import.meta.env.VITE_FIREBASE_PROJECT_ID || "souk-el-syarat",
-  storageBucket: import.meta.env.VITE_FIREBASE_STORAGE_BUCKET || "souk-el-syarat.appspot.com",
-  messagingSenderId: import.meta.env.VITE_FIREBASE_MESSAGING_SENDER_ID || "505765285633",
-  appId: import.meta.env.VITE_FIREBASE_APP_ID || "1:505765285633:web:1bc55f947c68b46d75d500",
-  measurementId: import.meta.env.VITE_FIREBASE_MEASUREMENT_ID || "G-46RKPHQLVB",
-  databaseURL: import.meta.env.VITE_FIREBASE_DATABASE_URL
+// Strict environment variable accessor
+const getEnv = (key: string): string => {
+  const value = (import.meta as any)?.env?.[key];
+  if (!value) {
+    throw new Error(`Missing required environment variable: ${key}`);
+  }
+  return value;
 };
+
+// 🚨 BULLETPROOF // Require real env values
+const firebaseConfig = {
+  apiKey: getEnv('VITE_FIREBASE_API_KEY'),
+  authDomain: getEnv('VITE_FIREBASE_AUTH_DOMAIN'),
+  projectId: getEnv('VITE_FIREBASE_PROJECT_ID'),
+  storageBucket: getEnv('VITE_FIREBASE_STORAGE_BUCKET'),
+  messagingSenderId: getEnv('VITE_FIREBASE_MESSAGING_SENDER_ID'),
+  appId: getEnv('VITE_FIREBASE_APP_ID'),
+  measurementId: (import.meta as any)?.env?.VITE_FIREBASE_MEASUREMENT_ID,
+  databaseURL: (import.meta as any)?.env?.VITE_FIREBASE_DATABASE_URL
+} as const;
 
 // Professional-grade validation to ensure config is loaded
 if (!firebaseConfig.apiKey || firebaseConfig.apiKey.includes("demo") || firebaseConfig.apiKey.length < 20) {
@@ -33,21 +42,24 @@ if (!firebaseConfig.apiKey || firebaseConfig.apiKey.includes("demo") || firebase
   console.log("✅ Firebase API Key configured successfully");
 }
 
-// 🚨 IMMEDIATE INITIALIZATION - NO ENVIRONMENT CHECKS
-console.log('🚀 Initializing Firebase with secure config...');
+// Lazy, singleton initialization to avoid SSR/non-browser crashes
+let appInstance: FirebaseApp | null = null;
+export const getFirebaseApp = (): FirebaseApp => {
+  if (appInstance) return appInstance;
+  if (getApps().length) {
+    appInstance = getApps()[0]!;
+  } else {
+    appInstance = initializeApp(firebaseConfig);
+  }
+  return appInstance;
+};
 
-// Initialize Firebase App
-export const app: FirebaseApp = initializeApp(firebaseConfig);
-console.log('✅ Firebase app initialized');
-
-// Initialize Firebase Services
+export const app: FirebaseApp = getFirebaseApp();
 export const auth: Auth = getAuth(app);
 export const db: Firestore = getFirestore(app);
 export const realtimeDb: Database = getDatabase(app);
 export const storage: FirebaseStorage = getStorage(app);
 export const functions: Functions = getFunctions(app);
-
-console.log('✅ Firebase services initialized');
 
 // Initialize Analytics and Performance (Production only)
 export let analytics: Analytics | null = null;
@@ -55,44 +67,35 @@ export let performance: FirebasePerformance | null = null;
 export let messaging: Messaging | null = null;
 // let appCheck: AppCheck | null = null;
 
-// 🚨 IMMEDIATE SERVICE INITIALIZATION
-try {
-  // Initialize Analytics
-  if (typeof window !== 'undefined') {
-    analytics = getAnalytics(app);
-    console.log('✅ Analytics initialized');
-  }
+// Browser-only optional services
+const isBrowser = typeof window !== 'undefined' && typeof document !== 'undefined';
+if (isBrowser) {
+  try {
+    // Analytics
+    (async () => {
+      try {
+        if (firebaseConfig.measurementId && (await isAnalyticsSupported())) {
+          analytics = getAnalytics(app);
+        }
+      } catch {}
+    })();
 
-  // Initialize Performance
-  if (typeof window !== 'undefined') {
-    performance = getPerformance(app);
-    console.log('✅ Performance initialized');
-  }
+    // Performance
+    try {
+      performance = getPerformance(app);
+    } catch {}
 
-  // Initialize Messaging
-  if (typeof window !== 'undefined') {
-    messaging = getMessaging(app);
-    console.log('✅ Messaging initialized');
+    // Messaging
+    (async () => {
+      try {
+        if (await isMessagingSupported()) {
+          messaging = getMessaging(app);
+        }
+      } catch {}
+    })();
+  } catch (error) {
+    console.warn('Some optional Firebase services failed to initialize:', error);
   }
-
-  // 🚨 FIXED RECAPTCHA CONFIGURATION - NO MORE 400 ERRORS
-  if (typeof window !== 'undefined') {
-    // Enable App Check with debug token for development
-    console.log('🔧 App Check enabled with debug token');
-    // appCheck = initializeAppCheck(app, {
-    //   provider: new ReCaptchaV3Provider('6LdYsZ0qAAAAAH4f0a2L8W5YmN3jQ9X2kP7bR8sT'),
-    //   isTokenAutoRefreshEnabled: true,
-    // });
-    // console.log('✅ App Check initialized');
-    
-    // Set debug token for App Check
-    if (window.location.hostname === 'souk-el-syarat.web.app' || window.location.hostname === 'localhost') {
-      console.log('🔑 Setting App Check debug token');
-      // This will be handled by the debug token you added in Firebase Console
-    }
-  }
-} catch (error) {
-  console.warn('⚠️ Some Firebase services failed to initialize:', error);
 }
 
 // 🚨 IMMEDIATE CONNECTION TEST
@@ -144,37 +147,25 @@ export const validateFirebaseConfig = (): boolean => {
 // 🚨 IMMEDIATE INITIALIZATION
 export const initializeFirebase = async (): Promise<boolean> => {
   try {
-    console.log('🚀 Starting bulletproof Firebase initialization...');
-    
     // Validate configuration
     if (!validateFirebaseConfig()) {
       throw new Error('Invalid Firebase configuration');
     }
-    
-    // Test connection
-    const connectionSuccess = await testFirebaseConnection();
-    if (!connectionSuccess) {
-      throw new Error('Firebase connection test failed');
+    // Optionally test connections (no-op in SSR)
+    if (isBrowser) {
+      const connectionSuccess = await testFirebaseConnection();
+      if (!connectionSuccess) {
+        throw new Error('Firebase connection test failed');
+      }
     }
-    
-    console.log('🎉 BULLETPROOF FIREBASE INITIALIZATION COMPLETE!');
     return true;
   } catch (error) {
-    console.error('💥 Firebase initialization failed:', error);
+    console.error('Firebase initialization failed:', error);
     return false;
   }
 };
 
-// 🚨 IMMEDIATE EXECUTION
-console.log('🚀 EXECUTING BULLETPROOF FIREBASE INITIALIZATION...');
-initializeFirebase().then(success => {
-  if (success) {
-    console.log('🎉 SOUK EL-SYARAT FIREBASE SETUP COMPLETE!');
-    console.log('🌐 Your app is ready for production!');
-  } else {
-    console.error('💥 CRITICAL: Firebase setup failed!');
-  }
-});
+// Note: Do not auto-run initializeFirebase at import time to avoid SSR issues
 
 // Backend API configuration - App Hosting
 export const BACKEND_CONFIG = {
