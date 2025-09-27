@@ -14,6 +14,7 @@ export default defineConfig(({ command, mode }) => {
         "@": path.resolve(__dirname, "./src"),
       },
     },
+
     
     build: {
       // Optimize for production
@@ -23,28 +24,21 @@ export default defineConfig(({ command, mode }) => {
       minify: 'terser',
       
       // Enable tree shaking
-      rollupOptions: {
-        output: {
-          manualChunks: {
-            // Separate vendor chunks for better caching
-            'react-vendor': ['react', 'react-dom', 'react-router-dom'],
-            'firebase-vendor': [
-              'firebase/app',
-              'firebase/auth',
-              'firebase/firestore',
-              'firebase/storage',
-              'firebase/functions',
-              'firebase/analytics'
-            ],
-            'ui-vendor': [
-              'framer-motion',
-              '@heroicons/react/24/outline',
-              '@heroicons/react/24/solid',
-              'react-hot-toast'
-            ]
+        rollupOptions: {
+          external: [],
+          output: {
+            manualChunks: {
+              // Separate vendor chunks for better caching
+              'react-vendor': ['react', 'react-dom', 'react-router-dom'],
+              'ui-vendor': [
+                'framer-motion',
+                '@heroicons/react/24/outline',
+                '@heroicons/react/24/solid',
+                'react-hot-toast'
+              ]
+            }
           }
-        }
-      },
+        },
       
       // Source maps for production debugging
       sourcemap: mode === 'production' ? false : true,

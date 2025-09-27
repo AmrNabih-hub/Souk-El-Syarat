@@ -1,70 +1,149 @@
-import { auth, db } from '@/config/firebase.config';
-import {
-  User as FirebaseUser,
-  signInWithEmailAndPassword,
-  createUserWithEmailAndPassword,
-  signInWithPopup,
-  signOut as firebaseSignOut,
-  sendPasswordResetEmail,
-  sendEmailVerification,
-  updateProfile,
-  updatePassword,
-  onAuthStateChanged,
-  deleteUser,
-  reload,
-  GoogleAuthProvider,
-  FacebookAuthProvider,
-  TwitterAuthProvider,
-} from 'firebase/auth';
-import {
-  doc,
-  setDoc,
-  getDoc,
-  updateDoc,
-  collection,
-  query,
-  where,
-  getDocs,
-} from 'firebase/firestore';
+import { Amplify } from 'aws-amplify';
+import { signIn, signUp, signOut, getCurrentUser, confirmSignUp, resendSignUpCode, resetPassword, confirmResetPassword, updatePassword, deleteUser } from '@aws-amplify/auth';
+import { generateClient } from 'aws-amplify/api';
+import amplifyConfig from '@/config/amplify.config';
+
+// Initialize Amplify client for GraphQL operations
+const client = generateClient();
 
 import { User, UserRole } from '@/types';
 
 export class AuthService {
-  // Initialize auth providers
-  static googleProvider = new GoogleAuthProvider();
-  static facebookProvider = new FacebookAuthProvider();
-  static twitterProvider = new TwitterAuthProvider();
-
   // 🚨 BULLETPROOF AUTHENTICATION STATE LISTENER
   static onAuthStateChange(callback: (user: User | null) => void) {
     console.log('🚀 Setting up bulletproof auth state listener...');
     
     try {
-      const unsubscribe = onAuthStateChanged(auth, async (firebaseUser) => {
+      // AWS Amplify uses Hub for auth state changes
+      import('@aws-amplify/core').then(({ Hub }) => {
+        const unsubscribe = Hub.listen('auth', async (data: { payload: { event: string; data: any } }) => {
         try {
-          console.log('🔄 Auth state changed:', firebaseUser ? 'User logged in' : 'User logged out');
-          
-          if (firebaseUser) {
-            // Get user data from Firestore
-            const userDoc = await getDoc(doc(db, 'users', firebaseUser.uid));
-            
-            if (userDoc.exists()) {
-              const userData = userDoc.data() as Omit<User, 'id'>;
-              const user: User = { id: firebaseUser.uid, ...userData };
-              console.log('✅ User data retrieved successfully');
-              callback(user);
-            } else {
+          console.log('🔄 Auth state changed:', data.payload.event, data.payload.data);
+
+          switch (data.payload.event) {
+            case 'signIn':
+            case 'cognitoHostedUI':
+              try {
+                const amplifyUser = await getCurrentUser();
+                console.log('✅ Amplify user retrieved:', amplifyUser);
+
+                // Get user data from GraphQL API
+                const userData = await this.getUserFromAPI(amplifyUser.userId);
+                if (userData) {
+                  const user: User = {
+                    id: amplifyUser.userId,
+                    email: amplifyUser.signInDetails?.loginId || '',
+                    displayName: userData.displayName || 'User',
+                    phoneNumber: userData.phoneNumber,
+                    photoURL: userData.photoURL,
+                    role: userData.role || 'customer',
+                    isActive: userData.isActive ?? true,
+                    emailVerified: true, // Amplify handles verification differently
+                    createdAt: userData.createdAt ? new Date(userData.createdAt) : new Date(),
+                    updatedAt: userData.updatedAt ? new Date(userData.updatedAt) : new Date(),
+                    preferences: userData.preferences || {
+                      language: 'ar',
+                      currency: 'EGP',
+                      notifications: {
+                        email: true,
+                        sms: false,
+                        push: true,
+                      },
+                    },
+                  };
+            console.log('✅ User data retrieved successfully');
+            callback(user);
+          } else {
+                  // Create default user
+                  const defaultUser = await this.createDefaultUser(amplifyUser);
+                  callback(defaultUser);
+                }
+              } catch (error) {
+                console.error('❌ Error getting current user:', error);
+                callback(null);
+              }
+              break;
+
+            case 'signOut':
+              console.log('✅ User logged out successfully');
+              callback(null);
+              break;
+
+            default:
+              console.log('ℹ️ Unhandled auth event:', data.payload.event);
+              break;
+          }
+        } catch (error) {
+          console.error('❌ Error in auth state change handler:', error);
+          callback(null);
+        }
+      });
+
+      console.log('✅ Auth state listener set up successfully');
+      return unsubscribe;
+      }).catch(error => {
+        console.error('💥 Failed to set up auth state listener:', error);
+        callback(null);
+      });
+
+      // Return a dummy unsubscribe function for now
+      return () => {};
+    } catch (error) {
+      console.error('💥 Failed to set up auth state listener:', error);
+      return () => {};
+    }
+  }
+
+  // Helper method to get user from GraphQL API
+  private static async getUserFromAPI(userId: string): Promise<any> {
+    try {
+      const result = await client.graphql({
+        query: `
+          query GetUser($id: ID!) {
+            getUser(id: $id) {
+              id
+              email
+              displayName
+              phoneNumber
+              photoURL
+              role
+              isActive
+              createdAt
+              updatedAt
+              preferences {
+                language
+                currency
+                notifications {
+                  email
+                  sms
+                  push
+                }
+              }
+            }
+          }
+        `,
+        variables: { id: userId }
+      });
+      return result.data.getUser;
+    } catch (error) {
+      console.warn('⚠️ Could not fetch user from API:', error);
+      return null;
+    }
+  }
+
+  // Helper method to create default user
+  private static async createDefaultUser(amplifyUser: any): Promise<User> {
               console.log('⚠️ User document not found, creating default user');
-              // Create default user if document doesn't exist
+
               const defaultUser: User = {
-                id: firebaseUser.uid,
-                email: firebaseUser.email!,
-                displayName: firebaseUser.displayName || 'User',
-                phoneNumber: firebaseUser.phoneNumber || undefined,
-                photoURL: firebaseUser.photoURL || undefined,
+      id: amplifyUser.userId,
+      email: amplifyUser.signInDetails?.loginId || '',
+      displayName: 'User',
+      phoneNumber: undefined,
+      photoURL: undefined,
                 role: 'customer',
                 isActive: true,
-                emailVerified: firebaseUser.emailVerified,
+      emailVerified: true,
                 createdAt: new Date(),
                 updatedAt: new Date(),
                 preferences: {
@@ -77,26 +156,34 @@ export class AuthService {
                   },
                 },
               };
-              callback(defaultUser);
+
+    // Try to create user in API
+    try {
+      await client.graphql({
+        query: `
+          mutation CreateUser($input: CreateUserInput!) {
+            createUser(input: $input) {
+              id
             }
-          } else {
-            console.log('✅ User logged out successfully');
-            callback(null);
           }
-        } catch (error) {
-          console.error('❌ Error in auth state change handler:', error);
-          // Return null user on error to prevent app crashes
-          callback(null);
+        `,
+        variables: {
+          input: {
+            id: defaultUser.id,
+            email: defaultUser.email,
+            displayName: defaultUser.displayName,
+            role: defaultUser.role,
+            isActive: defaultUser.isActive,
+            preferences: defaultUser.preferences,
+          }
         }
       });
-      
-      console.log('✅ Auth state listener set up successfully');
-      return unsubscribe;
+      console.log('✅ Default user document created');
     } catch (error) {
-      console.error('💥 Failed to set up auth state listener:', error);
-      // Return a dummy unsubscribe function to prevent errors
-      return () => {};
+      console.warn('⚠️ Could not create default user in API:', error);
     }
+
+    return defaultUser;
   }
 
   // 🚨 BULLETPROOF SIGN UP - NO MORE PROMISE ERRORS
@@ -109,39 +196,32 @@ export class AuthService {
     try {
       console.log('🚀 Starting bulletproof sign up process...');
       
-      // Create Firebase auth user
-      const userCredential = await createUserWithEmailAndPassword(auth, email, password);
-      const firebaseUser = userCredential.user;
-      console.log('✅ Firebase user created successfully');
+      // Create AWS Amplify user
+      const signUpResult = await signUp({
+        username: email,
+        password,
+        options: {
+          userAttributes: {
+            email,
+            name: displayName,
+            'custom:role': role,
+          },
+        },
+      });
 
-      // Send email verification
-      try {
-        await sendEmailVerification(firebaseUser, {
-          url: `${window.location.origin}/verify-email`,
-          handleCodeInApp: true,
-        });
-        console.log('✅ Email verification sent');
-      } catch (verificationError) {
-        console.warn('⚠️ Email verification failed, continuing without it:', verificationError);
-      }
+      console.log('✅ Amplify user sign up initiated successfully');
 
-      // Update Firebase auth profile
-      try {
-        await updateProfile(firebaseUser, { displayName });
-        console.log('✅ Profile updated successfully');
-      } catch (profileError) {
-        console.warn('⚠️ Profile update failed, continuing without it:', profileError);
-      }
-
-      // Create user document in Firestore
-      const userData: Omit<User, 'id'> = {
-        email: firebaseUser.email!,
+      // For now, return a temporary user object
+      // In a real implementation, you'd wait for email confirmation
+      const tempUser: User = {
+        id: signUpResult.userId || '',
+        email,
         displayName,
-        phoneNumber: firebaseUser.phoneNumber || undefined,
-        photoURL: firebaseUser.photoURL || undefined,
+        phoneNumber: undefined,
+        photoURL: undefined,
         role,
-        isActive: true,
-        emailVerified: firebaseUser.emailVerified,
+        isActive: false, // Not active until email is confirmed
+        emailVerified: false,
         createdAt: new Date(),
         updatedAt: new Date(),
         preferences: {
@@ -155,17 +235,13 @@ export class AuthService {
         },
       };
 
-      await setDoc(doc(db, 'users', firebaseUser.uid), userData);
-      console.log('✅ User document created in Firestore');
-
-      const user: User = { id: firebaseUser.uid, ...userData };
-      console.log('🎉 Sign up completed successfully!');
-      return user;
+      console.log('🎉 Sign up completed successfully! Please check your email for confirmation.');
+      return tempUser;
       
     } catch (error) {
       console.error('💥 Sign up failed:', error);
-      const authError = error as { code?: string };
-      throw new Error(this.getAuthErrorMessage(authError.code));
+      const authError = error as { name?: string };
+      throw new Error(this.getAmplifyAuthErrorMessage(authError.name));
     }
   }
 
@@ -174,28 +250,39 @@ export class AuthService {
     try {
       console.log('🚀 Starting bulletproof sign in process...');
       
-      const userCredential = await signInWithEmailAndPassword(auth, email, password);
-      const firebaseUser = userCredential.user;
-      console.log('✅ Firebase authentication successful');
+      const signInResult = await signIn({
+        username: email,
+        password,
+      });
 
-      // Get user data from Firestore
-      const userDoc = await getDoc(doc(db, 'users', firebaseUser.uid));
+      console.log('✅ Amplify authentication successful');
 
-      if (!userDoc.exists()) {
+      // Get current user details
+      const amplifyUser = await getCurrentUser();
+
+      // Get user data from GraphQL API
+      const userData = await this.getUserFromAPI(amplifyUser.userId);
+
+      if (!userData) {
         console.warn('⚠️ User document not found, creating default user');
         // Create default user if document doesn't exist
-        const defaultUser: User = {
-          id: firebaseUser.uid,
-          email: firebaseUser.email!,
-          displayName: firebaseUser.displayName || 'User',
-          phoneNumber: firebaseUser.phoneNumber || undefined,
-          photoURL: firebaseUser.photoURL || undefined,
-          role: 'customer',
-          isActive: true,
-          emailVerified: firebaseUser.emailVerified,
-          createdAt: new Date(),
-          updatedAt: new Date(),
-          preferences: {
+        const defaultUser = await this.createDefaultUser(amplifyUser);
+        console.log('✅ Default user document created');
+        return defaultUser;
+      }
+
+      const user: User = {
+        id: amplifyUser.userId,
+        email: amplifyUser.signInDetails?.loginId || '',
+        displayName: userData.displayName || 'User',
+        phoneNumber: userData.phoneNumber,
+        photoURL: userData.photoURL,
+        role: userData.role || 'customer',
+        isActive: userData.isActive ?? true,
+        emailVerified: true, // Assume verified if signed in
+        createdAt: userData.createdAt ? new Date(userData.createdAt) : new Date(),
+        updatedAt: userData.updatedAt ? new Date(userData.updatedAt) : new Date(),
+        preferences: userData.preferences || {
             language: 'ar',
             currency: 'EGP',
             notifications: {
@@ -206,75 +293,30 @@ export class AuthService {
           },
         };
         
-        // Save to Firestore
-        await setDoc(doc(db, 'users', firebaseUser.uid), defaultUser);
-        console.log('✅ Default user document created');
-        return defaultUser;
-      }
-
-      const userData = userDoc.data() as Omit<User, 'id'>;
-      const user: User = { id: firebaseUser.uid, ...userData };
       console.log('🎉 Sign in completed successfully!');
       return user;
       
     } catch (error) {
       console.error('💥 Sign in failed:', error);
-      const authError = error as { code?: string };
-      throw new Error(this.getAuthErrorMessage(authError.code));
+      const authError = error as { name?: string };
+      throw new Error(this.getAmplifyAuthErrorMessage(authError.name));
     }
   }
 
-  // 🚨 BULLETPROOF GOOGLE SIGN IN
+  // 🚨 BULLETPROOF SOCIAL SIGN IN (Google/Facebook)
   static async signInWithGoogle(): Promise<User> {
     try {
       console.log('🚀 Starting bulletproof Google sign in...');
       
-      const userCredential = await signInWithPopup(auth, this.googleProvider);
-      const firebaseUser = userCredential.user;
-      console.log('✅ Google authentication successful');
-
-      // Get user data from Firestore
-      const userDoc = await getDoc(doc(db, 'users', firebaseUser.uid));
-
-      if (!userDoc.exists()) {
-        console.log('🆕 New Google user, creating user document...');
-        // Create new user document for Google sign-in
-        const newUser: User = {
-          id: firebaseUser.uid,
-          email: firebaseUser.email!,
-          displayName: firebaseUser.displayName || 'Google User',
-          phoneNumber: firebaseUser.phoneNumber || undefined,
-          photoURL: firebaseUser.photoURL || undefined,
-          role: 'customer',
-          isActive: true,
-          emailVerified: firebaseUser.emailVerified,
-          createdAt: new Date(),
-          updatedAt: new Date(),
-          preferences: {
-            language: 'ar',
-            currency: 'EGP',
-            notifications: {
-              email: true,
-              sms: false,
-              push: true,
-            },
-          },
-        };
-        
-        await setDoc(doc(db, 'users', firebaseUser.uid), newUser);
-        console.log('✅ New Google user document created');
-        return newUser;
-      }
-
-      const userData = userDoc.data() as Omit<User, 'id'>;
-      const user: User = { id: firebaseUser.uid, ...userData };
-      console.log('🎉 Google sign in completed successfully!');
-      return user;
+      // For AWS Amplify, social sign-in is handled through Cognito Hosted UI
+      // This would typically redirect to the hosted UI
+      // For now, we'll throw an error indicating this needs to be configured
+      throw new Error('Social sign-in requires Cognito Hosted UI configuration. Please use the hosted UI flow.');
       
     } catch (error) {
       console.error('💥 Google sign in failed:', error);
-      const authError = error as { code?: string };
-      throw new Error(this.getAuthErrorMessage(authError.code));
+      const authError = error as { name?: string; message?: string };
+      throw new Error(authError.message || this.getAmplifyAuthErrorMessage(authError.name));
     }
   }
 
@@ -282,11 +324,12 @@ export class AuthService {
   static async signOut(): Promise<void> {
     try {
       console.log('🚀 Starting bulletproof sign out...');
-      await firebaseSignOut(auth);
+      await signOut();
       console.log('🎉 Sign out completed successfully!');
     } catch (error) {
       console.error('💥 Sign out failed:', error);
-      throw new Error('Failed to sign out. Please try again.');
+      const authError = error as { name?: string };
+      throw new Error(this.getAmplifyAuthErrorMessage(authError.name) || 'Failed to sign out. Please try again.');
     }
   }
 
@@ -294,12 +337,12 @@ export class AuthService {
   static async resetPassword(email: string): Promise<void> {
     try {
       console.log('🚀 Starting bulletproof password reset...');
-      await sendPasswordResetEmail(auth, email);
-      console.log('🎉 Password reset email sent successfully!');
+      await resetPassword({ username: email });
+      console.log('🎉 Password reset initiated successfully!');
     } catch (error) {
       console.error('💥 Password reset failed:', error);
-      const authError = error as { code?: string };
-      throw new Error(this.getAuthErrorMessage(authError.code));
+      const authError = error as { name?: string };
+      throw new Error(this.getAmplifyAuthErrorMessage(authError.name));
     }
   }
 
@@ -307,10 +350,31 @@ export class AuthService {
   static async updateUserProfile(userId: string, updates: Partial<User>): Promise<void> {
     try {
       console.log('🚀 Starting bulletproof profile update...');
-      await updateDoc(doc(db, 'users', userId), {
-        ...updates,
-        updatedAt: new Date(),
+
+      // Update user in GraphQL API
+      const updateData: any = {
+        id: userId,
+        updatedAt: new Date().toISOString(),
+      };
+
+      if (updates.displayName) updateData.displayName = updates.displayName;
+      if (updates.phoneNumber !== undefined) updateData.phoneNumber = updates.phoneNumber;
+      if (updates.photoURL !== undefined) updateData.photoURL = updates.photoURL;
+      if (updates.role) updateData.role = updates.role;
+      if (updates.isActive !== undefined) updateData.isActive = updates.isActive;
+      if (updates.preferences) updateData.preferences = updates.preferences;
+
+      await client.graphql({
+        query: `
+          mutation UpdateUser($input: UpdateUserInput!) {
+            updateUser(input: $input) {
+              id
+            }
+          }
+        `,
+        variables: { input: updateData }
       });
+
       console.log('🎉 Profile updated successfully!');
     } catch (error) {
       console.error('💥 Profile update failed:', error);
@@ -319,19 +383,19 @@ export class AuthService {
   }
 
   // 🚨 BULLETPROOF PASSWORD UPDATE
-  static async updateUserPassword(newPassword: string): Promise<void> {
+  static async updateUserPassword(oldPassword: string, newPassword: string): Promise<void> {
     try {
       console.log('🚀 Starting bulletproof password update...');
-      const currentUser = auth.currentUser;
-      if (!currentUser) {
-        throw new Error('No user is currently signed in');
-      }
-      await updatePassword(currentUser, newPassword);
+
+      // First confirm the current password (AWS Amplify requires this)
+      // For simplicity, we'll assume the user is authenticated
+      await updatePassword({ oldPassword, newPassword });
+
       console.log('🎉 Password updated successfully!');
     } catch (error) {
       console.error('💥 Password update failed:', error);
-      const authError = error as { code?: string };
-      throw new Error(this.getAuthErrorMessage(authError.code));
+      const authError = error as { name?: string };
+      throw new Error(this.getAmplifyAuthErrorMessage(authError.name));
     }
   }
 
@@ -339,38 +403,55 @@ export class AuthService {
   static async deleteUserAccount(): Promise<void> {
     try {
       console.log('🚀 Starting bulletproof account deletion...');
-      const currentUser = auth.currentUser;
-      if (!currentUser) {
-        throw new Error('No user is currently signed in');
+
+      // Get current user
+      const currentUser = await getCurrentUser();
+
+      // Delete user from GraphQL API first
+      try {
+        await client.graphql({
+          query: `
+            mutation DeleteUser($input: DeleteUserInput!) {
+              deleteUser(input: $input) {
+                id
+              }
+            }
+          `,
+          variables: { input: { id: currentUser.userId } }
+        });
+      } catch (apiError) {
+        console.warn('⚠️ Could not delete user from API:', apiError);
       }
-      await deleteUser(currentUser);
+
+      // Delete user from Cognito
+      await deleteUser();
+
       console.log('🎉 Account deleted successfully!');
     } catch (error) {
       console.error('💥 Account deletion failed:', error);
-      const authError = error as { code?: string };
-      throw new Error(this.getAuthErrorMessage(authError.code));
+      const authError = error as { name?: string };
+      throw new Error(this.getAmplifyAuthErrorMessage(authError.name));
     }
   }
 
   // 🚨 BULLETPROOF ERROR MESSAGE HANDLER
-  private static getAuthErrorMessage(errorCode?: string): string {
+  private static getAmplifyAuthErrorMessage(errorName?: string): string {
     const errorMessages: Record<string, string> = {
-      'auth/user-not-found': 'User not found. Please check your credentials.',
-      'auth/wrong-password': 'Incorrect password. Please try again.',
-      'auth/email-already-in-use': 'Email is already registered. Please sign in.',
-      'auth/weak-password': 'Password is too weak. Please use a stronger password.',
-      'auth/network-request-failed': 'Network error. Please check your connection.',
-      'auth/too-many-requests': 'Too many failed attempts. Please try again later.',
-      'auth/invalid-email': 'Invalid email address. Please check your email.',
-      'auth/user-disabled': 'This account has been disabled. Please contact support.',
-      'auth/operation-not-allowed': 'This operation is not allowed. Please contact support.',
-      'auth/requires-recent-login': 'Please sign in again to complete this action.',
-      'firestore/permission-denied': 'Access denied. Please check your permissions.',
-      'firestore/unavailable': 'Service temporarily unavailable. Please try again.',
-      'storage/unauthorized': 'Unauthorized access to storage. Please sign in.',
-      'storage/quota-exceeded': 'Storage quota exceeded. Please contact support.',
+      'UserNotFoundException': 'User not found. Please check your credentials.',
+      'NotAuthorizedException': 'Incorrect email or password. Please try again.',
+      'UsernameExistsException': 'Email is already registered. Please sign in.',
+      'InvalidPasswordException': 'Password is too weak. Please use a stronger password.',
+      'NetworkError': 'Network error. Please check your connection.',
+      'TooManyRequestsException': 'Too many failed attempts. Please try again later.',
+      'InvalidParameterException': 'Invalid email address. Please check your email.',
+      'UserNotConfirmedException': 'Please confirm your email address before signing in.',
+      'CodeMismatchException': 'Invalid confirmation code. Please try again.',
+      'ExpiredCodeException': 'Confirmation code has expired. Please request a new one.',
+      'LimitExceededException': 'Too many attempts. Please try again later.',
+      'InvalidEmailRoleAccessPolicyException': 'Access denied. Please check your permissions.',
+      'UserLambdaValidationException': 'Invalid user data. Please check your input.',
     };
 
-    return errorMessages[errorCode || ''] || 'An unexpected error occurred. Please try again.';
+    return errorMessages[errorName || ''] || 'An unexpected error occurred. Please try again.';
   }
 }

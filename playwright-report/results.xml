@@ -1,0 +1,450 @@
+<testsuites id="" name="" tests="24" failures="9" skipped="0" errors="0" time="194.527248">
+<testsuite name="basic.spec.ts" timestamp="2025-09-27T11:48:39.313Z" hostname="chromium" tests="3" failures="1" skipped="0" time="52.992" errors="0">
+<testcase name="Basic Application Tests › Homepage loads successfully" classname="basic.spec.ts" time="17.369">
+<system-out>
+<![CDATA[✅ Homepage loaded successfully
+]]>
+</system-out>
+</testcase>
+<testcase name="Basic Application Tests › Navigation elements are present" classname="basic.spec.ts" time="26.307">
+<failure message="basic.spec.ts:25:3 Navigation elements are present" type="FAILURE">
+<![CDATA[  [chromium] › basic.spec.ts:25:3 › Basic Application Tests › Navigation elements are present ──────
+
+    Error: expect(locator).toBeVisible() failed
+
+    Locator:  locator('nav')
+    Expected: visible
+    Received: <element(s) not found>
+    Timeout:  10000ms
+
+    Call log:
+      - Expect "toBeVisible" with timeout 10000ms
+      - waiting for locator('nav')
+
+
+      28 |     // Check for main navigation elements
+      29 |     const mainNav = page.locator('nav');
+    > 30 |     await expect(mainNav).toBeVisible();
+         |                           ^
+      31 |     
+      32 |     // Check for key navigation links (adjust selectors as needed)
+      33 |     // These are basic checks that should pass even if the exact content changes
+        at C:\Souk El_Sayarat\src\tests\e2e\basic.spec.ts:30:27
+
+    attachment #1: screenshot (image/png) ──────────────────────────────────────────────────────────
+    ..\..\..\test-results\basic-Basic-Application-Te-6d7f0-gation-elements-are-present-chromium\test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    attachment #2: video (video/webm) ──────────────────────────────────────────────────────────────
+    ..\..\..\test-results\basic-Basic-Application-Te-6d7f0-gation-elements-are-present-chromium\video.webm
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+]]>
+</failure>
+<system-out>
+<![CDATA[
+[[ATTACHMENT|..\test-results\basic-Basic-Application-Te-6d7f0-gation-elements-are-present-chromium\test-failed-1.png]]
+
+[[ATTACHMENT|..\test-results\basic-Basic-Application-Te-6d7f0-gation-elements-are-present-chromium\video.webm]]
+]]>
+</system-out>
+</testcase>
+<testcase name="Basic Application Tests › Application is responsive" classname="basic.spec.ts" time="9.316">
+<system-out>
+<![CDATA[✅ Application is responsive
+]]>
+</system-out>
+</testcase>
+</testsuite>
+<testsuite name="basic.spec.ts" timestamp="2025-09-27T11:48:39.313Z" hostname="firefox" tests="3" failures="1" skipped="0" time="85.565" errors="0">
+<testcase name="Basic Application Tests › Homepage loads successfully" classname="basic.spec.ts" time="23.352">
+<system-out>
+<![CDATA[✅ Homepage loaded successfully
+]]>
+</system-out>
+</testcase>
+<testcase name="Basic Application Tests › Navigation elements are present" classname="basic.spec.ts" time="34.219">
+<failure message="basic.spec.ts:25:3 Navigation elements are present" type="FAILURE">
+<![CDATA[  [firefox] › basic.spec.ts:25:3 › Basic Application Tests › Navigation elements are present ───────
+
+    Error: expect(locator).toBeVisible() failed
+
+    Locator:  locator('nav')
+    Expected: visible
+    Received: <element(s) not found>
+    Timeout:  10000ms
+
+    Call log:
+      - Expect "toBeVisible" with timeout 10000ms
+      - waiting for locator('nav')
+
+
+      28 |     // Check for main navigation elements
+      29 |     const mainNav = page.locator('nav');
+    > 30 |     await expect(mainNav).toBeVisible();
+         |                           ^
+      31 |     
+      32 |     // Check for key navigation links (adjust selectors as needed)
+      33 |     // These are basic checks that should pass even if the exact content changes
+        at C:\Souk El_Sayarat\src\tests\e2e\basic.spec.ts:30:27
+
+    attachment #1: screenshot (image/png) ──────────────────────────────────────────────────────────
+    ..\..\..\test-results\basic-Basic-Application-Te-6d7f0-gation-elements-are-present-firefox\test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    attachment #2: video (video/webm) ──────────────────────────────────────────────────────────────
+    ..\..\..\test-results\basic-Basic-Application-Te-6d7f0-gation-elements-are-present-firefox\video.webm
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+]]>
+</failure>
+<system-out>
+<![CDATA[
+[[ATTACHMENT|..\test-results\basic-Basic-Application-Te-6d7f0-gation-elements-are-present-firefox\test-failed-1.png]]
+
+[[ATTACHMENT|..\test-results\basic-Basic-Application-Te-6d7f0-gation-elements-are-present-firefox\video.webm]]
+]]>
+</system-out>
+</testcase>
+<testcase name="Basic Application Tests › Application is responsive" classname="basic.spec.ts" time="27.994">
+<system-out>
+<![CDATA[✅ Application is responsive
+]]>
+</system-out>
+</testcase>
+</testsuite>
+<testsuite name="basic.spec.ts" timestamp="2025-09-27T11:48:39.313Z" hostname="webkit" tests="3" failures="1" skipped="0" time="44.916" errors="0">
+<testcase name="Basic Application Tests › Homepage loads successfully" classname="basic.spec.ts" time="15.027">
+<system-out>
+<![CDATA[✅ Homepage loaded successfully
+]]>
+</system-out>
+</testcase>
+<testcase name="Basic Application Tests › Navigation elements are present" classname="basic.spec.ts" time="19.516">
+<failure message="basic.spec.ts:25:3 Navigation elements are present" type="FAILURE">
+<![CDATA[  [webkit] › basic.spec.ts:25:3 › Basic Application Tests › Navigation elements are present ────────
+
+    Error: expect(locator).toBeVisible() failed
+
+    Locator:  locator('nav')
+    Expected: visible
+    Received: <element(s) not found>
+    Timeout:  10000ms
+
+    Call log:
+      - Expect "toBeVisible" with timeout 10000ms
+      - waiting for locator('nav')
+
+
+      28 |     // Check for main navigation elements
+      29 |     const mainNav = page.locator('nav');
+    > 30 |     await expect(mainNav).toBeVisible();
+         |                           ^
+      31 |     
+      32 |     // Check for key navigation links (adjust selectors as needed)
+      33 |     // These are basic checks that should pass even if the exact content changes
+        at C:\Souk El_Sayarat\src\tests\e2e\basic.spec.ts:30:27
+
+    attachment #1: screenshot (image/png) ──────────────────────────────────────────────────────────
+    ..\..\..\test-results\basic-Basic-Application-Te-6d7f0-gation-elements-are-present-webkit\test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    attachment #2: video (video/webm) ──────────────────────────────────────────────────────────────
+    ..\..\..\test-results\basic-Basic-Application-Te-6d7f0-gation-elements-are-present-webkit\video.webm
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+]]>
+</failure>
+<system-out>
+<![CDATA[
+[[ATTACHMENT|..\test-results\basic-Basic-Application-Te-6d7f0-gation-elements-are-present-webkit\test-failed-1.png]]
+
+[[ATTACHMENT|..\test-results\basic-Basic-Application-Te-6d7f0-gation-elements-are-present-webkit\video.webm]]
+]]>
+</system-out>
+</testcase>
+<testcase name="Basic Application Tests › Application is responsive" classname="basic.spec.ts" time="10.373">
+<system-out>
+<![CDATA[✅ Application is responsive
+]]>
+</system-out>
+</testcase>
+</testsuite>
+<testsuite name="basic.spec.ts" timestamp="2025-09-27T11:48:39.313Z" hostname="mobile" tests="3" failures="1" skipped="0" time="39.048" errors="0">
+<testcase name="Basic Application Tests › Homepage loads successfully" classname="basic.spec.ts" time="7.177">
+<system-out>
+<![CDATA[✅ Homepage loaded successfully
+]]>
+</system-out>
+</testcase>
+<testcase name="Basic Application Tests › Navigation elements are present" classname="basic.spec.ts" time="22.226">
+<failure message="basic.spec.ts:25:3 Navigation elements are present" type="FAILURE">
+<![CDATA[  [mobile] › basic.spec.ts:25:3 › Basic Application Tests › Navigation elements are present ────────
+
+    Error: expect(locator).toBeVisible() failed
+
+    Locator:  locator('nav')
+    Expected: visible
+    Received: <element(s) not found>
+    Timeout:  10000ms
+
+    Call log:
+      - Expect "toBeVisible" with timeout 10000ms
+      - waiting for locator('nav')
+
+
+      28 |     // Check for main navigation elements
+      29 |     const mainNav = page.locator('nav');
+    > 30 |     await expect(mainNav).toBeVisible();
+         |                           ^
+      31 |     
+      32 |     // Check for key navigation links (adjust selectors as needed)
+      33 |     // These are basic checks that should pass even if the exact content changes
+        at C:\Souk El_Sayarat\src\tests\e2e\basic.spec.ts:30:27
+
+    attachment #1: screenshot (image/png) ──────────────────────────────────────────────────────────
+    ..\..\..\test-results\basic-Basic-Application-Te-6d7f0-gation-elements-are-present-mobile\test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    attachment #2: video (video/webm) ──────────────────────────────────────────────────────────────
+    ..\..\..\test-results\basic-Basic-Application-Te-6d7f0-gation-elements-are-present-mobile\video.webm
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+]]>
+</failure>
+<system-out>
+<![CDATA[
+[[ATTACHMENT|..\test-results\basic-Basic-Application-Te-6d7f0-gation-elements-are-present-mobile\test-failed-1.png]]
+
+[[ATTACHMENT|..\test-results\basic-Basic-Application-Te-6d7f0-gation-elements-are-present-mobile\video.webm]]
+]]>
+</system-out>
+</testcase>
+<testcase name="Basic Application Tests › Application is responsive" classname="basic.spec.ts" time="9.645">
+<system-out>
+<![CDATA[✅ Application is responsive
+]]>
+</system-out>
+</testcase>
+</testsuite>
+<testsuite name="basic.spec.ts" timestamp="2025-09-27T11:48:39.313Z" hostname="mobile-safari" tests="3" failures="1" skipped="0" time="29.846" errors="0">
+<testcase name="Basic Application Tests › Homepage loads successfully" classname="basic.spec.ts" time="6.2">
+<system-out>
+<![CDATA[✅ Homepage loaded successfully
+]]>
+</system-out>
+</testcase>
+<testcase name="Basic Application Tests › Navigation elements are present" classname="basic.spec.ts" time="14.125">
+<failure message="basic.spec.ts:25:3 Navigation elements are present" type="FAILURE">
+<![CDATA[  [mobile-safari] › basic.spec.ts:25:3 › Basic Application Tests › Navigation elements are present ─
+
+    Error: expect(locator).toBeVisible() failed
+
+    Locator:  locator('nav')
+    Expected: visible
+    Received: <element(s) not found>
+    Timeout:  10000ms
+
+    Call log:
+      - Expect "toBeVisible" with timeout 10000ms
+      - waiting for locator('nav')
+
+
+      28 |     // Check for main navigation elements
+      29 |     const mainNav = page.locator('nav');
+    > 30 |     await expect(mainNav).toBeVisible();
+         |                           ^
+      31 |     
+      32 |     // Check for key navigation links (adjust selectors as needed)
+      33 |     // These are basic checks that should pass even if the exact content changes
+        at C:\Souk El_Sayarat\src\tests\e2e\basic.spec.ts:30:27
+
+    attachment #1: screenshot (image/png) ──────────────────────────────────────────────────────────
+    ..\..\..\test-results\basic-Basic-Application-Te-6d7f0-gation-elements-are-present-mobile-safari\test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    attachment #2: video (video/webm) ──────────────────────────────────────────────────────────────
+    ..\..\..\test-results\basic-Basic-Application-Te-6d7f0-gation-elements-are-present-mobile-safari\video.webm
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+]]>
+</failure>
+<system-out>
+<![CDATA[
+[[ATTACHMENT|..\test-results\basic-Basic-Application-Te-6d7f0-gation-elements-are-present-mobile-safari\test-failed-1.png]]
+
+[[ATTACHMENT|..\test-results\basic-Basic-Application-Te-6d7f0-gation-elements-are-present-mobile-safari\video.webm]]
+]]>
+</system-out>
+</testcase>
+<testcase name="Basic Application Tests › Application is responsive" classname="basic.spec.ts" time="9.521">
+<system-out>
+<![CDATA[✅ Application is responsive
+]]>
+</system-out>
+</testcase>
+</testsuite>
+<testsuite name="basic.spec.ts" timestamp="2025-09-27T11:48:39.313Z" hostname="Microsoft Edge" tests="3" failures="1" skipped="0" time="32.052" errors="0">
+<testcase name="Basic Application Tests › Homepage loads successfully" classname="basic.spec.ts" time="8.222">
+<system-out>
+<![CDATA[✅ Homepage loaded successfully
+]]>
+</system-out>
+</testcase>
+<testcase name="Basic Application Tests › Navigation elements are present" classname="basic.spec.ts" time="20.161">
+<failure message="basic.spec.ts:25:3 Navigation elements are present" type="FAILURE">
+<![CDATA[  [Microsoft Edge] › basic.spec.ts:25:3 › Basic Application Tests › Navigation elements are present 
+
+    Error: expect(locator).toBeVisible() failed
+
+    Locator:  locator('nav')
+    Expected: visible
+    Received: <element(s) not found>
+    Timeout:  10000ms
+
+    Call log:
+      - Expect "toBeVisible" with timeout 10000ms
+      - waiting for locator('nav')
+
+
+      28 |     // Check for main navigation elements
+      29 |     const mainNav = page.locator('nav');
+    > 30 |     await expect(mainNav).toBeVisible();
+         |                           ^
+      31 |     
+      32 |     // Check for key navigation links (adjust selectors as needed)
+      33 |     // These are basic checks that should pass even if the exact content changes
+        at C:\Souk El_Sayarat\src\tests\e2e\basic.spec.ts:30:27
+
+    attachment #1: screenshot (image/png) ──────────────────────────────────────────────────────────
+    ..\..\..\test-results\basic-Basic-Application-Te-6d7f0-gation-elements-are-present-Microsoft-Edge\test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    attachment #2: video (video/webm) ──────────────────────────────────────────────────────────────
+    ..\..\..\test-results\basic-Basic-Application-Te-6d7f0-gation-elements-are-present-Microsoft-Edge\video.webm
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+]]>
+</failure>
+<system-out>
+<![CDATA[
+[[ATTACHMENT|..\test-results\basic-Basic-Application-Te-6d7f0-gation-elements-are-present-Microsoft-Edge\test-failed-1.png]]
+
+[[ATTACHMENT|..\test-results\basic-Basic-Application-Te-6d7f0-gation-elements-are-present-Microsoft-Edge\video.webm]]
+]]>
+</system-out>
+</testcase>
+<testcase name="Basic Application Tests › Application is responsive" classname="basic.spec.ts" time="3.669">
+<system-out>
+<![CDATA[✅ Application is responsive
+]]>
+</system-out>
+</testcase>
+</testsuite>
+<testsuite name="basic.spec.ts" timestamp="2025-09-27T11:48:39.313Z" hostname="Google Chrome" tests="3" failures="2" skipped="0" time="3.8" errors="0">
+<testcase name="Basic Application Tests › Homepage loads successfully" classname="basic.spec.ts" time="3.731">
+<system-out>
+<![CDATA[✅ Homepage loaded successfully
+]]>
+</system-out>
+</testcase>
+<testcase name="Basic Application Tests › Navigation elements are present" classname="basic.spec.ts" time="0.031">
+<failure message="basic.spec.ts:25:3 Navigation elements are present" type="FAILURE">
+<![CDATA[  [Google Chrome] › basic.spec.ts:25:3 › Basic Application Tests › Navigation elements are present ─
+
+    Error: browserType.launch: Target page, context or browser has been closed
+    Browser logs:
+
+    <launching> C:\Program Files\Google\Chrome\Application\chrome.exe --disable-field-trial-config --disable-background-networking --disable-background-timer-throttling --disable-backgrounding-occluded-windows --disable-back-forward-cache --disable-breakpad --disable-client-side-phishing-detection --disable-component-extensions-with-background-pages --disable-component-update --no-default-browser-check --disable-default-apps --disable-dev-shm-usage --disable-extensions --disable-features=AcceptCHFrame,AvoidUnnecessaryBeforeUnloadCheckSync,DestroyProfileOnBrowserClose,DialMediaRouteProvider,GlobalMediaControls,HttpsUpgrades,LensOverlay,MediaRouter,PaintHolding,ThirdPartyStoragePartitioning,Translate,AutoDeElevate --allow-pre-commit-input --disable-hang-monitor --disable-ipc-flooding-protection --disable-popup-blocking --disable-prompt-on-repost --disable-renderer-backgrounding --force-color-profile=srgb --metrics-recording-only --no-first-run --password-store=basic --use-mock-keychain --no-service-autorun --export-tagged-pdf --disable-search-engine-choice-screen --unsafely-disable-devtools-self-xss-warnings --edge-skip-compat-layer-relaunch --enable-automation --headless --hide-scrollbars --mute-audio --blink-settings=primaryHoverType=2,availableHoverTypes=2,primaryPointerType=4,availablePointerTypes=4 --no-sandbox --user-data-dir=C:\Users\GM\AppData\Local\Temp\playwright_chromiumdev_profile-rs6EEr --remote-debugging-pipe --no-startup-window
+    <launched> pid=28252
+    Call log:
+      - <launching> C:\Program Files\Google\Chrome\Application\chrome.exe --disable-field-trial-config --disable-background-networking --disable-background-timer-throttling --disable-backgrounding-occluded-windows --disable-back-forward-cache --disable-breakpad --disable-client-side-phishing-detection --disable-component-extensions-with-background-pages --disable-component-update --no-default-browser-check --disable-default-apps --disable-dev-shm-usage --disable-extensions --disable-features=AcceptCHFrame,AvoidUnnecessaryBeforeUnloadCheckSync,DestroyProfileOnBrowserClose,DialMediaRouteProvider,GlobalMediaControls,HttpsUpgrades,LensOverlay,MediaRouter,PaintHolding,ThirdPartyStoragePartitioning,Translate,AutoDeElevate --allow-pre-commit-input --disable-hang-monitor --disable-ipc-flooding-protection --disable-popup-blocking --disable-prompt-on-repost --disable-renderer-backgrounding --force-color-profile=srgb --metrics-recording-only --no-first-run --password-store=basic --use-mock-keychain --no-service-autorun --export-tagged-pdf --disable-search-engine-choice-screen --unsafely-disable-devtools-self-xss-warnings --edge-skip-compat-layer-relaunch --enable-automation --headless --hide-scrollbars --mute-audio --blink-settings=primaryHoverType=2,availableHoverTypes=2,primaryPointerType=4,availablePointerTypes=4 --no-sandbox --user-data-dir=C:\Users\GM\AppData\Local\Temp\playwright_chromiumdev_profile-rs6EEr --remote-debugging-pipe --no-startup-window
+      - <launched> pid=28252
+      - [pid=28252] <gracefully close start>
+      - [pid=28252] <kill>
+      - [pid=28252] <will force kill>
+      - [pid=28252] taskkill stderr: ERROR: The process "28252" not found.
+      - [pid=28252] <process did exit: exitCode=0, signal=null>
+      - [pid=28252] starting temporary directories cleanup
+      - [pid=28252] finished temporary directories cleanup
+      - [pid=28252] <gracefully close end>
+
+]]>
+</failure>
+</testcase>
+<testcase name="Basic Application Tests › Application is responsive" classname="basic.spec.ts" time="0.038">
+<failure message="basic.spec.ts:40:3 Application is responsive" type="FAILURE">
+<![CDATA[  [Google Chrome] › basic.spec.ts:40:3 › Basic Application Tests › Application is responsive ───────
+
+    Error: browserType.launch: Target page, context or browser has been closed
+    Browser logs:
+
+    <launching> C:\Program Files\Google\Chrome\Application\chrome.exe --disable-field-trial-config --disable-background-networking --disable-background-timer-throttling --disable-backgrounding-occluded-windows --disable-back-forward-cache --disable-breakpad --disable-client-side-phishing-detection --disable-component-extensions-with-background-pages --disable-component-update --no-default-browser-check --disable-default-apps --disable-dev-shm-usage --disable-extensions --disable-features=AcceptCHFrame,AvoidUnnecessaryBeforeUnloadCheckSync,DestroyProfileOnBrowserClose,DialMediaRouteProvider,GlobalMediaControls,HttpsUpgrades,LensOverlay,MediaRouter,PaintHolding,ThirdPartyStoragePartitioning,Translate,AutoDeElevate --allow-pre-commit-input --disable-hang-monitor --disable-ipc-flooding-protection --disable-popup-blocking --disable-prompt-on-repost --disable-renderer-backgrounding --force-color-profile=srgb --metrics-recording-only --no-first-run --password-store=basic --use-mock-keychain --no-service-autorun --export-tagged-pdf --disable-search-engine-choice-screen --unsafely-disable-devtools-self-xss-warnings --edge-skip-compat-layer-relaunch --enable-automation --headless --hide-scrollbars --mute-audio --blink-settings=primaryHoverType=2,availableHoverTypes=2,primaryPointerType=4,availablePointerTypes=4 --no-sandbox --user-data-dir=C:\Users\GM\AppData\Local\Temp\playwright_chromiumdev_profile-JsUugw --remote-debugging-pipe --no-startup-window
+    <launched> pid=7808
+    Call log:
+      - <launching> C:\Program Files\Google\Chrome\Application\chrome.exe --disable-field-trial-config --disable-background-networking --disable-background-timer-throttling --disable-backgrounding-occluded-windows --disable-back-forward-cache --disable-breakpad --disable-client-side-phishing-detection --disable-component-extensions-with-background-pages --disable-component-update --no-default-browser-check --disable-default-apps --disable-dev-shm-usage --disable-extensions --disable-features=AcceptCHFrame,AvoidUnnecessaryBeforeUnloadCheckSync,DestroyProfileOnBrowserClose,DialMediaRouteProvider,GlobalMediaControls,HttpsUpgrades,LensOverlay,MediaRouter,PaintHolding,ThirdPartyStoragePartitioning,Translate,AutoDeElevate --allow-pre-commit-input --disable-hang-monitor --disable-ipc-flooding-protection --disable-popup-blocking --disable-prompt-on-repost --disable-renderer-backgrounding --force-color-profile=srgb --metrics-recording-only --no-first-run --password-store=basic --use-mock-keychain --no-service-autorun --export-tagged-pdf --disable-search-engine-choice-screen --unsafely-disable-devtools-self-xss-warnings --edge-skip-compat-layer-relaunch --enable-automation --headless --hide-scrollbars --mute-audio --blink-settings=primaryHoverType=2,availableHoverTypes=2,primaryPointerType=4,availablePointerTypes=4 --no-sandbox --user-data-dir=C:\Users\GM\AppData\Local\Temp\playwright_chromiumdev_profile-JsUugw --remote-debugging-pipe --no-startup-window
+      - <launched> pid=7808
+      - [pid=7808] <gracefully close start>
+      - [pid=7808] <kill>
+      - [pid=7808] <will force kill>
+      - [pid=7808] taskkill stderr: ERROR: The process "7808" not found.
+      - [pid=7808] <process did exit: exitCode=0, signal=null>
+      - [pid=7808] starting temporary directories cleanup
+      - [pid=7808] finished temporary directories cleanup
+      - [pid=7808] <gracefully close end>
+
+]]>
+</failure>
+</testcase>
+</testsuite>
+<testsuite name="basic.spec.ts" timestamp="2025-09-27T11:48:39.313Z" hostname="tablet" tests="3" failures="1" skipped="0" time="22.706" errors="0">
+<testcase name="Basic Application Tests › Homepage loads successfully" classname="basic.spec.ts" time="3.75">
+<system-out>
+<![CDATA[✅ Homepage loaded successfully
+]]>
+</system-out>
+</testcase>
+<testcase name="Basic Application Tests › Navigation elements are present" classname="basic.spec.ts" time="13.976">
+<failure message="basic.spec.ts:25:3 Navigation elements are present" type="FAILURE">
+<![CDATA[  [tablet] › basic.spec.ts:25:3 › Basic Application Tests › Navigation elements are present ────────
+
+    Error: expect(locator).toBeVisible() failed
+
+    Locator:  locator('nav')
+    Expected: visible
+    Received: <element(s) not found>
+    Timeout:  10000ms
+
+    Call log:
+      - Expect "toBeVisible" with timeout 10000ms
+      - waiting for locator('nav')
+
+
+      28 |     // Check for main navigation elements
+      29 |     const mainNav = page.locator('nav');
+    > 30 |     await expect(mainNav).toBeVisible();
+         |                           ^
+      31 |     
+      32 |     // Check for key navigation links (adjust selectors as needed)
+      33 |     // These are basic checks that should pass even if the exact content changes
+        at C:\Souk El_Sayarat\src\tests\e2e\basic.spec.ts:30:27
+
+    attachment #1: screenshot (image/png) ──────────────────────────────────────────────────────────
+    ..\..\..\test-results\basic-Basic-Application-Te-6d7f0-gation-elements-are-present-tablet\test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    attachment #2: video (video/webm) ──────────────────────────────────────────────────────────────
+    ..\..\..\test-results\basic-Basic-Application-Te-6d7f0-gation-elements-are-present-tablet\video.webm
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+]]>
+</failure>
+<system-out>
+<![CDATA[
+[[ATTACHMENT|..\test-results\basic-Basic-Application-Te-6d7f0-gation-elements-are-present-tablet\test-failed-1.png]]
+
+[[ATTACHMENT|..\test-results\basic-Basic-Application-Te-6d7f0-gation-elements-are-present-tablet\video.webm]]
+]]>
+</system-out>
+</testcase>
+<testcase name="Basic Application Tests › Application is responsive" classname="basic.spec.ts" time="4.98">
+<system-out>
+<![CDATA[✅ Application is responsive
+]]>
+</system-out>
+</testcase>
+</testsuite>
+</testsuites>

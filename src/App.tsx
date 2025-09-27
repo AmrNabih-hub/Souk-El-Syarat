@@ -2,16 +2,30 @@ import React, { useEffect, Suspense } from 'react';
 import { Routes, Route, Navigate } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 
-import { useAuthStore } from '@/stores/authStore';
+import { useAuth } from '@/contexts/AuthContext';
+import { useRealtime } from '@/contexts/RealtimeContext';
 import { useAppStore } from '@/stores/appStore';
-import { useRealtimeStore } from '@/stores/realtimeStore';
 import { PushNotificationService } from '@/services/push-notification.service';
-import { AuthService } from '@/services/auth.service';
+import { useResourcePreloader } from '@/hooks/usePerformanceOptimization';
+import { initializeStateManager } from '@/utils/state-fix';
 
 // Layout Components
 import Navbar from '@/components/layout/Navbar';
 import Footer from '@/components/layout/Footer';
 import LoadingScreen from '@/components/ui/LoadingScreen';
+import ErrorBoundary from '@/components/ErrorBoundary';
+
+// Real-time Components - Lazy loaded for better performance
+const ChatWidget = React.lazy(() =>
+  import('@/components/realtime/ChatWidget').then(module => ({ default: module.ChatWidget }))
+);
+
+// Heavy UI Components - Lazy loaded
+const EnhancedHeroSlider = React.lazy(() => import('@/components/ui/EnhancedHeroSlider'));
+const EVSection = React.lazy(() => import('@/components/ui/EVSection'));
+const EnhancedProductDetailsModal = React.lazy(
+  () => import('@/components/product/EnhancedProductDetailsModal')
+);
 
 // Lazy load pages for better performance
 const HomePage = React.lazy(() => import('@/pages/HomePage'));
@@ -24,9 +38,12 @@ const ProductDetailsPage = React.lazy(() => import('@/pages/customer/ProductDeta
 const VendorsPage = React.lazy(() => import('@/pages/customer/VendorsPage'));
 const CartPage = React.lazy(() => import('@/pages/customer/CartPage'));
 const ProfilePage = React.lazy(() => import('@/pages/customer/ProfilePage'));
+const OrdersPage = React.lazy(() => import('@/pages/customer/OrdersPage'));
+const FavoritesPage = React.lazy(() => import('@/pages/customer/FavoritesPage'));
+const AboutPage = React.lazy(() => import('@/pages/AboutPage'));
+const ContactPage = React.lazy(() => import('@/pages/ContactPage'));
 
 // Dashboard pages
-const AdminDashboard = React.lazy(() => import('@/pages/admin/AdminDashboard'));
 const VendorDashboard = React.lazy(() => import('@/pages/vendor/VendorDashboard'));
 const CustomerDashboard = React.lazy(() => import('@/pages/customer/CustomerDashboard'));
 
@@ -36,9 +53,9 @@ const ProtectedRoute: React.FC<{
   roles?: string[];
   redirectTo?: string;
 }> = ({ children, roles, redirectTo = '/login' }) => {
-  const { user, isLoading } = useAuthStore();
+  const { user, loading } = useAuth();
 
-  if (isLoading) {
+  if (loading) {
     return <LoadingScreen message='جاري التحقق من الصلاحيات...' />;
   }
 
@@ -46,7 +63,7 @@ const ProtectedRoute: React.FC<{
     return <Navigate to={redirectTo} replace />;
   }
 
-  if (roles && !roles.includes(user.role)) {
+  if (roles && user.role && !roles.includes(user.role)) {
     return <Navigate to='/' replace />;
   }
 
@@ -57,13 +74,11 @@ const ProtectedRoute: React.FC<{
 const PublicRoute: React.FC<{
   children: React.ReactNode;
 }> = ({ children }) => {
-  const { user } = useAuthStore();
+  const { user } = useAuth();
 
   if (user) {
     // Redirect based on user role
     switch (user.role) {
-      case 'admin':
-        return <Navigate to='/admin/dashboard' replace />;
       case 'vendor':
         return <Navigate to='/vendor/dashboard' replace />;
       case 'customer':
@@ -77,17 +92,23 @@ const PublicRoute: React.FC<{
 };
 
 // Page transition animations
+const pageEasing = 'easeInOut' as const;
+
 const pageVariants = {
   initial: {
     opacity: 0,
     x: -20,
+    transition: {
+      duration: 0.3,
+      ease: pageEasing,
+    },
   },
   animate: {
     opacity: 1,
     x: 0,
     transition: {
       duration: 0.3,
-      ease: 'easeOut',
+      ease: pageEasing,
     },
   },
   exit: {
@@ -95,39 +116,27 @@ const pageVariants = {
     x: 20,
     transition: {
       duration: 0.3,
-      ease: 'easeIn',
+      ease: pageEasing,
     },
   },
 };
 
 function App() {
-  const { setUser, setLoading, user } = useAuthStore();
+  const { user } = useAuth();
   const { language, theme } = useAppStore();
-  const { initialize: initializeRealtime, cleanup: cleanupRealtime } = useRealtimeStore();
+  const { subscribeToUpdates, unsubscribeFromUpdates } = useRealtime();
 
-  // Set up authentication state listener
+  // Preload critical resources
+  useResourcePreloader([]);
+
+  // Initialize state manager to prevent state duplication issues
   useEffect(() => {
-    setLoading(true);
-
-    const unsubscribe = AuthService.onAuthStateChange(user => {
-      setUser(user);
-      setLoading(false);
-    });
-
-    return () => unsubscribe();
-  }, [setUser, setLoading]);
+    initializeStateManager();
+  }, []);
 
   // Initialize real-time services when user logs in
   useEffect(() => {
     if (user) {
-      // Initialize real-time services
-      initializeRealtime(user.id).catch(error => {
-        // Silent handling - service will continue without real-time features
-        if (process.env.NODE_ENV === 'development') {
-          console.error('Failed to initialize real-time services:', error);
-        }
-      });
-
       // Initialize push notifications
       PushNotificationService.initialize(user.id).catch(error => {
         // Silent handling - service will continue without push notifications
@@ -140,281 +149,371 @@ function App() {
       if (user.role === 'vendor') {
         PushNotificationService.subscribeToTopic(user.id, 'vendor-notifications');
         PushNotificationService.subscribeToTopic(user.id, 'order-updates');
+        subscribeToUpdates('orders', data => {
+          console.log('Order update received:', data);
+        });
       } else if (user.role === 'customer') {
         PushNotificationService.subscribeToTopic(user.id, 'customer-notifications');
         PushNotificationService.subscribeToTopic(user.id, 'promotions');
+        subscribeToUpdates('products', data => {
+          console.log('Product update received:', data);
+        });
       } else if (user.role === 'admin') {
         PushNotificationService.subscribeToTopic(user.id, 'admin-notifications');
         PushNotificationService.subscribeToTopic(user.id, 'system-alerts');
       }
-    } else {
-      // Clean up real-time services when user logs out
-      cleanupRealtime();
     }
 
     // Cleanup on unmount
     return () => {
-      if (!user) {
-        cleanupRealtime();
+      if (user) {
+        unsubscribeFromUpdates('orders');
+        unsubscribeFromUpdates('products');
       }
     };
-  }, [user, initializeRealtime, cleanupRealtime]);
+  }, [user, subscribeToUpdates, unsubscribeFromUpdates]);
 
   // Set document direction and theme
   useEffect(() => {
     document.documentElement.dir = language === 'ar' ? 'rtl' : 'ltr';
     document.documentElement.lang = language;
-    document.documentElement.className = theme === 'dark' ? 'dark' : '';
+
+    // Properly handle dark mode class
+    if (theme === 'dark') {
+      document.documentElement.classList.add('dark');
+    } else {
+      document.documentElement.classList.remove('dark');
+    }
   }, [language, theme]);
 
   return (
-    <div className='min-h-screen bg-gradient-to-br from-primary-50 via-white to-secondary-50 transition-all duration-500'>
-      <Navbar />
+    <ErrorBoundary>
+      <div className='min-h-screen bg-gradient-to-br from-primary-50 via-white to-secondary-50 transition-all duration-500'>
+        <Navbar />
 
-      <main className='flex-1'>
-        <AnimatePresence mode='wait'>
-          <Suspense fallback={<LoadingScreen />}>
-            <Routes>
-              {/* Public Routes */}
-              <Route
-                path='/'
-                element={
-                  <motion.div
-                    variants={pageVariants}
-                    initial='initial'
-                    animate='animate'
-                    exit='exit'
-                  >
-                    <HomePage />
-                  </motion.div>
-                }
-              />
-
-              <Route
-                path='/marketplace'
-                element={
-                  <motion.div
-                    variants={pageVariants}
-                    initial='initial'
-                    animate='animate'
-                    exit='exit'
-                  >
-                    <MarketplacePage />
-                  </motion.div>
-                }
-              />
-
-              <Route
-                path='/product/:id'
-                element={
-                  <motion.div
-                    variants={pageVariants}
-                    initial='initial'
-                    animate='animate'
-                    exit='exit'
-                  >
-                    <ProductDetailsPage />
-                  </motion.div>
-                }
-              />
-
-              <Route
-                path='/vendors'
-                element={
-                  <motion.div
-                    variants={pageVariants}
-                    initial='initial'
-                    animate='animate'
-                    exit='exit'
-                  >
-                    <VendorsPage />
-                  </motion.div>
-                }
-              />
-
-              <Route
-                path='/vendor/apply'
-                element={
-                  <motion.div
-                    variants={pageVariants}
-                    initial='initial'
-                    animate='animate'
-                    exit='exit'
-                  >
-                    <VendorApplicationPage />
-                  </motion.div>
-                }
-              />
-
-              {/* Authentication Routes */}
-              <Route
-                path='/login'
-                element={
-                  <PublicRoute>
+        <main id='main-content' className='flex-1'>
+          <AnimatePresence mode='wait'>
+            <Suspense fallback={<LoadingScreen />}>
+              <Routes>
+                {/* Public Routes */}
+                <Route
+                  path='/'
+                  element={
                     <motion.div
                       variants={pageVariants}
                       initial='initial'
                       animate='animate'
                       exit='exit'
                     >
-                      <LoginPage />
+                      <HomePage />
                     </motion.div>
-                  </PublicRoute>
-                }
-              />
+                  }
+                />
 
-              <Route
-                path='/register'
-                element={
-                  <PublicRoute>
+                <Route
+                  path='/marketplace'
+                  element={
                     <motion.div
                       variants={pageVariants}
                       initial='initial'
                       animate='animate'
                       exit='exit'
                     >
-                      <RegisterPage />
+                      <MarketplacePage />
                     </motion.div>
-                  </PublicRoute>
-                }
-              />
+                  }
+                />
 
-              <Route
-                path='/forgot-password'
-                element={
-                  <PublicRoute>
+                <Route
+                  path='/product/:id'
+                  element={
                     <motion.div
                       variants={pageVariants}
                       initial='initial'
                       animate='animate'
                       exit='exit'
                     >
-                      <ForgotPasswordPage />
+                      <ProductDetailsPage />
                     </motion.div>
-                  </PublicRoute>
-                }
-              />
+                  }
+                />
 
-              {/* Protected Routes */}
-              <Route
-                path='/cart'
-                element={
-                  <ProtectedRoute>
+                <Route
+                  path='/vendors'
+                  element={
                     <motion.div
                       variants={pageVariants}
                       initial='initial'
                       animate='animate'
                       exit='exit'
                     >
-                      <CartPage />
+                      <VendorsPage />
                     </motion.div>
-                  </ProtectedRoute>
-                }
-              />
+                  }
+                />
 
-              <Route
-                path='/profile'
-                element={
-                  <ProtectedRoute>
+                <Route
+                  path='/vendor/apply'
+                  element={
                     <motion.div
                       variants={pageVariants}
                       initial='initial'
                       animate='animate'
                       exit='exit'
                     >
-                      <ProfilePage />
+                      <VendorApplicationPage />
                     </motion.div>
-                  </ProtectedRoute>
-                }
-              />
+                  }
+                />
 
-              {/* Customer Dashboard */}
-              <Route
-                path='/dashboard'
-                element={
-                  <ProtectedRoute roles={['customer']}>
+                <Route
+                  path='/about'
+                  element={
                     <motion.div
                       variants={pageVariants}
                       initial='initial'
                       animate='animate'
                       exit='exit'
                     >
-                      <CustomerDashboard />
+                      <AboutPage />
                     </motion.div>
-                  </ProtectedRoute>
-                }
-              />
+                  }
+                />
 
-              {/* Vendor Dashboard */}
-              <Route
-                path='/vendor/dashboard/*'
-                element={
-                  <ProtectedRoute roles={['vendor']}>
+                <Route
+                  path='/contact'
+                  element={
                     <motion.div
                       variants={pageVariants}
                       initial='initial'
                       animate='animate'
                       exit='exit'
                     >
-                      <VendorDashboard />
+                      <ContactPage />
                     </motion.div>
-                  </ProtectedRoute>
-                }
-              />
+                  }
+                />
 
-              {/* Admin Dashboard */}
-              <Route
-                path='/admin/dashboard/*'
-                element={
-                  <ProtectedRoute roles={['admin']}>
+                {/* Authentication Routes */}
+                <Route
+                  path='/login'
+                  element={
+                    <PublicRoute>
+                      <motion.div
+                        variants={pageVariants}
+                        initial='initial'
+                        animate='animate'
+                        exit='exit'
+                      >
+                        <LoginPage />
+                      </motion.div>
+                    </PublicRoute>
+                  }
+                />
+
+                <Route
+                  path='/register'
+                  element={
+                    <PublicRoute>
+                      <motion.div
+                        variants={pageVariants}
+                        initial='initial'
+                        animate='animate'
+                        exit='exit'
+                      >
+                        <RegisterPage />
+                      </motion.div>
+                    </PublicRoute>
+                  }
+                />
+
+                <Route
+                  path='/forgot-password'
+                  element={
+                    <PublicRoute>
+                      <motion.div
+                        variants={pageVariants}
+                        initial='initial'
+                        animate='animate'
+                        exit='exit'
+                      >
+                        <ForgotPasswordPage />
+                      </motion.div>
+                    </PublicRoute>
+                  }
+                />
+
+                {/* Protected Routes */}
+                <Route
+                  path='/cart'
+                  element={
+                    <ProtectedRoute>
+                      <motion.div
+                        variants={pageVariants}
+                        initial='initial'
+                        animate='animate'
+                        exit='exit'
+                      >
+                        <CartPage />
+                      </motion.div>
+                    </ProtectedRoute>
+                  }
+                />
+
+                <Route
+                  path='/profile'
+                  element={
+                    <ProtectedRoute>
+                      <motion.div
+                        variants={pageVariants}
+                        initial='initial'
+                        animate='animate'
+                        exit='exit'
+                      >
+                        <ProfilePage />
+                      </motion.div>
+                    </ProtectedRoute>
+                  }
+                />
+
+                <Route
+                  path='/orders'
+                  element={
+                    <ProtectedRoute>
+                      <motion.div
+                        variants={pageVariants}
+                        initial='initial'
+                        animate='animate'
+                        exit='exit'
+                      >
+                        <OrdersPage />
+                      </motion.div>
+                    </ProtectedRoute>
+                  }
+                />
+
+                <Route
+                  path='/favorites'
+                  element={
+                    <ProtectedRoute>
+                      <motion.div
+                        variants={pageVariants}
+                        initial='initial'
+                        animate='animate'
+                        exit='exit'
+                      >
+                        <FavoritesPage />
+                      </motion.div>
+                    </ProtectedRoute>
+                  }
+                />
+
+                {/* Customer Dashboard Routes */}
+                <Route
+                  path='/dashboard'
+                  element={
+                    <ProtectedRoute roles={['customer']}>
+                      <motion.div
+                        variants={pageVariants}
+                        initial='initial'
+                        animate='animate'
+                        exit='exit'
+                      >
+                        <CustomerDashboard />
+                      </motion.div>
+                    </ProtectedRoute>
+                  }
+                />
+
+                <Route
+                  path='/dashboard/orders'
+                  element={
+                    <ProtectedRoute roles={['customer']}>
+                      <motion.div
+                        variants={pageVariants}
+                        initial='initial'
+                        animate='animate'
+                        exit='exit'
+                      >
+                        <OrdersPage />
+                      </motion.div>
+                    </ProtectedRoute>
+                  }
+                />
+
+                <Route
+                  path='/dashboard/favorites'
+                  element={
+                    <ProtectedRoute roles={['customer']}>
+                      <motion.div
+                        variants={pageVariants}
+                        initial='initial'
+                        animate='animate'
+                        exit='exit'
+                      >
+                        <FavoritesPage />
+                      </motion.div>
+                    </ProtectedRoute>
+                  }
+                />
+
+                {/* Vendor Dashboard */}
+                <Route
+                  path='/vendor/dashboard/*'
+                  element={
+                    <ProtectedRoute roles={['vendor']}>
+                      <motion.div
+                        variants={pageVariants}
+                        initial='initial'
+                        animate='animate'
+                        exit='exit'
+                      >
+                        <VendorDashboard />
+                      </motion.div>
+                    </ProtectedRoute>
+                  }
+                />
+
+                {/* 404 Route */}
+                <Route
+                  path='*'
+                  element={
                     <motion.div
+                      className='min-h-screen flex flex-col items-center justify-center'
                       variants={pageVariants}
                       initial='initial'
                       animate='animate'
                       exit='exit'
                     >
-                      <AdminDashboard />
+                      <h1 className='text-6xl font-bold text-primary-500 mb-4'>404</h1>
+                      <h2 className='text-2xl font-semibold text-neutral-700 mb-2'>
+                        الصفحة غير موجودة
+                      </h2>
+                      <p className='text-neutral-600 mb-8 text-center'>
+                        عذراً، لا يمكن العثور على الصفحة التي تبحث عنها
+                      </p>
+                      <motion.a
+                        href='/'
+                        className='btn btn-primary btn-lg'
+                        whileHover={{ scale: 1.05 }}
+                        whileTap={{ scale: 0.95 }}
+                      >
+                        العودة للرئيسية
+                      </motion.a>
                     </motion.div>
-                  </ProtectedRoute>
-                }
-              />
+                  }
+                />
+              </Routes>
+            </Suspense>
+          </AnimatePresence>
+        </main>
 
-              {/* 404 Route */}
-              <Route
-                path='*'
-                element={
-                  <motion.div
-                    className='min-h-screen flex flex-col items-center justify-center'
-                    variants={pageVariants}
-                    initial='initial'
-                    animate='animate'
-                    exit='exit'
-                  >
-                    <h1 className='text-6xl font-bold text-primary-500 mb-4'>404</h1>
-                    <h2 className='text-2xl font-semibold text-neutral-700 mb-2'>
-                      الصفحة غير موجودة
-                    </h2>
-                    <p className='text-neutral-600 mb-8 text-center'>
-                      عذراً، لا يمكن العثور على الصفحة التي تبحث عنها
-                    </p>
-                    <motion.a
-                      href='/'
-                      className='btn btn-primary btn-lg'
-                      whileHover={{ scale: 1.05 }}
-                      whileTap={{ scale: 0.95 }}
-                    >
-                      العودة للرئيسية
-                    </motion.a>
-                  </motion.div>
-                }
-              />
-            </Routes>
-          </Suspense>
-        </AnimatePresence>
-      </main>
+        <Footer />
 
-      <Footer />
-    </div>
+        {/* Real-time Chat Widget - Only show when user is logged in */}
+        {user && <ChatWidget />}
+      </div>
+    </ErrorBoundary>
   );
 }
 

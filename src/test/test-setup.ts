@@ -1,18 +1,39 @@
 /**
  * Universal Test Setup for Souk El-Syarat
  * Handles all mocking and test configuration from the root level
+ *
+ * As per our professional team structure, this file is managed by the
+ * Frontend Testing Specialist and reviewed by the Senior React Developer.
+ * This centralized approach ensures consistency, maintainability, and
+ * prevents catastrophic failures seen previously.
  */
 
 import { vi, beforeAll, afterEach } from 'vitest';
 import '@testing-library/jest-dom';
+import React from 'react';
 import { Product, CarProduct } from '@/types';
+import { render } from '@testing-library/react';
+import { AuthProvider } from '../contexts/AuthContext';
+import { RealtimeProvider } from '../contexts/RealtimeContext';
+
+// Global helper to wrap UI components with AuthProvider for tests
+// This allows components to be rendered with authentication context during testing
+(global as any).renderWithAuth = (ui: React.ReactElement, options?: any) => {
+  return render(React.createElement(AuthProvider, null, ui), options);
+};
+
+// Global helper to wrap UI components with AuthProvider + RealtimeProvider
+(global as any).renderWithProviders = (ui: React.ReactElement, options?: any) => {
+  return render(
+    React.createElement(AuthProvider, null, React.createElement(RealtimeProvider, null, ui)),
+    options
+  );
+};
 
 // =============================================================================
 // FRAMER MOTION MOCKING - COMPREHENSIVE
 // =============================================================================
 vi.mock('framer-motion', () => {
-  const React = require('react');
-  
   // Create a proper motion mock that ignores animation props
   const createMotionComponent = (Component: string) => {
     return React.forwardRef(({ children, ...props }: any, ref: any) => {
@@ -69,11 +90,9 @@ vi.mock('framer-motion', () => {
 // REACT ROUTER MOCKING - COMPREHENSIVE
 // =============================================================================
 vi.mock('react-router-dom', () => {
-  const React = require('react');
-  
   return {
     Link: React.forwardRef(({ children, to, className, ...props }: any, ref: any) => (
-      React.createElement('a', { 
+      React.createElement('a', {
         href: to, 
         className, 
         ...props, 
@@ -82,7 +101,7 @@ vi.mock('react-router-dom', () => {
       }, children)
     )),
     NavLink: React.forwardRef(({ children, to, className, ...props }: any, ref: any) => (
-      React.createElement('a', { 
+      React.createElement('a', {
         href: to, 
         className, 
         ...props, 
@@ -104,7 +123,6 @@ vi.mock('react-router-dom', () => {
 // HEROICONS MOCKING - COMPREHENSIVE AUTO-GENERATING
 // =============================================================================
 const createIconMock = (name: string) => {
-  const React = require('react');
   return React.forwardRef(({ className, ...props }: any, ref: any) => (
     React.createElement('svg', {
       'data-testid': `${name.toLowerCase()}-icon`,
@@ -159,7 +177,7 @@ const createHeroIconsModule = () => {
   const iconModule: Record<string, any> = {};
   
   // Generate all icons with 'Icon' suffix
-  heroIconNames.forEach(iconName => {
+  heroIconNames.forEach((iconName) => {
     iconModule[`${iconName}Icon`] = createIconMock(iconName);
   });
   
@@ -175,74 +193,25 @@ vi.mock('@heroicons/react/24/outline', () => createHeroIconsModule());
 vi.mock('@heroicons/react/24/solid', () => createHeroIconsModule());
 
 // =============================================================================
-// FIREBASE MOCKING - COMPREHENSIVE
+// AWS AMPLIFY MOCKING - PLACEHOLDER
 // =============================================================================
-vi.mock('@/config/firebase.config', () => ({
-  db: {
-    app: { name: 'test-app' },
-  },
-  auth: {
-    currentUser: null,
-  },
-  realtimeDb: {
-    app: { name: 'test-realtime-app' },
-  },
-  storage: {
-    app: { name: 'test-storage-app' },
-  },
+vi.mock('aws-amplify/datastore', () => ({
+  DataStore: { query: vi.fn(() => Promise.resolve([])) },
 }));
 
-vi.mock('firebase/firestore', () => ({
-  collection: vi.fn(() => ({ id: 'test-collection' })),
-  doc: vi.fn(() => ({ id: 'test-doc' })),
-  addDoc: vi.fn(() => Promise.resolve({ id: 'test-doc-id' })),
-  getDocs: vi.fn(() => Promise.resolve({ 
-    docs: [],
-    size: 0,
-    empty: true 
-  })),
-  getDoc: vi.fn(() => Promise.resolve({ 
-    exists: () => false,
-    data: () => ({}) 
-  })),
-  updateDoc: vi.fn(() => Promise.resolve()),
-  deleteDoc: vi.fn(() => Promise.resolve()),
-  query: vi.fn(() => ({ id: 'test-query' })),
-  where: vi.fn(() => ({ id: 'test-where' })),
-  orderBy: vi.fn(() => ({ id: 'test-orderby' })),
-  limit: vi.fn(() => ({ id: 'test-limit' })),
-  onSnapshot: vi.fn((query, callback) => {
-    callback({ docs: [], size: 0 });
-    return vi.fn(); // unsubscribe function
-  }),
-  writeBatch: vi.fn(() => ({
-    update: vi.fn(),
-    commit: vi.fn(() => Promise.resolve()),
-  })),
-  serverTimestamp: vi.fn(() => ({ isEqual: () => false })),
-  Timestamp: {
-    now: vi.fn(() => ({ toDate: () => new Date() })),
-    fromDate: vi.fn((date) => ({ toDate: () => date })),
+vi.mock('aws-amplify', () => ({
+  Auth: {
+    currentAuthenticatedUser: vi.fn(() => Promise.reject(new Error('No user'))),
+    signIn: vi.fn((username: string) => Promise.resolve({ username })),
+    signOut: vi.fn(() => Promise.resolve()),
   },
-}));
-
-vi.mock('firebase/database', () => ({
-  ref: vi.fn(() => ({ id: 'test-ref' })),
-  set: vi.fn(() => Promise.resolve()),
-  push: vi.fn(() => Promise.resolve({ key: 'test-key' })),
-  onValue: vi.fn((ref, callback) => {
-    callback({ val: () => null });
-    return vi.fn(); // unsubscribe function
-  }),
-  update: vi.fn(() => Promise.resolve()),
-  remove: vi.fn(() => Promise.resolve()),
 }));
 
 // =============================================================================
 // STORES MOCKING - COMPREHENSIVE  
 // =============================================================================
 vi.mock('@/stores/appStore', () => ({
-  useAppStore: () => ({
+  useAppStore: vi.fn(() => ({
     language: 'en',
     setLanguage: vi.fn(),
     theme: 'light',
@@ -255,11 +224,11 @@ vi.mock('@/stores/appStore', () => ({
     addToCart: vi.fn(),
     removeFromCart: vi.fn(),
     clearCart: vi.fn(),
-  }),
+  })),
 }));
 
 vi.mock('@/stores/authStore', () => ({
-  useAuthStore: () => ({
+  useAuthStore: vi.fn(() => ({
     user: {
       uid: 'test-user-id',
       email: 'test@example.com',
@@ -270,7 +239,7 @@ vi.mock('@/stores/authStore', () => ({
     login: vi.fn(),
     logout: vi.fn(),
     signup: vi.fn(),
-  }),
+  })),
 }));
 
 // =============================================================================
@@ -299,11 +268,11 @@ vi.mock('@/services/sample-vendors.service', () => ({
 // UI COMPONENT MOCKING
 // =============================================================================
 vi.mock('@/components/ui/LoadingSpinner', () => ({
-  default: () => React.createElement('div', { 'data-testid': 'loading-spinner' }, 'Loading...'),
+  LoadingSpinner: () => React.createElement('div', { 'data-testid': 'loading-spinner' }, 'Loading...'),
 }));
 
 vi.mock('@/components/ui/EgyptianLoader', () => ({
-  default: () => React.createElement('div', { 'data-testid': 'egyptian-loader' }, 'Loading...'),
+  EgyptianLoader: () => React.createElement('div', { 'data-testid': 'egyptian-loader' }, 'Loading...'),
 }));
 
 // =============================================================================
@@ -328,7 +297,7 @@ vi.mock('react-hot-toast', () => ({
 // REACT HOOK FORM MOCKING
 // =============================================================================
 vi.mock('react-hook-form', () => ({
-  useForm: () => ({
+  useForm: vi.fn(() => ({
     register: vi.fn(() => ({})),
     handleSubmit: vi.fn(fn => fn),
     formState: { errors: {}, isValid: true },
@@ -336,7 +305,7 @@ vi.mock('react-hook-form', () => ({
     watch: vi.fn(),
     setValue: vi.fn(),
     getValues: vi.fn(() => ({})),
-  }),
+  })),
   Controller: ({ render }: any) => render({
     field: { onChange: vi.fn(), value: '', name: 'test' },
     fieldState: { error: null },
@@ -382,12 +351,13 @@ beforeAll(() => {
   });
 
   // Mock IntersectionObserver
-  global.IntersectionObserver = class IntersectionObserver {
-    constructor() {}
-    observe() { return null; }
-    disconnect() { return null; }
-    unobserve() { return null; }
-  };
+  const mockIntersectionObserver = vi.fn();
+  mockIntersectionObserver.mockReturnValue({
+    observe: () => null,
+    unobserve: () => null,
+    disconnect: () => null,
+  });
+  window.IntersectionObserver = mockIntersectionObserver;
 
   // Mock console methods to reduce noise in tests
   global.console = {
@@ -493,3 +463,12 @@ export const testConfig = {
   timeout: 10000,
   retries: 2,
 };
+
+// Provide a lightweight mock for the RealtimeContext to keep tests deterministic
+vi.mock('@/contexts/RealtimeContext', () => ({
+  RealtimeProvider: ({ children }: any) => React.createElement('div', { 'data-testid': 'realtime-provider' }, children),
+  useRealtime: () => ({
+    subscribeToUpdates: vi.fn(),
+    unsubscribeFromUpdates: vi.fn(),
+  }),
+}));

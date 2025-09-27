@@ -1,8 +1,3 @@
-/**
- * Real-time Store for Souk El-Sayarat
- * Manages real-time data using Zustand with Firebase integration
- */
-
 import { create } from 'zustand';
 import { subscribeWithSelector } from 'zustand/middleware';
 
@@ -11,7 +6,6 @@ import { RealtimeService } from '@/services/realtime.service';
 import { AuthService } from '@/services/auth.service';
 
 import { UserPresence, ChatMessage, Order, Product, Notification } from '@/types';
-import { Unsubscribe } from 'firebase/firestore';
 
 interface RealtimeState {
   // User presence
@@ -46,7 +40,7 @@ interface RealtimeState {
   isInitialized: boolean;
 
   // Listeners management
-  listeners: Map<string, Unsubscribe>;
+  listeners: Map<string, () => void>;
 
   // Actions
   initialize: (userId: string) => Promise<void>;
@@ -109,280 +103,79 @@ export const useRealtimeStore = create<RealtimeState>()(
 
     // Initialize real-time services
     initialize: async (userId: string) => {
-      try {
-        // if (process.env.NODE_ENV === 'development') console.log('🔄 Initializing real-time services for user:', userId);
-
-        // Initialize Firebase real-time services
-        await RealtimeService.initializeForUser(userId);
-
-        // Initialize push notifications
-        await PushNotificationService.initialize(userId);
-
-        // Set up presence
-        await get().setUserOnline(userId, window.location.pathname);
-
-        // Subscribe to user presence
-        const presenceListener = RealtimeService.listenToUserPresence(userId, presence => {
-          set({ currentUserPresence: presence });
-        });
-        get().listeners.set('userPresence', presenceListener);
-
-        // Subscribe to all users presence
-        const allPresenceListener = RealtimeService.listenToAllUsersPresence(presenceList => {
-          set({ onlineUsers: presenceList });
-        });
-        get().listeners.set('allPresence', allPresenceListener);
-
-        // Subscribe to notifications
-        const notificationsListener = RealtimeService.listenToUserNotifications(
-          userId,
-          notifications => {
-            const unreadCount = notifications.filter(n => !n.read).length;
-            set({
-              notifications,
-              unreadNotifications: unreadCount,
-            });
-          }
-        );
-        get().listeners.set('notifications', notificationsListener);
-
-        // Subscribe to activity feed
-        const activityListener = RealtimeService.listenToActivityFeed(activities => {
-          set({ activityFeed: activities });
-        });
-        get().listeners.set('activity', activityListener);
-
-        set({
-          isInitialized: true,
-          isConnected: true,
-        });
-
-        // if (process.env.NODE_ENV === 'development') console.log('✅ Real-time services initialized successfully');
-      } catch (error) {
-        if (process.env.NODE_ENV === 'development')
-          if (process.env.NODE_ENV === 'development')
-            console.error('❌ Failed to initialize real-time services:', error);
-        set({ isConnected: false });
-      }
+      // TODO: Implement with Amplify
     },
 
     // Cleanup all listeners
     cleanup: () => {
-      // if (process.env.NODE_ENV === 'development') console.log('🧹 Cleaning up real-time services');
-
-      // Clean up all listeners
-      get().listeners.forEach((unsubscribe, key) => {
-        try {
-          unsubscribe();
-          // if (process.env.NODE_ENV === 'development') console.log(`✅ Cleaned up listener: ${key}`);
-        } catch (error) {
-          if (process.env.NODE_ENV === 'development')
-            if (process.env.NODE_ENV === 'development')
-              console.error(`❌ Error cleaning up listener ${key}:`, error);
-        }
-      });
-
-      // Clear listeners map
-      get().listeners.clear();
-
-      // Clean up RealtimeService listeners
-      RealtimeService.cleanup();
-
-      // Reset state
-      set({
-        currentUserPresence: null,
-        onlineUsers: {},
-        activeChats: {},
-        unreadMessages: {},
-        typingUsers: {},
-        notifications: [],
-        unreadNotifications: 0,
-        orders: [],
-        orderUpdates: {},
-        vendorProducts: [],
-        productUpdates: {},
-        liveAnalytics: null,
-        activityFeed: [],
-        isConnected: false,
-        isInitialized: false,
-      });
+      // TODO: Implement with Amplify
     },
 
     // Presence actions
     setUserOnline: async (userId: string, currentPage?: string) => {
-      await RealtimeService.setUserOnline(userId, currentPage);
-      set({ isConnected: true });
+      // TODO: Implement with Amplify
     },
 
     setUserOffline: async (userId: string) => {
-      await RealtimeService.setUserOffline(userId);
-      set({ isConnected: false });
+      // TODO: Implement with Amplify
     },
 
     updateUserPresence: (userId: string, presence: Partial<UserPresence>) => {
-      set(state => ({
-        onlineUsers: {
-          ...state.onlineUsers,
-          [userId]: { ...state.onlineUsers[userId], ...presence },
-        },
-      }));
+      // TODO: Implement with Amplify
     },
 
     // Chat actions
     sendMessage: async (receiverId: string, message: string, type = 'text', metadata) => {
-      try {
-        const currentUser = await AuthService.getCurrentUser();
-        if (!currentUser) throw new Error('User not authenticated');
-
-        const messageId = await RealtimeService.sendMessage(
-          currentUser.id,
-          receiverId,
-          message,
-          type,
-          metadata
-        );
-
-        // Add activity
-        await get().addActivity('message_sent', {
-          receiverId,
-          messageId,
-          messageType: type,
-        });
-
-        // if (process.env.NODE_ENV === 'development') console.log('✅ Message sent successfully');
-      } catch (error) {
-        if (process.env.NODE_ENV === 'development')
-          if (process.env.NODE_ENV === 'development')
-            console.error('❌ Failed to send message:', error);
-        throw error;
-      }
+      // TODO: Implement with Amplify
     },
 
     markMessageAsRead: async (senderId: string, messageId: string) => {
-      try {
-        const currentUser = await AuthService.getCurrentUser();
-        if (!currentUser) return;
-
-        await RealtimeService.markMessageAsRead(currentUser.id, senderId, messageId);
-
-        // Update unread count
-        const chatId = [currentUser.id, senderId].sort().join('_');
-        set(state => ({
-          unreadMessages: {
-            ...state.unreadMessages,
-            [chatId]: Math.max(0, (state.unreadMessages[chatId] || 0) - 1),
-          },
-        }));
-      } catch (error) {
-        if (process.env.NODE_ENV === 'development')
-          if (process.env.NODE_ENV === 'development')
-            console.error('❌ Failed to mark message as read:', error);
-      }
+      // TODO: Implement with Amplify
     },
 
     setTyping: async (chatId: string, isTyping: boolean) => {
-      const currentUser = await AuthService.getCurrentUser();
-      if (!currentUser) return;
-
-      set(state => {
-        const currentTyping = state.typingUsers[chatId] || [];
-        const updatedTyping = isTyping
-          ? [...currentTyping.filter(id => id !== currentUser.id), currentUser.id]
-          : currentTyping.filter(id => id !== currentUser.id);
-
-        return {
-          typingUsers: {
-            ...state.typingUsers,
-            [chatId]: updatedTyping,
-          },
-        };
-      });
+      // TODO: Implement with Amplify
     },
 
     // Notification actions
     markNotificationAsRead: (notificationId: string) => {
-      set(state => ({
-        notifications: state.notifications.map(n =>
-          n.id === notificationId ? { ...n, read: true } : n
-        ),
-        unreadNotifications: Math.max(0, state.unreadNotifications - 1),
-      }));
+      // TODO: Implement with Amplify
     },
 
     markAllNotificationsAsRead: () => {
-      set(state => ({
-        notifications: state.notifications.map(n => ({ ...n, read: true })),
-        unreadNotifications: 0,
-      }));
+      // TODO: Implement with Amplify
     },
 
     clearNotifications: () => {
-      set({
-        notifications: [],
-        unreadNotifications: 0,
-      });
+      // TODO: Implement with Amplify
     },
 
     // Order actions
     subscribeToOrders: (userId: string, userRole: 'customer' | 'vendor' | 'admin') => {
-      const ordersListener = RealtimeService.listenToUserOrders(userId, userRole, orders => {
-        set({ orders });
-      });
-      get().listeners.set('orders', ordersListener);
+      // TODO: Implement with Amplify
     },
 
     updateOrderStatus: (orderId: string, status: string) => {
-      set(state => ({
-        orders: state.orders.map(order =>
-          order.id === orderId ? { ...order, status: status as any } : order
-        ),
-        orderUpdates: {
-          ...state.orderUpdates,
-          [orderId]: { ...state.orderUpdates[orderId], status: status as any },
-        },
-      }));
+      // TODO: Implement with Amplify
     },
 
     // Product actions
     subscribeToVendorProducts: (vendorId: string) => {
-      const productsListener = RealtimeService.listenToVendorProducts(vendorId, products => {
-        set({ vendorProducts: products });
-      });
-      get().listeners.set('vendorProducts', productsListener);
+      // TODO: Implement with Amplify
     },
 
     updateProduct: (productId: string, updates: Partial<Product>) => {
-      set(state => ({
-        vendorProducts: state.vendorProducts.map(product =>
-          product.id === productId ? { ...product, ...updates } : product
-        ),
-        productUpdates: {
-          ...state.productUpdates,
-          [productId]: { ...state.productUpdates[productId], ...updates },
-        },
-      }));
+      // TODO: Implement with Amplify
     },
 
     // Analytics actions (admin only)
     subscribeToAnalytics: () => {
-      const analyticsListener = RealtimeService.listenToAnalytics(analytics => {
-        set({ liveAnalytics: analytics });
-      });
-      get().listeners.set('analytics', analyticsListener);
+      // TODO: Implement with Amplify
     },
 
     // Activity feed actions
     addActivity: async (type: string, data: unknown) => {
-      try {
-        const currentUser = await AuthService.getCurrentUser();
-        if (!currentUser) return;
-
-        await RealtimeService.addActivity(currentUser.id, type as any, data);
-      } catch (error) {
-        if (process.env.NODE_ENV === 'development')
-          if (process.env.NODE_ENV === 'development')
-            console.error('❌ Failed to add activity:', error);
-      }
+      // TODO: Implement with Amplify
     },
   }))
 );
@@ -391,7 +184,7 @@ export const useRealtimeStore = create<RealtimeState>()(
 export const realtimeSelectors = {
   // Get online status of a specific user
   isUserOnline: (userId: string) => (state: RealtimeState) =>
-    state.onlineUsers[userId]?.isOnline || false,
+    state.onlineUsers[userId]?.online || false,
 
   // Get unread message count for a specific chat
   getUnreadCount: (chatId: string) => (state: RealtimeState) => state.unreadMessages[chatId] || 0,
@@ -418,28 +211,7 @@ export const realtimeSelectors = {
 
 // Subscribe to chat messages for a specific conversation
 export const subscribeToChatMessages = (senderId: string, receiverId: string) => {
-  const chatId = [senderId, receiverId].sort().join('_');
-
-  const listener = RealtimeService.listenToChatMessages(senderId, receiverId, messages => {
-    useRealtimeStore.setState(state => ({
-      activeChats: {
-        ...state.activeChats,
-        [chatId]: messages,
-      },
-      unreadMessages: {
-        ...state.unreadMessages,
-        [chatId]: messages.filter(m => !m.read && m.receiverId === senderId).length,
-      },
-    }));
-  });
-
-  // Store listener for cleanup
-  useRealtimeStore.getState().listeners.set(`chat_${chatId}`, listener);
-
-  return () => {
-    listener();
-    useRealtimeStore.getState().listeners.delete(`chat_${chatId}`);
-  };
+  // TODO: Implement with Amplify
 };
 
 // Auto-initialize real-time services when user logs in

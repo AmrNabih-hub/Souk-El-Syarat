@@ -30,20 +30,32 @@ export const StarSolid: React.FC<{ className?: string }> = ({ className = '' }) 
 );
 
 // EgyptianLoader Icon
-export const EgyptianLoader: React.FC<{ className?: string }> = ({ className = '' }) => (
-  <div className={`animate-spin rounded-full h-8 w-8 border-b-2 border-primary-600 ${className}`} />
-);
+export const EgyptianLoader: React.FC<{ className?: string; size?: 'sm' | 'md' | 'lg' | 'xl'; text?: string }> = ({ className = '', size = 'md', text }) => {
+  const sizeClasses: Record<string, string> = {
+    sm: 'h-4 w-4',
+    md: 'h-6 w-6',
+    lg: 'h-8 w-8',
+    xl: 'h-16 w-16'
+  };
+  return (
+    <div className={`flex items-center space-x-3 ${className}`}>
+      <div className={`animate-spin rounded-full border-b-2 border-primary-600 ${sizeClasses[size]}`} />
+      {text && <div className='text-sm text-neutral-600'>{text}</div>}
+    </div>
+  );
+};
 
 // LoadingSpinner Icon
-export const LoadingSpinner: React.FC<{ className?: string; size?: 'sm' | 'md' | 'lg' }> = ({ 
+export const LoadingSpinner: React.FC<{ className?: string; size?: 'sm' | 'md' | 'lg' | 'xl' }> = ({ 
   className = '', 
   size = 'md' 
 }) => {
   const sizeClasses = {
     sm: 'h-4 w-4',
     md: 'h-6 w-6',
-    lg: 'h-8 w-8'
-  };
+    lg: 'h-8 w-8',
+    xl: 'h-16 w-16'
+  } as Record<string, string>;
   
   return (
     <div className={`animate-spin rounded-full border-b-2 border-primary-600 ${sizeClasses[size]} ${className}`} />

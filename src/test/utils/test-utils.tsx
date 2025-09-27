@@ -1,46 +1,114 @@
-import React, { ReactElement } from 'react';
-import { BrowserRouter } from 'react-router-dom';
 /**
  * Custom Testing Utilities
- * Enhanced React Testing Library setup with providers
+ * Professional-grade testing utilities and data factories
+ * Separated from React components to follow react-refresh best practices
  */
 
-import { render, RenderOptions } from '@testing-library/react';
+import { ReactElement } from 'react';
+import {
+  render,
+  RenderOptions,
+  screen,
+  fireEvent,
+  waitFor,
+  waitForElementToBeRemoved,
+  within,
+  getByRole,
+  getByText,
+  getByLabelText,
+  getByPlaceholderText,
+  getByAltText,
+  getByDisplayValue,
+  queryByRole,
+  queryByText,
+  queryByLabelText,
+  queryByPlaceholderText,
+  queryByAltText,
+  queryByDisplayValue,
+  findByRole,
+  findByText,
+  findByLabelText,
+  findByPlaceholderText,
+  findByAltText,
+  findByDisplayValue,
+  getAllByRole,
+  getAllByText,
+  getAllByLabelText,
+  getAllByPlaceholderText,
+  getAllByAltText,
+  getAllByDisplayValue,
+  queryAllByRole,
+  queryAllByText,
+  queryAllByLabelText,
+  queryAllByPlaceholderText,
+  queryAllByAltText,
+  queryAllByDisplayValue,
+  findAllByRole,
+  findAllByText,
+  findAllByLabelText,
+  findAllByPlaceholderText,
+  findAllByAltText,
+  findAllByDisplayValue,
+  act,
+  cleanup,
+  renderHook,
+} from '@testing-library/react';
+import TestProviders from './test-providers';
 
-import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
+// Custom render function with providers
+const _customRender = (ui: ReactElement, options?: Omit<RenderOptions, 'wrapper'>) =>
+  render(ui, { wrapper: TestProviders, ...options });
 
-// Test providers wrapper
-interface ProvidersProps {
-  children: React.ReactNode;
-}
+// Export the custom render function
+export { _customRender as render };
 
-const Providers: React.FC<ProvidersProps> = ({ children }) => {
-  const queryClient = new QueryClient({
-    defaultOptions: {
-      queries: {
-        retry: false,
-        gcTime: 0,
-      },
-      mutations: {
-        retry: false,
-      },
-    },
-  });
-
-  return (
-    <QueryClientProvider client={queryClient}>
-      <BrowserRouter>{children}</BrowserRouter>
-    </QueryClientProvider>
-  );
+// Re-export all testing library functions
+export {
+  screen,
+  fireEvent,
+  waitFor,
+  waitForElementToBeRemoved,
+  within,
+  getByRole,
+  getByText,
+  getByLabelText,
+  getByPlaceholderText,
+  getByAltText,
+  getByDisplayValue,
+  queryByRole,
+  queryByText,
+  queryByLabelText,
+  queryByPlaceholderText,
+  queryByAltText,
+  queryByDisplayValue,
+  findByRole,
+  findByText,
+  findByLabelText,
+  findByPlaceholderText,
+  findByAltText,
+  findByDisplayValue,
+  getAllByRole,
+  getAllByText,
+  getAllByLabelText,
+  getAllByPlaceholderText,
+  getAllByAltText,
+  getAllByDisplayValue,
+  queryAllByRole,
+  queryAllByText,
+  queryAllByLabelText,
+  queryAllByPlaceholderText,
+  queryAllByAltText,
+  queryAllByDisplayValue,
+  findAllByRole,
+  findAllByText,
+  findAllByLabelText,
+  findAllByPlaceholderText,
+  findAllByAltText,
+  findAllByDisplayValue,
+  act,
+  cleanup,
+  renderHook,
 };
-
-// Custom render function
-const customRender = (ui: ReactElement, options?: Omit<RenderOptions, 'wrapper'>) =>
-  render(ui, { wrapper: Providers, ...options });
-
-// Re-export everything
-export * from '@testing-library/react';
-export { customRender as render };
 
 // Test data factories
 export const createMockUser = (overrides = {}) => ({
@@ -92,8 +160,45 @@ export const createMockProduct = (overrides = {}) => ({
   reviewCount: 0,
   createdAt: new Date(),
   updatedAt: new Date(),
+  // Car-specific details for CarProduct type
+  carDetails: {
+    make: 'BMW',
+    model: 'X5',
+    year: 2020,
+    mileage: 50000,
+    fuelType: 'gasoline' as const,
+    transmission: 'automatic' as const,
+    bodyType: 'suv' as const,
+    engineSize: '3.0L',
+    color: 'Black',
+    doors: 5,
+    seats: 7,
+    drivetrain: 'awd' as const,
+  },
   ...overrides,
 });
+
+// Create a specific car product mock for better type safety
+export const createMockCarProduct = (overrides = {}) =>
+  createMockProduct({
+    category: 'cars',
+    subcategory: 'suv',
+    carDetails: {
+      make: 'BMW',
+      model: 'X5',
+      year: 2020,
+      mileage: 50000,
+      fuelType: 'gasoline' as const,
+      transmission: 'automatic' as const,
+      bodyType: 'suv' as const,
+      engineSize: '3.0L',
+      color: 'Black',
+      doors: 5,
+      seats: 7,
+      drivetrain: 'awd' as const,
+    },
+    ...overrides,
+  });
 
 export const createMockVendor = (overrides = {}) => ({
   id: 'test-vendor-id',

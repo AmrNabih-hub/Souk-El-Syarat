@@ -13,7 +13,7 @@ import { Product, ProductCategory, ProductCondition, SearchFilters } from '@/typ
 import { ProductService } from '@/services/product.service';
 
 import ProductCard from '@/components/product/ProductCard';
-import { EgyptianLoader } from '@/components/ui/LoadingSpinner';
+import { EgyptianLoader } from '@/components/ui/CustomIcons';
 import toast from 'react-hot-toast';
 
 const MarketplacePage: React.FC = () => {
@@ -62,32 +62,8 @@ const MarketplacePage: React.FC = () => {
       setIsLoading(true);
 
       // Get sample products and add variety
-      const sampleProducts = ProductService.getSampleProducts();
-      const moreProducts: Product[] = [
-        ...sampleProducts,
-        {
-          ...sampleProducts[0],
-          id: 'car-2',
-          title: 'BMW X5 2019 - فل أوبشن',
-          description: 'BMW X5 2019 بحالة ممتازة، فل أوبشن، جلد، فتحة سقف، نافيجيشن.',
-          price: 850000,
-          originalPrice: 950000,
-          images: [
-            {
-              id: 'car-2-img-1',
-              url: 'https://images.unsplash.com/photo-1555215695-3004980ad54e?w=800&h=600&fit=crop',
-              alt: 'BMW X5 2019',
-              isPrimary: true,
-              order: 0,
-            },
-          ],
-          views: 189,
-          favorites: 24,
-          features: ['فتحة سقف', 'جلد', 'نافيجيشن', 'كاميرات محيطة'],
-        },
-      ];
-
-      setProducts(moreProducts);
+      const sampleProducts = await ProductService.getSampleProducts();
+      setProducts(sampleProducts);
     } catch (error) {
       if (process.env.NODE_ENV === 'development')
         if (process.env.NODE_ENV === 'development') console.error('Error loading products:', error);

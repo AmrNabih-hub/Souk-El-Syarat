@@ -3,7 +3,9 @@
   "env": { 
     "browser": true, 
     "es2020": true,
-    "node": true
+    "node": true,
+    "jest": true,
+    "firebase/firebase": true
   },
   "extends": [
     "eslint:recommended",
@@ -72,7 +74,23 @@
     "beforeEach": "readonly",
     "afterEach": "readonly",
     "vi": "readonly",
-    "test": "readonly"
+    "test": "readonly",
+    "collection": "readonly",
+    "db": "readonly",
+    "addDoc": "readonly",
+    "serverTimestamp": "readonly",
+    "query": "readonly",
+    "where": "readonly",
+    "orderBy": "readonly",
+    "getDocs": "readonly",
+    "doc": "readonly",
+    "updateDoc": "readonly",
+    "writeBatch": "readonly",
+    "deleteDoc": "readonly",
+    "onSnapshot": "readonly",
+    "limit": "readonly",
+    "Conversation": "readonly",
+    "OrderStatus": "readonly"
   },
   "overrides": [
     {

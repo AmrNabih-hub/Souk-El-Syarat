@@ -14,13 +14,12 @@ export default defineConfig({
       exclude: [
         'node_modules/',
         'src/test/',
+        'src/tests/e2e/**',
         '**/*.d.ts',
         '**/*.config.*',
         '**/index.ts',
         '**/types.ts',
         '**/*.stories.*',
-        '**/*.test.*',
-        '**/*.spec.*',
         'coverage/',
         'dist/',
         'build/',
@@ -43,6 +42,8 @@ export default defineConfig({
       'dist/',
       'build/',
       'coverage/',
+      'src/models/**',
+      'src/tests/e2e/**',
     ],
   },
   resolve: {

@@ -35,6 +35,7 @@ const CartPage: React.FC = () => {
   } = useAppStore();
   const { user } = useAuthStore();
   const [products, setProducts] = useState<Record<string, Product>>({});
+  const [recommendations, setRecommendations] = useState<Product[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [isUpdating, setIsUpdating] = useState<string | null>(null);
 
@@ -46,8 +47,8 @@ const CartPage: React.FC = () => {
     try {
       setIsLoading(true);
 
-      // Get all sample products for demo
-      const sampleProducts = ProductService.getSampleProducts();
+      // Get sample products
+      const sampleProducts = await ProductService.getSampleProducts();
       const productMap: Record<string, Product> = {};
 
       // Add more sample products
@@ -76,6 +77,8 @@ const CartPage: React.FC = () => {
       });
 
       setProducts(productMap);
+      // Set recommendations (use first two sample products as demo)
+      setRecommendations(sampleProducts.slice(0, 2));
     } catch (error) {
       if (process.env.NODE_ENV === 'development')
         if (process.env.NODE_ENV === 'development')
@@ -478,33 +481,31 @@ const CartPage: React.FC = () => {
                 {language === 'ar' ? 'منتجات مقترحة' : 'You might also like'}
               </h4>
               <div className='space-y-3'>
-                {ProductService.getSampleProducts()
-                  .slice(0, 2)
-                  .map(product => (
-                    <div
-                      key={product.id}
-                      className='flex items-center space-x-3 p-3 rounded-lg hover:bg-neutral-50 transition-colors'
-                    >
-                      <div className='w-12 h-12 rounded-lg overflow-hidden bg-neutral-100 flex-shrink-0'>
-                        <img
-                          src={product.images[0]?.url}
-                          alt={product.title}
-                          className='w-full h-full object-cover'
-                        />
-                      </div>
-                      <div className='flex-1 min-w-0'>
-                        <h5 className='font-medium text-neutral-900 text-sm line-clamp-1'>
-                          {product.title}
-                        </h5>
-                        <p className='text-primary-600 font-semibold text-sm'>
-                          {formatPrice(product.price)}
-                        </p>
-                      </div>
-                      <button className='btn btn-sm btn-outline'>
-                        {language === 'ar' ? 'إضافة' : 'Add'}
-                      </button>
+                {recommendations.slice(0, 2).map(product => (
+                  <div
+                    key={product.id}
+                    className='flex items-center space-x-3 p-3 rounded-lg hover:bg-neutral-50 transition-colors'
+                  >
+                    <div className='w-12 h-12 rounded-lg overflow-hidden bg-neutral-100 flex-shrink-0'>
+                      <img
+                        src={product.images[0]?.url}
+                        alt={product.title}
+                        className='w-full h-full object-cover'
+                      />
                     </div>
-                  ))}
+                    <div className='flex-1 min-w-0'>
+                      <h5 className='font-medium text-neutral-900 text-sm line-clamp-1'>
+                        {product.title}
+                      </h5>
+                      <p className='text-primary-600 font-semibold text-sm'>
+                        {formatPrice(product.price)}
+                      </p>
+                    </div>
+                    <button className='btn btn-sm btn-outline'>
+                      {language === 'ar' ? 'إضافة' : 'Add'}
+                    </button>
+                  </div>
+                ))}
               </div>
             </div>
           </div>

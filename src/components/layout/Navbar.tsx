@@ -72,7 +72,8 @@ const Navbar: React.FC = () => {
     { name: 'الرئيسية', href: '/', nameEn: 'Home' },
     { name: 'السوق', href: '/marketplace', nameEn: 'Marketplace' },
     { name: 'التجار', href: '/vendors', nameEn: 'Vendors' },
-    { name: 'طلب كونك تاجر', href: '/vendor/apply', nameEn: 'Become a Vendor' },
+    { name: 'من نحن', href: '/about', nameEn: 'About' },
+    { name: 'اتصل بنا', href: '/contact', nameEn: 'Contact' },
   ];
 
   const isCurrentPath = (path: string) => location.pathname === path;

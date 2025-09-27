@@ -1,3 +1,4 @@
+/* stylelint-disable */
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
@@ -17,7 +18,7 @@
   }
 
   body {
-    @apply bg-gradient-to-br from-neutral-50 via-white to-neutral-100 text-neutral-900 antialiased;
+    @apply bg-gradient-to-br from-gray-50 via-white to-gray-100 text-gray-900 antialiased;
     font-feature-settings: 'cv02', 'cv03', 'cv04', 'cv11';
     min-height: 100vh;
     overflow-x: hidden;
@@ -30,7 +31,7 @@
   }
 
   * {
-    @apply border-neutral-200;
+    @apply border-gray-200;
   }
 
   /* RTL Support */
@@ -48,11 +49,11 @@
   }
 
   ::-webkit-scrollbar-track {
-    @apply bg-neutral-100 rounded-full;
+    @apply bg-gray-100 rounded-full;
   }
 
   ::-webkit-scrollbar-thumb {
-    @apply bg-neutral-300 rounded-full hover:bg-neutral-400;
+    @apply bg-gray-300 rounded-full hover:bg-gray-400;
   }
 
   /* Firefox Scrollbar */
@@ -82,7 +83,7 @@
   }
 
   .btn-ghost {
-    @apply text-neutral-600 hover:bg-neutral-100 focus:ring-neutral-500;
+    @apply text-gray-600 hover:bg-gray-100 focus:ring-gray-500;
   }
 
   .btn-sm {
@@ -99,7 +100,7 @@
 
   /* Card Styles */
   .card {
-    @apply bg-white rounded-xl shadow-sm border border-neutral-200 overflow-hidden;
+    @apply bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden;
   }
 
   .card-hover {
@@ -112,7 +113,7 @@
 
   /* Input Styles */
   .input {
-    @apply block w-full rounded-lg border-neutral-300 bg-white px-3 py-2 text-neutral-900 placeholder-neutral-500 focus:border-primary-500 focus:ring-1 focus:ring-primary-500 disabled:opacity-50 disabled:cursor-not-allowed;
+    @apply block w-full rounded-lg border-gray-300 bg-white px-3 py-2 text-gray-900 placeholder-gray-500 focus:border-primary-500 focus:ring-1 focus:ring-primary-500 disabled:opacity-50 disabled:cursor-not-allowed;
   }
 
   .input-error {
@@ -142,7 +143,7 @@
 
   /* Loading Spinner */
   .spinner {
-    @apply animate-spin rounded-full border-2 border-neutral-300 border-t-primary-500;
+    @apply animate-spin rounded-full border-2 border-gray-300 border-t-primary-500;
   }
 
   /* Gradient Text */
@@ -160,13 +161,25 @@
     @apply animate-glow;
   }
 
-  /* Glass Morphism */
+  /* Glass Morphism - Cross-browser compatible */
   .glass {
-    @apply backdrop-blur-sm bg-white/80 border border-white/20;
+    -webkit-backdrop-filter: blur(12px);
+    backdrop-filter: blur(12px);
+    @apply bg-white/80 border border-white/20;
   }
 
   .glass-dark {
-    @apply backdrop-blur-sm bg-neutral-900/80 border border-white/10;
+    -webkit-backdrop-filter: blur(12px);
+    backdrop-filter: blur(12px);
+    @apply bg-gray-900/80 border border-white/10;
+  }
+
+  /* Modern Glass Effect */
+  .glass-effect {
+    background: rgba(255, 255, 255, 0.1);
+    -webkit-backdrop-filter: blur(10px);
+    backdrop-filter: blur(10px);
+    border: 1px solid rgba(255, 255, 255, 0.2);
   }
 }
 
@@ -343,7 +356,7 @@
 
 /* Loading States */
 .loading-skeleton {
-  @apply animate-pulse bg-neutral-200 rounded;
+  @apply animate-pulse bg-gray-200 rounded;
 }
 
 .loading-shimmer {

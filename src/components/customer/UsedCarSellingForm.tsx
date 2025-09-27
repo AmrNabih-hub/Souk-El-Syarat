@@ -126,7 +126,9 @@ const UsedCarSellingForm: React.FC = () => {
         location: data.location,
       };
 
-      await ProductService.createProduct(user.id, productData as any);
+      if (!user) throw new Error('User must be logged in');
+      const userId = user.id;
+      await ProductService.createProduct(userId, productData as any);
 
       toast.success(
         language === 'ar' ? 'تم إضافة السيارة المستعملة بنجاح!' : 'Used car added successfully!'

@@ -1,20 +1,88 @@
 import React, { useState, useCallback, useEffect } from 'react';
 
 import { NotificationService } from '@/services/notification.service';
-import { OrderService, Order } from '@/services/order.service';
-import { AnalyticsService, BusinessMetrics, RealTimeStats } from '@/services/analytics.service';
-import { ProcessOrchestratorService } from '@/services/process-orchestrator.service';
+import { OrderService } from '@/services/order.service';
+import { AnalyticsService } from '@/services/analytics.service';
 import { MessagingService } from '@/services/messaging.service';
+import { ProcessOrchestratorService } from '@/services/process-orchestrator.service';
 import { useAuthStore } from '@/stores/authStore';
+import { Notification, Order, Conversation as AppConversation, BusinessMetrics as AppBusinessMetrics, RealTimeStats as AppRealTimeStats } from '@/types';
+
+// Helpers: convert model shapes (from DataStore/GraphQL) into app domain types
+function mapConversationModelToApp(model: any): AppConversation {
+  const participantsRaw = model.participants;
+  let participants: string[] = [];
+  try {
+    if (Array.isArray(participantsRaw)) participants = participantsRaw;
+    else if (typeof participantsRaw === 'string') {
+      // Try to parse JSON array, otherwise split by comma
+      try {
+        const parsed = JSON.parse(participantsRaw);
+        participants = Array.isArray(parsed) ? parsed : [String(parsed)];
+      } catch (_) {
+        participants = participantsRaw ? participantsRaw.split(',').map(s => s.trim()) : [];
+      }
+    }
+  } catch (err) {
+    participants = [];
+  }
+
+  return {
+    id: model.id,
+    participants,
+    title: model.title || undefined,
+    type: model.type || 'private',
+    status: model.status || 'open',
+    lastMessage: model.lastMessage || undefined,
+    unreadCount: parseInt(model.unreadCount || '0', 10) || 0,
+    metadata: model.metadata ? (typeof model.metadata === 'string' ? model.metadata : JSON.stringify(model.metadata)) : undefined,
+    orderId: model.orderId || undefined,
+    productId: model.productId || undefined,
+    vendorId: model.vendorId || undefined,
+    priority: model.priority || 'normal',
+    tags: Array.isArray(model.tags) ? model.tags : (model.tags ? String(model.tags).split(',').map((t:any)=>String(t).trim()) : []),
+    assignedTo: model.assignedTo || undefined,
+    createdAt: model.createdAt ? new Date(model.createdAt) : new Date(),
+    updatedAt: model.updatedAt ? new Date(model.updatedAt) : new Date(),
+    closedAt: model.closedAt ? new Date(model.closedAt) : undefined,
+  } as AppConversation;
+}
+
+function mapRealTimeStatsModelToApp(model: any): AppRealTimeStats {
+  return {
+    pendingOrders: model.pendingOrders || 0,
+    processingOrders: model.processingOrders || 0,
+    recentOrders: model.recentOrders || '',
+    recentSignups: model.recentSignups || '',
+    onlineUsers: model.onlineUsers || 0,
+    activeVendors: model.activeVendors || 0,
+    systemHealth: model.systemHealth || '',
+    lastUpdated: model.lastUpdated ? new Date(model.lastUpdated) : undefined,
+  } as AppRealTimeStats;
+}
+
+function mapBusinessMetricsModelToApp(model: any): AppBusinessMetrics {
+  return {
+    totalUsers: model.totalUsers || 0,
+    totalVendors: model.totalVendors || 0,
+    totalProducts: model.totalProducts || 0,
+    totalOrders: model.totalOrders || 0,
+    totalRevenue: model.totalRevenue || 0,
+    activeUsers: model.activeUsers || 0,
+    activeVendors: model.activeVendors || 0,
+    topCategories: model.topCategories || [],
+    topProducts: model.topProducts || [],
+  } as AppBusinessMetrics;
+}
 
 export interface DashboardData {
   notifications: Notification[];
   unreadNotificationCount: number;
   orders: Order[];
-  conversations: Conversation[];
+  conversations: AppConversation[];
   unreadConversationCount: number;
-  businessMetrics: BusinessMetrics | null;
-  realTimeStats: RealTimeStats | null;
+  businessMetrics: AppBusinessMetrics | null;
+  realTimeStats: AppRealTimeStats | null;
   isLoading: boolean;
   error: string | null;
 }
@@ -22,7 +90,7 @@ export interface DashboardData {
 export interface DashboardActions {
   markNotificationAsRead: (notificationId: string) => Promise<void>;
   markAllNotificationsAsRead: () => Promise<void>;
-  updateOrderStatus: (orderId: string, status: unknown, notes?: string) => Promise<void>;
+  updateOrderStatus: (orderId: string, status: string, notes?: string) => Promise<void>;
   sendMessage: (conversationId: string, content: string) => Promise<void>;
   markMessagesAsRead: (conversationId: string) => Promise<void>;
   refreshData: () => Promise<void>;
@@ -58,11 +126,18 @@ export const useRealTimeDashboard = (): DashboardData & DashboardActions => {
       const notificationsUnsubscribe = NotificationService.subscribeToUserNotifications(
         user.id,
         notifications => {
-          setData(prev => ({
-            ...prev,
-            notifications,
-            isLoading: false,
-          }));
+          // Notifications from the service may be model shapes; coerce to app Notification shape if needed
+          const mappedNotifications = notifications.map((n: any) => ({
+            id: n.id,
+            userId: n.userId,
+            title: n.title,
+            message: n.message,
+            type: n.type,
+            data: n.data,
+            read: !!n.read,
+            createdAt: n.createdAt ? new Date(n.createdAt) : new Date(),
+          } as Notification));
+          setData(prev => ({ ...prev, notifications: mappedNotifications, isLoading: false }));
         }
       );
       newUnsubscribeFunctions.push(notificationsUnsubscribe);
@@ -106,15 +181,10 @@ export const useRealTimeDashboard = (): DashboardData & DashboardActions => {
       newUnsubscribeFunctions.push(ordersUnsubscribe);
 
       // Subscribe to conversations
-      const conversationsUnsubscribe = MessagingService.subscribeToUserConversations(
-        user.id,
-        conversations => {
-          setData(prev => ({
-            ...prev,
-            conversations,
-          }));
-        }
-      );
+      const conversationsUnsubscribe = MessagingService.subscribeToUserConversations(user.id, conversations => {
+        const mapped = (conversations || []).map((c: any) => mapConversationModelToApp(c));
+        setData(prev => ({ ...prev, conversations: mapped }));
+      });
       newUnsubscribeFunctions.push(conversationsUnsubscribe);
 
       // Subscribe to unread conversation count
@@ -132,19 +202,13 @@ export const useRealTimeDashboard = (): DashboardData & DashboardActions => {
       // Subscribe to business metrics (admin only)
       if (user.role === 'admin') {
         const businessMetricsUnsubscribe = AnalyticsService.subscribeToBusinessMetrics(metrics => {
-          setData(prev => ({
-            ...prev,
-            businessMetrics: metrics,
-          }));
+          setData(prev => ({ ...prev, businessMetrics: mapBusinessMetricsModelToApp(metrics) }));
         });
         newUnsubscribeFunctions.push(businessMetricsUnsubscribe);
 
         // Subscribe to real-time stats (admin only)
         const realTimeStatsUnsubscribe = AnalyticsService.subscribeToRealTimeStats(stats => {
-          setData(prev => ({
-            ...prev,
-            realTimeStats: stats,
-          }));
+          setData(prev => ({ ...prev, realTimeStats: mapRealTimeStatsModelToApp(stats) }));
         });
         newUnsubscribeFunctions.push(realTimeStatsUnsubscribe);
       }
@@ -246,11 +310,12 @@ export const useRealTimeDashboard = (): DashboardData & DashboardActions => {
    * Update order status
    */
   const updateOrderStatus = useCallback(
-    async (orderId: string, status: OrderStatus, notes?: string): Promise<void> => {
+    async (orderId: string, status: string, notes?: string): Promise<void> => {
       if (!user) return;
 
       try {
-        await OrderService.updateOrderStatus(orderId, status, user.id, notes);
+        // pass status through as-is (OrderService expects its own OrderStatus shape); use string for flexibility
+        await OrderService.updateOrderStatus(orderId, String(status), user.id, notes);
 
         // Track analytics
         await AnalyticsService.trackEvent({

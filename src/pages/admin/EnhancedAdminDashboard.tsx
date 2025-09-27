@@ -45,8 +45,8 @@ import {
 interface DashboardTab {
   id: string;
   label: string;
-  icon: React.ComponentType<React.SVGProps<SVGSVGElement>>;
-  component: React.ComponentType<Record<string, never>>;
+  icon: React.ComponentType<any>;
+  component: React.ComponentType<any>;
 }
 
 const EnhancedAdminDashboard: React.FC = () => {
@@ -71,15 +71,44 @@ const EnhancedAdminDashboard: React.FC = () => {
     if (!user || user.role !== 'admin') return;
 
     const unsubscribeStats = AdminService.subscribeToAnalytics(analyticsData => {
-      setAnalytics(analyticsData);
+      // Map model shape to app shape
+      const mapped = {
+        totalUsers: analyticsData?.totalUsers || 0,
+        totalVendors: analyticsData?.totalVendors || 0,
+        totalProducts: analyticsData?.totalProducts || 0,
+        totalOrders: analyticsData?.totalOrders || 0,
+        totalRevenue: analyticsData?.totalRevenue || 0,
+        pendingVendorApplications: analyticsData?.pendingVendorApplications || 0,
+        platformGrowth: analyticsData?.platformGrowth || { usersGrowth: 0, vendorsGrowth: 0, ordersGrowth: 0, revenueGrowth: 0 },
+        topCategories: analyticsData?.topCategories || [],
+        userActivity: analyticsData?.userActivity || [],
+      };
+      setAnalytics(mapped);
     });
 
     const unsubscribeApplications = AdminService.subscribeToApplications('all', apps => {
-      setApplications(apps);
+      const mapped = (apps || []).map((a: any) => ({
+        ...a,
+        appliedDate: a.appliedDate ? new Date(a.appliedDate) : new Date(),
+        reviewedDate: a.reviewedAt ? new Date(a.reviewedAt) : null,
+        reviewNotes: a.adminNotes || null,
+        createdAt: a.createdAt ? new Date(a.createdAt) : new Date(),
+        updatedAt: a.updatedAt ? new Date(a.updatedAt) : new Date(),
+      }));
+      setApplications(mapped);
     });
 
     const unsubscribeVendors = AdminService.subscribeToVendors('all', vendorsData => {
-      setVendors(vendorsData);
+      const mapped = (vendorsData || []).map((v: any) => ({
+        ...v,
+        userId: v.userId || '',
+        totalReviews: v.totalReviews || 0,
+        lastActive: v.lastUpdated ? new Date(v.lastUpdated) : new Date(),
+        isVerified: !!v.approvedAt,
+        createdAt: v.joinedDate ? new Date(v.joinedDate) : new Date(),
+        updatedAt: v.lastUpdated ? new Date(v.lastUpdated) : new Date(),
+      }));
+      setVendors(mapped);
     });
 
     return () => {
@@ -153,6 +182,36 @@ const EnhancedAdminDashboard: React.FC = () => {
     } catch (error) {
       toast.error(error.message || 'Failed to update vendor status');
     }
+  };
+
+  const handleToggleVendorStatus = async (vendorId: string) => {
+    if (!user) return;
+    try {
+      await AdminService.toggleVendorStatus(vendorId, user.id, 'suspended');
+      toast.success('Vendor status updated successfully');
+    } catch (error) {
+      toast.error('Failed to update vendor status');
+    }
+  };
+
+  const handleViewVendorDetails = (vendor: Vendor) => {
+    // TODO: Implement vendor details modal
+    console.log('View vendor details:', vendor);
+  };
+
+  const handleDeleteVendor = async (vendorId: string) => {
+    if (!user) return;
+    try {
+      await AdminService.deleteVendor(vendorId, user.id);
+      toast.success('Vendor deleted successfully');
+    } catch (error) {
+      toast.error('Failed to delete vendor');
+    }
+  };
+
+  const handleExportData = () => {
+    // TODO: Implement data export functionality
+    toast.success('Data export started');
   };
 
   const filteredApplications = applications.filter(app => {
@@ -291,6 +350,10 @@ const EnhancedAdminDashboard: React.FC = () => {
             setReviewModalOpen(true);
           }}
           onVendorStatusToggle={handleVendorStatusToggle}
+          onToggleVendorStatus={handleToggleVendorStatus}
+          onViewVendorDetails={handleViewVendorDetails}
+          onDeleteVendor={handleDeleteVendor}
+          onExportData={handleExportData}
           searchQuery={searchQuery}
           setSearchQuery={setSearchQuery}
           filterStatus={filterStatus}
@@ -382,7 +445,19 @@ const EnhancedAdminDashboard: React.FC = () => {
 interface OverviewTabProps {
   stats: AdminStats | null;
   analytics: AdminAnalytics | null;
-  language: string;
+  applications: VendorApplication[];
+  vendors: Vendor[];
+  onReviewApplication: (app: VendorApplication) => void;
+  onToggleVendorStatus: (vendorId: string) => void;
+  onVendorStatusToggle: (vendorId: string, currentStatus: string) => void;
+  onViewVendorDetails: (vendor: Vendor) => void;
+  onDeleteVendor: (vendorId: string) => void;
+  onExportData: () => void;
+  searchQuery: string;
+  setSearchQuery: (query: string) => void;
+  filterStatus: string;
+  setFilterStatus: (status: string) => void;
+  language: 'ar' | 'en';
 }
 
 const OverviewTab: React.FC<OverviewTabProps> = ({ stats, language }) => {
@@ -772,7 +847,7 @@ const AnalyticsTab: React.FC<AnalyticsTabProps> = ({ analytics, language }) => {
                 cx='50%'
                 cy='50%'
                 labelLine={false}
-                label={({ name, percent }) => `${name} ${(percent * 100).toFixed(0)}%`}
+                label={(data: any) => `${data.name} ${(data.percent * 100).toFixed(0)}%`}
                 outerRadius={80}
                 fill='#8884d8'
                 dataKey='value'
@@ -915,7 +990,7 @@ const SystemTab: React.FC<any> = ({ language }) => {
 const StatsCard: React.FC<{
   title: string;
   value: string;
-  icon: React.ComponentType<Record<string, never>>;
+  icon: React.ComponentType<any>;
   trend: string;
   trendDirection: 'up' | 'down';
   color: string;

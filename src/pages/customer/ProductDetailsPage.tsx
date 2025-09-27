@@ -50,12 +50,13 @@ const ProductDetailsPage: React.FC = () => {
       setIsLoading(true);
 
       // Get sample products for demo
-      const sampleProducts = ProductService.getSampleProducts();
+      const sampleProducts = await ProductService.getSampleProducts();
       const foundProduct = sampleProducts.find(p => p.id === productId);
 
       if (!foundProduct) {
         toast.error(language === 'ar' ? 'المنتج غير موجود' : 'Product not found');
         navigate('/marketplace');
+        return;
         //         return;
       }
 

@@ -3,25 +3,25 @@
  * Handles all types of notifications with real-time delivery
  */
 
-import { db } from '@/config/firebase.config';
+import amplifyConfig from '@/config/amplify.config';
 import { Notification, NotificationType } from '@/types';
-import { 
-  collection, 
-  doc, 
-  addDoc, 
-  updateDoc, 
-  deleteDoc, 
-  getDocs, 
-  getDoc, 
-  query, 
-  where, 
-  orderBy, 
-  limit, 
-  onSnapshot,
-  writeBatch,
+import {
+  collection,
+  db,
+  addDoc,
   serverTimestamp,
-  Timestamp
-} from 'firebase/firestore';
+  query,
+  where,
+  orderBy,
+  getDocs,
+  doc,
+  updateDoc,
+  deleteDoc,
+  writeBatch,
+  onSnapshot,
+  getDoc,
+  limit
+} from '@/services/firebase-shim';
 
 export class NotificationService {
   private static instance: NotificationService;
@@ -57,13 +57,13 @@ export class NotificationService {
         where('userId', '==', userId),
         orderBy('createdAt', 'desc')
       );
-      const snapshot = await getDocs(q);
-      return snapshot.docs.map(doc => {
+      const snapshot: any = await getDocs(q);
+      return (snapshot.docs || []).map((doc: any) => {
         const data = doc.data();
         return {
           id: doc.id,
           ...(data as any),
-          createdAt: data.createdAt.toDate() || new Date(),
+          createdAt: (data?.createdAt && typeof data.createdAt.toDate === 'function') ? data.createdAt.toDate() : new Date(),
         } as Notification;
       });
     } catch (error) {
@@ -94,10 +94,10 @@ export class NotificationService {
         where('userId', '==', userId),
         where('read', '==', false)
       );
-      const snapshot = await getDocs(q);
+      const snapshot: any = await getDocs(q);
       const batch = writeBatch(db);
       
-      snapshot.docs.forEach(doc => {
+      snapshot.docs.forEach((doc: any) => {
         batch.update(doc.ref, {
           read: true,
           updatedAt: serverTimestamp()
@@ -130,17 +130,26 @@ export class NotificationService {
       orderBy('createdAt', 'desc')
     );
     
-    return onSnapshot(q, (snapshot) => {
-      const notifications = snapshot.docs.map(doc => {
+    const unsub: any = onSnapshot(q, (snapshot: any) => {
+      const notifications = (snapshot.docs || []).map((doc: any) => {
         const data = doc.data();
         return {
           id: doc.id,
           ...(data as any),
-          createdAt: data.createdAt.toDate() || new Date(),
+          createdAt: (data?.createdAt && typeof data.createdAt.toDate === 'function') ? data.createdAt.toDate() : new Date(),
         } as Notification;
       });
       callback(notifications);
     });
+
+    return () => {
+      try {
+        if (typeof unsub === 'function') (unsub as any)();
+        else if (unsub && typeof unsub.unsubscribe === 'function') unsub.unsubscribe();
+      } catch (err) {
+        // ignore
+      }
+    };
   }
 
   // Subscribe to unread count (real-time)
@@ -151,9 +160,18 @@ export class NotificationService {
       where('read', '==', false)
     );
     
-    return onSnapshot(q, (snapshot) => {
+    const unsub: any = onSnapshot(q, (snapshot) => {
       callback(snapshot.size);
     });
+
+    return () => {
+      try {
+        if (typeof unsub === 'function') (unsub as any)();
+        else if (unsub && typeof unsub.unsubscribe === 'function') unsub.unsubscribe();
+      } catch (err) {
+        // ignore
+      }
+    };
   }
 
   // Send templated notification
@@ -213,7 +231,7 @@ export class NotificationService {
       if (docSnap.exists()) {
         return {
           id: docSnap.id,
-          ...docSnap.data()
+          ...(docSnap.data() as any)
         } as Notification;
       }
       return null;
@@ -232,13 +250,13 @@ export class NotificationService {
         where('type', '==', type),
         orderBy('createdAt', 'desc')
       );
-      const snapshot = await getDocs(q);
-      return snapshot.docs.map(doc => {
+      const snapshot: any = await getDocs(q);
+      return (snapshot.docs || []).map((doc: any) => {
         const data = doc.data();
         return {
           id: doc.id,
           ...(data as any),
-          createdAt: data.createdAt.toDate() || new Date(),
+          createdAt: (data?.createdAt && typeof data.createdAt.toDate === 'function') ? data.createdAt.toDate() : new Date(),
         } as Notification;
       });
     } catch (error) {
@@ -256,13 +274,13 @@ export class NotificationService {
         orderBy('createdAt', 'desc'),
         limit(limitCount)
       );
-      const snapshot = await getDocs(q);
-      return snapshot.docs.map(doc => {
+      const snapshot: any = await getDocs(q);
+      return (snapshot.docs || []).map((doc: any) => {
         const data = doc.data();
         return {
           id: doc.id,
           ...(data as any),
-          createdAt: data.createdAt.toDate() || new Date(),
+          createdAt: (data?.createdAt && typeof data.createdAt.toDate === 'function') ? data.createdAt.toDate() : new Date(),
         } as Notification;
       });
     } catch (error) {

@@ -17,14 +17,6 @@ export const buildConfig = {
   chunks: {
     vendor: {
       react: ['react', 'react-dom', 'react-router-dom'],
-      firebase: [
-        'firebase/app',
-        'firebase/auth',
-        'firebase/firestore',
-        'firebase/storage',
-        'firebase/functions',
-        'firebase/analytics',
-      ],
       ui: [
         'framer-motion',
         '@heroicons/react/24/outline',
@@ -93,20 +85,6 @@ export const buildConfig = {
       minify: true,
       optimization: true,
       analytics: true,
-    },
-  },
-
-  // Deployment targets
-  deployment: {
-    firebase: {
-      hosting: true,
-      functions: true,
-      firestore: true,
-      storage: true,
-    },
-    cdn: {
-      enabled: true,
-      provider: 'firebase',
     },
   },
 };

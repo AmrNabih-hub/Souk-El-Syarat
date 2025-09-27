@@ -379,6 +379,14 @@ export interface SearchFilters {
   condition?: ProductCondition;
   location?: string;
   vendor?: string;
+  // Additional filters used across services
+  vendorId?: string;
+  status?: string;
+  minPrice?: number;
+  maxPrice?: number;
+  searchTerm?: string;
+  page?: number;
+  perPage?: number;
   inStock?: boolean;
   features?: string[];
   // Car-specific filters
@@ -401,6 +409,7 @@ export interface SearchResult {
   products: Product[];
   total: number;
   facets: SearchFacets;
+  hasMore?: boolean;
 }
 
 export interface SearchFacets {
@@ -456,6 +465,13 @@ export interface AdminAnalytics {
   platformGrowth: PlatformGrowth;
   topCategories: CategoryStats[];
   userActivity: UserActivityData[];
+}
+
+export interface PlatformGrowth {
+  usersGrowth: number;
+  vendorsGrowth: number;
+  ordersGrowth: number;
+  revenueGrowth: number;
 }
 
 // Admin Dashboard Types
@@ -550,7 +566,8 @@ export type NotificationType =
   | 'product_rejected'
   | 'new_review'
   | 'payment_received'
-  | 'system_announcement';
+  | 'system_announcement'
+  | 'system';
 
 // Form Types
 export interface VendorApplicationForm {
@@ -586,3 +603,64 @@ export interface ProductForm {
   // Car-specific fields
   carDetails?: Partial<CarDetails>;
 }
+
+// Realtime & Messaging Types
+export interface ChatMessage {
+  id: string;
+  conversationId: string;
+  senderId: string;
+  senderName?: string;
+  senderRole?: UserRole;
+  content: string;
+  type: 'text' | 'image' | 'system' | 'order' | string;
+  createdAt: Date;
+  readBy?: string[];
+}
+
+export interface Conversation {
+  id: string;
+  participants: string[]; // user ids
+  lastMessage?: string;
+  unreadCount?: number;
+  lastUpdated?: Date;
+}
+
+export interface UserPresence {
+  userId: string;
+  online: boolean;
+  lastSeen?: Date;
+}
+
+// Dashboard Metrics Types
+export interface BusinessMetrics {
+  totalUsers: number;
+  totalVendors: number;
+  totalProducts: number;
+  totalOrders: number;
+  totalRevenue: number;
+  activeUsers?: number;
+  activeVendors?: number;
+  topCategories?: CategoryStats[];
+  topProducts?: TopProduct[];
+}
+
+export interface RealTimeStats {
+  pendingOrders: number;
+  processingOrders: number;
+  recentOrders: string; // JSON string for simplicity
+  recentSignups: string; // JSON string
+  onlineUsers?: number;
+  activeVendors?: number;
+  systemHealth?: string; // JSON string
+}
+
+// Process orchestrator placeholders
+export interface ProcessEvent {
+  id: string;
+  name: string;
+  type: string;
+  payload?: Record<string, any>;
+  timestamp: Date;
+}
+export interface Workflow { id: string; name: string; steps: WorkflowStep[] }
+export interface WorkflowStep { id: string; name: string; type: string; meta?: Record<string, any> }

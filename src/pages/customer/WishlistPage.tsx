@@ -41,7 +41,7 @@ const WishlistPage: React.FC = () => {
       setIsLoading(true);
 
       // Get all sample products for demo
-      const sampleProducts = ProductService.getSampleProducts();
+      const sampleProducts = await ProductService.getSampleProducts();
       const productMap: Record<string, Product> = {};
 
       // Add more sample products

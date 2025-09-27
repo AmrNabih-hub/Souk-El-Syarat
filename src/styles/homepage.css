@@ -1,0 +1,173 @@
+/* HomePage Specific Styles - Professional Implementation */
+
+/* Hero Section Styles */
+.hero-fallback-gradient {
+  background: linear-gradient(to right, #d97706, #92400e);
+}
+
+.hero-content-overlay {
+  background: linear-gradient(to right, rgb(0 0 0 / 70%), rgb(0 0 0 / 40%), transparent);
+}
+
+/* Button Styles */
+.cta-button-primary {
+  background: linear-gradient(to right, #f59e0b, #d97706);
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.cta-button-primary:hover {
+  background: linear-gradient(to right, #d97706, #b45309);
+  transform: translateY(-2px);
+  box-shadow: 0 8px 25px rgb(217 119 6 / 40%);
+}
+
+.cta-button-secondary {
+  background: transparent;
+  border: 1px solid #6b7280;
+  color: #e5e7eb;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  box-shadow: 0 0 10px rgb(14 165 233 / 20%);
+}
+
+.cta-button-secondary:hover {
+  border-color: #38bdf8;
+  color: white;
+  background: rgb(14 165 233 / 10%);
+  transform: scale(1.05);
+}
+
+/* Button Hover Effects */
+.cta-button-hover-effect {
+  background: linear-gradient(to right, #d97706, #b45309);
+  opacity: 0;
+  transition: opacity 0.3s ease;
+}
+
+.main-headline {
+  font-family: 'Playfair Display', Amiri, serif;
+  text-shadow: 0 4px 20px rgb(0 0 0 / 30%);
+  letter-spacing: 0.02em;
+}
+
+.cta-button-primary:hover .cta-button-hover-effect {
+  opacity: 1;
+}
+
+/* CTA Section Background */
+.cta-section-background {
+  background: linear-gradient(135deg, #d97706 0%, #b45309 25%, #0284c7 50%, #0369a1 75%, #075985 100%);
+}
+
+/* Background Pattern Elements */
+.background-pattern-element {
+  background: white;
+  border-radius: 50%;
+  filter: blur(48px);
+  opacity: 0.1;
+}
+
+.background-pattern-element:nth-child(1) {
+  top: 2.5rem;
+  left: 2.5rem;
+  width: 6rem;
+  height: 6rem;
+}
+
+.background-pattern-element:nth-child(2) {
+  bottom: 2.5rem;
+  right: 2.5rem;
+  width: 8rem;
+  height: 8rem;
+}
+
+.background-pattern-element:nth-child(3) {
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 12rem;
+  height: 12rem;
+  opacity: 0.5;
+}
+
+/* Responsive Design */
+@media (width <= 640px) {
+  .hero-fallback-gradient {
+    background: linear-gradient(135deg, #d97706, #92400e);
+  }
+  
+  .cta-button-primary,
+  .cta-button-secondary {
+    padding: 0.75rem 1.5rem;
+    font-size: 0.875rem;
+  }
+}
+
+@media (width >= 1024px) {
+  .cta-button-primary,
+  .cta-button-secondary {
+    padding: 1rem 2rem;
+    font-size: 1rem;
+  }
+}
+
+/* Dark Mode Support */
+@media (prefers-color-scheme: dark) {
+  .cta-button-secondary {
+    border-color: #4b5563;
+    color: #9ca3af;
+  }
+  
+  .cta-button-secondary:hover {
+    border-color: #60a5fa;
+    color: white;
+  }
+}
+
+/* Animation Classes */
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.animate-fade-in-up {
+  animation: fadeInUp 0.8s ease-out;
+}
+
+/* Focus States for Accessibility */
+.cta-button-primary:focus,
+.cta-button-secondary:focus {
+  outline: 2px solid #f59e0b;
+  outline-offset: 2px;
+}
+
+/* High Contrast Mode Support */
+@media (prefers-contrast: high) {
+  .cta-button-primary {
+    background: #d97706;
+    border: 2px solid #000;
+  }
+  
+  .cta-button-secondary {
+    border: 2px solid #000;
+    color: #000;
+  }
+}
+
+/* Reduced Motion Support */
+@media (prefers-reduced-motion: reduce) {
+  .cta-button-primary,
+  .cta-button-secondary {
+    transition: none;
+  }
+  
+  .cta-button-hover-effect {
+    transition: none;
+  }
+}

@@ -109,7 +109,7 @@ const ProductDetailModal: React.FC<ProductDetailModalProps> = ({
     visible: {
       scale: 1,
       opacity: 1,
-      transition: { type: 'spring', damping: 25, stiffness: 300 },
+      transition: { duration: 0.25 },
     },
     exit: { scale: 0.8, opacity: 0 },
   };

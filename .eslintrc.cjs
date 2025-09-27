@@ -6,7 +6,10 @@ module.exports = {
     node: true 
   },
   extends: [
-    'eslint:recommended'
+    'eslint:recommended',
+    'plugin:@typescript-eslint/recommended',
+    'plugin:react/recommended',
+    'plugin:react-hooks/recommended'
   ],
   ignorePatterns: [
     'dist', 

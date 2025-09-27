@@ -17,7 +17,7 @@
     "jsxImportSource": "react",
 
     /* Linting - Made more permissive for build success */
-    "strict": false,
+        "strict": true,
     "noImplicitAny": false,
     "noUnusedLocals": false,
     "noUnusedParameters": false,
@@ -36,15 +36,18 @@
       "@/types/*": ["./src/types/*"],
       "@/stores/*": ["./src/stores/*"],
       "@/services/*": ["./src/services/*"],
-      "@/assets/*": ["./src/assets/*"]
+      "@/assets/*": ["./src/assets/*"],
+      "aws-amplify/api": ["./src/shims/aws-amplify-api.ts"]
     },
 
     /* Type checking */
     "types": ["vite/client", "node", "react", "react-dom"],
     "typeRoots": ["./node_modules/@types", "./src/types"],
+    "moduleDetection": "force",
     "esModuleInterop": true,
     "allowSyntheticDefaultImports": true,
-    "forceConsistentCasingInFileNames": true
+    "forceConsistentCasingInFileNames": true,
+    "useUnknownInCatchVariables": false
   },
   "include": ["src/**/*", "src/**/*.tsx", "src/**/*.ts", "src/vite-env.d.ts", "src/types/**/*.d.ts"],
   "exclude": ["node_modules", "dist", "build", "coverage"],

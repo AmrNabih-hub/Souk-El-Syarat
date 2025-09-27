@@ -86,8 +86,8 @@ describe('ProductCard', () => {
     );
 
     // Find heart icon using data-testid
-    const favoriteButton = screen.getByTestId('hearticon-icon');
-    fireEvent.click(favoriteButton.parentElement!);
+    const favoriteButton = screen.getByLabelText('Add to favorites');
+    fireEvent.click(favoriteButton);
 
     expect(mockOnToggleFavorite).toHaveBeenCalledWith(mockProduct.id, true);
   });

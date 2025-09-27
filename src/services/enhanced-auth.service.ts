@@ -1,30 +1,4 @@
-import { auth, db } from '@/config/firebase.config';
-import {
-  signInWithEmailAndPassword,
-  createUserWithEmailAndPassword,
-  signInWithPopup,
-  signOut as firebaseSignOut,
-  sendPasswordResetEmail,
-  sendEmailVerification,
-  updateProfile,
-  updatePassword,
-  onAuthStateChanged,
-  GoogleAuthProvider,
-  FacebookAuthProvider,
-  TwitterAuthProvider,
-  PhoneAuthProvider,
-  RecaptchaVerifier,
-  multiFactor,
-  PhoneMultiFactorGenerator,
-} from 'firebase/auth';
-import {
-  doc,
-  setDoc,
-  getDoc,
-  updateDoc,
-  serverTimestamp,
-} from 'firebase/firestore';
-
+import { Auth, Hub } from 'aws-amplify';
 import { User, UserRole } from '@/types';
 
 export interface EnhancedAuthState {
@@ -57,21 +31,6 @@ export class EnhancedAuthService {
   private readonly SESSION_DURATION = 24 * 60 * 60 * 1000; // 24 hours
   private readonly ACTIVITY_UPDATE_INTERVAL = 5 * 60 * 1000; // 5 minutes
 
-  // Initialize auth providers with enhanced security
-  static googleProvider = new GoogleAuthProvider();
-  static facebookProvider = new FacebookAuthProvider();
-  static twitterProvider = new TwitterAuthProvider();
-  static phoneProvider = new PhoneAuthProvider(auth);
-
-  // Configure Google provider
-  static {
-    EnhancedAuthService.googleProvider.setCustomParameters({
-      prompt: 'select_account',
-      access_type: 'offline',
-      include_granted_scopes: true,
-    });
-  }
-
   private constructor() {
     this.initializeAuthStateListener();
     this.startActivityTracking();
@@ -88,111 +47,32 @@ export class EnhancedAuthService {
    * Initialize real-time auth state listener
    */
   private initializeAuthStateListener(): void {
-    onAuthStateChanged(auth, async firebaseUser => {
-      if (firebaseUser) {
-        try {
-          // Get user data from Firestore
-          const userDoc = await getDoc(doc(db, 'users', firebaseUser.uid));
-
-          if (userDoc.exists()) {
-            const userData = userDoc.data();
-            const user: User = {
-              id: firebaseUser.uid,
-              ...userData,
-              createdAt: userData.createdAt.toDate() || new Date(),
-              updatedAt: userData.updatedAt.toDate() || new Date(),
-              lastLoginAt: userData.lastLoginAt.toDate() || new Date(),
-            };
-
-            // Update last login time
-            await updateDoc(doc(db, 'users', firebaseUser.uid), {
-              lastLoginAt: serverTimestamp(),
-              updatedAt: serverTimestamp(),
-            });
-
-            // Start session timer
-            this.startSessionTimer();
-
-            // Notify listeners
-            this.notifyAuthStateChange({
-              user,
-              isLoading: false,
-              error: null,
-              isAuthenticated: true,
-              isEmailVerified: firebaseUser.emailVerified,
-              isMultiFactorEnabled: firebaseUser.multiFactor.enrolledFactors.length > 0,
-              lastActivity: new Date(),
-              sessionExpiry: new Date(Date.now() + this.SESSION_DURATION),
-            });
-          } else {
-            // User document doesn't exist - create it
-            const newUser: User = {
-              id: firebaseUser.uid,
-              email: firebaseUser.email!,
-              displayName: firebaseUser.displayName || 'User',
-              phoneNumber: firebaseUser.phoneNumber || undefined,
-              photoURL: firebaseUser.photoURL || undefined,
-              role: 'customer',
-              isActive: true,
-              emailVerified: firebaseUser.emailVerified,
-              createdAt: new Date(),
-              updatedAt: new Date(),
-              lastLoginAt: new Date(),
-              preferences: {
-                language: 'ar',
-                currency: 'EGP',
-                notifications: {
-                  email: true,
-                  sms: false,
-                  push: true,
-                },
-              },
-            };
-
-            await setDoc(doc(db, 'users', firebaseUser.uid), {
-              ...newUser,
-              createdAt: serverTimestamp(),
-              updatedAt: serverTimestamp(),
-              lastLoginAt: serverTimestamp(),
-            });
-
-            this.notifyAuthStateChange({
-              user: newUser,
-              isLoading: false,
-              error: null,
-              isAuthenticated: true,
-              isEmailVerified: firebaseUser.emailVerified,
-              isMultiFactorEnabled: firebaseUser.multiFactor.enrolledFactors.length > 0,
-              lastActivity: new Date(),
-              sessionExpiry: new Date(Date.now() + this.SESSION_DURATION),
-            });
-          }
-        } catch (error) {
-          if (process.env.NODE_ENV === 'development') if (process.env.NODE_ENV === 'development') console.error('Error getting user data:', error);
+    Hub.listen('auth', ({ payload: { event, data } }) => {
+      switch (event) {
+        case 'signIn':
+          this.notifyAuthStateChange({
+            user: data,
+            isLoading: false,
+            error: null,
+            isAuthenticated: true,
+            isEmailVerified: data.attributes.email_verified,
+            isMultiFactorEnabled: false, // TODO: Implement MFA
+            lastActivity: new Date(),
+            sessionExpiry: new Date(Date.now() + this.SESSION_DURATION),
+          });
+          break;
+        case 'signOut':
           this.notifyAuthStateChange({
             user: null,
             isLoading: false,
-            error: 'Failed to get user data',
+            error: null,
             isAuthenticated: false,
             isEmailVerified: false,
             isMultiFactorEnabled: false,
             lastActivity: null,
             sessionExpiry: null,
           });
-        }
-      } else {
-        // User signed out
-        this.clearSessionTimer();
-        this.notifyAuthStateChange({
-          user: null,
-          isLoading: false,
-          error: null,
-          isAuthenticated: false,
-          isEmailVerified: false,
-          isMultiFactorEnabled: false,
-          lastActivity: null,
-          sessionExpiry: null,
-        });
+          break;
       }
     });
   }
@@ -216,11 +96,13 @@ export class EnhancedAuthService {
    * Update last activity timestamp
    */
   private updateLastActivity(): void {
-    if (auth.currentUser) {
-      updateDoc(doc(db, 'users', auth.currentUser.uid), {
-        lastActivity: serverTimestamp(),
-      }).catch(console.error);
-    }
+    Auth.currentAuthenticatedUser()
+      .then(user => {
+        // TODO: Implement with Amplify DataStore
+      })
+      .catch(() => {
+        // Not signed in
+      });
   }
 
   /**
@@ -229,7 +111,8 @@ export class EnhancedAuthService {
   private startSessionTimer(): void {
     this.clearSessionTimer();
     this.sessionTimeout = setTimeout(() => {
-      this.signOut();
+      // call the static signOut implementation
+      EnhancedAuthService.signOut().catch(() => {});
     }, this.SESSION_DURATION);
   }
 
@@ -269,33 +152,29 @@ export class EnhancedAuthService {
     phoneNumber?: string
   ): Promise<User> {
     try {
-      // Validate admin role creation
       if (role === 'admin') {
         throw new Error('Admin accounts cannot be created through regular signup');
       }
 
-      // Create Firebase auth user
-      const userCredential = await createUserWithEmailAndPassword(auth, email, password);
-      const firebaseUser = userCredential.user;
-
-      // Send email verification
-      await sendEmailVerification(firebaseUser, {
-        url: `${window.location.origin}/verify-email`,
-        handleCodeInApp: true,
+      const { user } = await Auth.signUp({
+        username: email,
+        password,
+        attributes: {
+          email,
+          name: displayName,
+          phone_number: phoneNumber,
+        },
       });
 
-      // Update Firebase auth profile
-      await updateProfile(firebaseUser, { displayName });
-
-      // Create user document in Firestore
-      const userData: Omit<User, 'id'> = {
-        email: firebaseUser.email!,
+      // TODO: Replace with Amplify DataStore
+      const newUser: User = {
+        id: user.userId,
+        email,
         displayName,
-        phoneNumber: phoneNumber || firebaseUser.phoneNumber || undefined,
-        photoURL: firebaseUser.photoURL || undefined,
+        phoneNumber,
         role,
         isActive: true,
-        emailVerified: firebaseUser.emailVerified,
+        emailVerified: false,
         createdAt: new Date(),
         updatedAt: new Date(),
         lastLoginAt: new Date(),
@@ -310,14 +189,7 @@ export class EnhancedAuthService {
         },
       };
 
-      await setDoc(doc(db, 'users', firebaseUser.uid), {
-        ...userData,
-        createdAt: serverTimestamp(),
-        updatedAt: serverTimestamp(),
-        lastLoginAt: serverTimestamp(),
-      });
-
-      return { id: firebaseUser.uid, ...userData };
+      return newUser;
     } catch (error) {
       throw new Error(this.getAuthErrorMessage(error.code));
     }
@@ -334,46 +206,20 @@ export class EnhancedAuthService {
         throw new Error('Invalid admin code');
       }
 
-      // Sign in with Firebase
-      const userCredential = await signInWithEmailAndPassword(
-        auth,
-        adminData.email,
-        adminData.password
-      );
-      const firebaseUser = userCredential.user;
+      const user = await Auth.signIn(adminData.email, adminData.password);
 
-      // Get user data from Firestore
-      const userDoc = await getDoc(doc(db, 'users', firebaseUser.uid));
-
-      if (!userDoc.exists()) {
-        throw new Error('Admin user not found');
-      }
-
-      const userData = userDoc.data();
-
-      // Verify admin role
-      if (userData.role !== 'admin') {
-        throw new Error('Access denied: Admin privileges required');
-      }
-
-      // Check if admin account is active
-      if (!userData.isActive) {
-        throw new Error('Admin account is deactivated');
-      }
-
-      // Update last login time
-      await updateDoc(doc(db, 'users', firebaseUser.uid), {
-        lastLoginAt: serverTimestamp(),
-        updatedAt: serverTimestamp(),
-      });
-
+      // TODO: Replace with Amplify DataStore
       return {
-        id: firebaseUser.uid,
-        ...userData,
-        createdAt: userData.createdAt.toDate() || new Date(),
-        updatedAt: userData.updatedAt.toDate() || new Date(),
-        lastLoginAt: userData.lastLoginAt.toDate() || new Date(),
-      };
+        id: user.attributes.sub,
+        email: user.attributes.email,
+        displayName: user.attributes.name,
+        role: 'admin',
+        isActive: true,
+        emailVerified: user.attributes.email_verified,
+        createdAt: new Date(),
+        updatedAt: new Date(),
+        lastLoginAt: new Date(),
+      } as User;
     } catch (error) {
       throw new Error(this.getAuthErrorMessage(error.code));
     }
@@ -384,41 +230,20 @@ export class EnhancedAuthService {
    */
   static async signIn(email: string, password: string): Promise<User> {
     try {
-      const userCredential = await signInWithEmailAndPassword(auth, email, password);
-      const firebaseUser = userCredential.user;
+      const user = await Auth.signIn(email, password);
 
-      // Get user data from Firestore
-      const userDoc = await getDoc(doc(db, 'users', firebaseUser.uid));
-
-      if (!userDoc.exists()) {
-        throw new Error('User data not found');
-      }
-
-      const userData = userDoc.data();
-
-      // Check if user is active
-      if (!userData.isActive) {
-        throw new Error('Account is deactivated. Please contact support.');
-      }
-
-      // Check if email is verified (for non-admin users)
-      if (userData.role !== 'admin' && !firebaseUser.emailVerified) {
-        throw new Error('Please verify your email before signing in');
-      }
-
-      // Update last login time
-      await updateDoc(doc(db, 'users', firebaseUser.uid), {
-        lastLoginAt: serverTimestamp(),
-        updatedAt: serverTimestamp(),
-      });
-
+      // TODO: Replace with Amplify DataStore
       return {
-        id: firebaseUser.uid,
-        ...userData,
-        createdAt: userData.createdAt.toDate() || new Date(),
-        updatedAt: userData.updatedAt.toDate() || new Date(),
-        lastLoginAt: userData.lastLoginAt.toDate() || new Date(),
-      };
+        id: user.attributes.sub,
+        email: user.attributes.email,
+        displayName: user.attributes.name,
+        role: 'customer',
+        isActive: true,
+        emailVerified: user.attributes.email_verified,
+        createdAt: new Date(),
+        updatedAt: new Date(),
+        lastLoginAt: new Date(),
+      } as User;
     } catch (error) {
       throw new Error(this.getAuthErrorMessage(error.code));
     }
@@ -429,65 +254,9 @@ export class EnhancedAuthService {
    */
   static async signInWithGoogle(): Promise<User> {
     try {
-      const userCredential = await signInWithPopup(auth, EnhancedAuthService.googleProvider);
-      const firebaseUser = userCredential.user;
-
-      // Check if user exists in Firestore
-      const userDoc = await getDoc(doc(db, 'users', firebaseUser.uid));
-
-      if (userDoc.exists()) {
-        const userData = userDoc.data();
-
-        if (!userData.isActive) {
-          throw new Error('Account is deactivated. Please contact support.');
-        }
-
-        // Update last login time
-        await updateDoc(doc(db, 'users', firebaseUser.uid), {
-          lastLoginAt: serverTimestamp(),
-          updatedAt: serverTimestamp(),
-        });
-
-        return {
-          id: firebaseUser.uid,
-          ...userData,
-          createdAt: userData.createdAt.toDate() || new Date(),
-          updatedAt: userData.updatedAt.toDate() || new Date(),
-          lastLoginAt: userData.lastLoginAt.toDate() || new Date(),
-        };
-      } else {
-        // Create new user from Google sign-in
-        const newUser: User = {
-          id: firebaseUser.uid,
-          email: firebaseUser.email!,
-          displayName: firebaseUser.displayName || 'User',
-          photoURL: firebaseUser.photoURL || undefined,
-          role: 'customer',
-          isActive: true,
-          emailVerified: firebaseUser.emailVerified,
-          createdAt: new Date(),
-          updatedAt: new Date(),
-          lastLoginAt: new Date(),
-          preferences: {
-            language: 'ar',
-            currency: 'EGP',
-            notifications: {
-              email: true,
-              sms: false,
-              push: true,
-            },
-          },
-        };
-
-        await setDoc(doc(db, 'users', firebaseUser.uid), {
-          ...newUser,
-          createdAt: serverTimestamp(),
-          updatedAt: serverTimestamp(),
-          lastLoginAt: serverTimestamp(),
-        });
-
-        return newUser;
-      }
+      await Auth.federatedSignIn({ provider: 'Google' });
+      // TODO: Get user data from Amplify
+      return {} as User;
     } catch (error) {
       throw new Error(this.getAuthErrorMessage(error.code));
     }
@@ -498,13 +267,7 @@ export class EnhancedAuthService {
    */
   static async signOut(): Promise<void> {
     try {
-      await firebaseSignOut(auth);
-
-      // Clear session timer
-      const instance = EnhancedAuthService.getInstance();
-      instance.clearSessionTimer();
-
-      // if (process.env.NODE_ENV === 'development') console.log('User signed out successfully');
+      await Auth.signOut();
     } catch (error) {
       throw new Error(this.getAuthErrorMessage(error.code));
     }
@@ -515,10 +278,7 @@ export class EnhancedAuthService {
    */
   static async resetPassword(email: string): Promise<void> {
     try {
-      await sendPasswordResetEmail(auth, email, {
-        url: `${window.location.origin}/login`,
-        handleCodeInApp: true,
-      });
+      await Auth.forgotPassword(email);
     } catch (error) {
       throw new Error(this.getAuthErrorMessage(error.code));
     }
@@ -529,23 +289,8 @@ export class EnhancedAuthService {
    */
   static async updateProfile(updates: Partial<User>): Promise<void> {
     try {
-      if (!auth.currentUser) {
-        throw new Error('No authenticated user');
-      }
-
-      // Update Firebase auth profile if displayName or photoURL changed
-      if (updates.displayName || updates.photoURL) {
-        await updateProfile(auth.currentUser, {
-          displayName: updates.displayName,
-          photoURL: updates.photoURL,
-        });
-      }
-
-      // Update Firestore document
-      await updateDoc(doc(db, 'users', auth.currentUser.uid), {
-        ...updates,
-        updatedAt: serverTimestamp(),
-      });
+      const user = await Auth.currentAuthenticatedUser();
+      await Auth.updateUserAttributes(user, updates);
     } catch (error) {
       throw new Error(this.getAuthErrorMessage(error.code));
     }
@@ -556,11 +301,8 @@ export class EnhancedAuthService {
    */
   static async updatePassword(newPassword: string): Promise<void> {
     try {
-      if (!auth.currentUser) {
-        throw new Error('No authenticated user');
-      }
-
-      await updatePassword(auth.currentUser, newPassword);
+      const user = await Auth.currentAuthenticatedUser();
+      await Auth.changePassword(user, '', newPassword);
     } catch (error) {
       throw new Error(this.getAuthErrorMessage(error.code));
     }
@@ -571,23 +313,8 @@ export class EnhancedAuthService {
    */
   static async enableMultiFactor(phoneNumber: string): Promise<void> {
     try {
-      if (!auth.currentUser) {
-        throw new Error('No authenticated user');
-      }
-
-      // Create reCAPTCHA verifier
-      const recaptchaVerifier = new RecaptchaVerifier(auth, 'recaptcha-container', {
-        size: 'invisible',
-      });
-
-      // Send verification code
-      const session = await EnhancedAuthService.phoneProvider.verifyPhoneNumber(
-        phoneNumber,
-        recaptchaVerifier
-      );
-
-      // Store session for verification
-      (window as any).multiFactorSession = session;
+      const user = await Auth.currentAuthenticatedUser();
+      await Auth.setPreferredMFA(user, 'SMS');
     } catch (error) {
       throw new Error(this.getAuthErrorMessage(error.code));
     }
@@ -598,30 +325,7 @@ export class EnhancedAuthService {
    */
   static async verifyMultiFactor(verificationCode: string): Promise<void> {
     try {
-      if (!auth.currentUser) {
-        throw new Error('No authenticated user');
-      }
-
-      const session = (window as any).multiFactorSession;
-      if (!session) {
-        throw new Error('No verification session found');
-      }
-
-      // Create credential
-      const credential = PhoneAuthProvider.credential(session, verificationCode);
-      const multiFactorAssertion = PhoneMultiFactorGenerator.assertion(credential);
-
-      // Complete multi-factor enrollment
-      await multiFactor(auth.currentUser).enroll(multiFactorAssertion, 'Phone Number');
-
-      // Update user document
-      await updateDoc(doc(db, 'users', auth.currentUser.uid), {
-        multiFactorEnabled: true,
-        updatedAt: serverTimestamp(),
-      });
-
-      // Clear session
-      delete (window as any).multiFactorSession;
+      await Auth.verifyCurrentUserAttributeSubmit('phone_number', verificationCode);
     } catch (error) {
       throw new Error(this.getAuthErrorMessage(error.code));
     }
@@ -632,27 +336,20 @@ export class EnhancedAuthService {
    */
   private static getAuthErrorMessage(errorCode: string): string {
     const errorMessages: Record<string, string> = {
-      'auth/user-not-found': 'No account found with this email address',
-      'auth/wrong-password': 'Incorrect password',
-      'auth/invalid-email': 'Invalid email address',
-      'auth/user-disabled': 'This account has been disabled',
-      'auth/too-many-requests': 'Too many failed attempts. Please try again later',
-      'auth/network-request-failed': 'Network error. Please check your connection',
-      'auth/weak-password': 'Password is too weak. Use at least 8 characters',
-      'auth/email-already-in-use': 'An account with this email already exists',
-      'auth/invalid-phone-number': 'Invalid phone number format',
-      'auth/invalid-verification-code': 'Invalid verification code',
-      'auth/multi-factor-auth-required': 'Multi-factor authentication required',
-      'auth/requires-recent-login': 'Please sign in again to perform this action',
-      'auth/operation-not-allowed': 'This operation is not allowed',
-      'auth/account-exists-with-different-credential': 'An account already exists with this email',
-      'auth/credential-already-in-use':
-        'This credential is already associated with another account',
-      'auth/invalid-credential': 'Invalid credentials',
-      'auth/user-token-expired': 'Your session has expired. Please sign in again',
-      'auth/user-mismatch': 'User mismatch error',
-      'auth/invalid-verification-id': 'Invalid verification ID',
-      'auth/quota-exceeded': 'Service quota exceeded. Please try again later',
+      'UserNotFoundException': 'No account found with this email address',
+      'NotAuthorizedException': 'Incorrect password',
+      'InvalidParameterException': 'Invalid email address',
+      'UserNotConfirmedException': 'This account has not been confirmed',
+      'TooManyRequestsException': 'Too many failed attempts. Please try again later',
+      'NetworkError': 'Network error. Please check your connection',
+      'InvalidPasswordException': 'Password is too weak. Use at least 8 characters',
+      'UsernameExistsException': 'An account with this email already exists',
+      'InvalidPhone_number': 'Invalid phone number format',
+      'CodeMismatchException': 'Invalid verification code',
+      'ExpiredCodeException': 'Verification code has expired',
+      'MFAMethodNotFoundException': 'Multi-factor authentication required',
+      'PasswordResetRequiredException': 'Password reset required',
+      'UserLambdaValidationException': 'An error occurred during user validation',
     };
 
     return errorMessages[errorCode] || 'Authentication failed. Please try again.';

@@ -14,7 +14,10 @@ async function globalSetup(config: FullConfig) {
 
   try {
     // Check if the application is running
-    const baseURL = process.env.PLAYWRIGHT_BASE_URL || 'http://localhost:3000';
+    const baseURL = config.webServer?.url;
+    if (!baseURL) {
+      throw new Error('Web server URL is not configured');
+    }
     console.log(`📍 Base URL: ${baseURL}`);
 
     // Wait for the application to be ready

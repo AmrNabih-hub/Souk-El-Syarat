@@ -1,0 +1,16 @@
+{
+  "extends": [
+    "stylelint-config-tailwindcss",
+    "stylelint-config-standard"
+  ],
+  "rules": {
+    "at-rule-no-unknown": [true, {
+      "ignoreAtRules": ["tailwind", "apply", "variants", "responsive", "screen"]
+    }],
+    "keyframes-name-pattern": null,
+    "no-duplicate-selectors": null,
+    "declaration-block-no-duplicate-properties": [true, { "ignore": ["consecutive-duplicates-with-different-values"] }],
+    "media-feature-name-no-unknown": [true, { "ignoreMediaFeatureNames": ["prefers-contrast", "prefers-reduced-motion"] }],
+    "media-feature-name-value-no-unknown": null
+  }
+}
