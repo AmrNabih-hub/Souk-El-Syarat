@@ -67,30 +67,34 @@ const HomePage: React.FC = () => {
     { 
       number: '10,000+', 
       label: 'سيارة متوفرة',
-      color: 'from-emerald-500 to-green-600',
-      bgColor: 'bg-emerald-50 dark:bg-emerald-900/20',
-      iconColor: 'text-emerald-600 dark:text-emerald-400'
+      color: 'from-emerald-400 to-teal-500',
+      bgColor: 'bg-gradient-to-br from-emerald-50 to-teal-50 dark:from-emerald-900/30 dark:to-teal-900/30',
+      iconColor: 'text-emerald-600 dark:text-emerald-400',
+      glowColor: 'shadow-emerald-200 dark:shadow-emerald-800'
     },
     { 
       number: '50,000+', 
       label: 'قطعة غيار',
-      color: 'from-blue-500 to-indigo-600',
-      bgColor: 'bg-blue-50 dark:bg-blue-900/20',
-      iconColor: 'text-blue-600 dark:text-blue-400'
+      color: 'from-blue-400 to-indigo-500',
+      bgColor: 'bg-gradient-to-br from-blue-50 to-indigo-50 dark:from-blue-900/30 dark:to-indigo-900/30',
+      iconColor: 'text-blue-600 dark:text-blue-400',
+      glowColor: 'shadow-blue-200 dark:shadow-blue-800'
     },
     { 
       number: '5,000+', 
       label: 'عميل راضي',
-      color: 'from-amber-500 to-orange-600',
-      bgColor: 'bg-amber-50 dark:bg-amber-900/20',
-      iconColor: 'text-amber-600 dark:text-amber-400'
+      color: 'from-amber-400 to-orange-500',
+      bgColor: 'bg-gradient-to-br from-amber-50 to-orange-50 dark:from-amber-900/30 dark:to-orange-900/30',
+      iconColor: 'text-amber-600 dark:text-amber-400',
+      glowColor: 'shadow-amber-200 dark:shadow-amber-800'
     },
     { 
       number: '100+', 
       label: 'مركز خدمة',
-      color: 'from-purple-500 to-pink-600',
-      bgColor: 'bg-purple-50 dark:bg-purple-900/20',
-      iconColor: 'text-purple-600 dark:text-purple-400'
+      color: 'from-purple-400 to-pink-500',
+      bgColor: 'bg-gradient-to-br from-purple-50 to-pink-50 dark:from-purple-900/30 dark:to-pink-900/30',
+      iconColor: 'text-purple-600 dark:text-purple-400',
+      glowColor: 'shadow-purple-200 dark:shadow-purple-800'
     },
   ];
 
@@ -107,22 +111,27 @@ const HomePage: React.FC = () => {
               <motion.div
                 key={stat.label}
                 className={`
-                  text-center p-6 rounded-2xl border border-neutral-200 dark:border-neutral-700
+                  text-center p-6 rounded-2xl border border-neutral-200/50 dark:border-neutral-700/50
                   ${stat.bgColor} backdrop-blur-sm transition-all duration-300
-                  hover:shadow-lg hover:shadow-neutral-200/50 dark:hover:shadow-neutral-800/50
-                  hover:-translate-y-1
+                  hover:shadow-xl hover:${stat.glowColor}/20 dark:hover:${stat.glowColor}/30
+                  hover:-translate-y-2 hover:scale-105
+                  transform-gpu relative overflow-hidden
                 `}
                 initial={{ opacity: 0, y: 30 }}
                 whileInView={{ opacity: 1, y: 0 }}
                 transition={{ delay: index * 0.1, duration: 0.6 }}
                 viewport={{ once: true }}
-                whileHover={{ scale: 1.02 }}
+                whileHover={{ scale: 1.05, y: -8 }}
               >
+                {/* Premium background shimmer effect */}
+                <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/10 to-transparent -skew-x-12 -translate-x-full hover:translate-x-full transition-transform duration-1000 ease-out" />
+                
                 {/* Premium gradient number */}
                 <motion.div
                   className={`
                     text-3xl lg:text-4xl font-bold mb-3 bg-gradient-to-r ${stat.color} 
-                    bg-clip-text text-transparent drop-shadow-sm
+                    bg-clip-text text-transparent drop-shadow-lg
+                    relative z-10
                   `}
                   initial={{ scale: 0 }}
                   whileInView={{ scale: 1 }}
@@ -135,14 +144,14 @@ const HomePage: React.FC = () => {
                 {/* Enhanced label */}
                 <div className={`
                   font-semibold text-sm lg:text-base ${stat.iconColor} 
-                  tracking-wide
+                  tracking-wide relative z-10
                 `}>
                   {stat.label}
                 </div>
 
-                {/* Subtle accent line */}
+                {/* Enhanced accent line with gradient */}
                 <motion.div
-                  className={`mt-3 h-1 w-12 mx-auto rounded-full bg-gradient-to-r ${stat.color} opacity-60`}
+                  className={`mt-3 h-1 w-12 mx-auto rounded-full bg-gradient-to-r ${stat.color} opacity-80 shadow-lg`}
                   initial={{ width: 0 }}
                   whileInView={{ width: 48 }}
                   transition={{ delay: index * 0.1 + 0.4, duration: 0.4 }}
