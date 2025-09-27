@@ -10,21 +10,31 @@ import Providers from '@/components/common/Providers';
 // 🚀 PROFESSIONAL DEVELOPMENT-READY INITIALIZATION
 console.log('🚀 Starting Souk El-Syarat Marketplace...');
 
-// Configure AWS Amplify safely (async)
+// Configure AWS Amplify safely (async) - FIXED FOR PRODUCTION STABILITY
 const initializeApp = async () => {
   try {
-    const { Amplify } = await import('aws-amplify');
-    const { amplifyConfig } = await import('./config/amplify.config');
-    
-    // Safe configuration that won't break the app
-    Amplify.configure(amplifyConfig);
-    console.log('✅ AWS Amplify configured successfully');
+    // Only configure Amplify if we're in a proper environment
+    if (window.location.hostname !== 'localhost' && process.env.NODE_ENV === 'production') {
+      const { Amplify } = await import('aws-amplify');
+      const { amplifyConfig } = await import('./config/amplify.config');
+      
+      // Validate config before configuring
+      if (amplifyConfig && amplifyConfig.aws_region) {
+        Amplify.configure(amplifyConfig);
+        console.log('✅ AWS Amplify configured for production');
+      } else {
+        console.warn('⚠️ AWS Amplify config incomplete, using development mode');
+      }
+    } else {
+      console.log('🚀 Development mode - Amplify configuration skipped for stability');
+    }
   } catch (error) {
-    console.warn('⚠️ AWS Amplify configuration skipped (development mode):', error);
+    console.warn('⚠️ AWS Amplify configuration error (non-blocking):', error);
+    // App continues normally without Amplify
   }
 };
 
-// Initialize Amplify in the background
+// Initialize Amplify safely in the background
 initializeApp();
 
 // Create React Query client

@@ -10,13 +10,13 @@ import {
   XMarkIcon,
   MagnifyingGlassIcon,
   GlobeAltIcon,
-  SunIcon,
-  MoonIcon,
   ChevronDownIcon,
 } from '@heroicons/react/24/outline';
 
 import { useAppStore } from '@/stores/appStore';
 import { useAuthStore } from '@/stores/authStore';
+import { useTheme } from '@/contexts/ThemeContext';
+import ProfessionalThemeToggle from '@/components/ui/ProfessionalThemeToggle';
 import clsx from 'clsx';
 
 const Navbar: React.FC = () => {
@@ -31,7 +31,7 @@ const Navbar: React.FC = () => {
   const navigate = useNavigate();
   const location = useLocation();
   const { user, signOut } = useAuthStore();
-  const { language, theme, setLanguage, setTheme, getCartItemsCount, favorites } = useAppStore();
+  const { language, setLanguage, getCartItemsCount, favorites } = useAppStore();
 
   // Close dropdowns when clicking outside
   useEffect(() => {
@@ -79,7 +79,7 @@ const Navbar: React.FC = () => {
   const isCurrentPath = (path: string) => location.pathname === path;
 
   return (
-    <nav className='bg-white/90 backdrop-blur-md border-b border-neutral-200/50 sticky top-0 z-50 shadow-sm'>
+    <nav className='bg-white/90 dark:bg-neutral-900/90 backdrop-blur-md border-b border-neutral-200/50 dark:border-neutral-800/50 sticky top-0 z-50 shadow-sm transition-colors duration-300'>
       <div className='max-w-7xl mx-auto px-4 sm:px-6 lg:px-8'>
         <div className='flex justify-between items-center h-16'>
           {/* Logo */}
@@ -157,19 +157,8 @@ const Navbar: React.FC = () => {
 
           {/* Right Side Icons */}
           <div className='flex items-center space-x-4'>
-            {/* Theme Toggle */}
-            <motion.button
-              onClick={() => setTheme(theme === 'light' ? 'dark' : 'light')}
-              className='p-2 text-neutral-600 hover:text-primary-600 transition-colors'
-              whileHover={{ scale: 1.1 }}
-              whileTap={{ scale: 0.9 }}
-            >
-              {theme === 'light' ? (
-                <MoonIcon className='w-5 h-5' />
-              ) : (
-                <SunIcon className='w-5 h-5' />
-              )}
-            </motion.button>
+            {/* Professional Theme Toggle Dropdown */}
+            <ProfessionalThemeToggle variant="dropdown" />
 
             {/* Language Toggle */}
             <motion.button

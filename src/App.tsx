@@ -4,6 +4,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 
 import { useAuth } from '@/contexts/AuthContext';
 import { useRealtime } from '@/contexts/RealtimeContext';
+import { ThemeProvider } from '@/contexts/ThemeContext';
 import { useAppStore } from '@/stores/appStore';
 import { PushNotificationService } from '@/services/push-notification.service';
 import { useResourcePreloader } from '@/hooks/usePerformanceOptimization';
@@ -173,28 +174,22 @@ function App() {
     };
   }, [user, subscribeToUpdates, unsubscribeFromUpdates]);
 
-  // Set document direction and theme
+  // Set document direction and theme with ThemeProvider support
   useEffect(() => {
     document.documentElement.dir = language === 'ar' ? 'rtl' : 'ltr';
     document.documentElement.lang = language;
-
-    // Properly handle dark mode class
-    if (theme === 'dark') {
-      document.documentElement.classList.add('dark');
-    } else {
-      document.documentElement.classList.remove('dark');
-    }
-  }, [language, theme]);
+  }, [language]);
 
   return (
     <ErrorBoundary>
-      <div className='min-h-screen bg-gradient-to-br from-primary-50 via-white to-secondary-50 transition-all duration-500'>
-        <Navbar />
+      <ThemeProvider defaultTheme="light" storageKey="souk-theme">
+        <div className='min-h-screen bg-gradient-to-br from-primary-50 via-white to-secondary-50 dark:from-neutral-900 dark:via-neutral-800 dark:to-neutral-900 transition-all duration-500'>
+          <Navbar />
 
-        <main id='main-content' className='flex-1'>
-          <AnimatePresence mode='wait'>
-            <Suspense fallback={<LoadingScreen />}>
-              <Routes>
+          <main id='main-content' className='flex-1'>
+            <AnimatePresence mode='wait'>
+              <Suspense fallback={<LoadingScreen />}>
+                <Routes>
                 {/* Public Routes */}
                 <Route
                   path='/'
@@ -510,9 +505,10 @@ function App() {
 
         <Footer />
 
-        {/* Real-time Chat Widget - Only show when user is logged in */}
-        {user && <ChatWidget />}
-      </div>
+          {/* Real-time Chat Widget - Only show when user is logged in */}
+          {user && <ChatWidget />}
+        </div>
+      </ThemeProvider>
     </ErrorBoundary>
   );
 }

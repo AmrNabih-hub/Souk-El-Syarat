@@ -4,10 +4,11 @@ export default {
     "./index.html",
     "./src/**/*.{js,ts,jsx,tsx}",
   ],
+  darkMode: 'class', // Enable class-based dark mode
   theme: {
     extend: {
       colors: {
-        // Egyptian-inspired color palette
+        // Egyptian-inspired color palette with dark mode variants
         primary: {
           50: '#fef3e2',
           100: '#fde4b8',
@@ -19,6 +20,7 @@ export default {
           700: '#b45309',
           800: '#92400e',
           900: '#78350f',
+          950: '#451a03',
         },
         secondary: {
           50: '#f0f9ff',
@@ -31,6 +33,7 @@ export default {
           700: '#0369a1',
           800: '#075985',
           900: '#0c4a6e',
+          950: '#082f49',
         },
         accent: {
           50: '#fef2f2',
@@ -43,6 +46,7 @@ export default {
           700: '#b91c1c',
           800: '#991b1b',
           900: '#7f1d1d',
+          950: '#450a0a',
         },
         success: {
           50: '#f0fdf4',
@@ -55,6 +59,7 @@ export default {
           700: '#15803d',
           800: '#166534',
           900: '#14532d',
+          950: '#052e16',
         },
         neutral: {
           50: '#fafafa',
@@ -67,6 +72,20 @@ export default {
           700: '#404040',
           800: '#262626',
           900: '#171717',
+          950: '#0a0a0a',
+        },
+        // Dark mode specific colors
+        dark: {
+          50: '#18181b',
+          100: '#27272a',
+          200: '#3f3f46',
+          300: '#52525b',
+          400: '#71717a',
+          500: '#a1a1aa',
+          600: '#d4d4d8',
+          700: '#e4e4e7',
+          800: '#f4f4f5',
+          900: '#fafafa',
         }
       },
       fontFamily: {
@@ -84,6 +103,7 @@ export default {
         'glow': 'glow 2s ease-in-out infinite alternate',
         'float': 'float 3s ease-in-out infinite',
         'pulse-soft': 'pulseSoft 2s cubic-bezier(0.4, 0, 0.6, 1) infinite',
+        'theme-switch': 'themeSwitch 0.3s ease-in-out',
       },
       keyframes: {
         fadeIn: {
@@ -122,11 +142,16 @@ export default {
           '0%, 100%': { opacity: '1' },
           '50%': { opacity: '0.8' },
         },
+        themeSwitch: {
+          '0%': { transform: 'rotate(0deg)' },
+          '100%': { transform: 'rotate(360deg)' },
+        },
       },
       backgroundImage: {
         'gradient-radial': 'radial-gradient(var(--tw-gradient-stops))',
         'gradient-conic': 'conic-gradient(from 180deg at 50% 50%, var(--tw-gradient-stops))',
         'hero-pattern': "url('/images/hero-bg.jpg')",
+        'dark-gradient': 'linear-gradient(135deg, #1e1e1e 0%, #2a2a2a 100%)',
       },
       backdropBlur: {
         xs: '2px',
@@ -136,6 +161,8 @@ export default {
         'glow': '0 0 20px rgb(249 193 88 / 0.4)',
         'glow-lg': '0 0 30px rgb(249 193 88 / 0.5)',
         'inner-glow': 'inset 0 0 10px rgb(249 193 88 / 0.2)',
+        'dark-glow': '0 0 20px rgb(245 158 11 / 0.3)',
+        'dark-glow-lg': '0 0 40px rgb(245 158 11 / 0.4)',
       },
     },
   },

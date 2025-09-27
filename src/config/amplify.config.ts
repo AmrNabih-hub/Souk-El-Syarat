@@ -3,23 +3,30 @@
  * Souk El-Syarat Marketplace - Development Environment
  */
 
+// 🚀 PROFESSIONAL STABLE AMPLIFY CONFIGURATION
 const amplifyConfig = {
-  // ✅ DEVELOPMENT MODE - Safe fallback configuration
-  aws_region: 'us-east-1',
-  aws_user_pools_id: 'us-east-1_dev',
-  aws_user_pools_web_client_id: 'development_client_id',
-  aws_cognito_identity_pool_id: 'us-east-1:dev-identity-pool',
-  aws_appsync_graphqlEndpoint: 'https://localhost:3000/graphql',
-  aws_appsync_region: 'us-east-1',
-  aws_appsync_authenticationType: 'API_KEY',
+  // Only configure if we have real environment variables
+  ...(process.env.NODE_ENV === 'production' && {
+    aws_region: process.env.VITE_AWS_REGION || 'us-east-1',
+    aws_user_pools_id: process.env.VITE_AWS_USER_POOLS_ID,
+    aws_user_pools_web_client_id: process.env.VITE_AWS_USER_POOLS_WEB_CLIENT_ID,
+    aws_cognito_identity_pool_id: process.env.VITE_AWS_COGNITO_IDENTITY_POOL_ID,
+    aws_appsync_graphqlEndpoint: process.env.VITE_AWS_APPSYNC_GRAPHQL_ENDPOINT,
+    aws_appsync_region: process.env.VITE_AWS_APPSYNC_REGION || 'us-east-1',
+    aws_appsync_authenticationType: 'API_KEY',
+  }),
   
-  // Storage configuration (optional for development)
-  Storage: {
-    AWSS3: {
-      bucket: 'dev-bucket',
+  // Development fallback - minimal valid config that won't cause errors
+  ...(process.env.NODE_ENV === 'development' && {
+    aws_region: 'us-east-1',
+    // Minimal config that won't trigger parseAWSExports errors
+    Auth: {
       region: 'us-east-1',
-    }
-  }
+      identityPoolId: 'dev-mode',
+      userPoolId: 'dev-mode',
+      userPoolWebClientId: 'dev-mode',
+    },
+  }),
 };
 
 // Development-safe validation

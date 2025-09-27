@@ -64,10 +64,34 @@ const HomePage: React.FC = () => {
   };
 
   const stats = [
-    { number: '10,000+', label: 'سيارة متوفرة' },
-    { number: '50,000+', label: 'قطعة غيار' },
-    { number: '5,000+', label: 'عميل راضي' },
-    { number: '100+', label: 'مركز خدمة' },
+    { 
+      number: '10,000+', 
+      label: 'سيارة متوفرة',
+      color: 'from-emerald-500 to-green-600',
+      bgColor: 'bg-emerald-50 dark:bg-emerald-900/20',
+      iconColor: 'text-emerald-600 dark:text-emerald-400'
+    },
+    { 
+      number: '50,000+', 
+      label: 'قطعة غيار',
+      color: 'from-blue-500 to-indigo-600',
+      bgColor: 'bg-blue-50 dark:bg-blue-900/20',
+      iconColor: 'text-blue-600 dark:text-blue-400'
+    },
+    { 
+      number: '5,000+', 
+      label: 'عميل راضي',
+      color: 'from-amber-500 to-orange-600',
+      bgColor: 'bg-amber-50 dark:bg-amber-900/20',
+      iconColor: 'text-amber-600 dark:text-amber-400'
+    },
+    { 
+      number: '100+', 
+      label: 'مركز خدمة',
+      color: 'from-purple-500 to-pink-600',
+      bgColor: 'bg-purple-50 dark:bg-purple-900/20',
+      iconColor: 'text-purple-600 dark:text-purple-400'
+    },
   ];
 
   return (
@@ -76,28 +100,54 @@ const HomePage: React.FC = () => {
       <EnhancedHeroSlider />
 
       {/* Stats Section */}
-      <section className='py-16 bg-white'>
+      <section className='py-16 bg-white dark:bg-neutral-900'>
         <div className='max-w-7xl mx-auto px-4 sm:px-6 lg:px-8'>
           <div className='grid grid-cols-2 lg:grid-cols-4 gap-8'>
             {stats.map((stat, index) => (
               <motion.div
                 key={stat.label}
-                className='text-center'
+                className={`
+                  text-center p-6 rounded-2xl border border-neutral-200 dark:border-neutral-700
+                  ${stat.bgColor} backdrop-blur-sm transition-all duration-300
+                  hover:shadow-lg hover:shadow-neutral-200/50 dark:hover:shadow-neutral-800/50
+                  hover:-translate-y-1
+                `}
                 initial={{ opacity: 0, y: 30 }}
                 whileInView={{ opacity: 1, y: 0 }}
                 transition={{ delay: index * 0.1, duration: 0.6 }}
                 viewport={{ once: true }}
+                whileHover={{ scale: 1.02 }}
               >
+                {/* Premium gradient number */}
                 <motion.div
-                  className='text-3xl lg:text-4xl font-bold text-primary-500 mb-2'
+                  className={`
+                    text-3xl lg:text-4xl font-bold mb-3 bg-gradient-to-r ${stat.color} 
+                    bg-clip-text text-transparent drop-shadow-sm
+                  `}
                   initial={{ scale: 0 }}
                   whileInView={{ scale: 1 }}
-                  transition={{ delay: index * 0.1 + 0.2, duration: 0.6 }}
+                  transition={{ delay: index * 0.1 + 0.2, duration: 0.6, type: 'spring', stiffness: 200 }}
                   viewport={{ once: true }}
                 >
                   {stat.number}
                 </motion.div>
-                <div className='text-neutral-600 font-medium'>{stat.label}</div>
+                
+                {/* Enhanced label */}
+                <div className={`
+                  font-semibold text-sm lg:text-base ${stat.iconColor} 
+                  tracking-wide
+                `}>
+                  {stat.label}
+                </div>
+
+                {/* Subtle accent line */}
+                <motion.div
+                  className={`mt-3 h-1 w-12 mx-auto rounded-full bg-gradient-to-r ${stat.color} opacity-60`}
+                  initial={{ width: 0 }}
+                  whileInView={{ width: 48 }}
+                  transition={{ delay: index * 0.1 + 0.4, duration: 0.4 }}
+                  viewport={{ once: true }}
+                />
               </motion.div>
             ))}
           </div>
