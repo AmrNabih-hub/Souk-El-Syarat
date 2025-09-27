@@ -166,6 +166,8 @@ const Navbar: React.FC = () => {
               className='p-2 text-neutral-600 hover:text-primary-600 transition-colors'
               whileHover={{ scale: 1.1 }}
               whileTap={{ scale: 0.9 }}
+              title={language === 'ar' ? 'تغيير اللغة' : 'Change Language'}
+              aria-label={language === 'ar' ? 'تغيير اللغة إلى الإنجليزية' : 'Change language to Arabic'}
             >
               <GlobeAltIcon className='w-5 h-5' />
             </motion.button>
@@ -175,7 +177,7 @@ const Navbar: React.FC = () => {
                 {/* Wishlist */}
                 <motion.div whileHover={{ scale: 1.1 }} whileTap={{ scale: 0.9 }}>
                   <Link
-                    to='/wishlist'
+                    to='/favorites'
                     className='relative p-2 text-neutral-600 hover:text-red-500 transition-colors group'
                     title={language === 'ar' ? 'قائمة المفضلة' : 'Wishlist'}
                   >
@@ -220,6 +222,8 @@ const Navbar: React.FC = () => {
                     onClick={() => setIsUserMenuOpen(!isUserMenuOpen)}
                     className='flex items-center space-x-2 p-2 text-neutral-600 hover:text-primary-600 transition-colors'
                     whileHover={{ scale: 1.05 }}
+                    title={language === 'ar' ? 'قائمة المستخدم' : 'User Menu'}
+                    aria-label={language === 'ar' ? 'فتح قائمة المستخدم' : 'Open user menu'}
                   >
                     {user.photoURL ? (
                       <img
@@ -316,6 +320,8 @@ const Navbar: React.FC = () => {
               className='lg:hidden p-2 text-neutral-600 hover:text-primary-600 transition-colors'
               whileHover={{ scale: 1.1 }}
               whileTap={{ scale: 0.9 }}
+              title={language === 'ar' ? 'القائمة' : 'Menu'}
+              aria-label={language === 'ar' ? 'فتح القائمة الرئيسية' : 'Open main menu'}
             >
               {isMobileMenuOpen ? (
                 <XMarkIcon className='w-5 h-5' />

@@ -10,31 +10,48 @@ import Providers from '@/components/common/Providers';
 // 🚀 PROFESSIONAL DEVELOPMENT-READY INITIALIZATION
 console.log('🚀 Starting Souk El-Syarat Marketplace...');
 
-// Configure AWS Amplify safely (async) - FIXED FOR PRODUCTION STABILITY
+// 🚀 PROFESSIONAL STABLE AMPLIFY INITIALIZATION - NO MORE BLANK PAGES
 const initializeApp = async () => {
   try {
-    // Only configure Amplify if we're in a proper environment
-    if (window.location.hostname !== 'localhost' && process.env.NODE_ENV === 'production') {
+    console.log('🚀 Starting safe app initialization...');
+    
+    // Skip AWS Amplify entirely in development to prevent parseAWSExports errors
+    if (process.env.NODE_ENV === 'development' || window.location.hostname === 'localhost') {
+      console.log('✅ Development mode - Running without AWS Amplify for stability');
+      return;
+    }
+
+    // Only configure Amplify in production with proper validation
+    try {
       const { Amplify } = await import('aws-amplify');
-      const { amplifyConfig } = await import('./config/amplify.config');
       
-      // Validate config before configuring
-      if (amplifyConfig && amplifyConfig.aws_region) {
-        Amplify.configure(amplifyConfig);
-        console.log('✅ AWS Amplify configured for production');
+      // Use a minimal, safe configuration that won't cause parseAWSExports errors
+      const safeConfig = {
+        aws_region: import.meta.env.VITE_AWS_REGION || 'us-east-1',
+        aws_cognito_region: import.meta.env.VITE_AWS_REGION || 'us-east-1',
+        aws_user_pools_id: import.meta.env.VITE_AWS_COGNITO_USER_POOL_ID || '',
+        aws_user_pools_web_client_id: import.meta.env.VITE_AWS_COGNITO_CLIENT_ID || '',
+        aws_cognito_identity_pool_id: import.meta.env.VITE_AWS_COGNITO_IDENTITY_POOL_ID || '',
+      };
+
+      // Only configure if we have all required fields
+      if (safeConfig.aws_user_pools_id && safeConfig.aws_user_pools_web_client_id) {
+        Amplify.configure(safeConfig);
+        console.log('✅ AWS Amplify configured safely for production');
       } else {
-        console.warn('⚠️ AWS Amplify config incomplete, using development mode');
+        console.warn('⚠️ AWS Amplify config incomplete, using guest mode');
       }
-    } else {
-      console.log('🚀 Development mode - Amplify configuration skipped for stability');
+    } catch (amplifyError) {
+      console.warn('⚠️ AWS Amplify initialization skipped:', amplifyError);
+      // App continues normally without Amplify
     }
   } catch (error) {
-    console.warn('⚠️ AWS Amplify configuration error (non-blocking):', error);
-    // App continues normally without Amplify
+    console.warn('⚠️ App initialization error (non-blocking):', error);
+    // App continues normally
   }
 };
 
-// Initialize Amplify safely in the background
+// Initialize app safely without blocking render
 initializeApp();
 
 // Create React Query client

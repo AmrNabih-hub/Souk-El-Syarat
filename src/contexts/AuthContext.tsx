@@ -1,6 +1,6 @@
 import React, { createContext, useContext, useState, useEffect } from 'react';
-import { signIn, signOut, getCurrentUser, fetchAuthSession } from 'aws-amplify/auth';
 
+// 🚀 SAFE DEVELOPMENT-FIRST AUTH CONTEXT - NO MORE BLANK PAGES
 interface AuthContextType {
   user: any;
   setUser: (user: any) => void;
@@ -15,31 +15,60 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const [user, setUser] = useState<any>(null);
   const [loading, setLoading] = useState<boolean>(true);
 
-  // 🚀 PROFESSIONAL AUTH LOADING - BULLETPROOF
+  // 🚀 DEVELOPMENT-SAFE AUTH INITIALIZATION - NO AMPLIFY DEPENDENCY
   useEffect(() => {
     let mounted = true;
 
-    const loadUser = async () => {
+    const initializeAuth = async () => {
       try {
-        // Only try to get user in production or if Amplify is properly configured
-        if (process.env.NODE_ENV === 'production' && window.location.hostname !== 'localhost') {
+        // Always set loading to false quickly to prevent blocking UI
+        setTimeout(() => {
+          if (mounted) {
+            setLoading(false);
+          }
+        }, 100);
+
+        // Development mode - use localStorage for demo purposes
+        if (process.env.NODE_ENV === 'development' || window.location.hostname === 'localhost') {
+          console.log('🚀 Development mode - Using localStorage auth simulation');
+          
+          // Check if we have a stored demo user
+          const storedUser = localStorage.getItem('demo_user');
+          if (storedUser && mounted) {
+            try {
+              const parsedUser = JSON.parse(storedUser);
+              setUser(parsedUser);
+              console.log('✅ Demo user loaded from localStorage');
+            } catch (e) {
+              console.warn('Invalid stored user data, clearing...');
+              localStorage.removeItem('demo_user');
+            }
+          }
+          return;
+        }
+
+        // Production mode - try to initialize Amplify auth safely
+        try {
+          const { getCurrentUser } = await import('aws-amplify/auth');
           const current = await getCurrentUser();
-          if (mounted) setUser(current);
-        } else {
-          // Development mode - skip Amplify auth to prevent errors
-          console.log('🚀 Development mode - Auth simulation enabled');
+          if (mounted) {
+            setUser(current);
+            console.log('✅ Production user authenticated');
+          }
+        } catch (error) {
+          console.debug('Auth: No authenticated user, using guest mode');
           if (mounted) setUser(null);
         }
-      } catch (err) {
-        // Not authenticated or Amplify not configured — graceful fallback
-        console.debug('Auth: Using anonymous mode for stability');
-        if (mounted) setUser(null);
-      } finally {
-        if (mounted) setLoading(false);
+      } catch (error) {
+        console.warn('Auth initialization error (gracefully handled):', error);
+        if (mounted) {
+          setUser(null);
+          setLoading(false);
+        }
       }
     };
 
-    loadUser();
+    initializeAuth();
 
     return () => {
       mounted = false;
@@ -48,26 +77,68 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
   const login = async (username: string, password: string) => {
     try {
+      // Development mode - create demo user
+      if (process.env.NODE_ENV === 'development' || window.location.hostname === 'localhost') {
+        const demoUser = {
+          id: 'demo-user-' + Date.now(),
+          email: username,
+          displayName: 'Demo User',
+          role: 'customer',
+          isActive: true,
+          emailVerified: true,
+          createdAt: new Date(),
+          updatedAt: new Date(),
+          preferences: {
+            language: 'ar',
+            currency: 'USD',
+            notifications: {
+              email: true,
+              sms: false,
+              push: true,
+            },
+          },
+        };
+        
+        localStorage.setItem('demo_user', JSON.stringify(demoUser));
+        setUser(demoUser);
+        console.log('✅ Demo login successful');
+        return demoUser;
+      }
+
+      // Production mode - use real Amplify auth
+      const { signIn } = await import('aws-amplify/auth');
       const result = await signIn({ username, password });
       setUser(result);
       return result;
     } catch (error) {
-      console.error('Auth signIn failed', error);
+      console.error('Login failed:', error);
       throw error;
     }
   };
 
   const logout = async () => {
     try {
+      // Development mode - clear localStorage
+      if (process.env.NODE_ENV === 'development' || window.location.hostname === 'localhost') {
+        localStorage.removeItem('demo_user');
+        setUser(null);
+        console.log('✅ Demo logout successful');
+        return;
+      }
+
+      // Production mode - use real Amplify signout
+      const { signOut } = await import('aws-amplify/auth');
       await signOut();
       setUser(null);
     } catch (error) {
-      console.error('Auth signOut failed', error);
+      console.error('Logout failed:', error);
+      // Force logout even if Amplify fails
+      setUser(null);
     }
   };
 
   return (
-    <AuthContext.Provider value={{ user, setUser, login: (login as any), logout: (logout as any), loading } as any}>
+    <AuthContext.Provider value={{ user, setUser, login, logout, loading }}>
       {children}
     </AuthContext.Provider>
   );
