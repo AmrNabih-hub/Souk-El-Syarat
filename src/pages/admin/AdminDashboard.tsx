@@ -313,9 +313,9 @@ const AdminDashboard: React.FC = () => {
               <button
                 key={tab.id}
                 onClick={() => setActiveTab(tab.id as any)}
-                className={`flex items-center px-4 py-3 rounded-lg font-medium text-sm transition-all duration-300 ${
+                className={`flex items-center px-4 py-3 rounded-lg font-medium text-sm transition-all duration-200 ${
                   activeTab === tab.id
-                    ? 'bg-gradient-to-r from-primary-50 to-primary-100 text-primary-700 shadow-sm border border-primary-200'
+                    ? 'bg-primary-600 text-white shadow-md'
                     : 'text-neutral-600 hover:text-neutral-800 hover:bg-neutral-50'
                 }`}
               >

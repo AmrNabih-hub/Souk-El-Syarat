@@ -268,6 +268,19 @@ export class ProductService {
    */
   static async getProducts(filters: SearchFilters = {}, limit: number = 20): Promise<SearchResult> {
     try {
+      // In development mode, use mock data to prevent API errors
+      if (process.env.NODE_ENV === 'development') {
+        console.log('🚀 Development mode - Using mock products data');
+        const { enhancedProducts } = await import('../data/enhanced-products');
+        const products = enhancedProducts.slice(0, limit);
+        return {
+          products,
+          total: products.length,
+          facets: { categories: [], conditions: [], priceRanges: [], locations: [], makes: [], models: [] },
+          hasMore: false,
+        };
+      }
+
       const result = await client.graphql({
         query: `
           query ListProducts($filter: ModelProductFilterInput, $limit: Int) {
@@ -325,7 +338,18 @@ export class ProductService {
         hasMore: false, // TODO: Implement pagination
       } as any;
     } catch (error) {
-      if (process.env.NODE_ENV === 'development') console.error('Error getting products:', error);
+      if (process.env.NODE_ENV === 'development') {
+        console.error('Error getting products:', error);
+        console.log('🔄 Falling back to mock products data');
+        const { enhancedProducts } = await import('../data/enhanced-products');
+        const products = enhancedProducts.slice(0, limit);
+        return {
+          products,
+          total: products.length,
+          facets: { categories: [], conditions: [], priceRanges: [], locations: [], makes: [], models: [] },
+          hasMore: false,
+        };
+      }
       throw new Error('Failed to get products');
     }
   }
@@ -423,10 +447,23 @@ export class ProductService {
   static async getSampleProducts(): Promise<Product[]> {
     // Return a small list of featured products for quick UI prototypes
     try {
+      // In development mode, directly use mock data to avoid circular calls
+      if (process.env.NODE_ENV === 'development') {
+        console.log('🚀 Development mode - Using mock sample products');
+        const { enhancedProducts } = await import('../data/enhanced-products');
+        return enhancedProducts.slice(0, 6);
+      }
+
       const { products } = await this.getProducts({}, 6);
       return products.slice(0, 6);
     } catch (error) {
-      return [];
+      // Fallback to mock data in case of error
+      try {
+        const { enhancedProducts } = await import('../data/enhanced-products');
+        return enhancedProducts.slice(0, 6);
+      } catch (importError) {
+        return [];
+      }
     }
   }
 
