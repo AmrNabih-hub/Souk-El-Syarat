@@ -271,8 +271,8 @@ export class ProductService {
       // In development mode, use mock data to prevent API errors
       if (process.env.NODE_ENV === 'development') {
         console.log('🚀 Development mode - Using mock products data');
-        const { enhancedProducts } = await import('../data/enhanced-products');
-        const products = enhancedProducts.slice(0, limit);
+        const { enhancedProductCatalog } = await import('../data/enhanced-products');
+        const products = enhancedProductCatalog.getAllProducts().slice(0, limit);
         return {
           products,
           total: products.length,
@@ -341,8 +341,8 @@ export class ProductService {
       if (process.env.NODE_ENV === 'development') {
         console.error('Error getting products:', error);
         console.log('🔄 Falling back to mock products data');
-        const { enhancedProducts } = await import('../data/enhanced-products');
-        const products = enhancedProducts.slice(0, limit);
+        const { enhancedProductCatalog } = await import('../data/enhanced-products');
+        const products = enhancedProductCatalog.getAllProducts().slice(0, limit);
         return {
           products,
           total: products.length,
@@ -450,8 +450,8 @@ export class ProductService {
       // In development mode, directly use mock data to avoid circular calls
       if (process.env.NODE_ENV === 'development') {
         console.log('🚀 Development mode - Using mock sample products');
-        const { enhancedProducts } = await import('../data/enhanced-products');
-        return enhancedProducts.slice(0, 6);
+        const { enhancedProductCatalog } = await import('../data/enhanced-products');
+        return enhancedProductCatalog.getAllProducts().slice(0, 6);
       }
 
       const { products } = await this.getProducts({}, 6);
@@ -459,8 +459,8 @@ export class ProductService {
     } catch (error) {
       // Fallback to mock data in case of error
       try {
-        const { enhancedProducts } = await import('../data/enhanced-products');
-        return enhancedProducts.slice(0, 6);
+        const { enhancedProductCatalog } = await import('../data/enhanced-products');
+        return enhancedProductCatalog.getAllProducts().slice(0, 6);
       } catch (importError) {
         return [];
       }
