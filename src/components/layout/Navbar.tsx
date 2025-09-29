@@ -75,8 +75,6 @@ const Navbar: React.FC = () => {
     ...(user?.role === 'customer' ? [{ name: 'بيع سيارتك', href: '/sell-car', nameEn: 'Sell Your Car' }] : []),
     { name: 'من نحن', href: '/about', nameEn: 'About' },
     { name: 'اتصل بنا', href: '/contact', nameEn: 'Contact' },
-    // Add "Become a Vendor" button as navigation item for non-logged-in users
-    ...(!user ? [{ name: 'كن تاجراً', href: '/vendor/apply', nameEn: 'Become a Vendor', isSpecial: true }] : []),
   ];
 
   const isCurrentPath = (path: string) => location.pathname === path;
@@ -107,7 +105,7 @@ const Navbar: React.FC = () => {
           </motion.div>
 
           {/* Desktop Navigation */}
-          <div className='hidden lg:flex items-center space-x-8'>
+          <div className='hidden lg:flex items-center space-x-6'>
             {navigationItems.map(item => (
               <motion.div 
                 key={item.href} 
@@ -118,47 +116,38 @@ const Navbar: React.FC = () => {
                 <Link
                   to={item.href}
                   className={clsx(
-                    'relative px-4 py-2 text-sm font-bold tracking-wide transition-all duration-300',
-                    // Special styling for "Become a Vendor" button
-                    item.isSpecial 
-                      ? 'text-white rounded-full bg-gradient-to-r from-primary-500 to-secondary-600 hover:from-primary-600 hover:to-secondary-700 shadow-md hover:shadow-lg'
-                      : clsx(
-                          'hover:text-transparent hover:bg-clip-text hover:bg-gradient-to-r hover:from-primary-500 hover:via-secondary-500 hover:to-primary-600',
-                          'hover:drop-shadow-[0_0_4px_rgba(249,115,22,0.4)]', // Reduced glow effect
-                          'transform hover:scale-105 font-display uppercase letter-spacing-wider',
-                          isCurrentPath(item.href)
-                            ? 'text-transparent bg-clip-text bg-gradient-to-r from-primary-600 via-secondary-600 to-primary-700 drop-shadow-[0_0_3px_rgba(249,115,22,0.3)]' // Reduced glow
-                            : 'text-neutral-700 hover:text-primary-600'
-                        )
+                    'relative px-3 py-2 text-sm font-semibold transition-all duration-200',
+                    isCurrentPath(item.href)
+                      ? 'text-primary-600 font-bold'
+                      : 'text-neutral-700 hover:text-primary-600'
                   )}
-                  style={{
-                    textShadow: isCurrentPath(item.href) && !item.isSpecial ? '0 0 5px rgba(249,115,22,0.2)' : 'none' // Reduced glow
-                  }}
                 >
                   {language === 'ar' ? item.name : item.nameEn}
-                  {isCurrentPath(item.href) && !item.isSpecial && (
+                  {isCurrentPath(item.href) && (
                     <motion.div
-                      className='absolute bottom-0 left-0 right-0 h-0.5 bg-gradient-to-r from-primary-500 via-secondary-500 to-primary-600 rounded-full'
+                      className='absolute bottom-0 left-0 right-0 h-0.5 bg-primary-500 rounded-full'
                       layoutId='navbar-indicator'
-                      style={{
-                        boxShadow: '0 0 4px rgba(249,115,22,0.3)' // Reduced shadow intensity
-                      }}
-                    />
-                  )}
-                  {/* Reduced backlight effect for non-active items */}
-                  {!item.isSpecial && (
-                    <motion.div
-                      className='absolute inset-0 rounded-lg bg-gradient-to-r from-primary-500/10 via-secondary-500/10 to-primary-600/10 opacity-0'
-                      whileHover={{ opacity: 1 }}
-                      transition={{ duration: 0.2 }}
-                      style={{
-                        boxShadow: '0 0 8px rgba(249,115,22,0.1)' // Much more subtle glow
-                      }}
                     />
                   )}
                 </Link>
               </motion.div>
             ))}
+            
+            {/* Become a Vendor Button - positioned beside Contact Us */}
+            {!user && (
+              <motion.div 
+                whileHover={{ scale: 1.02, y: -1 }} 
+                whileTap={{ scale: 0.98 }}
+                transition={{ type: 'spring', stiffness: 400, damping: 15 }}
+              >
+                <Link 
+                  to='/vendor/apply' 
+                  className='px-4 py-2 text-sm font-bold text-white rounded-full bg-gradient-to-r from-primary-500 to-secondary-600 hover:from-primary-600 hover:to-secondary-700 transition-all duration-200 shadow-sm hover:shadow-md'
+                >
+                  {language === 'ar' ? 'كن تاجراً' : 'Become a Vendor'}
+                </Link>
+              </motion.div>
+            )}
           </div>
 
           {/* Search Bar */}
@@ -190,22 +179,23 @@ const Navbar: React.FC = () => {
 
 
           {/* Right Side Icons */}
-          <div className='flex items-center space-x-4'>
-            {/* Enhanced Language Toggle */}
+          <div className='flex items-center space-x-3'>
+            {/* Language Toggle */}
             <motion.button
               onClick={() => setLanguage(language === 'ar' ? 'en' : 'ar')}
-              className='relative p-2 text-neutral-600 hover:text-primary-600 transition-all duration-300 rounded-lg group'
-              whileHover={{ scale: 1.15, y: -2 }}
-              whileTap={{ scale: 0.9 }}
+              className='p-2 text-neutral-600 hover:text-primary-600 transition-colors duration-200 rounded-lg'
+              whileHover={{ scale: 1.05 }}
+              whileTap={{ scale: 0.95 }}
               title={language === 'ar' ? 'تغيير اللغة' : 'Change Language'}
               aria-label={language === 'ar' ? 'تغيير اللغة إلى الإنجليزية' : 'Change language to Arabic'}
             >
-              <motion.div
-                className='absolute inset-0 rounded-lg bg-gradient-to-r from-primary-500/20 via-secondary-500/20 to-primary-600/20 opacity-0 group-hover:opacity-100 transition-opacity duration-300'
-                style={{ boxShadow: '0 0 15px rgba(249,115,22,0.2)' }}
-              />
-              <GlobeAltIcon className='w-5 h-5 relative z-10 group-hover:drop-shadow-[0_0_6px_rgba(249,115,22,0.6)]' />
+              <GlobeAltIcon className='w-5 h-5' />
             </motion.button>
+            
+            {/* Theme Toggle - Now visible on desktop */}
+            <div className='hidden md:block'>
+              <ProfessionalThemeToggle className='p-2' />
+            </div>
 
             {user ? (
               <>
@@ -336,42 +326,26 @@ const Navbar: React.FC = () => {
             ) : (
               <>
                 <motion.div 
-                  whileHover={{ scale: 1.05, y: -2 }} 
-                  whileTap={{ scale: 0.95 }}
-                  transition={{ type: 'spring', stiffness: 400, damping: 15 }}
+                  whileHover={{ scale: 1.02 }} 
+                  whileTap={{ scale: 0.98 }}
                 >
                   <Link 
                     to='/login' 
-                    className='relative px-4 py-2 text-sm font-bold tracking-wide text-neutral-700 border border-neutral-300 rounded-full hover:border-primary-500 hover:text-primary-600 transition-all duration-300 group overflow-hidden'
+                    className='px-4 py-2 text-sm font-semibold text-neutral-700 border border-neutral-300 rounded-full hover:border-primary-500 hover:text-primary-600 transition-all duration-200'
                   >
-                    <motion.div
-                      className='absolute inset-0 bg-gradient-to-r from-primary-500/10 via-secondary-500/10 to-primary-600/10 opacity-0 group-hover:opacity-100 transition-opacity duration-300'
-                    />
-                    <span className='relative z-10 font-display group-hover:drop-shadow-[0_0_4px_rgba(249,115,22,0.4)]'>
-                      {language === 'ar' ? 'دخول' : 'Login'}
-                    </span>
+                    {language === 'ar' ? 'دخول' : 'Login'}
                   </Link>
                 </motion.div>
 
                 <motion.div 
-                  whileHover={{ scale: 1.05, y: -2 }} 
-                  whileTap={{ scale: 0.95 }}
-                  transition={{ type: 'spring', stiffness: 400, damping: 15 }}
+                  whileHover={{ scale: 1.02 }} 
+                  whileTap={{ scale: 0.98 }}
                 >
                   <Link 
                     to='/register' 
-                    className='relative px-4 py-2 text-sm font-bold tracking-wide text-white rounded-full overflow-hidden group transition-all duration-300'
-                    style={{
-                      background: 'linear-gradient(135deg, #3b82f6 0%, #1d4ed8 50%, #1e40af 100%)',
-                      boxShadow: '0 4px 12px rgba(59, 130, 246, 0.3)'
-                    }}
+                    className='px-4 py-2 text-sm font-semibold text-white rounded-full bg-gradient-to-r from-blue-500 to-blue-600 hover:from-blue-600 hover:to-blue-700 transition-all duration-200 shadow-sm'
                   >
-                    <motion.div
-                      className='absolute inset-0 bg-gradient-to-r from-blue-400 via-blue-500 to-blue-600 opacity-0 group-hover:opacity-100 transition-opacity duration-300'
-                    />
-                    <span className='relative z-10 font-display drop-shadow-sm'>
-                      {language === 'ar' ? 'تسجيل' : 'Register'}
-                    </span>
+                    {language === 'ar' ? 'تسجيل' : 'Register'}
                   </Link>
                 </motion.div>
               </>
