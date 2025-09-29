@@ -75,6 +75,8 @@ const Navbar: React.FC = () => {
     ...(user?.role === 'customer' ? [{ name: 'بيع سيارتك', href: '/sell-car', nameEn: 'Sell Your Car' }] : []),
     { name: 'من نحن', href: '/about', nameEn: 'About' },
     { name: 'اتصل بنا', href: '/contact', nameEn: 'Contact' },
+    // Add "Become a Vendor" button as navigation item for non-logged-in users
+    ...(!user ? [{ name: 'كن تاجراً', href: '/vendor/apply', nameEn: 'Become a Vendor', isSpecial: true }] : []),
   ];
 
   const isCurrentPath = (path: string) => location.pathname === path;
@@ -117,36 +119,43 @@ const Navbar: React.FC = () => {
                   to={item.href}
                   className={clsx(
                     'relative px-4 py-2 text-sm font-bold tracking-wide transition-all duration-300',
-                    'hover:text-transparent hover:bg-clip-text hover:bg-gradient-to-r hover:from-primary-500 hover:via-secondary-500 hover:to-primary-600',
-                    'hover:drop-shadow-[0_0_8px_rgba(249,115,22,0.6)] hover:text-shadow-lg',
-                    'transform hover:scale-105 font-display uppercase letter-spacing-wider',
-                    isCurrentPath(item.href)
-                      ? 'text-transparent bg-clip-text bg-gradient-to-r from-primary-600 via-secondary-600 to-primary-700 drop-shadow-[0_0_6px_rgba(249,115,22,0.5)]'
-                      : 'text-neutral-700 hover:text-primary-600'
+                    // Special styling for "Become a Vendor" button
+                    item.isSpecial 
+                      ? 'text-white rounded-full bg-gradient-to-r from-primary-500 to-secondary-600 hover:from-primary-600 hover:to-secondary-700 shadow-md hover:shadow-lg'
+                      : clsx(
+                          'hover:text-transparent hover:bg-clip-text hover:bg-gradient-to-r hover:from-primary-500 hover:via-secondary-500 hover:to-primary-600',
+                          'hover:drop-shadow-[0_0_4px_rgba(249,115,22,0.4)]', // Reduced glow effect
+                          'transform hover:scale-105 font-display uppercase letter-spacing-wider',
+                          isCurrentPath(item.href)
+                            ? 'text-transparent bg-clip-text bg-gradient-to-r from-primary-600 via-secondary-600 to-primary-700 drop-shadow-[0_0_3px_rgba(249,115,22,0.3)]' // Reduced glow
+                            : 'text-neutral-700 hover:text-primary-600'
+                        )
                   )}
                   style={{
-                    textShadow: isCurrentPath(item.href) ? '0 0 10px rgba(249,115,22,0.4)' : 'none'
+                    textShadow: isCurrentPath(item.href) && !item.isSpecial ? '0 0 5px rgba(249,115,22,0.2)' : 'none' // Reduced glow
                   }}
                 >
                   {language === 'ar' ? item.name : item.nameEn}
-                  {isCurrentPath(item.href) && (
+                  {isCurrentPath(item.href) && !item.isSpecial && (
                     <motion.div
-                      className='absolute bottom-0 left-0 right-0 h-1 bg-gradient-to-r from-primary-500 via-secondary-500 to-primary-600 rounded-full'
+                      className='absolute bottom-0 left-0 right-0 h-0.5 bg-gradient-to-r from-primary-500 via-secondary-500 to-primary-600 rounded-full'
                       layoutId='navbar-indicator'
                       style={{
-                        boxShadow: '0 0 8px rgba(249,115,22,0.6), 0 0 16px rgba(249,115,22,0.3)'
+                        boxShadow: '0 0 4px rgba(249,115,22,0.3)' // Reduced shadow intensity
                       }}
                     />
                   )}
-                  {/* Backlight effect for non-active items */}
-                  <motion.div
-                    className='absolute inset-0 rounded-lg bg-gradient-to-r from-primary-500/20 via-secondary-500/20 to-primary-600/20 opacity-0'
-                    whileHover={{ opacity: 1 }}
-                    transition={{ duration: 0.2 }}
-                    style={{
-                      boxShadow: '0 0 20px rgba(249,115,22,0.2)'
-                    }}
-                  />
+                  {/* Reduced backlight effect for non-active items */}
+                  {!item.isSpecial && (
+                    <motion.div
+                      className='absolute inset-0 rounded-lg bg-gradient-to-r from-primary-500/10 via-secondary-500/10 to-primary-600/10 opacity-0'
+                      whileHover={{ opacity: 1 }}
+                      transition={{ duration: 0.2 }}
+                      style={{
+                        boxShadow: '0 0 8px rgba(249,115,22,0.1)' // Much more subtle glow
+                      }}
+                    />
+                  )}
                 </Link>
               </motion.div>
             ))}
@@ -179,89 +188,9 @@ const Navbar: React.FC = () => {
             </div>
           </div>
 
-          {/* Premium Become a Vendor Button - Right of Search Bar */}
-          {!user && (
-            <div className='hidden md:block mr-4 relative'>
-              <motion.div 
-                className='relative' 
-                whileHover={{ scale: 1.08, y: -2 }} 
-                whileTap={{ scale: 0.95 }}
-                transition={{ type: 'spring', stiffness: 400, damping: 15 }}
-              >
-                {/* Outer glow effect - properly positioned */}
-                <motion.div
-                  className='absolute inset-0 rounded-full blur-lg opacity-0 group-hover:opacity-60 transition-opacity duration-300 -z-10'
-                  style={{
-                    background: 'linear-gradient(135deg, #fbbf24, #f59e0b, #ea580c)',
-                    filter: 'blur(8px)',
-                    transform: 'scale(1.2)'
-                  }}
-                  animate={{
-                    scale: [1.2, 1.3, 1.2],
-                    opacity: [0.4, 0.6, 0.4]
-                  }}
-                  transition={{
-                    duration: 2,
-                    repeat: Infinity,
-                    ease: 'easeInOut'
-                  }}
-                />
-                
-                <Link 
-                  to='/vendor/apply' 
-                  className='relative inline-flex items-center px-6 py-2.5 text-sm font-bold tracking-wide text-white rounded-full overflow-hidden group transition-all duration-300'
-                  style={{
-                    background: 'linear-gradient(135deg, #f59e0b 0%, #d97706 25%, #ea580c 50%, #dc2626 75%, #b91c1c 100%)',
-                    boxShadow: '0 4px 15px rgba(245, 158, 11, 0.4), 0 0 20px rgba(245, 158, 11, 0.2)'
-                  }}
-                >
-                  {/* Animated background glow */}
-                  <motion.div
-                    className='absolute inset-0 bg-gradient-to-r from-yellow-400 via-orange-500 to-red-500 opacity-0 group-hover:opacity-100 transition-opacity duration-300'
-                    animate={{
-                      background: [
-                        'linear-gradient(135deg, #fbbf24 0%, #f59e0b 50%, #ea580c 100%)',
-                        'linear-gradient(135deg, #ea580c 0%, #dc2626 50%, #fbbf24 100%)',
-                        'linear-gradient(135deg, #fbbf24 0%, #f59e0b 50%, #ea580c 100%)'
-                      ]
-                    }}
-                    transition={{
-                      duration: 3,
-                      repeat: Infinity,
-                      ease: 'easeInOut'
-                    }}
-                  />
-                  
-                  {/* Shine effect */}
-                  <motion.div
-                    className='absolute inset-0 bg-gradient-to-r from-transparent via-white/30 to-transparent -skew-x-12 group-hover:translate-x-full transition-transform duration-700'
-                    initial={{ translateX: '-100%' }}
-                    whileHover={{ translateX: '100%' }}
-                  />
-                  
-                  {/* Button text */}
-                  <span className='relative z-10 font-display uppercase tracking-wider drop-shadow-sm'>
-                    {language === 'ar' ? 'كن تاجراً' : 'Become a Vendor'}
-                  </span>
-                  
-                  {/* Premium glow border */}
-                  <div 
-                    className='absolute inset-0 rounded-full opacity-0 group-hover:opacity-100 transition-opacity duration-300'
-                    style={{
-                      background: 'linear-gradient(135deg, transparent, rgba(255,255,255,0.3), transparent)',
-                      padding: '1px'
-                    }}
-                  />
-                </Link>
-              </motion.div>
-            </div>
-          )}
 
           {/* Right Side Icons */}
           <div className='flex items-center space-x-4'>
-            {/* Professional Theme Toggle Dropdown */}
-            <ProfessionalThemeToggle variant="dropdown" />
-
             {/* Enhanced Language Toggle */}
             <motion.button
               onClick={() => setLanguage(language === 'ar' ? 'en' : 'ar')}
@@ -506,9 +435,14 @@ const Navbar: React.FC = () => {
                       to={item.href}
                       className={clsx(
                         'block px-4 py-2 text-sm font-medium transition-colors',
-                        isCurrentPath(item.href)
-                          ? 'text-primary-600 bg-primary-50'
-                          : 'text-neutral-700 hover:text-primary-600 hover:bg-neutral-50'
+                        // Special styling for "Become a Vendor" in mobile
+                        item.isSpecial 
+                          ? 'text-white bg-gradient-to-r from-primary-500 to-secondary-600 font-bold text-center rounded-lg mx-2 my-2' 
+                          : clsx(
+                              isCurrentPath(item.href)
+                                ? 'text-primary-600 bg-primary-50'
+                                : 'text-neutral-700 hover:text-primary-600 hover:bg-neutral-50'
+                            )
                       )}
                       onClick={() => setIsMobileMenuOpen(false)}
                     >
@@ -516,6 +450,16 @@ const Navbar: React.FC = () => {
                     </Link>
                   </motion.div>
                 ))}
+
+                {/* Theme Toggle in Mobile Menu */}
+                <div className='mt-6 pt-4 border-t border-neutral-200'>
+                  <div className='px-4 py-2 text-xs font-semibold text-neutral-500 uppercase tracking-wider'>
+                    {language === 'ar' ? 'إعدادات' : 'Settings'}
+                  </div>
+                  <div className='px-4 py-2'>
+                    <ProfessionalThemeToggle variant="button" showLabel={true} className="w-full justify-start" />
+                  </div>
+                </div>
               </div>
             </motion.div>
           )}

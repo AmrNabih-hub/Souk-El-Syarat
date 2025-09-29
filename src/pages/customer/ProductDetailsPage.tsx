@@ -576,10 +576,10 @@ const ProductDetailsPage: React.FC = () => {
                 <button
                   key={tab.id}
                   onClick={() => setSelectedTab(tab.id as any)}
-                  className={`py-3 px-1 border-b-2 font-medium text-sm ${
+                  className={`px-4 py-3 rounded-lg font-medium text-sm transition-all duration-300 ${
                     selectedTab === tab.id
-                      ? 'border-primary-500 text-primary-600'
-                      : 'border-transparent text-neutral-500 hover:text-neutral-700'
+                      ? 'bg-gradient-to-r from-primary-50 to-primary-100 text-primary-700 shadow-sm border border-primary-200'
+                      : 'text-neutral-600 hover:text-neutral-800 hover:bg-neutral-50'
                   }`}
                 >
                   {tab.label}

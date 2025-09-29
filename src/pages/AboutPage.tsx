@@ -1,4 +1,5 @@
 import React from 'react';
+import { Link } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { 
   SparklesIcon,
@@ -302,12 +303,18 @@ const AboutPage: React.FC = () => {
               }
             </p>
             <div className='flex flex-col sm:flex-row gap-4 justify-center'>
-              <button className='bg-white text-primary-600 font-bold px-8 py-3 rounded-lg hover:bg-gray-100 transition-colors'>
+              <Link 
+                to='/marketplace'
+                className='bg-white text-primary-600 font-bold px-8 py-3 rounded-lg hover:bg-gray-100 transition-colors text-center'
+              >
                 {language === 'ar' ? 'تسوق الآن' : 'Shop Now'}
-              </button>
-              <button className='border-2 border-white text-white font-bold px-8 py-3 rounded-lg hover:bg-white hover:text-primary-600 transition-colors'>
+              </Link>
+              <Link 
+                to='/vendor/apply'
+                className='border-2 border-white text-white font-bold px-8 py-3 rounded-lg hover:bg-white hover:text-primary-600 transition-colors text-center'
+              >
                 {language === 'ar' ? 'كن تاجراً' : 'Become a Vendor'}
-              </button>
+              </Link>
             </div>
           </motion.div>
         </div>

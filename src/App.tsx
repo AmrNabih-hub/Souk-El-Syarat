@@ -84,6 +84,8 @@ const PublicRoute: React.FC<{
   if (user) {
     // Redirect based on user role
     switch (user.role) {
+      case 'admin':
+        return <Navigate to='/admin/dashboard' replace />;
       case 'vendor':
         return <Navigate to='/vendor/dashboard' replace />;
       case 'customer':
@@ -293,6 +295,14 @@ function App() {
                   }
                 />
 
+                {/* Services Route - Redirect to marketplace with services filter */}
+                <Route
+                  path='/services'
+                  element={
+                    <Navigate to='/marketplace?category=services' replace />
+                  }
+                />
+
                 {/* Authentication Routes */}
                 <Route
                   path='/login'
@@ -411,28 +421,32 @@ function App() {
                 <Route
                   path='/admin/login'
                   element={
-                    <motion.div
-                      variants={pageVariants}
-                      initial='initial'
-                      animate='animate'
-                      exit='exit'
-                    >
-                      <AdminLoginPage />
-                    </motion.div>
+                    <PublicRoute>
+                      <motion.div
+                        variants={pageVariants}
+                        initial='initial'
+                        animate='animate'
+                        exit='exit'
+                      >
+                        <AdminLoginPage />
+                      </motion.div>
+                    </PublicRoute>
                   }
                 />
 
                 <Route
                   path='/admin/dashboard'
                   element={
-                    <motion.div
-                      variants={pageVariants}
-                      initial='initial'
-                      animate='animate'
-                      exit='exit'
-                    >
-                      <AdminDashboard />
-                    </motion.div>
+                    <ProtectedRoute roles={['admin']} redirectTo='/admin/login'>
+                      <motion.div
+                        variants={pageVariants}
+                        initial='initial'
+                        animate='animate'
+                        exit='exit'
+                      >
+                        <AdminDashboard />
+                      </motion.div>
+                    </ProtectedRoute>
                   }
                 />
 
