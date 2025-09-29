@@ -156,6 +156,15 @@ const Navbar: React.FC = () => {
             </div>
           </div>
 
+          {/* Become a Vendor Button - Right of Search Bar */}
+          {!user && (
+            <motion.div className='hidden md:block' whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}>
+              <Link to='/vendor/apply' className='btn btn-secondary btn-sm mr-4'>
+                {language === 'ar' ? 'كن تاجراً' : 'Become a Vendor'}
+              </Link>
+            </motion.div>
+          )}
+
           {/* Right Side Icons */}
           <div className='flex items-center space-x-4'>
             {/* Professional Theme Toggle Dropdown */}
@@ -304,12 +313,6 @@ const Navbar: React.FC = () => {
                 <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}>
                   <Link to='/login' className='btn btn-outline btn-sm'>
                     {language === 'ar' ? 'دخول' : 'Login'}
-                  </Link>
-                </motion.div>
-
-                <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}>
-                  <Link to='/vendor/apply' className='btn btn-secondary btn-sm'>
-                    {language === 'ar' ? 'كن تاجراً' : 'Become a Vendor'}
                   </Link>
                 </motion.div>
 
