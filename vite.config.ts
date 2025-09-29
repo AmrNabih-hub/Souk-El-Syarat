@@ -51,8 +51,8 @@ export default defineConfig(({ command, mode }) => {
     },
     
     server: {
-      port: 5173,
-      host: true,
+      port: 5000,
+      host: '0.0.0.0',
       
       // Proxy configuration for local development
       proxy: mode === 'development' ? {
