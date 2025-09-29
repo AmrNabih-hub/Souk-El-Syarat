@@ -20,7 +20,7 @@ import { BusinessType } from '@/types';
 import LoadingSpinner from '@/components/ui/LoadingSpinner';
 import toast from 'react-hot-toast';
 
-import { VendorService, VendorApplicationData } from '@/services/vendor.service';
+import { vendorApplicationService, VendorApplicationData } from '@/services/vendor-application.service';
 
 interface VendorApplicationFormData {
   businessName: string;

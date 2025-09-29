@@ -47,6 +47,8 @@ const ContactPage = React.lazy(() => import('@/pages/ContactPage'));
 // Dashboard pages
 const VendorDashboard = React.lazy(() => import('@/pages/vendor/VendorDashboard'));
 const CustomerDashboard = React.lazy(() => import('@/pages/customer/CustomerDashboard'));
+const AdminDashboard = React.lazy(() => import('@/pages/admin/AdminDashboard'));
+const AdminLoginPage = React.lazy(() => import('@/pages/auth/AdminLoginPage'));
 
 // Protected Route Component
 const ProtectedRoute: React.FC<{
@@ -400,6 +402,35 @@ function App() {
                         <FavoritesPage />
                       </motion.div>
                     </ProtectedRoute>
+                  }
+                />
+
+                {/* Admin Routes */}
+                <Route
+                  path='/admin/login'
+                  element={
+                    <motion.div
+                      variants={pageVariants}
+                      initial='initial'
+                      animate='animate'
+                      exit='exit'
+                    >
+                      <AdminLoginPage />
+                    </motion.div>
+                  }
+                />
+
+                <Route
+                  path='/admin/dashboard'
+                  element={
+                    <motion.div
+                      variants={pageVariants}
+                      initial='initial'
+                      animate='animate'
+                      exit='exit'
+                    >
+                      <AdminDashboard />
+                    </motion.div>
                   }
                 />
 

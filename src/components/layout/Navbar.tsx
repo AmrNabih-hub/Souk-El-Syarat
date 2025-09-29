@@ -307,6 +307,12 @@ const Navbar: React.FC = () => {
                 </motion.div>
 
                 <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}>
+                  <Link to='/vendor/apply' className='btn btn-secondary btn-sm'>
+                    {language === 'ar' ? 'كن تاجراً' : 'Become a Vendor'}
+                  </Link>
+                </motion.div>
+
+                <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}>
                   <Link to='/register' className='btn btn-primary btn-sm'>
                     {language === 'ar' ? 'تسجيل' : 'Register'}
                   </Link>
