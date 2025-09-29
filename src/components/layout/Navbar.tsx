@@ -72,6 +72,7 @@ const Navbar: React.FC = () => {
     { name: 'الرئيسية', href: '/', nameEn: 'Home' },
     { name: 'السوق', href: '/marketplace', nameEn: 'Marketplace' },
     { name: 'التجار', href: '/vendors', nameEn: 'Vendors' },
+    ...(user?.role === 'customer' ? [{ name: 'بيع سيارتك', href: '/sell-car', nameEn: 'Sell Your Car' }] : []),
     { name: 'من نحن', href: '/about', nameEn: 'About' },
     { name: 'اتصل بنا', href: '/contact', nameEn: 'Contact' },
   ];

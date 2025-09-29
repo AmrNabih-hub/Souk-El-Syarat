@@ -41,11 +41,13 @@ const CartPage = React.lazy(() => import('@/pages/customer/CartPage'));
 const ProfilePage = React.lazy(() => import('@/pages/customer/ProfilePage'));
 const OrdersPage = React.lazy(() => import('@/pages/customer/OrdersPage'));
 const FavoritesPage = React.lazy(() => import('@/pages/customer/FavoritesPage'));
+const UsedCarSellingPage = React.lazy(() => import('@/pages/customer/UsedCarSellingPage'));
 const AboutPage = React.lazy(() => import('@/pages/AboutPage'));
 const ContactPage = React.lazy(() => import('@/pages/ContactPage'));
 
 // Dashboard pages
 const VendorDashboard = React.lazy(() => import('@/pages/vendor/VendorDashboard'));
+const EnhancedVendorDashboard = React.lazy(() => import('@/pages/vendor/EnhancedVendorDashboard'));
 const CustomerDashboard = React.lazy(() => import('@/pages/customer/CustomerDashboard'));
 const AdminDashboard = React.lazy(() => import('@/pages/admin/AdminDashboard'));
 const AdminLoginPage = React.lazy(() => import('@/pages/auth/AdminLoginPage'));
@@ -483,6 +485,22 @@ function App() {
                   }
                 />
 
+                <Route
+                  path='/sell-car'
+                  element={
+                    <ProtectedRoute roles={['customer']}>
+                      <motion.div
+                        variants={pageVariants}
+                        initial='initial'
+                        animate='animate'
+                        exit='exit'
+                      >
+                        <UsedCarSellingPage />
+                      </motion.div>
+                    </ProtectedRoute>
+                  }
+                />
+
                 {/* Vendor Dashboard */}
                 <Route
                   path='/vendor/dashboard/*'
@@ -494,7 +512,7 @@ function App() {
                         animate='animate'
                         exit='exit'
                       >
-                        <VendorDashboard />
+                        <EnhancedVendorDashboard />
                       </motion.div>
                     </ProtectedRoute>
                   }
