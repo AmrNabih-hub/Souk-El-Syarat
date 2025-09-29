@@ -98,8 +98,8 @@ const Navbar: React.FC = () => {
                 <span className='text-white font-bold text-xl'>س</span>
               </motion.div>
               <div className='hidden sm:block'>
-                <h1 className='text-xl font-bold gradient-text-animated font-display'>سوق السيارات</h1>
-                <p className='text-xs text-neutral-500 -mt-1'>Souk El-Syarat</p>
+                <h1 className='text-xl font-bold font-display bg-clip-text text-transparent bg-gradient-to-r from-primary-600 via-secondary-600 to-primary-700 drop-shadow-[0_0_8px_rgba(249,115,22,0.4)]' style={{ textShadow: '0 0 10px rgba(249,115,22,0.3)' }}>سوق السيارات</h1>
+                <p className='text-xs text-neutral-500 -mt-1 font-medium tracking-wide'>Souk El-Syarat</p>
               </div>
             </Link>
           </motion.div>
@@ -107,23 +107,46 @@ const Navbar: React.FC = () => {
           {/* Desktop Navigation */}
           <div className='hidden lg:flex items-center space-x-8'>
             {navigationItems.map(item => (
-              <motion.div key={item.href} whileHover={{ y: -2 }}>
+              <motion.div 
+                key={item.href} 
+                whileHover={{ y: -3, scale: 1.05 }}
+                whileTap={{ scale: 0.95 }}
+                transition={{ type: 'spring', stiffness: 400, damping: 15 }}
+              >
                 <Link
                   to={item.href}
                   className={clsx(
-                    'relative px-3 py-2 text-sm font-medium transition-colors duration-200',
+                    'relative px-4 py-2 text-sm font-bold tracking-wide transition-all duration-300',
+                    'hover:text-transparent hover:bg-clip-text hover:bg-gradient-to-r hover:from-primary-500 hover:via-secondary-500 hover:to-primary-600',
+                    'hover:drop-shadow-[0_0_8px_rgba(249,115,22,0.6)] hover:text-shadow-lg',
+                    'transform hover:scale-105 font-display uppercase letter-spacing-wider',
                     isCurrentPath(item.href)
-                      ? 'text-primary-600'
+                      ? 'text-transparent bg-clip-text bg-gradient-to-r from-primary-600 via-secondary-600 to-primary-700 drop-shadow-[0_0_6px_rgba(249,115,22,0.5)]'
                       : 'text-neutral-700 hover:text-primary-600'
                   )}
+                  style={{
+                    textShadow: isCurrentPath(item.href) ? '0 0 10px rgba(249,115,22,0.4)' : 'none'
+                  }}
                 >
                   {language === 'ar' ? item.name : item.nameEn}
                   {isCurrentPath(item.href) && (
                     <motion.div
-                      className='absolute bottom-0 left-0 right-0 h-0.5 bg-primary-500'
+                      className='absolute bottom-0 left-0 right-0 h-1 bg-gradient-to-r from-primary-500 via-secondary-500 to-primary-600 rounded-full'
                       layoutId='navbar-indicator'
+                      style={{
+                        boxShadow: '0 0 8px rgba(249,115,22,0.6), 0 0 16px rgba(249,115,22,0.3)'
+                      }}
                     />
                   )}
+                  {/* Backlight effect for non-active items */}
+                  <motion.div
+                    className='absolute inset-0 rounded-lg bg-gradient-to-r from-primary-500/20 via-secondary-500/20 to-primary-600/20 opacity-0'
+                    whileHover={{ opacity: 1 }}
+                    transition={{ duration: 0.2 }}
+                    style={{
+                      boxShadow: '0 0 20px rgba(249,115,22,0.2)'
+                    }}
+                  />
                 </Link>
               </motion.div>
             ))}
@@ -156,13 +179,82 @@ const Navbar: React.FC = () => {
             </div>
           </div>
 
-          {/* Become a Vendor Button - Right of Search Bar */}
+          {/* Premium Become a Vendor Button - Right of Search Bar */}
           {!user && (
-            <motion.div className='hidden md:block' whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}>
-              <Link to='/vendor/apply' className='btn btn-secondary btn-sm mr-4'>
-                {language === 'ar' ? 'كن تاجراً' : 'Become a Vendor'}
-              </Link>
-            </motion.div>
+            <div className='hidden md:block mr-4 relative'>
+              <motion.div 
+                className='relative' 
+                whileHover={{ scale: 1.08, y: -2 }} 
+                whileTap={{ scale: 0.95 }}
+                transition={{ type: 'spring', stiffness: 400, damping: 15 }}
+              >
+                {/* Outer glow effect - properly positioned */}
+                <motion.div
+                  className='absolute inset-0 rounded-full blur-lg opacity-0 group-hover:opacity-60 transition-opacity duration-300 -z-10'
+                  style={{
+                    background: 'linear-gradient(135deg, #fbbf24, #f59e0b, #ea580c)',
+                    filter: 'blur(8px)',
+                    transform: 'scale(1.2)'
+                  }}
+                  animate={{
+                    scale: [1.2, 1.3, 1.2],
+                    opacity: [0.4, 0.6, 0.4]
+                  }}
+                  transition={{
+                    duration: 2,
+                    repeat: Infinity,
+                    ease: 'easeInOut'
+                  }}
+                />
+                
+                <Link 
+                  to='/vendor/apply' 
+                  className='relative inline-flex items-center px-6 py-2.5 text-sm font-bold tracking-wide text-white rounded-full overflow-hidden group transition-all duration-300'
+                  style={{
+                    background: 'linear-gradient(135deg, #f59e0b 0%, #d97706 25%, #ea580c 50%, #dc2626 75%, #b91c1c 100%)',
+                    boxShadow: '0 4px 15px rgba(245, 158, 11, 0.4), 0 0 20px rgba(245, 158, 11, 0.2)'
+                  }}
+                >
+                  {/* Animated background glow */}
+                  <motion.div
+                    className='absolute inset-0 bg-gradient-to-r from-yellow-400 via-orange-500 to-red-500 opacity-0 group-hover:opacity-100 transition-opacity duration-300'
+                    animate={{
+                      background: [
+                        'linear-gradient(135deg, #fbbf24 0%, #f59e0b 50%, #ea580c 100%)',
+                        'linear-gradient(135deg, #ea580c 0%, #dc2626 50%, #fbbf24 100%)',
+                        'linear-gradient(135deg, #fbbf24 0%, #f59e0b 50%, #ea580c 100%)'
+                      ]
+                    }}
+                    transition={{
+                      duration: 3,
+                      repeat: Infinity,
+                      ease: 'easeInOut'
+                    }}
+                  />
+                  
+                  {/* Shine effect */}
+                  <motion.div
+                    className='absolute inset-0 bg-gradient-to-r from-transparent via-white/30 to-transparent -skew-x-12 group-hover:translate-x-full transition-transform duration-700'
+                    initial={{ translateX: '-100%' }}
+                    whileHover={{ translateX: '100%' }}
+                  />
+                  
+                  {/* Button text */}
+                  <span className='relative z-10 font-display uppercase tracking-wider drop-shadow-sm'>
+                    {language === 'ar' ? 'كن تاجراً' : 'Become a Vendor'}
+                  </span>
+                  
+                  {/* Premium glow border */}
+                  <div 
+                    className='absolute inset-0 rounded-full opacity-0 group-hover:opacity-100 transition-opacity duration-300'
+                    style={{
+                      background: 'linear-gradient(135deg, transparent, rgba(255,255,255,0.3), transparent)',
+                      padding: '1px'
+                    }}
+                  />
+                </Link>
+              </motion.div>
+            </div>
           )}
 
           {/* Right Side Icons */}
@@ -170,16 +262,20 @@ const Navbar: React.FC = () => {
             {/* Professional Theme Toggle Dropdown */}
             <ProfessionalThemeToggle variant="dropdown" />
 
-            {/* Language Toggle */}
+            {/* Enhanced Language Toggle */}
             <motion.button
               onClick={() => setLanguage(language === 'ar' ? 'en' : 'ar')}
-              className='p-2 text-neutral-600 hover:text-primary-600 transition-colors'
-              whileHover={{ scale: 1.1 }}
+              className='relative p-2 text-neutral-600 hover:text-primary-600 transition-all duration-300 rounded-lg group'
+              whileHover={{ scale: 1.15, y: -2 }}
               whileTap={{ scale: 0.9 }}
               title={language === 'ar' ? 'تغيير اللغة' : 'Change Language'}
               aria-label={language === 'ar' ? 'تغيير اللغة إلى الإنجليزية' : 'Change language to Arabic'}
             >
-              <GlobeAltIcon className='w-5 h-5' />
+              <motion.div
+                className='absolute inset-0 rounded-lg bg-gradient-to-r from-primary-500/20 via-secondary-500/20 to-primary-600/20 opacity-0 group-hover:opacity-100 transition-opacity duration-300'
+                style={{ boxShadow: '0 0 15px rgba(249,115,22,0.2)' }}
+              />
+              <GlobeAltIcon className='w-5 h-5 relative z-10 group-hover:drop-shadow-[0_0_6px_rgba(249,115,22,0.6)]' />
             </motion.button>
 
             {user ? (
@@ -310,15 +406,43 @@ const Navbar: React.FC = () => {
               </>
             ) : (
               <>
-                <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}>
-                  <Link to='/login' className='btn btn-outline btn-sm'>
-                    {language === 'ar' ? 'دخول' : 'Login'}
+                <motion.div 
+                  whileHover={{ scale: 1.05, y: -2 }} 
+                  whileTap={{ scale: 0.95 }}
+                  transition={{ type: 'spring', stiffness: 400, damping: 15 }}
+                >
+                  <Link 
+                    to='/login' 
+                    className='relative px-4 py-2 text-sm font-bold tracking-wide text-neutral-700 border border-neutral-300 rounded-full hover:border-primary-500 hover:text-primary-600 transition-all duration-300 group overflow-hidden'
+                  >
+                    <motion.div
+                      className='absolute inset-0 bg-gradient-to-r from-primary-500/10 via-secondary-500/10 to-primary-600/10 opacity-0 group-hover:opacity-100 transition-opacity duration-300'
+                    />
+                    <span className='relative z-10 font-display group-hover:drop-shadow-[0_0_4px_rgba(249,115,22,0.4)]'>
+                      {language === 'ar' ? 'دخول' : 'Login'}
+                    </span>
                   </Link>
                 </motion.div>
 
-                <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}>
-                  <Link to='/register' className='btn btn-primary btn-sm'>
-                    {language === 'ar' ? 'تسجيل' : 'Register'}
+                <motion.div 
+                  whileHover={{ scale: 1.05, y: -2 }} 
+                  whileTap={{ scale: 0.95 }}
+                  transition={{ type: 'spring', stiffness: 400, damping: 15 }}
+                >
+                  <Link 
+                    to='/register' 
+                    className='relative px-4 py-2 text-sm font-bold tracking-wide text-white rounded-full overflow-hidden group transition-all duration-300'
+                    style={{
+                      background: 'linear-gradient(135deg, #3b82f6 0%, #1d4ed8 50%, #1e40af 100%)',
+                      boxShadow: '0 4px 12px rgba(59, 130, 246, 0.3)'
+                    }}
+                  >
+                    <motion.div
+                      className='absolute inset-0 bg-gradient-to-r from-blue-400 via-blue-500 to-blue-600 opacity-0 group-hover:opacity-100 transition-opacity duration-300'
+                    />
+                    <span className='relative z-10 font-display drop-shadow-sm'>
+                      {language === 'ar' ? 'تسجيل' : 'Register'}
+                    </span>
                   </Link>
                 </motion.div>
               </>
