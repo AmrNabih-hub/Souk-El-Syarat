@@ -131,7 +131,7 @@ const EnhancedHeroSlider: React.FC = () => {
 
   return (
     <div 
-      className="relative w-full h-[70vh] min-h-[600px] overflow-hidden bg-gradient-to-br from-gray-900 to-black"
+      className="relative w-full h-[70vh] min-h-[600px] overflow-hidden bg-neutral-900"
       onMouseEnter={() => setIsAutoPlaying(false)}
       onMouseLeave={() => setIsAutoPlaying(true)}
     >
@@ -148,7 +148,7 @@ const EnhancedHeroSlider: React.FC = () => {
           <div 
             className="w-full h-full bg-cover bg-center bg-no-repeat"
             style={{ 
-              backgroundImage: `linear-gradient(rgba(0,0,0,0.4), rgba(0,0,0,0.6)), url(${currentSlideData.image})`
+              backgroundImage: `linear-gradient(rgba(0,0,0,0.3), rgba(0,0,0,0.4)), url(${currentSlideData.image})`
             }}
           />
         </motion.div>

@@ -189,7 +189,7 @@ function App() {
   return (
     <ErrorBoundary>
       <ThemeProvider defaultTheme="light" storageKey="souk-theme">
-        <div className='min-h-screen bg-gradient-to-br from-primary-50 via-white to-secondary-50 dark:from-neutral-900 dark:via-neutral-800 dark:to-neutral-900 transition-all duration-500'>
+        <div className='min-h-screen bg-neutral-50 dark:bg-neutral-900 transition-all duration-300'>
           <Navbar />
 
           <main id='main-content' className='flex-1'>
