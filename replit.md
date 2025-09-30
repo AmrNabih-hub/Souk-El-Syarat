@@ -8,6 +8,20 @@ Souk El-Sayarat is a professional Arabic car marketplace platform built as a com
 
 Preferred communication style: Simple, everyday language.
 
+## Replit Environment Setup
+
+### Development Configuration
+- **Frontend Server**: Runs on port 5000 using Vite dev server
+- **Host Configuration**: 0.0.0.0 with allowedHosts: true (required for Replit proxy)
+- **Development Mode**: Uses localStorage for auth simulation (no Firebase required for development)
+- **Environment**: Node.js 20 with all dependencies installed via npm
+
+### Deployment Configuration
+- **Deployment Target**: Autoscale (stateless web application)
+- **Build Command**: npm run build:production
+- **Run Command**: npm run preview (Vite preview server on port 5000)
+- **Port**: 5000 (both development and production)
+
 ## System Architecture
 
 ### Frontend Architecture

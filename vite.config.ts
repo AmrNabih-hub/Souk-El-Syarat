@@ -66,8 +66,8 @@ export default defineConfig(({ command, mode }) => {
     },
     
     preview: {
-      port: 4173,
-      host: true,
+      port: 5000,
+      host: '0.0.0.0',
     },
     
     // Environment variables
