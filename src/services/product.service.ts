@@ -361,6 +361,24 @@ export class ProductService {
   }
 
   /**
+   * Search products with advanced filtering
+   */
+  static async searchProducts(params: {
+    query?: string;
+    filters?: Partial<SearchFilters>;
+    page?: number;
+    limit?: number;
+  }): Promise<SearchResult> {
+    try {
+      // Just call getProducts for now with the filters
+      return await this.getProducts(params.filters || {}, params.limit || 20);
+    } catch (error) {
+      if (import.meta.env.DEV) console.error('Error searching products:', error);
+      throw new Error('Failed to search products');
+    }
+  }
+
+  /**
    * Upload product images to AWS S3
    */
   private static async uploadProductImages(images: File[]): Promise<string[]> {

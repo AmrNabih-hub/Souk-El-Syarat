@@ -14,12 +14,14 @@ interface AuthStore extends AuthState {
   setLoading: (loading: boolean) => void;
   setError: (error: string | null) => void;
   clearError: () => void;
+  loading: boolean;  // Add this property for compatibility
 }
 
 export const useAuthStore = create<AuthStore>((set, get) => ({
   // Initial state
   user: null,
   isLoading: false,
+  loading: false,  // Add this for compatibility
   error: null,
 
   // Actions

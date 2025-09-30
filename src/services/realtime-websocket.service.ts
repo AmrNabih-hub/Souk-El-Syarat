@@ -13,6 +13,8 @@ interface VendorStats {
   pendingOrders: number;
   monthlyGrowth: number;
   recentOrders: any[];
+  topProducts: any[];
+  customerSatisfaction: number;
 }
 
 export class RealTimeWebSocketService {
@@ -172,7 +174,9 @@ export class RealTimeWebSocketService {
       totalProducts: Math.floor(Math.random() * 50) + 20,
       pendingOrders: Math.floor(Math.random() * 10) + 1,
       monthlyGrowth: (Math.random() * 20) + 5,
-      recentOrders: []
+      recentOrders: [],
+      topProducts: [],
+      customerSatisfaction: 4.2 + (Math.random() * 0.8)  // Random rating between 4.2-5.0
     };
 
     // Simulate real-time updates every 5 seconds

@@ -1,10 +1,8 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
-
 import { useForm } from 'react-hook-form';
 import { yupResolver } from '@hookform/resolvers/yup';
-
 import * as yup from 'yup';
 import {
   BuildingStorefrontIcon,
@@ -12,14 +10,16 @@ import {
   MapPinIcon,
   DocumentIcon,
   CheckCircleIcon,
+  CloudArrowUpIcon,
+  PhotoIcon,
 } from '@heroicons/react/24/outline';
-
 import { useAppStore } from '@/stores/appStore';
 import { useAuthStore } from '@/stores/authStore';
 import { BusinessType } from '@/types';
+import { VendorSubscriptionPlan } from '@/types/payment';
 import LoadingSpinner from '@/components/ui/LoadingSpinner';
+import SubscriptionPlans from '@/components/payment/SubscriptionPlans';
 import toast from 'react-hot-toast';
-
 import { vendorApplicationService, VendorApplicationData } from '@/services/vendor-application.service';
 
 interface VendorApplicationFormData {
@@ -47,6 +47,9 @@ interface VendorApplicationFormData {
   experience: string;
   specializations: string[];
   expectedMonthlyVolume: string;
+  subscriptionPlan: VendorSubscriptionPlan;
+  documents: FileList;
+  instapayReceipt?: FileList;
   agreeToTerms: boolean;
 }
 
@@ -211,21 +214,43 @@ const VendorApplicationPage: React.FC = () => {
         experience: data.experience,
         specializations: data.specializations,
         expectedMonthlyVolume: data.expectedMonthlyVolume,
+        subscriptionPlan: 'basic', // Default subscription plan
         documents: [], // File uploads would be handled here
+        agreeToTerms: true, // Assuming user agreed to terms to submit
       };
 
-      // const applicationId = await VendorService.submitApplication(user.id, applicationData);
-      // if (process.env.NODE_ENV === 'development') console.log('Application submitted with ID:', applicationId);
+      // Convert FileList to File array
+      const documentsArray = data.documents ? Array.from(data.documents) : [];
+      const invoiceFile = data.instapayReceipt ? data.instapayReceipt[0] : undefined;
+
+      const applicationId = await vendorApplicationService.submitApplication(
+        user.id, 
+        applicationData, 
+        documentsArray, 
+        invoiceFile
+      );
+      
+      console.log('Application submitted with ID:', applicationId);
 
       setApplicationSubmitted(true);
       toast.success(
-        language === 'ar' ? 'تم تقديم الطلب بنجاح!' : 'Application submitted successfully!'
+        language === 'ar' 
+          ? 'تم تقديم الطلب بنجاح! سيتم مراجعته خلال 3-5 أيام عمل.' 
+          : 'Application submitted successfully! It will be reviewed within 3-5 business days.'
       );
+      
+      // Update user status to indicate pending vendor application
+      if (user) {
+        useAuthStore.getState().setUser({ ...user, role: 'customer' }); // Keep as customer until approved
+      }
+      
     } catch (error) {
-      if (process.env.NODE_ENV === 'development')
-        if (process.env.NODE_ENV === 'development')
-          console.error('Application submission error:', error);
-      toast.error(language === 'ar' ? 'حدث خطأ في تقديم الطلب' : 'Error submitting application');
+      console.error('Application submission error:', error);
+      toast.error(
+        language === 'ar' 
+          ? 'حدث خطأ في تقديم الطلب. يرجى المحاولة مرة أخرى.' 
+          : 'Error submitting application. Please try again.'
+      );
     } finally {
       setIsSubmitting(false);
     }
@@ -692,6 +717,67 @@ const VendorApplicationPage: React.FC = () => {
                 {errors.specializations && (
                   <p className='text-red-500 text-sm mt-2'>{errors.specializations.message}</p>
                 )}
+              </div>
+            </div>
+
+            {/* Document Upload Section */}
+            <div className='space-y-6'>
+              <h3 className='text-xl font-semibold text-neutral-900 flex items-center'>
+                <CloudArrowUpIcon className='w-6 h-6 text-primary-500 mr-3' />
+                {language === 'ar' ? 'المستندات المطلوبة' : 'Required Documents'}
+              </h3>
+
+              <div className='space-y-4'>
+                <div>
+                  <label className='block text-sm font-medium text-neutral-700 mb-2'>
+                    {language === 'ar' ? 'المستندات الرسمية (PDF, JPG, PNG)' : 'Official Documents (PDF, JPG, PNG)'}
+                  </label>
+                  <input
+                    {...register('documents')}
+                    type='file'
+                    multiple
+                    accept='.pdf,.jpg,.jpeg,.png'
+                    className='input w-full file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-primary-50 file:text-primary-700 hover:file:bg-primary-100'
+                  />
+                  <p className='text-sm text-neutral-500 mt-1'>
+                    {language === 'ar' 
+                      ? 'يمكنك رفع السجل التجاري، الرقم الضريبي، أو أي مستندات أخرى' 
+                      : 'You can upload business license, tax certificate, or other relevant documents'}
+                  </p>
+                </div>
+
+                <div>
+                  <label className='block text-sm font-medium text-neutral-700 mb-2'>
+                    {language === 'ar' ? 'صورة فاتورة الاشتراك (اختياري)' : 'Subscription Invoice Screenshot (Optional)'}
+                  </label>
+                  <input
+                    {...register('instapayReceipt')}
+                    type='file'
+                    accept='.jpg,.jpeg,.png,.pdf'
+                    className='input w-full file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-secondary-50 file:text-secondary-700 hover:file:bg-secondary-100'
+                  />
+                  <p className='text-sm text-neutral-500 mt-1'>
+                    {language === 'ar' 
+                      ? 'إذا كان لديك فاتورة دفع للاشتراك، يرجى رفعها لتسريع المراجعة' 
+                      : 'If you have a payment receipt for subscription, please upload it to speed up review'}
+                  </p>
+                </div>
+
+                <div className='bg-blue-50 p-4 rounded-lg border border-blue-200'>
+                  <div className='flex items-start'>
+                    <PhotoIcon className='w-5 h-5 text-blue-500 mt-0.5 mr-3 flex-shrink-0' />
+                    <div>
+                      <h4 className='text-sm font-medium text-blue-900 mb-1'>
+                        {language === 'ar' ? 'نصائح لرفع المستندات' : 'Document Upload Tips'}
+                      </h4>
+                      <ul className='text-sm text-blue-700 space-y-1'>
+                        <li>• {language === 'ar' ? 'تأكد من وضوح الصور والنصوص' : 'Ensure images and text are clear'}</li>
+                        <li>• {language === 'ar' ? 'الحد الأقصى لحجم الملف: 5 ميجابايت' : 'Maximum file size: 5MB'}</li>
+                        <li>• {language === 'ar' ? 'الأنواع المدعومة: PDF, JPG, PNG' : 'Supported types: PDF, JPG, PNG'}</li>
+                      </ul>
+                    </div>
+                  </div>
+                </div>
               </div>
             </div>
 

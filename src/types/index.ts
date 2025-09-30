@@ -376,9 +376,16 @@ export interface SearchFilters {
     min: number;
     max: number;
   };
+  priceMin?: number;
+  priceMax?: number;
   condition?: ProductCondition;
   location?: string;
   vendor?: string;
+  brand?: string;
+  sortBy?: string;
+  sortOrder?: 'asc' | 'desc';
+  yearMin?: number;
+  yearMax?: number;
   // Additional filters used across services
   vendorId?: string;
   status?: string;
