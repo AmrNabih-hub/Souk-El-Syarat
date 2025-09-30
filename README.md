@@ -1,161 +1,6 @@
-# Firebase CI/CD Setup for GitHub Actions
-
-## 🚀 Required GitHub Repository Secrets
-
-To enable automatic deployment, you need to configure the following secrets in your GitHub repository settings:
-
-### Method 1: Firebase Token Authentication (Recommended for personal projects)
-
-1. **Get Firebase Token:**
-   ```bash
-   # Install Firebase CLI globally
-   npm install -g firebase-tools
-   
-   # Login to your Firebase account
-   firebase login
-   
-   # Generate CI token
-   firebase login:ci
-   ```
-   
-2. **Add to GitHub Secrets:**
-   - Go to your repository on GitHub
-   - Navigate to Settings → Secrets and variables → Actions
-   - Click "New repository secret"
-   - Add these secrets:
-
-   | Secret Name | Value | Description |
-   |------------|--------|------------|
-   | `FIREBASE_TOKEN` | Your Firebase CI token | Token from `firebase login:ci` command |
-   | `FIREBASE_PROJECT_ID` | your-project-id | Your Firebase project ID (without -staging suffix) |
-
-### Method 2: Service Account Authentication (Recommended for production)
-
-1. **Create Service Account:**
-   - Go to [Google Cloud Console](https://console.cloud.google.com/)
-   - Select your Firebase project
-   - Navigate to "IAM & Admin" → "Service Accounts"
-   - Click "Create Service Account"
-   - Give it a name like "GitHub Actions Deploy"
-   - Grant these roles:
-     - Firebase Hosting Admin
-     - Cloud Functions Admin (if using functions)
-     - Project Viewer
-
-2. **Generate Key:**
-   - Click on the created service account
-   - Go to "Keys" tab
-   - Click "Add Key" → "Create new key"
-   - Choose JSON format
-   - Download the key file
-
-3. **Add to GitHub Secrets:**
-   | Secret Name | Value | Description |
-   |------------|--------|------------|
-   | `GOOGLE_APPLICATION_CREDENTIALS_JSON` | Full JSON content of the service account key | Copy the entire JSON file content |
-   | `FIREBASE_PROJECT_ID` | your-project-id | Your Firebase project ID |
-
-## 🔧 Firebase Project Setup
-
-### 1. Create Firebase Projects
-
-You'll need separate Firebase projects for staging and production:
-
-- **Production:** `your-project-id`
-- **Staging:** `your-project-id-staging`
-
-### 2. Configure Firebase Hosting
-
-For each project:
-1. Go to Firebase Console → Hosting
-2. Get started with Firebase Hosting
-3. Deploy once manually to initialize:
-   ```bash
-   firebase use --add your-project-id
-   firebase deploy --only hosting
-   ```
-
-### 3. Set Up Firebase Functions (Optional)
-
-If you're using Firebase Functions:
-1. Enable Cloud Functions in Firebase Console
-2. Ensure your service account has "Cloud Functions Admin" role
-3. Functions will be deployed automatically with hosting
-
-## 🚦 Deployment Workflow
-
-The CI/CD pipeline will:
-
-1. **On push to `develop` branch:** Deploy to staging environment
-2. **On push to `main` branch:** Deploy to production environment
-3. **Manual deployment:** Use workflow dispatch to deploy to specific environment
-
-## 🛠️ Troubleshooting
-
-### Common Issues:
-
-1. **"FIREBASE_TOKEN or GCP_SA_KEY required" error:**
-   - Ensure you've set either `FIREBASE_TOKEN` or `GOOGLE_APPLICATION_CREDENTIALS_JSON` in GitHub secrets
-   - Check that secret names are exact matches (case-sensitive)
-
-2. **"Project not found" error:**
-   - Verify `FIREBASE_PROJECT_ID` is correct
-   - Ensure Firebase projects exist for both production and staging
-
-3. **Permission denied errors:**
-   - Check service account roles
-   - Ensure Firebase CLI token has proper permissions
-
-4. **Build artifacts not found:**
-   - The workflow automatically handles build artifact extraction
-   - Check build job completed successfully
-
-### Debug Mode:
-
-To enable debug logging in the workflow, the deployment steps include detailed logging that shows:
-- Available files after artifact download
-- Firebase CLI version
-- Authentication method being used
-- Deployment progress
-
-## 📁 Project Structure Requirements
-
-Ensure your project has:
-```
-your-repo/
-├── firebase.json          # Firebase configuration
-├── dist/                  # Built files (auto-generated)
-├── functions/            # Firebase Functions (optional)
-│   ├── package.json
-│   └── index.js
-├── firestore.rules       # Firestore security rules
-└── storage.rules         # Storage security rules
-```
-
-The `firebase.json` should point to `dist/` as the public directory:
-```json
-{
-  "hosting": {
-    "public": "dist",
-    "ignore": ["firebase.json", "**/.*", "**/node_modules/**"],
-    "rewrites": [{"source": "**", "destination": "/index.html"}]
-  }
-}
-```
-
-## 🔐 Security Best Practices
-
-1. **Use Service Accounts for production environments**
-2. **Regularly rotate Firebase tokens**
-3. **Set up separate staging and production projects**
-4. **Review Firebase security rules regularly**
-5. **Monitor deployment logs for security issues**
-
----
-
 # Souk El-Syarat - سوق السيارات
 
-![Egyptian Flag](https://img.shields.io/badge/Made_in-Egypt_🇪🇬-red.svg) ![React](https://img.shields.io/badge/React-18.2.0-blue.svg) ![TypeScript](https://img.shields.io/badge/TypeScript-5.2.2-blue.svg) ![Firebase](https://img.shields.io/badge/Firebase-10.7.1-orange.svg) ![TailwindCSS](https://img.shields.io/badge/TailwindCSS-3.3.6-blue.svg)
+![Egyptian Flag](https://img.shields.io/badge/Made_in-Egypt_🇪🇬-red.svg) ![React](https://img.shields.io/badge/React-18.3.1-blue.svg) ![TypeScript](https://img.shields.io/badge/TypeScript-5.7.2-blue.svg) ![AWS Amplify](https://img.shields.io/badge/AWS_Amplify-6.6.3-orange.svg) ![TailwindCSS](https://img.shields.io/badge/TailwindCSS-3.4.17-blue.svg)
 
 ## 🚗 Project Overview
 
@@ -163,46 +8,49 @@ The `firebase.json` should point to `dist/` as the public directory:
 
 ### ✨ Key Features
 
-- **🔐 Multi-Role Authentication:** Customer, Vendor, and Admin roles with Firebase Auth
-- **🏪 Vendor Management:** Application system with admin approval workflow  
+- **🔐 Multi-Role Authentication:** Customer, Vendor, and Admin roles with AWS Cognito
+- **🏪 Vendor Management:** Complete application system with admin approval workflow  
 - **🚗 Automotive Focus:** Specialized for cars, parts, and services
 - **🇪🇬 Egyptian Market:** Localized for Egyptian customers with Arabic support
 - **🎨 Modern UI/UX:** Responsive design with Egyptian-themed styling
-- **🔥 Firebase Integration:** Authentication, Firestore database, and Cloud Storage
+- **☁️ AWS Amplify Integration:** Authentication, DataStore, AppSync GraphQL API
 - **✨ Advanced Animations:** Framer Motion powered interactions
 - **🌐 Bilingual Support:** Arabic (RTL) and English (LTR) support
+- **⚡ Real-time Updates:** WebSocket and AWS AppSync subscriptions
 
 ## 🏗️ Architecture
 
 ### Frontend Stack
-- **React 18.2** with TypeScript for type safety
-- **Vite** for fast development and optimized builds
-- **Tailwind CSS** with custom Egyptian-themed design system
+- **React 18.3.1** with TypeScript for type safety
+- **Vite 6.0** for fast development and optimized builds
+- **Tailwind CSS 3.4** with custom Egyptian-themed design system
 - **Framer Motion** for smooth animations and interactions
-- **React Router** for client-side routing
+- **React Router v7** for client-side routing
 - **Zustand** for state management
 - **React Hook Form** with Yup validation
 - **React Query** for server state management
 
-### Backend Services (Firebase)
-- **Firebase Authentication** for user management
-- **Cloud Firestore** for database with role-based security rules
-- **Cloud Storage** for file uploads (images, documents)
-- **Firebase Hosting** for deployment
-- **Firebase Functions** (planned for advanced features)
+### Backend Services (AWS Amplify)
+- **AWS Cognito** for authentication and user management
+- **AWS AppSync** for GraphQL API with real-time subscriptions
+- **AWS Amplify DataStore** for offline-first data synchronization
+- **Amazon S3** for file storage (images, documents)
+- **AWS Lambda** for serverless business logic
+- **Amazon CloudFront** for CDN and global content delivery
 
 ### Development Tools
 - **ESLint + Prettier** for code quality
 - **Vitest** for unit testing
-- **TypeScript** for type safety
+- **Playwright** for end-to-end testing
+- **TypeScript** strict mode for type safety
 - **Hot Module Replacement** for fast development
 
 ## ⚡ Quick Start
 
 ### Prerequisites
-- Node.js 18+ and npm/yarn
-- Firebase CLI (for deployment)
-- Git
+- **Node.js 20.x** (LTS) and npm 10.x
+- **Git**
+- **AWS Account** (for production deployment)
 
 ### Installation
 
@@ -219,58 +67,34 @@ The `firebase.json` should point to `dist/` as the public directory:
 
 3. **Set up environment variables**
    ```bash
-   cp .env.example .env
+   cp .env.local.example .env
    ```
 
-   Fill in your Firebase configuration:
-   ```env
-   VITE_FIREBASE_API_KEY=your-api-key-here
-   VITE_FIREBASE_AUTH_DOMAIN=your-project.firebaseapp.com
-   VITE_FIREBASE_PROJECT_ID=your-project-id
-   VITE_FIREBASE_STORAGE_BUCKET=your-project.appspot.com
-   VITE_FIREBASE_MESSAGING_SENDER_ID=123456789
-   VITE_FIREBASE_APP_ID=1:123456789:web:abc123
-   VITE_FIREBASE_MEASUREMENT_ID=G-XXXXXXXXXX
-   ```
+   For local development, the default `.env` file works out of the box with mock services.
 
 4. **Start development server**
    ```bash
    npm run dev
    ```
 
-## 🔥 Firebase Setup
+   Visit: `http://localhost:5000`
 
-### 1. Create Firebase Project
-1. Go to [Firebase Console](https://console.firebase.google.com/)
-2. Create a new project named `souk-el-syarat`
-3. Enable Authentication, Firestore, and Storage
+### Production AWS Configuration
 
-### 2. Configure Authentication
-1. Enable Email/Password and Google sign-in methods
-2. Add your domain to authorized domains
+For production deployment, update `.env.production` with your AWS Amplify configuration:
 
-### 3. Deploy Security Rules
-```bash
-# Install Firebase CLI
-npm install -g firebase-tools
+```env
+# AWS Amplify Configuration
+VITE_AWS_REGION=us-east-1
+VITE_AWS_USER_POOLS_ID=your-cognito-user-pool-id
+VITE_AWS_USER_POOLS_WEB_CLIENT_ID=your-cognito-client-id
+VITE_AWS_COGNITO_IDENTITY_POOL_ID=your-identity-pool-id
+VITE_AWS_APPSYNC_GRAPHQL_ENDPOINT=your-appsync-endpoint
 
-# Login to Firebase
-firebase login
-
-# Initialize Firebase in project
-firebase init
-
-# Deploy Firestore and Storage rules
-firebase deploy --only firestore:rules,storage
-```
-
-### 4. Local Development with Emulators
-```bash
-# Start Firebase emulators
-firebase emulators:start
-
-# In another terminal, start the app
-npm run dev
+# Application Configuration
+VITE_APP_NAME="Souk El-Syarat Marketplace"
+VITE_CURRENCY=EGP
+VITE_DEFAULT_LANGUAGE=ar
 ```
 
 ## 👥 User Roles & Permissions
@@ -279,25 +103,36 @@ npm run dev
 - Browse and search products
 - View vendor profiles and reviews
 - Add products to cart and favorites
-- Place orders and track status
+- Place orders and track status in real-time
 - Write product/vendor reviews
 - Manage profile and preferences
 
 ### 🏪 Vendor
-- Apply to become a verified vendor
-- Manage product listings (CRUD)
-- View sales analytics and orders
+- Apply to become a verified vendor through comprehensive wizard
+- Manage product listings (CRUD operations)
+- View real-time sales analytics and orders
 - Respond to customer reviews
 - Upload product images and documents
-- Dashboard with business insights
+- Access vendor dashboard with business insights
+- Receive real-time order notifications
 
 ### ⚙️ Admin
-- Approve/reject vendor applications
+- Review and approve/reject vendor applications
 - Moderate products and reviews
-- View platform analytics
+- View platform analytics and metrics
 - Manage users and vendors
-- System configuration
+- System configuration and monitoring
 - Content moderation tools
+- Access to secure admin dashboard
+
+### 🔐 Admin Account
+
+**Production Admin Credentials:**
+- **Email:** `admin@soukel-syarat.com`
+- **Password:** `SoukAdmin2024!@#`
+- **Role:** Administrator (full platform access)
+
+*Note: Change these credentials in production by updating `src/services/admin-auth.service.ts`*
 
 ## 🎨 Design System
 
@@ -330,6 +165,9 @@ npm run test:ui
 
 # Run tests with coverage
 npm run test:coverage
+
+# Run E2E tests
+npm run test:e2e
 ```
 
 ## 🚀 Deployment
@@ -341,16 +179,42 @@ npm run dev
 
 ### Production Build
 ```bash
-npm run build
+npm run build:production
 npm run preview
 ```
 
-### Firebase Deployment
-```bash
-# Build and deploy
-npm run build
-firebase deploy
-```
+### Deploy to Replit (Autoscale)
+The project is pre-configured for Replit deployment with autoscale:
+- Build: `npm run build:production`
+- Run: `npx vite preview --host 0.0.0.0 --port 5000`
+
+### Deploy to AWS Amplify Hosting
+
+1. **Install Amplify CLI**
+   ```bash
+   npm install -g @aws-amplify/cli
+   ```
+
+2. **Configure Amplify**
+   ```bash
+   amplify configure
+   ```
+
+3. **Initialize Amplify in project**
+   ```bash
+   amplify init
+   ```
+
+4. **Add hosting**
+   ```bash
+   amplify add hosting
+   ```
+
+5. **Deploy**
+   ```bash
+   npm run build:production
+   amplify publish
+   ```
 
 ## 📁 Project Structure
 
@@ -368,28 +232,34 @@ souk-el-syarat/
 │   │   ├── admin/                     # Admin pages
 │   │   ├── vendor/                    # Vendor pages
 │   │   └── customer/                  # Customer pages
-│   ├── services/                      # API and Firebase services
+│   ├── services/                      # API and AWS Amplify services
+│   │   ├── auth.service.ts            # Authentication service
+│   │   ├── admin.service.ts           # Admin operations
+│   │   ├── vendor.service.ts          # Vendor operations
+│   │   └── realtime-websocket.service.ts  # WebSocket service
 │   ├── stores/                        # Zustand state stores
 │   ├── hooks/                         # Custom React hooks
 │   ├── utils/                         # Utility functions
 │   ├── types/                         # TypeScript type definitions
 │   └── assets/                        # Static assets
 ├── public/                            # Public assets
-├── firebase/                          # Firebase configuration files
-│   ├── firestore.rules                # Firestore security rules
-│   ├── storage.rules                  # Storage security rules
-│   └── firestore.indexes.json         # Firestore indexes
-└── docs/                              # Documentation
+├── docs/                              # Documentation
+│   ├── LOCAL_DEVELOPMENT_GUIDE.md     # Comprehensive setup guide
+│   ├── QUICK_START.md                 # Quick 3-minute setup
+│   └── AI_AGENT_CHECKLIST.md          # AI assistant guidelines
+└── .env.local.example                 # Environment template
 ```
 
 ## 🔒 Security Features
 
-- **Role-based access control** with Firebase security rules
+- **Role-based access control** with AWS Cognito and AppSync
 - **Input validation** on both client and server side
-- **Secure file uploads** with type and size restrictions
+- **Secure file uploads** with S3 pre-signed URLs
 - **Authentication required** for all user actions
 - **Admin approval** for vendor applications
 - **Content moderation** systems
+- **HTTPS enforcement** in production
+- **API rate limiting** via AWS AppSync
 
 ## 🌍 Internationalization (i18n)
 
@@ -402,9 +272,19 @@ souk-el-syarat/
 
 - **Code Splitting**: Lazy loading of route components
 - **Image Optimization**: WebP format with fallbacks
-- **Caching Strategy**: Aggressive caching for static assets
-- **Bundle Optimization**: Tree shaking and minification
-- **Database Indexing**: Optimized Firestore queries
+- **Caching Strategy**: Aggressive caching for static assets via CloudFront
+- **Bundle Optimization**: Tree shaking and minification with Terser
+- **Database Optimization**: Efficient GraphQL queries with DataStore
+- **Real-time Updates**: AWS AppSync subscriptions for live data
+- **Offline Support**: Amplify DataStore for offline-first architecture
+
+## 📊 Real-Time Features
+
+- **Live Order Updates**: WebSocket integration for instant notifications
+- **Real-time Analytics**: Dashboard updates via AppSync subscriptions
+- **Instant Messaging**: Vendor-customer communication
+- **Live Inventory**: Stock updates across all clients
+- **Notification System**: Push notifications for critical events
 
 ## 🤝 Contributing
 
@@ -421,41 +301,50 @@ souk-el-syarat/
 - Ensure responsive design
 - Maintain accessibility standards
 - Follow the established design system
+- Document AWS Amplify schema changes
 
 ## 🗺️ Roadmap
 
 ### Phase 1: Foundation ✅
 - [x] Project setup and architecture
 - [x] Authentication system with multiple roles
-- [x] Firebase integration and security rules
+- [x] AWS Amplify integration
 - [x] Responsive UI with Egyptian theme
-- [x] Basic routing and navigation
+- [x] Advanced routing and navigation
 
-### Phase 2: Core Features 🚧
-- [ ] Vendor application system
-- [ ] Product management (CRUD)
-- [ ] Admin dashboard with analytics
-- [ ] Vendor dashboard
-- [ ] Customer marketplace interface
+### Phase 2: Core Features ✅
+- [x] Vendor application system with wizard
+- [x] Product management (CRUD)
+- [x] Admin dashboard with real-time analytics
+- [x] Vendor dashboard with live updates
+- [x] Customer marketplace interface
 
-### Phase 3: Advanced Features 📋
-- [ ] Search and filtering system
+### Phase 3: Advanced Features 🚧
+- [ ] Advanced search and filtering system
 - [ ] Order management and tracking
 - [ ] Review and rating system
-- [ ] Payment integration
-- [ ] Notification system
+- [ ] Payment integration (Stripe/PayPal)
+- [ ] Push notification system
 - [ ] Chat system for buyer-seller communication
 
-### Phase 4: Optimization 🔧
+### Phase 4: Optimization 📋
 - [ ] Performance optimization
 - [ ] SEO optimization
 - [ ] Progressive Web App (PWA) features
-- [ ] Advanced analytics
-- [ ] Automated testing suite
+- [ ] Advanced analytics dashboard
+- [ ] Comprehensive automated testing suite
+
+## 📚 Documentation
+
+- **[LOCAL_DEVELOPMENT_GUIDE.md](./LOCAL_DEVELOPMENT_GUIDE.md)**: Comprehensive setup guide with troubleshooting
+- **[QUICK_START.md](./QUICK_START.md)**: Quick 3-minute setup guide
+- **[AI_AGENT_CHECKLIST.md](./AI_AGENT_CHECKLIST.md)**: Guidelines for AI assistants
+- **[CHANGES_SUMMARY.md](./CHANGES_SUMMARY.md)**: Recent changes and improvements
 
 ## 📞 Support & Contact
 
 - **GitHub Issues**: For bug reports and feature requests
+- **Documentation**: Comprehensive guides in `/docs` folder
 - **Email**: Contact through GitHub profile
 
 ## 📄 License
@@ -466,7 +355,7 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 
 - **Egyptian Heritage**: Inspired by Egypt's rich cultural heritage
 - **Open Source Community**: Built with amazing open-source tools
-- **Firebase Team**: For providing excellent backend services
+- **AWS Amplify Team**: For providing excellent cloud infrastructure
 - **React Community**: For the robust frontend ecosystem
 - **Tailwind CSS**: For the utility-first styling approach
 
@@ -476,4 +365,4 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
     <strong>Built with ❤️ for Egypt's Automotive Community</strong>
     <br>
     <sub>سوق السيارات - أكبر منصة للتجارة الإلكترونية للسيارات في مصر</sub>
-</div>🚀 Firebase deployment test
+</div>
