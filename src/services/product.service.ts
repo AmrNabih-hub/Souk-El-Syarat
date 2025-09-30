@@ -1,9 +1,15 @@
 import { generateClient } from 'aws-amplify/api';
-import { uploadData, getUrl, remove } from 'aws-amplify/storage';
 import amplifyConfig from '@/config/amplify.config';
 
-// Initialize Amplify client for GraphQL operations
-const client = generateClient();
+// Initialize Amplify client for GraphQL operations (lazy loaded when needed)
+let client: ReturnType<typeof generateClient> | null = null;
+
+const getClient = () => {
+  if (!client) {
+    client = generateClient();
+  }
+  return client;
+};
 
 import {
   Product,
@@ -86,7 +92,7 @@ export class ProductService {
         },
       };
 
-      const result = await client.graphql({
+      const result = await getClient().graphql({
         query: `
           mutation CreateProduct($input: CreateProductInput!) {
             createProduct(input: $input) {
@@ -111,7 +117,7 @@ export class ProductService {
    */
   static async getProduct(productId: string): Promise<Product | null> {
     try {
-      const result = await client.graphql({
+      const result = await getClient().graphql({
         query: `
           query GetProduct($id: ID!) {
             getProduct(id: $id) {
@@ -226,7 +232,7 @@ export class ProductService {
       if ((updates as any).carDetails) updateData.carDetails = (updates as any).carDetails;
       if (updates.seoData) updateData.seoData = updates.seoData;
 
-      await client.graphql({
+      await getClient().graphql({
         query: `
           mutation UpdateProduct($input: UpdateProductInput!) {
             updateProduct(input: $input) {
@@ -247,7 +253,7 @@ export class ProductService {
    */
   static async deleteProduct(productId: string): Promise<void> {
     try {
-      await client.graphql({
+      await getClient().graphql({
         query: `
           mutation DeleteProduct($input: DeleteProductInput!) {
             deleteProduct(input: $input) {
@@ -281,7 +287,7 @@ export class ProductService {
         };
       }
 
-      const result = await client.graphql({
+      const result = await getClient().graphql({
         query: `
           query ListProducts($filter: ModelProductFilterInput, $limit: Int) {
             listProducts(filter: $filter, limit: $limit) {
@@ -360,6 +366,7 @@ export class ProductService {
   private static async uploadProductImages(images: File[]): Promise<string[]> {
     const uploadPromises = images.map(async (image, index) => {
       const fileName = `product_image_${index}_${Date.now()}.jpg`;
+      const { uploadData } = await import('aws-amplify/storage');
       const result = await uploadData({
         key: `products/${fileName}`,
         data: image,
@@ -369,6 +376,7 @@ export class ProductService {
       });
 
       // Get the URL for the uploaded image
+      const { getUrl } = await import('aws-amplify/storage');
       const urlResult = await getUrl({
         key: `products/${fileName}`,
         options: {
@@ -469,7 +477,7 @@ export class ProductService {
 
   static async incrementViews(productId: string): Promise<void> {
     try {
-      await client.graphql({
+      await getClient().graphql({
         query: `
           mutation IncrementViews($id: ID!) {
             incrementProductViews(id: $id) {

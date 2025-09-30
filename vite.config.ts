@@ -46,11 +46,18 @@ export default defineConfig(({ command, mode }) => {
       exclude: [
         '@aws-amplify/backend', 
         '@aws-amplify/backend-cli',
-        'aws-amplify' // Exclude to avoid resolution issues
+        'aws-amplify', // Exclude to avoid resolution issues
+        '@aws-amplify/storage',
+        'crc-32' // CommonJS module - exclude from optimization
       ],
       esbuildOptions: {
         target: 'es2020'
       }
+    },
+    
+    // SSR / CommonJS handling
+    ssr: {
+      noExternal: ['crc-32']
     },
     
     build: {
@@ -58,6 +65,10 @@ export default defineConfig(({ command, mode }) => {
       outDir: 'dist',
       assetsDir: 'assets',
       minify: isProduction ? 'terser' : false,
+      commonjsOptions: {
+        include: [/crc-32/, /node_modules/],
+        transformMixedEsModules: true
+      },
       
       // Production-optimized terser options
       terserOptions: isProduction ? {
