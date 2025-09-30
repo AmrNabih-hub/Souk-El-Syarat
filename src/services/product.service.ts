@@ -101,7 +101,7 @@ export class ProductService {
 
       return result.data.createProduct.id;
     } catch (error) {
-      if (process.env.NODE_ENV === 'development') console.error('Error creating product:', error);
+      if (import.meta.env.DEV) console.error('Error creating product:', error);
       throw new Error('Failed to create product');
     }
   }
@@ -194,7 +194,7 @@ export class ProductService {
       }
       return null;
     } catch (error) {
-      if (process.env.NODE_ENV === 'development') console.error('Error getting product:', error);
+      if (import.meta.env.DEV) console.error('Error getting product:', error);
       throw new Error('Failed to get product');
     }
   }
@@ -237,7 +237,7 @@ export class ProductService {
         variables: { input: updateData }
       });
     } catch (error) {
-      if (process.env.NODE_ENV === 'development') console.error('Error updating product:', error);
+      if (import.meta.env.DEV) console.error('Error updating product:', error);
       throw new Error('Failed to update product');
     }
   }
@@ -258,7 +258,7 @@ export class ProductService {
         variables: { input: { id: productId } }
       });
     } catch (error) {
-      if (process.env.NODE_ENV === 'development') console.error('Error deleting product:', error);
+      if (import.meta.env.DEV) console.error('Error deleting product:', error);
       throw new Error('Failed to delete product');
     }
   }
@@ -269,7 +269,7 @@ export class ProductService {
   static async getProducts(filters: SearchFilters = {}, limit: number = 20): Promise<SearchResult> {
     try {
       // In development mode, use mock data to prevent API errors
-      if (process.env.NODE_ENV === 'development') {
+      if (import.meta.env.DEV || import.meta.env.VITE_USE_MOCK_DATA === 'true') {
         console.log('🚀 Development mode - Using mock products data');
         const { enhancedProductCatalog } = await import('../data/enhanced-products');
         const products = enhancedProductCatalog.getAllProducts().slice(0, limit);
@@ -338,7 +338,7 @@ export class ProductService {
         hasMore: false, // TODO: Implement pagination
       } as any;
     } catch (error) {
-      if (process.env.NODE_ENV === 'development') {
+      if (import.meta.env.DEV || import.meta.env.VITE_USE_MOCK_DATA === 'true') {
         console.error('Error getting products:', error);
         console.log('🔄 Falling back to mock products data');
         const { enhancedProductCatalog } = await import('../data/enhanced-products');
@@ -448,7 +448,7 @@ export class ProductService {
     // Return a small list of featured products for quick UI prototypes
     try {
       // In development mode, directly use mock data to avoid circular calls
-      if (process.env.NODE_ENV === 'development') {
+      if (import.meta.env.DEV || import.meta.env.VITE_USE_MOCK_DATA === 'true') {
         console.log('🚀 Development mode - Using mock sample products');
         const { enhancedProductCatalog } = await import('../data/enhanced-products');
         return enhancedProductCatalog.getAllProducts().slice(0, 6);
@@ -482,7 +482,7 @@ export class ProductService {
       });
     } catch (error) {
       // No-op fallback for demo
-      if (process.env.NODE_ENV === 'development') console.warn('incrementViews not implemented in backend');
+      if (import.meta.env.DEV) console.warn('incrementViews not implemented in backend');
     }
   }
 }

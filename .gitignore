@@ -71,3 +71,40 @@ out/
 core
 core.*
 *.core
+
+# Playwright browsers (prevent local bloat)
+.playwright/
+playwright-report/
+test-results/
+
+# TypeScript
+*.tsbuildinfo
+next-env.d.ts
+
+# Replit specific
+.replit
+.upm/
+.config/
+
+# Local development
+.vscode/
+!.vscode/extensions.json
+!.vscode/settings.json
+.fleet/
+.idea/
+
+# Test coverage
+coverage/
+.nyc_output/
+
+# Build artifacts
+dist/
+build/
+out/
+
+# Environment files (ignore all, only allow templates)
+.env
+.env.*
+!.env.example
+!.env.development.example
+!.env.production.example

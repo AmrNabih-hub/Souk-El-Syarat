@@ -4,6 +4,11 @@
   "version": "1.0.0",
   "type": "module",
   "description": "Professional Arabic car marketplace with comprehensive features",
+  "engines": {
+    "node": ">=20.0.0 <21.0.0",
+    "npm": ">=10.0.0"
+  },
+  "packageManager": "npm@10.8.2",
   "scripts": {
     "dev": "vite",
     "build": "vite build",
