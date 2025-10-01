@@ -106,6 +106,7 @@ const UsedCarSellingPage: React.FC = () => {
   const { user } = useAuthStore();
   const { language } = useAppStore();
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [isSubmitted, setIsSubmitted] = useState(false);
   const [currentStep, setCurrentStep] = useState(1);
   const [selectedFeatures, setSelectedFeatures] = useState<string[]>([]);
   const [carImages, setCarImages] = useState<File[]>([]);
@@ -245,7 +246,11 @@ const UsedCarSellingPage: React.FC = () => {
     }
 
     setIsSubmitting(true);
+    
     try {
+      // Simulate API call delay for better UX
+      await new Promise(resolve => setTimeout(resolve, 2000));
+      
       // Submit car listing through the service (includes real-time notifications and emails)
       const listingId = await carListingService.submitListing(
         user?.id || '',
@@ -277,16 +282,108 @@ const UsedCarSellingPage: React.FC = () => {
         carImages
       );
 
-      toast.success(language === 'ar' ? 'تم إرسال طلب بيع السيارة بنجاح! سنتواصل معك خلال 24-48 ساعة.' : 'Car listing submitted successfully! We will contact you within 24-48 hours.');
-      navigate('/dashboard');
+      // Show success state
+      setIsSubmitting(false);
+      setIsSubmitted(true);
+      
+      // Auto redirect after 3 seconds
+      setTimeout(() => {
+        navigate('/dashboard');
+      }, 3000);
       
     } catch (error) {
       console.error('Error submitting car listing:', error);
-      toast.error(language === 'ar' ? 'حدث خطأ في إرسال الطلب. يرجى المحاولة مرة أخرى.' : 'Error submitting listing. Please try again.');
-    } finally {
       setIsSubmitting(false);
+      toast.error(language === 'ar' ? 'حدث خطأ في إرسال الطلب. يرجى المحاولة مرة أخرى.' : 'Error submitting listing. Please try again.');
     }
   };
+
+  // Success screen component
+  const renderSuccessScreen = () => (
+    <motion.div
+      initial={{ opacity: 0, scale: 0.8 }}
+      animate={{ opacity: 1, scale: 1 }}
+      className="text-center py-12"
+    >
+      <motion.div
+        initial={{ scale: 0 }}
+        animate={{ scale: 1 }}
+        transition={{ delay: 0.2, type: 'spring', stiffness: 200 }}
+        className="w-24 h-24 mx-auto mb-6 bg-green-100 rounded-full flex items-center justify-center"
+      >
+        <motion.svg
+          initial={{ pathLength: 0 }}
+          animate={{ pathLength: 1 }}
+          transition={{ delay: 0.5, duration: 0.8 }}
+          className="w-12 h-12 text-green-600"
+          fill="none"
+          stroke="currentColor"
+          viewBox="0 0 24 24"
+        >
+          <path
+            strokeLinecap="round"
+            strokeLinejoin="round"
+            strokeWidth={3}
+            d="M5 13l4 4L19 7"
+          />
+        </motion.svg>
+      </motion.div>
+
+      <motion.h2
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ delay: 0.7 }}
+        className="text-3xl font-bold text-green-600 mb-4"
+      >
+        {language === 'ar' ? 'تم إرسال الطلب بنجاح!' : 'Form Submitted Successfully!'}
+      </motion.h2>
+
+      <motion.p
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ delay: 0.9 }}
+        className="text-lg text-neutral-600 mb-6"
+      >
+        {language === 'ar' 
+          ? 'شكراً لك! تم إرسال طلب بيع السيارة بنجاح. سنتواصل معك خلال 24-48 ساعة للرد على طلبك.'
+          : 'Thank you! Your car listing request has been submitted successfully. We will contact you within 24-48 hours to respond to your request.'
+        }
+      </motion.p>
+
+      <motion.div
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ delay: 1.1 }}
+        className="bg-blue-50 border border-blue-200 rounded-lg p-4 mb-6"
+      >
+        <p className="text-blue-800 font-medium">
+          {language === 'ar' 
+            ? '📧 ستصلك رسالة تأكيد على بريدك الإلكتروني قريباً'
+            : '📧 You will receive a confirmation email shortly'
+          }
+        </p>
+      </motion.div>
+
+      <motion.div
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1 }}
+        transition={{ delay: 1.3 }}
+        className="text-sm text-neutral-500"
+      >
+        {language === 'ar' 
+          ? 'سيتم توجيهك إلى لوحة التحكم خلال 3 ثوانٍ...'
+          : 'Redirecting to dashboard in 3 seconds...'
+        }
+      </motion.div>
+
+      <motion.div
+        initial={{ width: 0 }}
+        animate={{ width: '100%' }}
+        transition={{ delay: 1.5, duration: 3 }}
+        className="mt-4 h-1 bg-gradient-to-r from-green-500 to-blue-500 rounded-full"
+      />
+    </motion.div>
+  );
 
   const renderStep = () => {
     switch (currentStep) {
@@ -922,10 +1019,11 @@ const UsedCarSellingPage: React.FC = () => {
           </div>
 
           <form onSubmit={handleSubmit(onSubmit)}>
-            {renderStep()}
+            {isSubmitted ? renderSuccessScreen() : renderStep()}
 
-            {/* Navigation Buttons */}
-            <div className="flex justify-between pt-8 mt-8 border-t border-neutral-200">
+            {/* Navigation Buttons - Hide when submitted */}
+            {!isSubmitted && (
+              <div className="flex justify-between pt-8 mt-8 border-t border-neutral-200">
               {currentStep > 1 && (
                 <motion.button
                   type="button"
@@ -1002,7 +1100,14 @@ const UsedCarSellingPage: React.FC = () => {
                 whileTap={{ scale: 0.98 }}
               >
                 {isSubmitting ? (
-                  <LoadingSpinner />
+                  <div className="flex items-center">
+                    <motion.div
+                      animate={{ rotate: 360 }}
+                      transition={{ duration: 1, repeat: Infinity, ease: "linear" }}
+                      className="w-5 h-5 border-2 border-white border-t-transparent rounded-full mr-2"
+                    />
+                    {language === 'ar' ? 'جاري الإرسال...' : 'Submitting...'}
+                  </div>
                 ) : currentStep === 5 ? (
                   <>
                     {language === 'ar' ? 'إرسال الطلب' : 'Submit Listing'}
@@ -1019,7 +1124,8 @@ const UsedCarSellingPage: React.FC = () => {
                   </>
                 )}
               </motion.button>
-            </div>
+              </div>
+            )}
           </form>
         </motion.div>
       </div>
