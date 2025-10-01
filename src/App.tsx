@@ -18,8 +18,8 @@ import LoadingScreen from '@/components/ui/LoadingScreen';
 import ErrorBoundary from '@/components/ErrorBoundary';
 
 // Real-time Components - Lazy loaded for better performance
-const ChatWidget = React.lazy(() =>
-  import('@/components/realtime/ChatWidget').then(module => ({ default: module.ChatWidget }))
+const FloatingChatWidget = React.lazy(() =>
+  import('@/components/realtime/FloatingChatWidget').then(module => ({ default: module.FloatingChatWidget }))
 );
 
 // Heavy UI Components - Lazy loaded
@@ -601,8 +601,10 @@ function App() {
 
         <Footer />
 
-          {/* Real-time Chat Widget - Only show when user is logged in */}
-          {user && <ChatWidget />}
+          {/* Floating Chat Widget - Always visible for customer support */}
+          <Suspense fallback={null}>
+            <FloatingChatWidget />
+          </Suspense>
         </div>
       </ThemeProvider>
     </ErrorBoundary>
