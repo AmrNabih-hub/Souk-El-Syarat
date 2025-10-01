@@ -1039,12 +1039,43 @@ const UsedCarSellingPage: React.FC = () => {
                 </motion.button>
               )}
 
+              {/* Debug Test Button - Only show on step 5 */}
+              {currentStep === 5 && process.env.NODE_ENV === 'development' && (
+                <motion.button
+                  type="button"
+                  onClick={async () => {
+                    console.log('🧪 DEBUG: Force submission test');
+                    const formData = watch();
+                    console.log('🧪 Form data:', formData);
+                    console.log('🧪 Images:', carImages.length);
+                    
+                    // Force submission
+                    setIsSubmitting(true);
+                    setTimeout(() => {
+                      setIsSubmitting(false);
+                      setIsSubmitted(true);
+                      console.log('🧪 DEBUG: Forced success state');
+                    }, 2000);
+                  }}
+                  className="flex items-center px-4 py-2 text-xs bg-red-500 text-white rounded hover:bg-red-600 transition-colors mr-2"
+                >
+                  🧪 Force Submit
+                </motion.button>
+              )}
+
               <motion.button
                 type="button"
                 onClick={async () => {
                   console.log('🔄 Next button clicked for step:', currentStep);
                   console.log('🔍 isSubmitting:', isSubmitting);
                   console.log('🔍 isSubmitted:', isSubmitted);
+                  console.log('🔍 carImages.length:', carImages.length);
+                  
+                  // Prevent multiple clicks
+                  if (isSubmitting || isSubmitted) {
+                    console.log('❌ Already submitting or submitted, ignoring click');
+                    return;
+                  }
                   
                   if (currentStep < 5) {
                     // Basic validation before moving to next step
@@ -1090,7 +1121,8 @@ const UsedCarSellingPage: React.FC = () => {
                   } else {
                     // For final step, trigger form submission
                     console.log('📝 Final step - submitting form');
-                    console.log('📊 Final form data:', watch());
+                    const formData = watch();
+                    console.log('📊 Final form data:', formData);
                     
                     // Check if we have minimum images
                     if (carImages.length < 6) {
@@ -1098,16 +1130,13 @@ const UsedCarSellingPage: React.FC = () => {
                       return;
                     }
                     
-                    // Trigger the form submission
-                    console.log('🚀 Calling handleSubmit(onSubmit)');
+                    // Direct submission - bypass form validation
+                    console.log('🚀 Direct submission - calling onSubmit');
                     try {
-                      await handleSubmit(onSubmit)();
-                    } catch (error) {
-                      console.error('❌ Form submission error:', error);
-                      // Fallback: Direct submission
-                      console.log('🔄 Fallback: Direct submission');
-                      const formData = watch();
                       await onSubmit(formData);
+                    } catch (error) {
+                      console.error('❌ Direct submission error:', error);
+                      toast.error(language === 'ar' ? 'حدث خطأ في الإرسال' : 'Submission error');
                     }
                   }
                 }}
