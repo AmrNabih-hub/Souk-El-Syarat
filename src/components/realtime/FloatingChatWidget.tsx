@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { 
   ChatBubbleLeftRightIcon, 
@@ -6,6 +6,7 @@ import {
   PaperAirplaneIcon
 } from '@heroicons/react/24/outline';
 import { useAppStore } from '@/stores/appStore';
+import { useChatStore } from '@/stores/chatStore';
 
 /**
  * Floating Chat Widget Component
@@ -15,10 +16,19 @@ import { useAppStore } from '@/stores/appStore';
 export const FloatingChatWidget: React.FC = () => {
   const [isOpen, setIsOpen] = useState(false);
   const { language } = useAppStore();
+  const { unreadCount, resetUnread, isAgentOnline } = useChatStore();
 
   const toggleChat = () => {
     setIsOpen(!isOpen);
+    
+    // Mark all as read when opening chat
+    if (!isOpen) {
+      resetUnread();
+    }
   };
+
+  // Format unread count for display (99+ for numbers > 99)
+  const displayCount = unreadCount > 99 ? '99+' : unreadCount.toString();
 
   return (
     <>
@@ -41,10 +51,17 @@ export const FloatingChatWidget: React.FC = () => {
             {/* Icon */}
             <ChatBubbleLeftRightIcon className="w-8 h-8 text-white relative z-10" />
             
-            {/* Notification Badge (optional) */}
-            <span className="absolute -top-1 -right-1 w-5 h-5 bg-red-500 text-white text-xs rounded-full flex items-center justify-center font-bold">
-              3
-            </span>
+            {/* Notification Badge - Real-time counter */}
+            {unreadCount > 0 && (
+              <motion.span
+                initial={{ scale: 0 }}
+                animate={{ scale: 1 }}
+                exit={{ scale: 0 }}
+                className="absolute -top-2 -right-2 min-w-[24px] h-6 px-1.5 bg-red-500 text-white text-xs rounded-full flex items-center justify-center font-bold shadow-lg border-2 border-white"
+              >
+                {displayCount}
+              </motion.span>
+            )}
           </motion.button>
         )}
       </AnimatePresence>
@@ -66,15 +83,18 @@ export const FloatingChatWidget: React.FC = () => {
                   <div className="w-10 h-10 bg-white/20 rounded-full flex items-center justify-center">
                     <ChatBubbleLeftRightIcon className="w-6 h-6 text-white" />
                   </div>
-                  {/* Online indicator */}
-                  <span className="absolute bottom-0 right-0 w-3 h-3 bg-green-400 border-2 border-white rounded-full" />
+                  {/* Online/Offline indicator */}
+                  <span className={`absolute bottom-0 right-0 w-3 h-3 ${isAgentOnline ? 'bg-green-400' : 'bg-gray-400'} border-2 border-white rounded-full`} />
                 </div>
                 <div>
                   <h3 className="text-white font-bold text-lg">
                     {language === 'ar' ? 'دعم العملاء' : 'Customer Support'}
                   </h3>
                   <p className="text-white/80 text-xs">
-                    {language === 'ar' ? 'متصل الآن' : 'Online now'}
+                    {isAgentOnline 
+                      ? (language === 'ar' ? 'متصل الآن' : 'Online now')
+                      : (language === 'ar' ? 'غير متصل' : 'Offline')
+                    }
                   </p>
                 </div>
               </div>

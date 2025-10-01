@@ -45,6 +45,7 @@ const FavoritesPage = React.lazy(() => import('@/pages/customer/FavoritesPage'))
 const UsedCarSellingPage = React.lazy(() => import('@/pages/customer/UsedCarSellingPage'));
 const AboutPage = React.lazy(() => import('@/pages/AboutPage'));
 const ContactPage = React.lazy(() => import('@/pages/ContactPage'));
+const ChatTestPage = React.lazy(() => import('@/pages/ChatTestPage'));
 
 // Dashboard pages
 const VendorDashboard = React.lazy(() => import('@/pages/vendor/VendorDashboard'));
@@ -431,6 +432,21 @@ function App() {
                         <FavoritesPage />
                       </motion.div>
                     </ProtectedRoute>
+                  }
+                />
+
+                {/* Chat Test Page (Development) */}
+                <Route
+                  path='/chat-test'
+                  element={
+                    <motion.div
+                      variants={pageVariants}
+                      initial='initial'
+                      animate='animate'
+                      exit='exit'
+                    >
+                      <ChatTestPage />
+                    </motion.div>
                   }
                 />
 
