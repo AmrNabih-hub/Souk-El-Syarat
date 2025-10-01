@@ -26,7 +26,7 @@ const VendorDashboard: React.FC = () => {
   const { user } = useAuthStore();
   const navigate = useNavigate();
   const [isLoading, setIsLoading] = useState(true);
-  const [vendorApplication, setVendorApplication] = useState(null);
+  const [vendorApplication, setVendorApplication] = useState<any>(null);
 
   useEffect(() => {
     const checkVendorStatus = async () => {
