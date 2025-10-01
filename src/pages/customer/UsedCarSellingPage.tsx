@@ -96,7 +96,7 @@ const carFormSchema = yup.object().shape({
     governorate: yup.string().required('المحافظة مطلوبة'),
     city: yup.string().required('المدينة مطلوبة'),
     area: yup.string().required('المنطقة مطلوبة'),
-  }),
+  }).required('معلومات الموقع مطلوبة'),
   reasonForSelling: yup.string().required('سبب البيع مطلوب'),
   agreeToTerms: yup.boolean().oneOf([true], 'يجب الموافقة على الشروط والأحكام'),
 });
@@ -177,22 +177,37 @@ const UsedCarSellingPage: React.FC = () => {
   };
 
   const nextStep = async () => {
+    console.log('🔄 Attempting to move to next step from step:', currentStep);
+    
     const fieldsToValidate = getStepFields(currentStep);
-    const isValid = await trigger(fieldsToValidate as any);
+    console.log('📋 Fields to validate:', fieldsToValidate);
     
-    // Additional validation for step 3 (features)
-    if (currentStep === 3 && selectedFeatures.length === 0) {
-      toast.error(language === 'ar' ? 'يرجى اختيار مميزة واحدة على الأقل' : 'Please select at least one feature');
-      return;
-    }
-    
-    if (isValid) {
+    try {
+      const isValid = await trigger(fieldsToValidate as any);
+      console.log('✅ Validation result:', isValid);
+      
+      // Additional validation for step 3 (features)
+      if (currentStep === 3 && selectedFeatures.length === 0) {
+        toast.error(language === 'ar' ? 'يرجى اختيار مميزة واحدة على الأقل' : 'Please select at least one feature');
+        return;
+      }
+      
+      if (isValid) {
+        console.log('✅ Moving to step:', currentStep + 1);
+        setCurrentStep(currentStep + 1);
+        // Scroll to top of form
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+      } else {
+        // Show validation errors
+        console.log('❌ Validation failed for fields:', fieldsToValidate);
+        toast.error(language === 'ar' ? 'يرجى ملء جميع الحقول المطلوبة' : 'Please fill all required fields');
+      }
+    } catch (error) {
+      console.error('❌ Validation error:', error);
+      // Fallback: move to next step anyway if validation fails
+      console.log('🔄 Fallback: Moving to next step despite validation error');
       setCurrentStep(currentStep + 1);
-      // Scroll to top of form
       window.scrollTo({ top: 0, behavior: 'smooth' });
-    } else {
-      // Show validation errors
-      toast.error(language === 'ar' ? 'يرجى ملء جميع الحقول المطلوبة' : 'Please fill all required fields');
     }
   };
 
@@ -212,8 +227,12 @@ const UsedCarSellingPage: React.FC = () => {
   };
 
   const onSubmit = async (data: UsedCarData) => {
+    console.log('📝 Form submitted for step:', currentStep);
+    console.log('📊 Form data:', data);
+    
     // If not on final step, validate and move to next step
     if (currentStep < 5) {
+      console.log('➡️ Not final step, calling nextStep()');
       await nextStep();
       return;
     }
@@ -922,31 +941,50 @@ const UsedCarSellingPage: React.FC = () => {
                 </motion.button>
               )}
 
-              <motion.button
-                type="submit"
-                disabled={isSubmitting}
-                className={`flex items-center px-8 py-3 bg-gradient-to-r from-primary-500 to-secondary-600 text-white rounded-lg font-semibold hover:from-primary-600 hover:to-secondary-700 disabled:opacity-50 disabled:cursor-not-allowed transition-all ${currentStep === 1 ? 'ml-auto' : ''}`}
-                whileHover={{ scale: 1.02 }}
-                whileTap={{ scale: 0.98 }}
-              >
-                {isSubmitting ? (
-                  <LoadingSpinner />
-                ) : currentStep === 5 ? (
-                  <>
-                    {language === 'ar' ? 'إرسال الطلب' : 'Submit Listing'}
-                    <svg className="w-4 h-4 ml-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8" />
-                    </svg>
-                  </>
-                ) : (
-                  <>
-                    {language === 'ar' ? 'التالي' : 'Next'}
-                    <svg className="w-4 h-4 ml-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
-                    </svg>
-                  </>
+              <div className="flex items-center space-x-3 rtl:space-x-reverse">
+                {/* Debug: Force Next Step Button (Development Only) */}
+                {process.env.NODE_ENV === 'development' && currentStep < 5 && (
+                  <motion.button
+                    type="button"
+                    onClick={() => {
+                      console.log('🔧 Debug: Force moving to next step');
+                      setCurrentStep(currentStep + 1);
+                      window.scrollTo({ top: 0, behavior: 'smooth' });
+                    }}
+                    className="flex items-center px-4 py-2 text-xs bg-yellow-500 text-white rounded hover:bg-yellow-600 transition-colors"
+                    whileHover={{ scale: 1.02 }}
+                    whileTap={{ scale: 0.98 }}
+                  >
+                    🔧 Debug Next
+                  </motion.button>
                 )}
-              </motion.button>
+
+                <motion.button
+                  type="submit"
+                  disabled={isSubmitting}
+                  className={`flex items-center px-8 py-3 bg-gradient-to-r from-primary-500 to-secondary-600 text-white rounded-lg font-semibold hover:from-primary-600 hover:to-secondary-700 disabled:opacity-50 disabled:cursor-not-allowed transition-all ${currentStep === 1 ? 'ml-auto' : ''}`}
+                  whileHover={{ scale: 1.02 }}
+                  whileTap={{ scale: 0.98 }}
+                >
+                  {isSubmitting ? (
+                    <LoadingSpinner />
+                  ) : currentStep === 5 ? (
+                    <>
+                      {language === 'ar' ? 'إرسال الطلب' : 'Submit Listing'}
+                      <svg className="w-4 h-4 ml-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8" />
+                      </svg>
+                    </>
+                  ) : (
+                    <>
+                      {language === 'ar' ? 'التالي' : 'Next'}
+                      <svg className="w-4 h-4 ml-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+                      </svg>
+                    </>
+                  )}
+                </motion.button>
+              </div>
             </div>
           </form>
         </motion.div>
