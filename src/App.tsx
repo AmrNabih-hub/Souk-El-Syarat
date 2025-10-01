@@ -22,12 +22,12 @@ const FloatingChatWidget = React.lazy(() =>
   import('@/components/realtime/FloatingChatWidget').then(module => ({ default: module.FloatingChatWidget }))
 );
 
-// Heavy UI Components - Lazy loaded
-const EnhancedHeroSlider = React.lazy(() => import('@/components/ui/EnhancedHeroSlider'));
-const EVSection = React.lazy(() => import('@/components/ui/EVSection'));
-const EnhancedProductDetailsModal = React.lazy(
-  () => import('@/components/product/EnhancedProductDetailsModal')
-);
+// Heavy UI Components - Lazy loaded (currently not used, keeping for future use)
+// const EnhancedHeroSlider = React.lazy(() => import('@/components/ui/EnhancedHeroSlider'));
+// const EVSection = React.lazy(() => import('@/components/ui/EVSection'));
+// const EnhancedProductDetailsModal = React.lazy(
+//   () => import('@/components/product/EnhancedProductDetailsModal')
+// );
 
 // Lazy load pages for better performance
 const HomePage = React.lazy(() => import('@/pages/HomePage'));
@@ -48,7 +48,7 @@ const ContactPage = React.lazy(() => import('@/pages/ContactPage'));
 const ChatTestPage = React.lazy(() => import('@/pages/ChatTestPage'));
 
 // Dashboard pages
-const VendorDashboard = React.lazy(() => import('@/pages/vendor/VendorDashboard'));
+// const VendorDashboard = React.lazy(() => import('@/pages/vendor/VendorDashboard')); // Using EnhancedVendorDashboard instead
 const EnhancedVendorDashboard = React.lazy(() => import('@/pages/vendor/EnhancedVendorDashboard'));
 const CustomerDashboard = React.lazy(() => import('@/pages/customer/CustomerDashboard'));
 const AdminDashboard = React.lazy(() => import('@/pages/admin/AdminDashboard'));
@@ -142,7 +142,7 @@ const pageVariants = {
 
 function App() {
   const { user } = useAuth();
-  const { language, theme } = useAppStore();
+  const { language } = useAppStore();
   const { subscribeToUpdates, unsubscribeFromUpdates } = useRealtime();
   const { initializeAuth } = useAuthStore();
 

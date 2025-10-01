@@ -145,6 +145,9 @@ class EnvironmentConfig {
         return typeof window !== 'undefined' ? `${window.location.origin}/api` : '/api';
       case 'local':
         return 'http://localhost:3001/api';
+      case 'aws':
+      case 'netlify':
+      case 'vercel':
       default:
         return '/api';
     }

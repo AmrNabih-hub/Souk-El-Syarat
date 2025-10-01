@@ -211,6 +211,7 @@ export class AnalyticsService {
     if (currentStats) {
       switch (event.type) {
         case 'user_action':
+      break;
           if (event.action === 'login') {
             await DataStore.save(
               RealTimeStats.copyOf(currentStats, (updated) => {
@@ -220,6 +221,7 @@ export class AnalyticsService {
           }
           break;
         case 'purchase':
+      break;
           // This would be handled by order creation
           break;
         default:

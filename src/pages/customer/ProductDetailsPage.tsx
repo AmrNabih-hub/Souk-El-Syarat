@@ -7,14 +7,14 @@ import {
   HeartIcon,
   ShoppingCartIcon,
   ShareIcon,
-  StarIcon,
-  CheckBadgeIcon,
   ShieldCheckIcon,
   TruckIcon,
   ChatBubbleLeftRightIcon,
   ChevronLeftIcon,
   ChevronRightIcon,
   EyeIcon,
+  StarIcon,
+  CheckBadgeIcon,
 } from '@heroicons/react/24/outline';
 
 import { useAppStore } from '@/stores/appStore';

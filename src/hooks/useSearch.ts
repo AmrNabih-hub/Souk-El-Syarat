@@ -4,7 +4,7 @@
  */
 
 import { useState, useEffect, useCallback, useMemo } from 'react';
-import { Product, SearchFilters, SearchResult, ProductCategory } from '@/types';
+import { Product, SearchFilters, SearchResult } from '@/types';
 import { ProductService } from '@/services/product.service';
 import { useAppStore } from '@/stores/appStore';
 import { debounce } from '@/utils/performance';
@@ -73,7 +73,7 @@ export const useSearch = (options: UseSearchOptions = {}): UseSearchReturn => {
     enableAutoSearch = true,
   } = options;
 
-  const { language } = useAppStore();
+  // Language support - currently using default
   
   // State
   const [query, setQueryState] = useState(initialQuery);

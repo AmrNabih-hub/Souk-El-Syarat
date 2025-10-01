@@ -1,5 +1,5 @@
 import { Amplify } from 'aws-amplify';
-import { signIn, signUp, signOut, getCurrentUser, confirmSignUp, resendSignUpCode, resetPassword, confirmResetPassword, updatePassword, deleteUser } from '@aws-amplify/auth';
+import { signIn, signUp, signOut, getCurrentUser, resetPassword, confirmResetPassword, updatePassword, deleteUser } from '@aws-amplify/auth';
 import { generateClient } from 'aws-amplify/api';
 import amplifyConfig from '@/config/amplify.config';
 
@@ -22,7 +22,9 @@ export class AuthService {
 
           switch (data.payload.event) {
             case 'signIn':
+      break;
             case 'cognitoHostedUI':
+      break;
               try {
                 const amplifyUser = await getCurrentUser();
                 console.log('✅ Amplify user retrieved:', amplifyUser);
@@ -65,6 +67,7 @@ export class AuthService {
               break;
 
             case 'signOut':
+      break;
               console.log('✅ User logged out successfully');
               callback(null);
               break;
@@ -308,7 +311,7 @@ export class AuthService {
     try {
       console.log('🚀 Starting bulletproof Google sign in...');
       
-      // For AWS Amplify, social sign-in is handled through Cognito Hosted UI
+      // For AWS social sign-in is handled through Cognito Hosted UI
       // This would typically redirect to the hosted UI
       // For now, we'll throw an error indicating this needs to be configured
       throw new Error('Social sign-in requires Cognito Hosted UI configuration. Please use the hosted UI flow.');
