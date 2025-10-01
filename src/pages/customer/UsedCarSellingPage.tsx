@@ -180,8 +180,19 @@ const UsedCarSellingPage: React.FC = () => {
     const fieldsToValidate = getStepFields(currentStep);
     const isValid = await trigger(fieldsToValidate as any);
     
+    // Additional validation for step 3 (features)
+    if (currentStep === 3 && selectedFeatures.length === 0) {
+      toast.error(language === 'ar' ? 'يرجى اختيار مميزة واحدة على الأقل' : 'Please select at least one feature');
+      return;
+    }
+    
     if (isValid) {
       setCurrentStep(currentStep + 1);
+      // Scroll to top of form
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    } else {
+      // Show validation errors
+      toast.error(language === 'ar' ? 'يرجى ملء جميع الحقول المطلوبة' : 'Please fill all required fields');
     }
   };
 
@@ -193,21 +204,24 @@ const UsedCarSellingPage: React.FC = () => {
     switch (step) {
       case 1: return ['make', 'model', 'year', 'mileage', 'transmission', 'fuelType', 'color'];
       case 2: return ['askingPrice', 'condition', 'hasOwnershipPapers', 'hasServiceHistory'];
-      case 3: return ['description', 'features'];
-      case 4: return ['sellerName', 'phoneNumber', 'location'];
+      case 3: return ['description'];
+      case 4: return ['sellerName', 'phoneNumber', 'location.governorate', 'location.city', 'location.area'];
+      case 5: return ['reasonForSelling', 'agreeToTerms'];
       default: return [];
     }
   };
 
   const onSubmit = async (data: UsedCarData) => {
+    // If not on final step, validate and move to next step
     if (currentStep < 5) {
       await nextStep();
       return;
     }
 
+    // Final step - submit the form
     // Validate minimum images requirement
     if (carImages.length < 6) {
-      toast.error('يرجى رفع 6 صور على الأقل للسيارة');
+      toast.error(language === 'ar' ? 'يرجى رفع 6 صور على الأقل للسيارة' : 'Please upload at least 6 car images');
       return;
     }
 
@@ -244,12 +258,12 @@ const UsedCarSellingPage: React.FC = () => {
         carImages
       );
 
-      toast.success('تم إرسال طلب بيع السيارة بنجاح! سنتواصل معك خلال 24-48 ساعة.');
+      toast.success(language === 'ar' ? 'تم إرسال طلب بيع السيارة بنجاح! سنتواصل معك خلال 24-48 ساعة.' : 'Car listing submitted successfully! We will contact you within 24-48 hours.');
       navigate('/dashboard');
       
     } catch (error) {
       console.error('Error submitting car listing:', error);
-      toast.error('حدث خطأ في إرسال الطلب. يرجى المحاولة مرة أخرى.');
+      toast.error(language === 'ar' ? 'حدث خطأ في إرسال الطلب. يرجى المحاولة مرة أخرى.' : 'Error submitting listing. Please try again.');
     } finally {
       setIsSubmitting(false);
     }
@@ -847,6 +861,47 @@ const UsedCarSellingPage: React.FC = () => {
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.5 }}
         >
+          {/* Step Indicator */}
+          <div className="mb-8">
+            <div className="flex items-center justify-between mb-4">
+              <h1 className="text-2xl font-bold text-neutral-900">
+                {language === 'ar' ? 'بيع سيارتك' : 'Sell Your Car'}
+              </h1>
+              <span className="text-sm text-neutral-500">
+                {language === 'ar' ? `الخطوة ${currentStep} من 5` : `Step ${currentStep} of 5`}
+              </span>
+            </div>
+            
+            {/* Progress Bar */}
+            <div className="w-full bg-neutral-200 rounded-full h-2">
+              <motion.div
+                className="bg-gradient-to-r from-primary-500 to-secondary-600 h-2 rounded-full"
+                initial={{ width: 0 }}
+                animate={{ width: `${(currentStep / 5) * 100}%` }}
+                transition={{ duration: 0.5, ease: "easeInOut" }}
+              />
+            </div>
+            
+            {/* Step Labels */}
+            <div className="flex justify-between mt-4 text-xs text-neutral-600">
+              <span className={currentStep >= 1 ? 'text-primary-600 font-semibold' : ''}>
+                {language === 'ar' ? 'البيانات الأساسية' : 'Basic Info'}
+              </span>
+              <span className={currentStep >= 2 ? 'text-primary-600 font-semibold' : ''}>
+                {language === 'ar' ? 'السعر والحالة' : 'Price & Condition'}
+              </span>
+              <span className={currentStep >= 3 ? 'text-primary-600 font-semibold' : ''}>
+                {language === 'ar' ? 'الوصف والمميزات' : 'Description'}
+              </span>
+              <span className={currentStep >= 4 ? 'text-primary-600 font-semibold' : ''}>
+                {language === 'ar' ? 'معلومات الاتصال' : 'Contact Info'}
+              </span>
+              <span className={currentStep >= 5 ? 'text-primary-600 font-semibold' : ''}>
+                {language === 'ar' ? 'الصور والمراجعة' : 'Images & Review'}
+              </span>
+            </div>
+          </div>
+
           <form onSubmit={handleSubmit(onSubmit)}>
             {renderStep()}
 
@@ -856,27 +911,40 @@ const UsedCarSellingPage: React.FC = () => {
                 <motion.button
                   type="button"
                   onClick={prevStep}
-                  className="btn btn-outline"
+                  className="flex items-center px-6 py-3 text-neutral-600 bg-neutral-100 hover:bg-neutral-200 rounded-lg font-medium transition-colors"
                   whileHover={{ scale: 1.02 }}
                   whileTap={{ scale: 0.98 }}
                 >
-                  السابق
+                  <svg className="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
+                  </svg>
+                  {language === 'ar' ? 'السابق' : 'Previous'}
                 </motion.button>
               )}
 
               <motion.button
                 type="submit"
                 disabled={isSubmitting}
-                className={`btn btn-primary ${currentStep === 1 ? 'mr-auto' : ''}`}
+                className={`flex items-center px-8 py-3 bg-gradient-to-r from-primary-500 to-secondary-600 text-white rounded-lg font-semibold hover:from-primary-600 hover:to-secondary-700 disabled:opacity-50 disabled:cursor-not-allowed transition-all ${currentStep === 1 ? 'ml-auto' : ''}`}
                 whileHover={{ scale: 1.02 }}
                 whileTap={{ scale: 0.98 }}
               >
                 {isSubmitting ? (
                   <LoadingSpinner />
                 ) : currentStep === 5 ? (
-                  'إرسال الطلب'
+                  <>
+                    {language === 'ar' ? 'إرسال الطلب' : 'Submit Listing'}
+                    <svg className="w-4 h-4 ml-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8" />
+                    </svg>
+                  </>
                 ) : (
-                  'التالي'
+                  <>
+                    {language === 'ar' ? 'التالي' : 'Next'}
+                    <svg className="w-4 h-4 ml-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+                    </svg>
+                  </>
                 )}
               </motion.button>
             </div>
