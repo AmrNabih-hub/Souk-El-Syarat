@@ -178,14 +178,10 @@ const UsedCarSellingPage: React.FC = () => {
   };
 
   const nextStep = async () => {
-    console.log('🔄 Attempting to move to next step from step:', currentStep);
-    
     const fieldsToValidate = getStepFields(currentStep);
-    console.log('📋 Fields to validate:', fieldsToValidate);
     
     try {
       const isValid = await trigger(fieldsToValidate as any);
-      console.log('✅ Validation result:', isValid);
       
       // Additional validation for step 3 (features)
       if (currentStep === 3 && selectedFeatures.length === 0) {
@@ -194,19 +190,16 @@ const UsedCarSellingPage: React.FC = () => {
       }
       
       if (isValid) {
-        console.log('✅ Moving to step:', currentStep + 1);
         setCurrentStep(currentStep + 1);
         // Scroll to top of form
         window.scrollTo({ top: 0, behavior: 'smooth' });
       } else {
         // Show validation errors
-        console.log('❌ Validation failed for fields:', fieldsToValidate);
         toast.error(language === 'ar' ? 'يرجى ملء جميع الحقول المطلوبة' : 'Please fill all required fields');
       }
     } catch (error) {
-      console.error('❌ Validation error:', error);
+      console.error('Validation error:', error);
       // Fallback: move to next step anyway if validation fails
-      console.log('🔄 Fallback: Moving to next step despite validation error');
       setCurrentStep(currentStep + 1);
       window.scrollTo({ top: 0, behavior: 'smooth' });
     }
@@ -228,12 +221,8 @@ const UsedCarSellingPage: React.FC = () => {
   };
 
   const onSubmit = async (data: UsedCarData) => {
-    console.log('📝 Form submitted for step:', currentStep);
-    console.log('📊 Form data:', data);
-    
     // If not on final step, validate and move to next step
     if (currentStep < 5) {
-      console.log('➡️ Not final step, calling nextStep()');
       await nextStep();
       return;
     }
@@ -1039,48 +1028,18 @@ const UsedCarSellingPage: React.FC = () => {
                 </motion.button>
               )}
 
-              {/* Debug Test Button - Only show on step 5 */}
-              {currentStep === 5 && process.env.NODE_ENV === 'development' && (
-                <motion.button
-                  type="button"
-                  onClick={async () => {
-                    console.log('🧪 DEBUG: Force submission test');
-                    const formData = watch();
-                    console.log('🧪 Form data:', formData);
-                    console.log('🧪 Images:', carImages.length);
-                    
-                    // Force submission
-                    setIsSubmitting(true);
-                    setTimeout(() => {
-                      setIsSubmitting(false);
-                      setIsSubmitted(true);
-                      console.log('🧪 DEBUG: Forced success state');
-                    }, 2000);
-                  }}
-                  className="flex items-center px-4 py-2 text-xs bg-red-500 text-white rounded hover:bg-red-600 transition-colors mr-2"
-                >
-                  🧪 Force Submit
-                </motion.button>
-              )}
 
               <motion.button
                 type="button"
                 onClick={async () => {
-                  console.log('🔄 Next button clicked for step:', currentStep);
-                  console.log('🔍 isSubmitting:', isSubmitting);
-                  console.log('🔍 isSubmitted:', isSubmitted);
-                  console.log('🔍 carImages.length:', carImages.length);
-                  
                   // Prevent multiple clicks
                   if (isSubmitting || isSubmitted) {
-                    console.log('❌ Already submitting or submitted, ignoring click');
                     return;
                   }
                   
                   if (currentStep < 5) {
                     // Basic validation before moving to next step
                     const currentFormData = watch();
-                    console.log('📊 Current form data:', currentFormData);
                     
                     // Check if basic required fields are filled for current step
                     let canProceed = true;
@@ -1112,17 +1071,12 @@ const UsedCarSellingPage: React.FC = () => {
                     }
                     
                     if (canProceed) {
-                      console.log('✅ Validation passed, moving to next step');
                       setCurrentStep(currentStep + 1);
                       window.scrollTo({ top: 0, behavior: 'smooth' });
-                    } else {
-                      console.log('❌ Validation failed, staying on current step');
                     }
                   } else {
                     // For final step, trigger form submission
-                    console.log('📝 Final step - submitting form');
                     const formData = watch();
-                    console.log('📊 Final form data:', formData);
                     
                     // Check if we have minimum images
                     if (carImages.length < 6) {
@@ -1130,12 +1084,11 @@ const UsedCarSellingPage: React.FC = () => {
                       return;
                     }
                     
-                    // Direct submission - bypass form validation
-                    console.log('🚀 Direct submission - calling onSubmit');
+                    // Submit the form
                     try {
                       await onSubmit(formData);
                     } catch (error) {
-                      console.error('❌ Direct submission error:', error);
+                      console.error('Form submission error:', error);
                       toast.error(language === 'ar' ? 'حدث خطأ في الإرسال' : 'Submission error');
                     }
                   }
