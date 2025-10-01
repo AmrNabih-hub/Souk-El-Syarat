@@ -47,14 +47,25 @@ npm run dev
 ### Development Configuration
 - **Frontend Server**: Runs on port 5000 using Vite dev server
 - **Host Configuration**: 0.0.0.0 with allowedHosts: true (required for Replit proxy)
-- **Development Mode**: Uses localStorage for auth simulation (no Firebase required for development)
+- **Development Mode**: Uses mock services for auth simulation (no AWS Amplify required for development)
 - **Environment**: Node.js 20 with all dependencies installed via npm
+- **Environment Variables**: Uses .env.development for development settings
+- **TypeScript**: Configured with strict mode and proper type definitions
 
-### Deployment Configuration
+### Deployment Configuration  
 - **Deployment Target**: Autoscale (stateless web application)
 - **Build Command**: npm run build:production
-- **Run Command**: npm run preview (Vite preview server on port 5000)
+- **Run Command**: npx vite preview --host 0.0.0.0 --port 5000
 - **Port**: 5000 (both development and production)
+- **Production Environment**: Can be configured with AWS Amplify credentials for production deployment
+
+### Recent Setup (October 2025)
+- ✅ Dependencies installed successfully (1334 packages)
+- ✅ TypeScript environment definitions updated with AWS variable types
+- ✅ Vite configuration verified (port 5000, host 0.0.0.0, allowedHosts: true)
+- ✅ Development workflow configured and running
+- ✅ Deployment configuration set for autoscale deployment
+- ✅ Application verified working with Arabic RTL layout
 
 ## System Architecture
 
