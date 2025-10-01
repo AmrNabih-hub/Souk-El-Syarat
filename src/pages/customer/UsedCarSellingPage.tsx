@@ -20,7 +20,7 @@ import toast from 'react-hot-toast';
 import { useAppStore } from '@/stores/appStore';
 import { useAuthStore } from '@/stores/authStore';
 import LoadingSpinner from '@/components/ui/LoadingSpinner';
-import { sendEmail } from '@/utils/replitmail';
+import { carListingService } from '@/services/car-listing.service';
 
 interface UsedCarData {
   // Basic Car Information
@@ -205,111 +205,44 @@ const UsedCarSellingPage: React.FC = () => {
       return;
     }
 
+    // Validate minimum images requirement
+    if (carImages.length < 6) {
+      toast.error('يرجى رفع 6 صور على الأقل للسيارة');
+      return;
+    }
+
     setIsSubmitting(true);
     try {
-      // Create listing ID
-      const listingId = `listing_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
-      
-      // Send email notification to admin
-      await sendEmail({
-        to: 'admin@soukel-syarat.com',
-        subject: `طلب بيع سيارة مستعملة جديد - ${data.make} ${data.model}`,
-        html: `
-          <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
-            <h2 style="color: #f59e0b; text-align: center;">طلب بيع سيارة مستعملة جديد</h2>
-            
-            <div style="background: #f8f9fa; padding: 20px; border-radius: 10px; margin: 20px 0;">
-              <h3 style="color: #333; margin-bottom: 15px;">بيانات السيارة</h3>
-              <p><strong>الماركة:</strong> ${data.make}</p>
-              <p><strong>الموديل:</strong> ${data.model}</p>
-              <p><strong>سنة الصنع:</strong> ${data.year}</p>
-              <p><strong>الكيلومترات:</strong> ${data.mileage.toLocaleString()} كم</p>
-              <p><strong>ناقل الحركة:</strong> ${data.transmission === 'automatic' ? 'أوتوماتيك' : 'عادي'}</p>
-              <p><strong>نوع الوقود:</strong> ${data.fuelType}</p>
-              <p><strong>اللون:</strong> ${data.color}</p>
-              <p><strong>الحالة:</strong> ${data.condition}</p>
-              <p><strong>السعر المطلوب:</strong> ${data.askingPrice.toLocaleString()} جنيه مصري</p>
-            </div>
-            
-            <div style="background: #e3f2fd; padding: 20px; border-radius: 10px; margin: 20px 0;">
-              <h3 style="color: #333; margin-bottom: 15px;">بيانات البائع</h3>
-              <p><strong>الاسم:</strong> ${data.sellerName}</p>
-              <p><strong>الهاتف:</strong> ${data.phoneNumber}</p>
-              ${data.whatsappNumber ? `<p><strong>واتساب:</strong> ${data.whatsappNumber}</p>` : ''}
-              <p><strong>المحافظة:</strong> ${data.location.governorate}</p>
-              <p><strong>المدينة:</strong> ${data.location.city}</p>
-              <p><strong>المنطقة:</strong> ${data.location.area}</p>
-            </div>
-            
-            <div style="background: #f3e5f5; padding: 20px; border-radius: 10px; margin: 20px 0;">
-              <h3 style="color: #333; margin-bottom: 15px;">تفاصيل إضافية</h3>
-              <p><strong>الوصف:</strong> ${data.description}</p>
-              <p><strong>المميزات:</strong> ${data.features.join(', ')}</p>
-              <p><strong>سبب البيع:</strong> ${data.reasonForSelling}</p>
-              <p><strong>قابل للتفاوض:</strong> ${data.negotiable ? 'نعم' : 'لا'}</p>
-              <p><strong>متاح للمعاينة:</strong> ${data.availableForInspection ? 'نعم' : 'لا'}</p>
-            </div>
-            
-            <div style="background: #fff3cd; padding: 20px; border-radius: 10px; margin: 20px 0;">
-              <h3 style="color: #333; margin-bottom: 15px;">الأوراق المطلوبة</h3>
-              <p><strong>أوراق الملكية:</strong> ${data.hasOwnershipPapers ? 'متوفرة ✅' : 'غير متوفرة ❌'}</p>
-              <p><strong>تاريخ الصيانة:</strong> ${data.hasServiceHistory ? 'متوفر ✅' : 'غير متوفر ❌'}</p>
-              <p><strong>التأمين:</strong> ${data.hasInsurance ? 'ساري ✅' : 'غير ساري ❌'}</p>
-            </div>
-            
-            <p style="text-align: center; margin-top: 30px;">
-              <strong>رقم الطلب:</strong> ${listingId}<br>
-              <strong>تاريخ الإرسال:</strong> ${new Date().toLocaleDateString('ar-EG')}
-            </p>
-          </div>
-        `,
-        text: `طلب بيع سيارة مستعملة: ${data.make} ${data.model} ${data.year} - السعر: ${data.askingPrice} جنيه - البائع: ${data.sellerName} - الهاتف: ${data.phoneNumber}`
-      });
-
-      // Send confirmation email to seller
-      await sendEmail({
-        to: user?.email || data.sellerName,
-        subject: 'تم استلام طلب بيع سيارتك بنجاح - سوق السيارات',
-        html: `
-          <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
-            <h2 style="color: #f59e0b; text-align: center;">شكراً لك على اختيار سوق السيارات</h2>
-            
-            <p>عزيزي ${data.sellerName},</p>
-            
-            <p>تم استلام طلب بيع سيارتك بنجاح وسيتم مراجعته من قبل فريقنا.</p>
-            
-            <div style="background: #f8f9fa; padding: 20px; border-radius: 10px; margin: 20px 0;">
-              <h3>ملخص طلبك:</h3>
-              <p><strong>السيارة:</strong> ${data.make} ${data.model} ${data.year}</p>
-              <p><strong>السعر:</strong> ${data.askingPrice.toLocaleString()} جنيه مصري</p>
-              <p><strong>رقم الطلب:</strong> ${listingId}</p>
-            </div>
-            
-            <div style="background: #e8f5e8; padding: 20px; border-radius: 10px; margin: 20px 0;">
-              <h3>الخطوات التالية:</h3>
-              <ul>
-                <li>سيتم مراجعة طلبك خلال 24-48 ساعة</li>
-                <li>سنقوم بالتواصل معك لتأكيد البيانات</li>
-                <li>بعد الموافقة، سيتم نشر إعلانك على الموقع</li>
-                <li>سنرسل لك تحديثات عن استفسارات المشترين</li>
-              </ul>
-            </div>
-            
-            <p style="text-align: center;">
-              <strong>للاستفسار:</strong><br>
-              هاتف: 19000<br>
-              واتساب: 01000000000<br>
-              البريد الإلكتروني: support@soukel-syarat.com
-            </p>
-            
-            <p style="text-align: center; color: #666; margin-top: 30px;">
-              شكراً لثقتكم في سوق السيارات<br>
-              فريق خدمة العملاء
-            </p>
-          </div>
-        `,
-        text: `شكراً ${data.sellerName}! تم استلام طلب بيع سيارتك ${data.make} ${data.model} بنجاح. رقم الطلب: ${listingId}. سنتواصل معك قريباً.`
-      });
+      // Submit car listing through the service (includes real-time notifications and emails)
+      const listingId = await carListingService.submitListing(
+        user?.id || '',
+        {
+          make: data.make,
+          model: data.model,
+          year: data.year,
+          mileage: data.mileage,
+          transmission: data.transmission,
+          fuelType: data.fuelType,
+          color: data.color,
+          condition: data.condition as any,
+          askingPrice: data.askingPrice,
+          description: data.description,
+          features: data.features,
+          reasonForSelling: data.reasonForSelling,
+          sellerName: data.sellerName,
+          phoneNumber: data.phoneNumber,
+          whatsappNumber: data.whatsappNumber,
+          location: data.location,
+          hasOwnershipPapers: data.hasOwnershipPapers,
+          hasServiceHistory: data.hasServiceHistory,
+          hasInsurance: data.hasInsurance,
+          negotiable: data.negotiable,
+          availableForInspection: data.availableForInspection,
+          urgentSale: data.urgentSale,
+          agreeToTerms: data.agreeToTerms,
+        },
+        carImages
+      );
 
       toast.success('تم إرسال طلب بيع السيارة بنجاح! سنتواصل معك خلال 24-48 ساعة.');
       navigate('/dashboard');
