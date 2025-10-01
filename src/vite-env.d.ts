@@ -12,6 +12,10 @@ interface ImportMetaEnv {
   readonly VITE_ENABLE_ANALYTICS: string;
   readonly VITE_ENABLE_EMULATORS: string;
   readonly VITE_ENABLE_DEBUG: string;
+  readonly VITE_ENABLE_REAL_TIME: string;
+  readonly VITE_ENABLE_PUSH_NOTIFICATIONS: string;
+  readonly VITE_USE_MOCK_DATA: string;
+  readonly VITE_USE_MOCK_AUTH: string;
   readonly VITE_AWS_REGION: string;
   readonly VITE_AWS_COGNITO_USER_POOL_ID: string;
   readonly VITE_AWS_COGNITO_CLIENT_ID: string;

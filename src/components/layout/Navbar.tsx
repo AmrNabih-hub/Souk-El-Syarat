@@ -72,7 +72,6 @@ const Navbar: React.FC = () => {
     { name: 'الرئيسية', href: '/', nameEn: 'Home', isSpecial: false },
     { name: 'السوق', href: '/marketplace', nameEn: 'Marketplace', isSpecial: false },
     { name: 'التجار', href: '/vendors', nameEn: 'Vendors', isSpecial: false },
-    ...(user?.role === 'customer' ? [{ name: 'بيع سيارتك', href: '/sell-car', nameEn: 'Sell Your Car', isSpecial: false }] : []),
     { name: 'من نحن', href: '/about', nameEn: 'About', isSpecial: false },
     { name: 'اتصل بنا', href: '/contact', nameEn: 'Contact', isSpecial: false },
   ];
@@ -81,7 +80,7 @@ const Navbar: React.FC = () => {
 
   return (
     <nav className='bg-white/90 dark:bg-neutral-900/90 backdrop-blur-md border-b border-neutral-200/50 dark:border-neutral-800/50 sticky top-0 z-50 shadow-sm transition-colors duration-300'>
-      <div className='max-w-7xl mx-auto px-4 sm:px-6 lg:px-8'>
+      <div className='w-full px-4 sm:px-6 lg:px-8'>
         <div className='flex justify-between items-center h-16'>
           {/* Logo */}
           <motion.div
@@ -109,40 +108,49 @@ const Navbar: React.FC = () => {
             {navigationItems.map(item => (
               <motion.div 
                 key={item.href} 
-                whileHover={{ y: -3, scale: 1.05 }}
-                whileTap={{ scale: 0.95 }}
+                whileHover={{ y: -2 }}
                 transition={{ type: 'spring', stiffness: 400, damping: 15 }}
               >
                 <Link
                   to={item.href}
                   className={clsx(
-                    'relative px-3 py-2 text-sm font-semibold transition-all duration-200',
+                    'relative px-3 py-2 text-sm font-semibold transition-all duration-300 rounded-lg',
                     isCurrentPath(item.href)
-                      ? 'text-primary-600 font-bold'
-                      : 'text-neutral-700 hover:text-primary-600'
+                      ? 'bg-gradient-to-r from-primary-500/10 to-secondary-500/10 text-transparent bg-clip-text bg-gradient-to-r from-primary-600 to-secondary-600'
+                      : 'text-neutral-700 dark:text-neutral-300 hover:bg-gradient-to-r hover:from-primary-500/10 hover:to-secondary-500/10 hover:shadow-[0_0_15px_rgba(249,115,22,0.3)]'
                   )}
                 >
                   {language === 'ar' ? item.name : item.nameEn}
-                  {isCurrentPath(item.href) && (
-                    <motion.div
-                      className='absolute bottom-0 left-0 right-0 h-0.5 bg-primary-500 rounded-full'
-                      layoutId='navbar-indicator'
-                    />
-                  )}
                 </Link>
               </motion.div>
             ))}
             
+            {/* Sell Your Car Button - for customers only */}
+            {user?.role === 'customer' && (
+              <motion.div 
+                whileHover={{ scale: 1.05, y: -2 }} 
+                whileTap={{ scale: 0.95 }}
+                transition={{ type: 'spring', stiffness: 400, damping: 15 }}
+              >
+                <Link 
+                  to='/sell-your-car' 
+                  className='px-4 py-2 text-sm font-bold text-white rounded-full bg-gradient-to-r from-emerald-500 to-teal-600 hover:from-emerald-600 hover:to-teal-700 transition-all duration-300 shadow-md hover:shadow-[0_0_20px_rgba(16,185,129,0.5)]'
+                >
+                  {language === 'ar' ? 'بيع عربيتك' : 'Sell Your Car'}
+                </Link>
+              </motion.div>
+            )}
+            
             {/* Become a Vendor Button - positioned beside Contact Us */}
             {!user && (
               <motion.div 
-                whileHover={{ scale: 1.02, y: -1 }} 
-                whileTap={{ scale: 0.98 }}
+                whileHover={{ scale: 1.05, y: -2 }} 
+                whileTap={{ scale: 0.95 }}
                 transition={{ type: 'spring', stiffness: 400, damping: 15 }}
               >
                 <Link 
                   to='/vendor/apply' 
-                  className='px-4 py-2 text-sm font-bold text-white rounded-full bg-gradient-to-r from-primary-500 to-secondary-600 hover:from-primary-600 hover:to-secondary-700 transition-all duration-200 shadow-sm hover:shadow-md'
+                  className='px-4 py-2 text-sm font-bold text-white rounded-full bg-gradient-to-r from-primary-500 to-secondary-600 hover:from-primary-600 hover:to-secondary-700 transition-all duration-300 shadow-md hover:shadow-[0_0_20px_rgba(249,115,22,0.5)]'
                 >
                   {language === 'ar' ? 'كن تاجراً' : 'Become a Vendor'}
                 </Link>
@@ -151,7 +159,7 @@ const Navbar: React.FC = () => {
           </div>
 
           {/* Search Bar */}
-          <div className='hidden md:flex flex-1 max-w-md mx-8' ref={searchRef}>
+          <div className='hidden md:flex flex-1 max-w-xs mx-6' ref={searchRef}>
             <div className='relative w-full'>
               <motion.form
                 onSubmit={handleSearch}

@@ -1,6 +1,7 @@
 import { sendEmail } from '@/utils/replitmail';
-import { notificationService } from './notification.service';
 import { useAuthStore } from '@/stores/authStore';
+import { realTimeService } from './realtime-websocket.service';
+import { REALTIME_EVENTS } from '@/constants/realtime-events';
 
 export interface VendorApplicationData {
   businessName: string;
@@ -82,6 +83,19 @@ class VendorApplicationService {
 
     this.applications.set(applicationId, application);
 
+    // Emit real-time event for admin dashboard
+    try {
+      realTimeService.sendMessage(REALTIME_EVENTS.VENDOR_APPLICATION, {
+        applicationId,
+        businessName: applicationData.businessName,
+        contactPerson: applicationData.contactPerson,
+        status: 'pending',
+        submittedAt: application.submittedAt
+      });
+    } catch (error) {
+      console.warn('Failed to emit real-time vendor application event:', error);
+    }
+
     // Send notification email to admin
     try {
       await sendEmail({
@@ -148,13 +162,13 @@ class VendorApplicationService {
         text: `طلب انضمام تاجر جديد من ${applicationData.businessName} (${applicationData.contactPerson}). يرجى المراجعة في لوحة تحكم الإدارة.`
       });
       
-      // Send internal notification to admin
-      await notificationService.sendNotification('admin', {
-        title: '🔔 طلب انضمام تاجر جديد',
-        message: `تم تقديم طلب انضمام جديد من ${applicationData.businessName}`,
-        type: 'vendor_application',
-        data: { applicationId, businessName: applicationData.businessName }
-      });
+      // Send internal notification to admin (TODO: implement notification service method)
+      // await notificationService.sendNotification('admin', {
+      //   title: '🔔 طلب انضمام تاجر جديد',
+      //   message: `تم تقديم طلب انضمام جديد من ${applicationData.businessName}`,
+      //   type: 'vendor_application',
+      //   data: { applicationId, businessName: applicationData.businessName }
+      // });
       
     } catch (error) {
       console.warn('Failed to send admin notification:', error);
@@ -260,6 +274,19 @@ class VendorApplicationService {
     application.reviewedAt = new Date();
     application.reviewedBy = reviewedBy;
     application.reviewComments = comments;
+
+    // Emit real-time event for vendor notification
+    try {
+      realTimeService.sendMessage(REALTIME_EVENTS.VENDOR_APPROVED, {
+        applicationId,
+        userId: application.userId,
+        businessName: application.applicationData.businessName,
+        reviewComments: comments,
+        reviewedAt: application.reviewedAt
+      });
+    } catch (error) {
+      console.warn('Failed to emit real-time vendor approval event:', error);
+    }
 
     // Update user role to vendor in auth store
     const { setUser, user } = useAuthStore.getState();
@@ -368,13 +395,13 @@ class VendorApplicationService {
         text: `مبروك! تم قبول طلب انضمامك كتاجر في سوق السيارات. يمكنك الآن الدخول إلى لوحة التاجر وبدء إضافة منتجاتك. رقم الطلب: ${applicationId}`
       });
       
-      // Send internal notification to vendor
-      await notificationService.sendNotification(application.userId, {
-        title: '🎉 تم قبول طلب انضمامك!',
-        message: `مبروك! تم قبول طلب انضمامك كتاجر. يمكنك الآن الوصول إلى لوحة التاجر الخاصة بك.`,
-        type: 'vendor_approved',
-        data: { applicationId, businessName: application.applicationData.businessName }
-      });
+      // Send internal notification to vendor (TODO: implement notification service method)
+      // await notificationService.sendNotification(application.userId, {
+      //   title: '🎉 تم قبول طلب انضمامك!',
+      //   message: `مبروك! تم قبول طلب انضمامك كتاجر. يمكنك الآن الوصول إلى لوحة التاجر الخاصة بك.`,
+      //   type: 'vendor_approved',
+      //   data: { applicationId, businessName: application.applicationData.businessName }
+      // });
       
     } catch (error) {
       console.warn('Failed to send approval email:', error);
@@ -392,6 +419,19 @@ class VendorApplicationService {
     application.reviewedAt = new Date();
     application.reviewedBy = reviewedBy;
     application.reviewComments = comments;
+
+    // Emit real-time event for vendor notification
+    try {
+      realTimeService.sendMessage(REALTIME_EVENTS.VENDOR_REJECTED, {
+        applicationId,
+        userId: application.userId,
+        businessName: application.applicationData.businessName,
+        reviewComments: comments,
+        reviewedAt: application.reviewedAt
+      });
+    } catch (error) {
+      console.warn('Failed to emit real-time vendor rejection event:', error);
+    }
 
     // Send rejection email to vendor
     try {

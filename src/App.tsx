@@ -468,6 +468,22 @@ function App() {
                 />
 
                 <Route
+                  path='/sell-your-car'
+                  element={
+                    <ProtectedRoute roles={['customer']}>
+                      <motion.div
+                        variants={pageVariants}
+                        initial='initial'
+                        animate='animate'
+                        exit='exit'
+                      >
+                        <UsedCarSellingPage />
+                      </motion.div>
+                    </ProtectedRoute>
+                  }
+                />
+
+                <Route
                   path='/dashboard/orders'
                   element={
                     <ProtectedRoute roles={['customer']}>
