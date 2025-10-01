@@ -1043,6 +1043,8 @@ const UsedCarSellingPage: React.FC = () => {
                 type="button"
                 onClick={async () => {
                   console.log('🔄 Next button clicked for step:', currentStep);
+                  console.log('🔍 isSubmitting:', isSubmitting);
+                  console.log('🔍 isSubmitted:', isSubmitted);
                   
                   if (currentStep < 5) {
                     // Basic validation before moving to next step
@@ -1088,9 +1090,24 @@ const UsedCarSellingPage: React.FC = () => {
                   } else {
                     // For final step, trigger form submission
                     console.log('📝 Final step - submitting form');
-                    const form = document.querySelector('form');
-                    if (form) {
-                      form.requestSubmit();
+                    console.log('📊 Final form data:', watch());
+                    
+                    // Check if we have minimum images
+                    if (carImages.length < 6) {
+                      toast.error(language === 'ar' ? 'يرجى رفع 6 صور على الأقل للسيارة' : 'Please upload at least 6 car images');
+                      return;
+                    }
+                    
+                    // Trigger the form submission
+                    console.log('🚀 Calling handleSubmit(onSubmit)');
+                    try {
+                      await handleSubmit(onSubmit)();
+                    } catch (error) {
+                      console.error('❌ Form submission error:', error);
+                      // Fallback: Direct submission
+                      console.log('🔄 Fallback: Direct submission');
+                      const formData = watch();
+                      await onSubmit(formData);
                     }
                   }
                 }}
