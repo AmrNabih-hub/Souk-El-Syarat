@@ -1,4 +1,7 @@
 import React, { createContext, useContext, useState, useEffect } from 'react';
+import { MockAuthService } from '@/services/mock-auth.service';
+import { adminAuthService } from '@/services/admin-auth.service';
+import { envConfig } from '@/config/environment.config';
 
 // 🚀 SAFE DEVELOPMENT-FIRST AUTH CONTEXT - NO MORE BLANK PAGES
 interface AuthContextType {
@@ -77,7 +80,31 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
   const login = async (username: string, password: string) => {
     try {
-      // Development mode - create demo user
+      setLoading(true);
+      
+      // Check if this is an admin login first
+      const adminResult = await adminAuthService.loginAdmin(username, password);
+      if (adminResult.success && adminResult.admin) {
+        const adminUser = {
+          ...adminResult.admin,
+          displayName: adminResult.admin.displayName,
+        };
+        setUser(adminUser);
+        localStorage.setItem('demo_user', JSON.stringify(adminUser));
+        setLoading(false);
+        return adminUser;
+      }
+
+      // Try mock auth service for test accounts (development)
+      if (envConfig.get('useMockAuth')) {
+        const mockUser = await MockAuthService.signIn(username, password);
+        setUser(mockUser);
+        localStorage.setItem('demo_user', JSON.stringify(mockUser));
+        setLoading(false);
+        return mockUser;
+      }
+
+      // Development mode - create demo user (fallback)
       if (process.env.NODE_ENV === 'development' || window.location.hostname === 'localhost') {
         const demoUser = {
           id: 'demo-user-' + Date.now(),

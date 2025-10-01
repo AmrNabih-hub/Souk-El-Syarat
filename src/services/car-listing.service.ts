@@ -48,7 +48,7 @@ export interface CarListing {
 
 class CarListingService {
   private listings: Map<string, CarListing> = new Map();
-  private adminEmail = 'admin@soukel-syarat.com';
+  private adminEmail = 'soukalsayarat1@gmail.com'; // Production admin account
 
   // Submit car listing
   async submitListing(

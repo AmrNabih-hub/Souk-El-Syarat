@@ -14,7 +14,6 @@ import {
   CurrencyDollarIcon,
   TruckIcon,
   ClockIcon,
-  CheckCircleIcon,
   ExclamationTriangleIcon,
 } from '@heroicons/react/24/outline';
 import { useAppStore } from '@/stores/appStore';
@@ -38,19 +37,19 @@ interface CheckoutFormData {
   city: string;
   area: string;
   street: string;
-  buildingNumber?: string | null;
-  floor?: string | null;
-  apartment?: string | null;
-  landmark?: string | null;
+  buildingNumber?: string;
+  floor?: string;
+  apartment?: string;
+  landmark?: string;
   
   // Contact Information
   primaryPhone: string;
-  alternativePhone?: string | null;
-  whatsappNumber?: string | null;
-  email?: string | null;
+  alternativePhone?: string;
+  whatsappNumber?: string;
+  email?: string;
   
   // Order Details
-  specialInstructions?: string | null;
+  specialInstructions?: string;
   
   // Agreement
   agreeToTerms: boolean;
@@ -70,22 +69,22 @@ const checkoutSchema = yup.object({
   city: yup.string().required('المدينة مطلوبة'),
   area: yup.string().required('المنطقة مطلوبة'),
   street: yup.string().required('اسم الشارع مطلوب'),
-  buildingNumber: yup.string().nullable(),
-  floor: yup.string().nullable(),
-  apartment: yup.string().nullable(),
-  landmark: yup.string().nullable(),
+  buildingNumber: yup.string().optional(),
+  floor: yup.string().optional(),
+  apartment: yup.string().optional(),
+  landmark: yup.string().optional(),
   primaryPhone: yup.string()
     .matches(/^(\+201|01)[0-9]{9}$/, 'رقم هاتف غير صحيح')
     .required('رقم الهاتف الأساسي مطلوب'),
   alternativePhone: yup.string()
     .matches(/^(\+201|01)[0-9]{9}$/, 'رقم هاتف غير صحيح')
-    .nullable(),
+    .optional(),
   whatsappNumber: yup.string()
     .matches(/^(\+201|01)[0-9]{9}$/, 'رقم واتساب غير صحيح')
-    .nullable(),
-  email: yup.string().email('بريد إلكتروني غير صحيح').nullable(),
-  specialInstructions: yup.string().nullable(),
-  agreeToTerms: yup.boolean().oneOf([true], 'يجب الموافقة على الشروط والأحكام'),
+    .optional(),
+  email: yup.string().email('بريد إلكتروني غير صحيح').optional(),
+  specialInstructions: yup.string().optional(),
+  agreeToTerms: yup.boolean().oneOf([true], 'يجب الموافقة على الشروط والأحكام').required(),
 });
 
 export const CODCheckout: React.FC<CODCheckoutProps> = ({
@@ -147,17 +146,17 @@ export const CODCheckout: React.FC<CODCheckoutProps> = ({
         city: data.city,
         area: data.area,
         street: data.street,
-        buildingNumber: data.buildingNumber,
-        floor: data.floor,
-        apartment: data.apartment,
-        landmark: data.landmark,
+        buildingNumber: data.buildingNumber || undefined,
+        floor: data.floor || undefined,
+        apartment: data.apartment || undefined,
+        landmark: data.landmark || undefined,
       };
 
       const contactInfo: ContactInfo = {
         primaryPhone: data.primaryPhone,
-        alternativePhone: data.alternativePhone,
-        whatsappNumber: data.whatsappNumber,
-        email: data.email,
+        alternativePhone: data.alternativePhone || undefined,
+        whatsappNumber: data.whatsappNumber || undefined,
+        email: data.email || undefined,
       };
 
       const order: CODOrder = {
@@ -176,7 +175,7 @@ export const CODCheckout: React.FC<CODCheckoutProps> = ({
         currency: 'EGP',
         deliveryAddress,
         contactInfo,
-        specialInstructions: data.specialInstructions,
+        specialInstructions: data.specialInstructions || undefined,
         estimatedDeliveryDate: estimatedDelivery,
         paymentMethod: 'cod',
         status: 'pending',

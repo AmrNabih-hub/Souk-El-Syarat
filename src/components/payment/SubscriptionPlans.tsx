@@ -3,7 +3,7 @@
  * Displays vendor subscription plans with Instapay payment information
  */
 
-import React, { useState } from 'react';
+import React from 'react';
 import { motion } from 'framer-motion';
 import {
   CheckIcon,

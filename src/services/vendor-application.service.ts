@@ -49,7 +49,7 @@ export interface VendorApplication {
 
 class VendorApplicationService {
   private applications: Map<string, VendorApplication> = new Map();
-  private adminEmail = 'admin@soukel-syarat.com';
+  private adminEmail = 'soukalsayarat1@gmail.com'; // Production admin account
 
   // Submit vendor application
   async submitApplication(userId: string, applicationData: VendorApplicationData, documents?: File[], invoiceScreenshot?: File): Promise<string> {

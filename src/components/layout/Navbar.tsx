@@ -15,7 +15,7 @@ import {
 
 import { useAppStore } from '@/stores/appStore';
 import { useAuthStore } from '@/stores/authStore';
-import { useTheme } from '@/contexts/ThemeContext';
+// import { useTheme } from '@/contexts/ThemeContext';
 import ProfessionalThemeToggle from '@/components/ui/ProfessionalThemeToggle';
 import clsx from 'clsx';
 
@@ -116,7 +116,7 @@ const Navbar: React.FC = () => {
                   className={clsx(
                     'relative px-3 py-2 text-sm font-semibold transition-all duration-300 rounded-lg',
                     isCurrentPath(item.href)
-                      ? 'bg-gradient-to-r from-primary-500/10 to-secondary-500/10 text-transparent bg-clip-text bg-gradient-to-r from-primary-600 to-secondary-600'
+                      ? 'bg-gradient-to-r from-primary-600 to-secondary-600 text-white shadow-lg'
                       : 'text-neutral-700 dark:text-neutral-300 hover:bg-gradient-to-r hover:from-primary-500/10 hover:to-secondary-500/10 hover:shadow-[0_0_15px_rgba(249,115,22,0.3)]'
                   )}
                 >

@@ -6,6 +6,7 @@ import { useAuth } from '@/contexts/AuthContext';
 import { useRealtime } from '@/contexts/RealtimeContext';
 import { ThemeProvider } from '@/contexts/ThemeContext';
 import { useAppStore } from '@/stores/appStore';
+import { useAuthStore } from '@/stores/authStore';
 import { PushNotificationService } from '@/services/push-notification.service';
 import { useResourcePreloader } from '@/hooks/usePerformanceOptimization';
 import { initializeStateManager } from '@/utils/state-fix';
@@ -59,16 +60,22 @@ const ProtectedRoute: React.FC<{
   redirectTo?: string;
 }> = ({ children, roles, redirectTo = '/login' }) => {
   const { user, loading } = useAuth();
+  const authStoreUser = useAuthStore(state => state.user);
+  const authStoreLoading = useAuthStore(state => state.loading);
 
-  if (loading) {
+  // Use either auth system (prioritize authStore as it's newer)
+  const currentUser = authStoreUser || user;
+  const isLoading = authStoreLoading || loading;
+
+  if (isLoading) {
     return <LoadingScreen message='جاري التحقق من الصلاحيات...' />;
   }
 
-  if (!user) {
+  if (!currentUser) {
     return <Navigate to={redirectTo} replace />;
   }
 
-  if (roles && user.role && !roles.includes(user.role)) {
+  if (roles && currentUser.role && !roles.includes(currentUser.role)) {
     return <Navigate to='/' replace />;
   }
 
@@ -80,10 +87,14 @@ const PublicRoute: React.FC<{
   children: React.ReactNode;
 }> = ({ children }) => {
   const { user } = useAuth();
+  const authStoreUser = useAuthStore(state => state.user);
 
-  if (user) {
+  // Use either auth system
+  const currentUser = authStoreUser || user;
+
+  if (currentUser) {
     // Redirect based on user role
-    switch (user.role) {
+    switch (currentUser.role) {
       case 'admin':
         return <Navigate to='/admin/dashboard' replace />;
       case 'vendor':
@@ -132,14 +143,20 @@ function App() {
   const { user } = useAuth();
   const { language, theme } = useAppStore();
   const { subscribeToUpdates, unsubscribeFromUpdates } = useRealtime();
+  const { initializeAuth } = useAuthStore();
 
   // Preload critical resources
   useResourcePreloader([]);
 
-  // Initialize state manager to prevent state duplication issues
+  // Initialize state manager and auth store to prevent state duplication issues
   useEffect(() => {
     initializeStateManager();
-  }, []);
+    
+    // Initialize auth state from storage
+    initializeAuth().catch(err => {
+      console.error('Failed to initialize auth:', err);
+    });
+  }, [initializeAuth]);
 
   // Initialize real-time services when user logs in
   useEffect(() => {

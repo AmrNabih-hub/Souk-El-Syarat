@@ -77,7 +77,10 @@ const RegisterPage: React.FC = () => {
       
       // If registering as vendor, redirect to vendor application
       if (data.role === 'vendor') {
-        toast.info(language === 'ar' ? 'سيتم توجيهك لملء طلب الانضمام كتاجر' : 'You will be redirected to complete the vendor application');
+        toast.success(language === 'ar' ? 'سيتم توجيهك لملء طلب الانضمام كتاجر' : 'You will be redirected to complete the vendor application', {
+          duration: 3000,
+          icon: '📋'
+        });
         setTimeout(() => navigate('/vendor/apply'), 1500);
       } else {
         navigate('/login');
