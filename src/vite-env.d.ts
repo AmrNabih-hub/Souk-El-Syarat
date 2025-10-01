@@ -12,6 +12,11 @@ interface ImportMetaEnv {
   readonly VITE_ENABLE_ANALYTICS: string;
   readonly VITE_ENABLE_EMULATORS: string;
   readonly VITE_ENABLE_DEBUG: string;
+  readonly VITE_AWS_REGION: string;
+  readonly VITE_AWS_COGNITO_USER_POOL_ID: string;
+  readonly VITE_AWS_COGNITO_CLIENT_ID: string;
+  readonly VITE_AWS_COGNITO_IDENTITY_POOL_ID: string;
+  readonly VITE_AWS_APPSYNC_GRAPHQL_ENDPOINT: string;
 }
 
 interface ImportMeta {
