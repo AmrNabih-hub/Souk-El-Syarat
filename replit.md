@@ -51,6 +51,32 @@ npm run dev
 - **Environment**: Node.js 20 with all dependencies installed via npm
 - **Environment Variables**: Uses .env.development for development settings
 - **TypeScript**: Configured with strict mode and proper type definitions
+- **Real-time System**: WebSocket service available but disabled by default (set VITE_ENABLE_REAL_TIME=true to enable)
+
+### Environment Variables Reference
+```bash
+# Core Development
+VITE_APP_NAME=سوق السيارات
+VITE_APP_ENV=development
+
+# Real-time Features (WebSocket)
+VITE_ENABLE_REAL_TIME=false  # Set to 'true' to enable real-time notifications
+
+# Mock Data Toggles
+VITE_USE_MOCK_AUTH=true
+VITE_USE_MOCK_PRODUCTS=true
+VITE_USE_MOCK_ORDERS=true
+
+# AWS Amplify (Production Only)
+VITE_AWS_REGION=us-east-1
+VITE_AWS_USER_POOL_ID=<your-pool-id>
+VITE_AWS_USER_POOL_WEB_CLIENT_ID=<your-client-id>
+```
+
+**Important Notes:**
+- Real-time WebSocket requires `VITE_ENABLE_REAL_TIME=true` for bidirectional notifications
+- Development mode works without AWS Amplify (mock auth enabled by default)
+- Production deployment requires proper AWS Amplify configuration
 
 ### Deployment Configuration  
 - **Deployment Target**: Autoscale (stateless web application)
@@ -66,6 +92,44 @@ npm run dev
 - ✅ Development workflow configured and running
 - ✅ Deployment configuration set for autoscale deployment
 - ✅ Application verified working with Arabic RTL layout
+
+### Recent Enhancements (October 1, 2025)
+#### Real-time Infrastructure (Architect Approved ✅)
+- ✅ WebSocket-based real-time service with bidirectional communication
+- ✅ RealtimeContext with proper lifecycle management and memory leak prevention
+- ✅ Type-safe subscription API with automatic cleanup on unmount
+- ✅ Event constants (REALTIME_EVENTS) to prevent typos and ensure consistency
+- ✅ Feature flag controlled (VITE_ENABLE_REAL_TIME) - currently disabled by default
+- 📍 Files: `src/contexts/RealtimeContext.tsx`, `src/services/realtime-websocket.service.ts`, `src/constants/realtime-events.ts`
+
+#### Navbar UI Improvements (Architect Approved ✅)
+- ✅ Full-width responsive navbar (removed max-w-7xl constraint)
+- ✅ Customer-only "بيع عربيتك" (Sell Your Car) button with gradient hover effects
+- ✅ Smaller, more compact search bar (max-w-xs)
+- ✅ Gradient hover effects on navigation buttons with backlight shadows
+- ✅ Removed active underlines for cleaner aesthetic
+- 📍 Files: `src/components/layout/Navbar.tsx`
+
+#### Customer "Sell Your Car" Feature (Architect Approved ✅)
+- ✅ Protected route `/sell-your-car` with customer-only access control
+- ✅ Comprehensive form validation (minimum 6 images, complete specs, location data)
+- ✅ Integration with existing UsedCarSellingPage component
+- ✅ Role-based routing guard preventing non-customer access
+- 📍 Files: `src/App.tsx`, `src/pages/customer/UsedCarSellingPage.tsx`
+
+#### Vendor Application Real-time Workflow (Architect Approved ✅)
+- ✅ Real-time notifications for new vendor applications (vendor → admin)
+- ✅ Real-time approval notifications (admin → vendor)
+- ✅ Real-time rejection notifications (admin → vendor)
+- ✅ Email notifications via ReplitMail for all workflow events
+- ✅ Event-driven architecture with centralized event constants
+- 📍 Files: `src/services/vendor-application.service.ts`
+
+#### Remaining Work (Pending Implementation)
+- 🔲 Used car listing workflow with admin approval (similar to vendor workflow)
+- 🔲 Replace mock data with live queries in dashboards and user profiles
+- 🔲 Environment/config hardening for local, Replit, and production deployments
+- 🔲 Professional QA documentation for AI agents to prevent environment errors
 
 ## System Architecture
 
