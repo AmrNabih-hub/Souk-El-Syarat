@@ -84,7 +84,7 @@ const applicationSchema = yup.object().shape({
     city: yup.string().required('المدينة مطلوبة'),
     governorate: yup.string().required('المحافظة مطلوبة'),
     postalCode: yup.string().optional(),
-  }),
+  }).required('معلومات العنوان مطلوبة'),
   businessLicense: yup.string().required('رقم السجل التجاري مطلوب'),
   taxId: yup.string().optional(),
   website: yup.string().url('رابط الموقع غير صحيح').optional(),
@@ -95,6 +95,19 @@ const applicationSchema = yup.object().shape({
     .min(1, 'يجب اختيار تخصص واحد على الأقل')
     .required('التخصصات مطلوبة'),
   expectedMonthlyVolume: yup.string().required('الحجم المتوقع للمبيعات مطلوب'),
+  subscriptionPlan: yup
+    .mixed<VendorSubscriptionPlan>()
+    .oneOf(['basic', 'premium', 'enterprise'] as const)
+    .required('خطة الاشتراك مطلوبة'),
+  documents: yup
+    .array()
+    .of(yup.mixed<File>())
+    .min(1, 'يجب رفع وثيقة واحدة على الأقل')
+    .required('الوثائق مطلوبة'),
+  instapayReceipt: yup
+    .array()
+    .of(yup.mixed<File>())
+    .optional(),
   agreeToTerms: yup.boolean().oneOf([true], 'يجب الموافقة على الشروط والأحكام'),
 });
 
@@ -191,11 +204,22 @@ const VendorApplicationPage: React.FC = () => {
   };
 
   const onSubmit = async (data: VendorApplicationFormData) => {
+    // Prevent multiple submissions
+    if (isSubmitting || applicationSubmitted) {
+      return;
+    }
+
     try {
       setIsSubmitting(true);
 
       if (!user?.id) {
         throw new Error('User not authenticated');
+      }
+
+      // Validate required files
+      if (!data.documents || data.documents.length === 0) {
+        toast.error(language === 'ar' ? 'يجب رفع وثيقة واحدة على الأقل' : 'Please upload at least one document');
+        return;
       }
 
       const applicationData: VendorApplicationData = {
