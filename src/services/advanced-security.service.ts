@@ -1,24 +1,20 @@
 /**
  * Advanced Security Service
- * Provides security utilities without external crypto dependencies
  */
 
-import { logger } from '@/utils/logger';
-
 export class AdvancedSecurityService {
-  /**
-   * Generate a secure random token
-   */
-  static generateToken(length: number = 32): string {
+  async initialize() {
+    console.log('Advanced Security Service initialized');
+    return { success: true };
+  }
+
+  generateToken(length: number = 32): string {
     const array = new Uint8Array(length);
     crypto.getRandomValues(array);
     return Array.from(array, byte => byte.toString(16).padStart(2, '0')).join('');
   }
 
-  /**
-   * Hash a string using Web Crypto API
-   */
-  static async hashString(text: string): Promise<string> {
+  async hashString(text: string): Promise<string> {
     const encoder = new TextEncoder();
     const data = encoder.encode(text);
     const hashBuffer = await crypto.subtle.digest('SHA-256', data);
@@ -26,34 +22,21 @@ export class AdvancedSecurityService {
     return hashArray.map(b => b.toString(16).padStart(2, '0')).join('');
   }
 
-  /**
-   * Validate security token
-   */
-  static validateToken(token: string): boolean {
-    // Basic validation
+  validateToken(token: string): boolean {
     return token && token.length >= 16 && /^[a-f0-9]+$/.test(token);
   }
 
-  /**
-   * Generate CSRF token
-   */
-  static generateCSRFToken(): string {
+  generateCSRFToken(): string {
     return this.generateToken(32);
   }
 
-  /**
-   * Sanitize input to prevent XSS
-   */
-  static sanitizeInput(input: string): string {
+  sanitizeInput(input: string): string {
     const div = document.createElement('div');
     div.textContent = input;
     return div.innerHTML;
   }
 
-  /**
-   * Check password strength
-   */
-  static checkPasswordStrength(password: string): {
+  checkPasswordStrength(password: string): {
     score: number;
     feedback: string[];
   } {
@@ -77,4 +60,6 @@ export class AdvancedSecurityService {
   }
 }
 
+// Export both the class and an instance
+export const advancedSecurityService = new AdvancedSecurityService();
 export default AdvancedSecurityService;
