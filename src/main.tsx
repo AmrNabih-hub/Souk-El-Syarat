@@ -7,52 +7,29 @@ import App from './App';
 import './index.css';
 import './registerSW'; // PWA Service Worker
 import Providers from '@/components/common/Providers';
+import { isAppwriteConfigured } from '@/config/appwrite.config';
 
-// 🚀 PROFESSIONAL DEVELOPMENT-READY INITIALIZATION
-console.log('🚀 Starting Souk El-Syarat Marketplace...');
+// 🚀 PROFESSIONAL APPWRITE INITIALIZATION
+console.log('🚀 Starting Souk El-Sayarat Marketplace with Appwrite...');
 
-// 🚀 PROFESSIONAL STABLE AMPLIFY INITIALIZATION - NO MORE BLANK PAGES
+// Initialize Appwrite safely
 const initializeApp = async () => {
   try {
-    console.log('🚀 Starting safe app initialization...');
+    console.log('🚀 Initializing Appwrite backend...');
     
-    // Skip AWS Amplify entirely in development to prevent parseAWSExports errors
-    if (process.env.NODE_ENV === 'development' || window.location.hostname === 'localhost') {
-      console.log('✅ Development mode - Running without AWS Amplify for stability');
-      return;
-    }
-
-    // Only configure Amplify in production with proper validation
-    try {
-      const { Amplify } = await import('aws-amplify');
-      
-      // Use a minimal, safe configuration that won't cause parseAWSExports errors
-      const safeConfig = {
-        aws_region: import.meta.env.VITE_AWS_REGION || 'us-east-1',
-        aws_cognito_region: import.meta.env.VITE_AWS_REGION || 'us-east-1',
-        aws_user_pools_id: import.meta.env.VITE_AWS_COGNITO_USER_POOL_ID || '',
-        aws_user_pools_web_client_id: import.meta.env.VITE_AWS_COGNITO_CLIENT_ID || '',
-        aws_cognito_identity_pool_id: import.meta.env.VITE_AWS_COGNITO_IDENTITY_POOL_ID || '',
-      };
-
-      // Only configure if we have all required fields
-      if (safeConfig.aws_user_pools_id && safeConfig.aws_user_pools_web_client_id) {
-        Amplify.configure(safeConfig);
-        console.log('✅ AWS Amplify configured safely for production');
-      } else {
-        console.warn('⚠️ AWS Amplify config incomplete, using guest mode');
-      }
-    } catch (amplifyError) {
-      console.warn('⚠️ AWS Amplify initialization skipped:', amplifyError);
-      // App continues normally without Amplify
+    if (isAppwriteConfigured()) {
+      console.log('✅ Appwrite is configured and ready');
+    } else {
+      console.warn('⚠️ Appwrite not configured - Please run setup-appwrite-mcp.sh');
+      console.warn('⚠️ Running in development mode with limited functionality');
     }
   } catch (error) {
-    console.warn('⚠️ App initialization error (non-blocking):', error);
-    // App continues normally
+    console.error('❌ Appwrite initialization error:', error);
+    console.warn('⚠️ Continuing with limited functionality...');
   }
 };
 
-// Initialize app safely without blocking render
+// Initialize app safely
 initializeApp();
 
 // Create React Query client

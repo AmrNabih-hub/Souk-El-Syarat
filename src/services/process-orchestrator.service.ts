@@ -1,4 +1,5 @@
-import { DataStore } from 'aws-amplify';
+// AWS DataStore removed - using Appwrite database
+// import { DataStore } from 'aws-amplify';
 import {
   ProcessEvent,
   Workflow,

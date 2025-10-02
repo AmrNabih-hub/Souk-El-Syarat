@@ -1,12 +1,5 @@
-import { 
-  signUp, 
-  signIn, 
-  signOut, 
-  getCurrentUser, 
-  resetPassword, 
-  updateUserAttributes, 
-  updatePassword
-} from 'aws-amplify/auth';
+import { account, databases, appwriteConfig } from '@/config/appwrite.config';
+import { ID, Query } from 'appwrite';
 import { User, UserRole } from '@/types';
 
 export interface EnhancedAuthState {

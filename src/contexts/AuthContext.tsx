@@ -50,10 +50,10 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
           return;
         }
 
-        // Production mode - try to initialize Amplify auth safely
+        // Production mode - try to initialize Appwrite auth safely
         try {
-          const { getCurrentUser } = await import('aws-amplify/auth');
-          const current = await getCurrentUser();
+          const { AuthService } = await import('@/services/auth.service');
+          const current = await AuthService.getCurrentUser();
           if (mounted) {
             setUser(current);
             console.log('✅ Production user authenticated');
@@ -132,9 +132,9 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         return demoUser;
       }
 
-      // Production mode - use real Amplify auth
-      const { signIn } = await import('aws-amplify/auth');
-      const result = await signIn({ username, password });
+      // Production mode - use real Appwrite auth
+      const { AuthService } = await import('@/services/auth.service');
+      const result = await AuthService.signIn(username, password);
       setUser(result);
       return result;
     } catch (error) {
@@ -153,9 +153,9 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         return;
       }
 
-      // Production mode - use real Amplify signout
-      const { signOut } = await import('aws-amplify/auth');
-      await signOut();
+      // Production mode - use real Appwrite signout
+      const { AuthService } = await import('@/services/auth.service');
+      await AuthService.signOut();
       setUser(null);
     } catch (error) {
       console.error('Logout failed:', error);
