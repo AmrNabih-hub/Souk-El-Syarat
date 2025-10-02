@@ -316,6 +316,14 @@ export class VendorService {
         phoneNumber: '01012345678',
         status: 'pending',
         submittedAt: new Date().toISOString(),
+        appliedDate: new Date('2025-09-25'), // Add this field
+        contactPerson: 'Ahmed Mohamed',
+        address: {
+          street: '123 Main St',
+          city: 'Cairo',
+          governorate: 'Cairo',
+          country: 'Egypt'
+        },
       },
       {
         id: 'app-2',
@@ -326,6 +334,14 @@ export class VendorService {
         phoneNumber: '01112345678',
         status: 'pending',
         submittedAt: new Date().toISOString(),
+        appliedDate: new Date('2025-09-28'), // Add this field
+        contactPerson: 'Mohamed Ali',
+        address: {
+          street: '456 Alexandria Rd',
+          city: 'Alexandria',
+          governorate: 'Alexandria',
+          country: 'Egypt'
+        },
       },
       {
         id: 'app-3',
@@ -336,6 +352,14 @@ export class VendorService {
         phoneNumber: '01212345678',
         status: 'pending',
         submittedAt: new Date().toISOString(),
+        appliedDate: new Date('2025-10-01'), // Add this field
+        contactPerson: 'Mahmoud Hassan',
+        address: {
+          street: '789 Giza St',
+          city: 'Giza',
+          governorate: 'Giza',
+          country: 'Egypt'
+        },
       },
     ];
     return { applications: mockApplications };
