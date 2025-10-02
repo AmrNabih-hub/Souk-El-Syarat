@@ -1,182 +1,131 @@
-import React, { createContext, useContext, useState, useEffect } from 'react';
-import { MockAuthService } from '@/services/mock-auth.service';
-import { adminAuthService } from '@/services/admin-auth.service';
-import { envConfig } from '@/config/environment.config';
+import React, { createContext, useState, useEffect, useContext, ReactNode } from 'react';
+import { AppwriteAuthService } from '@/services/appwrite-auth.service';
+import type { User } from '@/types';
 
-// 🚀 SAFE DEVELOPMENT-FIRST AUTH CONTEXT - NO MORE BLANK PAGES
 interface AuthContextType {
-  user: any;
-  setUser: (user: any) => void;
-  login: (username: string, password: string) => Promise<any>;
-  logout: () => Promise<void>;
+  user: User | null;
   loading: boolean;
+  signIn: (email: string, password: string) => Promise<User>;
+  signUp: (email: string, password: string, displayName: string) => Promise<User>;
+  signOut: () => Promise<void>;
+  updateProfile: (updates: Partial<User>) => Promise<User>;
+  isAuthenticated: boolean;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
-export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
-  const [user, setUser] = useState<any>(null);
-  const [loading, setLoading] = useState<boolean>(true);
+export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
+  const [user, setUser] = useState<User | null>(null);
+  const [loading, setLoading] = useState(true);
 
-  // 🚀 DEVELOPMENT-SAFE AUTH INITIALIZATION - NO AMPLIFY DEPENDENCY
   useEffect(() => {
     let mounted = true;
 
-    const initializeAuth = async () => {
+    const initAuth = async () => {
       try {
-        // Always set loading to false quickly to prevent blocking UI
-        setTimeout(() => {
-          if (mounted) {
-            setLoading(false);
-          }
-        }, 100);
-
-        // Development mode - use localStorage for demo purposes
-        if (process.env.NODE_ENV === 'development' || window.location.hostname === 'localhost') {
-          console.log('🚀 Development mode - Using localStorage auth simulation');
-          
-          // Check if we have a stored demo user
-          const storedUser = localStorage.getItem('demo_user');
-          if (storedUser && mounted) {
-            try {
-              const parsedUser = JSON.parse(storedUser);
-              setUser(parsedUser);
-              console.log('✅ Demo user loaded from localStorage');
-            } catch (e) {
-              console.warn('Invalid stored user data, clearing...');
-              localStorage.removeItem('demo_user');
-            }
-          }
-          return;
-        }
-
-        // Production mode - try to initialize Amplify auth safely
-        try {
-          const { getCurrentUser } = await import('aws-amplify/auth');
-          const current = await getCurrentUser();
-          if (mounted) {
-            setUser(current);
-            console.log('✅ Production user authenticated');
-          }
-        } catch (error) {
-          console.debug('Auth: No authenticated user, using guest mode');
-          if (mounted) setUser(null);
+        console.log('🔐 Initializing auth...');
+        const currentUser = await AppwriteAuthService.getCurrentUser();
+        
+        if (mounted) {
+          setUser(currentUser);
+          console.log('✅ Auth initialized:', currentUser ? 'Logged in' : 'Guest');
         }
       } catch (error) {
-        console.warn('Auth initialization error (gracefully handled):', error);
+        console.error('❌ Auth initialization error:', error);
         if (mounted) {
           setUser(null);
+        }
+      } finally {
+        if (mounted) {
           setLoading(false);
         }
       }
     };
 
-    initializeAuth();
+    initAuth();
+
+    // Set up auth state listener
+    const unsubscribe = AppwriteAuthService.onAuthStateChange((newUser) => {
+      if (mounted) {
+        setUser(newUser);
+        console.log('🔄 Auth state changed:', newUser ? 'Logged in' : 'Logged out');
+      }
+    });
 
     return () => {
       mounted = false;
+      if (unsubscribe) {
+        unsubscribe();
+      }
     };
   }, []);
 
-  const login = async (username: string, password: string) => {
+  const signIn = async (email: string, password: string): Promise<User> => {
+    setLoading(true);
     try {
-      setLoading(true);
-      
-      // Check if this is an admin login first
-      const adminResult = await adminAuthService.loginAdmin(username, password);
-      if (adminResult.success && adminResult.admin) {
-        const adminUser = {
-          ...adminResult.admin,
-          displayName: adminResult.admin.displayName,
-        };
-        setUser(adminUser);
-        localStorage.setItem('demo_user', JSON.stringify(adminUser));
-        setLoading(false);
-        return adminUser;
-      }
-
-      // Try mock auth service for test accounts (development)
-      if (envConfig.get('useMockAuth')) {
-        const mockUser = await MockAuthService.signIn(username, password);
-        setUser(mockUser);
-        localStorage.setItem('demo_user', JSON.stringify(mockUser));
-        setLoading(false);
-        return mockUser;
-      }
-
-      // Development mode - create demo user (fallback)
-      if (process.env.NODE_ENV === 'development' || window.location.hostname === 'localhost') {
-        const demoUser = {
-          id: 'demo-user-' + Date.now(),
-          email: username,
-          displayName: 'Demo User',
-          role: 'customer',
-          isActive: true,
-          emailVerified: true,
-          createdAt: new Date(),
-          updatedAt: new Date(),
-          preferences: {
-            language: 'ar',
-            currency: 'USD',
-            notifications: {
-              email: true,
-              sms: false,
-              push: true,
-            },
-          },
-        };
-        
-        localStorage.setItem('demo_user', JSON.stringify(demoUser));
-        setUser(demoUser);
-        console.log('✅ Demo login successful');
-        return demoUser;
-      }
-
-      // Production mode - use real Amplify auth
-      const { signIn } = await import('aws-amplify/auth');
-      const result = await signIn({ username, password });
-      setUser(result);
-      return result;
-    } catch (error) {
-      console.error('Login failed:', error);
-      throw error;
+      const user = await AppwriteAuthService.signIn(email, password);
+      setUser(user);
+      return user;
+    } finally {
+      setLoading(false);
     }
   };
 
-  const logout = async () => {
+  const signUp = async (email: string, password: string, displayName: string): Promise<User> => {
+    setLoading(true);
     try {
-      // Development mode - clear localStorage
-      if (process.env.NODE_ENV === 'development' || window.location.hostname === 'localhost') {
-        localStorage.removeItem('demo_user');
-        setUser(null);
-        console.log('✅ Demo logout successful');
-        return;
-      }
-
-      // Production mode - use real Amplify signout
-      const { signOut } = await import('aws-amplify/auth');
-      await signOut();
-      setUser(null);
-    } catch (error) {
-      console.error('Logout failed:', error);
-      // Force logout even if Amplify fails
-      setUser(null);
+      const user = await AppwriteAuthService.signUp(email, password, displayName);
+      setUser(user);
+      return user;
+    } finally {
+      setLoading(false);
     }
   };
 
-  return (
-    <AuthContext.Provider value={{ user, setUser, login, logout, loading }}>
-      {children}
-    </AuthContext.Provider>
-  );
+  const signOut = async (): Promise<void> => {
+    setLoading(true);
+    try {
+      await AppwriteAuthService.signOut();
+      setUser(null);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const updateProfile = async (updates: Partial<User>): Promise<User> => {
+    if (!user) {
+      throw new Error('No user logged in');
+    }
+    
+    setLoading(true);
+    try {
+      const updatedUser = await AppwriteAuthService.updateProfile(user.id, updates);
+      setUser(updatedUser);
+      return updatedUser;
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const value: AuthContextType = {
+    user,
+    loading,
+    signIn,
+    signUp,
+    signOut,
+    updateProfile,
+    isAuthenticated: !!user,
+  };
+
+  return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
 };
 
-export const useAuth = () => {
+export const useAuth = (): AuthContextType => {
   const context = useContext(AuthContext);
-  if (!context) {
+  if (context === undefined) {
     throw new Error('useAuth must be used within an AuthProvider');
   }
-  return context as any;
+  return context;
 };
 
 export default AuthContext;

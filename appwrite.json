@@ -1,0 +1,164 @@
+{
+  "$schema": "https://appwrite.io/schemas/appwrite.json",
+  "projectId": "",
+  "projectName": "Souk El-Sayarat",
+  "settings": {
+    "services": {
+      "account": true,
+      "avatars": true,
+      "databases": true,
+      "locale": true,
+      "health": true,
+      "storage": true,
+      "teams": true,
+      "users": true,
+      "functions": true,
+      "graphql": true,
+      "messaging": true
+    }
+  },
+  "databases": [
+    {
+      "$id": "souk_main_db",
+      "name": "Souk Main Database",
+      "enabled": true
+    }
+  ],
+  "collections": [
+    {
+      "$id": "users",
+      "$permissions": [
+        "read(\"any\")",
+        "create(\"users\")",
+        "update(\"users\")",
+        "delete(\"users\")"
+      ],
+      "databaseId": "souk_main_db",
+      "name": "Users",
+      "enabled": true,
+      "documentSecurity": true,
+      "attributes": [
+        {
+          "key": "email",
+          "type": "string",
+          "required": true,
+          "size": 255
+        },
+        {
+          "key": "displayName",
+          "type": "string",
+          "required": true,
+          "size": 255
+        },
+        {
+          "key": "phoneNumber",
+          "type": "string",
+          "required": false,
+          "size": 20
+        },
+        {
+          "key": "photoURL",
+          "type": "string",
+          "required": false,
+          "size": 500
+        },
+        {
+          "key": "role",
+          "type": "string",
+          "required": true,
+          "default": "customer",
+          "array": false,
+          "format": "enum",
+          "elements": ["customer", "vendor", "admin"]
+        },
+        {
+          "key": "isActive",
+          "type": "boolean",
+          "required": true,
+          "default": true
+        },
+        {
+          "key": "preferences",
+          "type": "string",
+          "required": false,
+          "size": 10000
+        },
+        {
+          "key": "createdAt",
+          "type": "datetime",
+          "required": true
+        },
+        {
+          "key": "updatedAt",
+          "type": "datetime",
+          "required": true
+        }
+      ],
+      "indexes": [
+        {
+          "key": "email_index",
+          "type": "unique",
+          "attributes": ["email"]
+        },
+        {
+          "key": "role_index",
+          "type": "key",
+          "attributes": ["role"]
+        }
+      ]
+    }
+  ],
+  "buckets": [
+    {
+      "$id": "product_images",
+      "name": "Product Images",
+      "permissions": [
+        "read(\"any\")",
+        "create(\"users\")",
+        "update(\"users\")",
+        "delete(\"users\")"
+      ],
+      "fileSecurity": true,
+      "enabled": true,
+      "maximumFileSize": 10485760,
+      "allowedFileExtensions": ["jpg", "jpeg", "png", "webp"],
+      "compression": "gzip",
+      "encryption": true,
+      "antivirus": true
+    },
+    {
+      "$id": "vendor_documents",
+      "name": "Vendor Documents",
+      "permissions": [
+        "read(\"users\")",
+        "create(\"users\")",
+        "update(\"users\")",
+        "delete(\"users\")"
+      ],
+      "fileSecurity": true,
+      "enabled": true,
+      "maximumFileSize": 20971520,
+      "allowedFileExtensions": ["pdf", "jpg", "jpeg", "png"],
+      "compression": "gzip",
+      "encryption": true,
+      "antivirus": true
+    },
+    {
+      "$id": "car_listing_images",
+      "name": "Car Listing Images",
+      "permissions": [
+        "read(\"any\")",
+        "create(\"users\")",
+        "update(\"users\")",
+        "delete(\"users\")"
+      ],
+      "fileSecurity": true,
+      "enabled": true,
+      "maximumFileSize": 10485760,
+      "allowedFileExtensions": ["jpg", "jpeg", "png", "webp"],
+      "compression": "gzip",
+      "encryption": true,
+      "antivirus": true
+    }
+  ]
+}
