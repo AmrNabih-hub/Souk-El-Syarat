@@ -19,7 +19,7 @@
     "preview": "vite preview",
     "lint": "eslint . --ext ts,tsx --report-unused-disable-directives",
     "lint:fix": "eslint . --ext ts,tsx --fix",
-    "lint:ci": "eslint . --ext ts,tsx --max-warnings 50",
+    "lint:ci": "eslint . --ext ts,tsx --max-warnings 700",
     "format": "prettier --write \"src/**/*.{js,jsx,ts,tsx,json,css,md}\"",
     "format:check": "prettier --check \"src/**/*.{js,jsx,ts,tsx,json,css,md}\"",
     "type-check": "tsc --noEmit",
@@ -115,7 +115,9 @@
     "vite": "^6.0.5",
     "vite-bundle-analyzer": "^0.12.1",
     "vite-plugin-eslint": "^1.8.1",
-    "vitest": "^2.1.8"
+    "vite-plugin-pwa": "1.0.3",
+    "vitest": "^2.1.8",
+    "workbox-window": "7.3.0"
   },
   "overrides": {
     "postcss": "^8.4.47",

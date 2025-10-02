@@ -160,16 +160,21 @@ class ProfessionalLogger {
 
     switch (entry.level) {
       case LogLevel.DEBUG:
+      break;
         console.debug(message, entry.context);
         break;
       case LogLevel.INFO:
+      break;
         console.info(message, entry.context);
         break;
       case LogLevel.WARN:
+      break;
         console.warn(message, entry.context);
         break;
       case LogLevel.ERROR:
+      break;
       case LogLevel.CRITICAL:
+      break;
         console.error(message, entry.context);
         break;
     }

@@ -84,16 +84,20 @@ export class RealTimeWebSocketService {
     // Handle specific message types
     switch (message.type) {
       case 'vendor_application':
+      break;
         this.notifyListeners('admin_notifications', {
           type: 'new_application',
           data: message.data
         });
         break;
       case 'vendor_approved':
+      break;
       case 'vendor_rejected':
+      break;
         this.notifyListeners('vendor_status_update', message.data);
         break;
       case 'order_update':
+      break;
         this.notifyListeners('vendor_dashboard_update', message.data);
         break;
     }

@@ -302,7 +302,24 @@ export type PaymentMethod =
   | 'credit_card'
   | 'paypal'
   | 'bank_transfer'
-  | 'mobile_wallet';
+  | 'mobile_wallet'
+  | 'COD' // Alias for cash_on_delivery
+  | 'instapay'; // Alias for mobile_wallet
+
+export interface PaymentReceipt {
+  id: string;
+  orderId: string;
+  amount: number;
+  currency: string;
+  paymentMethod: string;
+  status: 'pending' | 'processing' | 'completed' | 'failed';
+  createdAt: string;
+  customerName?: string;
+  customerEmail?: string;
+  instapayReference?: string;
+  receiptUrl?: string;
+  refunded?: boolean;
+}
 
 // Review Types
 export interface Review {
@@ -616,21 +633,33 @@ export interface ChatMessage {
   id: string;
   conversationId: string;
   senderId: string;
+  recipientId: string;
   senderName?: string;
   senderRole?: UserRole;
   content: string;
-  type: 'text' | 'image' | 'system' | 'order' | string;
-  createdAt: Date;
+  type?: 'text' | 'image' | 'system' | 'order' | string;
+  createdAt?: Date;
+  timestamp: string;
+  read: boolean;
+  delivered: boolean;
+  readAt?: string;
   readBy?: string[];
+  attachments?: string[];
 }
 
 export interface Conversation {
   id: string;
   participants: string[]; // user ids
-  lastMessage?: string;
-  unreadCount?: number;
+  messages: ChatMessage[];
+  lastMessage: ChatMessage | null;
+  unreadCount: number;
+  createdAt: string;
+  updatedAt: string;
   lastUpdated?: Date;
 }
+
+// Alias for compatibility
+export type ChatConversation = Conversation;
 
 export interface UserPresence {
   userId: string;

@@ -1,399 +1,315 @@
 /**
  * Payment Service
- * Handles COD orders and InstaPay subscription payments
+ * Handles payment processing, InstaPay integration, and receipts
  */
 
-import { 
-  CODOrder, 
-  InstapayInvoice, 
-  VendorSubscription, 
-  VendorSubscriptionPlan,
-  OrderTracking,
-  PaymentSettings 
-} from '@/types/payment';
+import { logger } from '@/utils/logger';
+import type { Order, PaymentMethod, PaymentReceipt } from '@/types';
+
+export interface PaymentRequest {
+  orderId: string;
+  amount: number;
+  currency: string;
+  paymentMethod: PaymentMethod;
+  customerInfo: {
+    name: string;
+    email: string;
+    phone: string;
+  };
+}
+
+export interface InstapayPayment {
+  accountNumber: string;
+  accountName: string;
+  amount: number;
+  reference: string;
+  receiptImage?: string;
+}
 
 export class PaymentService {
-  private static baseURL = '/api/payments';
+  private static instance: PaymentService;
 
-  /**
-   * COD Orders Management
-   */
-  static async createCODOrder(orderData: Omit<CODOrder, 'id' | 'createdAt' | 'updatedAt'>): Promise<CODOrder> {
-    try {
-      // In development mode, simulate API call
-      if (import.meta.env.DEV) {
-        console.log('🛒 Creating COD Order:', orderData);
-        
-        const order: CODOrder = {
-          ...orderData,
-          id: `COD-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`,
-          createdAt: new Date(),
-          updatedAt: new Date(),
-        };
+  private constructor() {}
 
-        // Simulate API delay
-        await new Promise(resolve => setTimeout(resolve, 1500));
-        
-        // Store in localStorage for development
-        const existingOrders = JSON.parse(localStorage.getItem('cod_orders') || '[]');
-        existingOrders.push(order);
-        localStorage.setItem('cod_orders', JSON.stringify(existingOrders));
-        
-        return order;
-      }
-
-      // Production API call would go here
-      const response = await fetch(`${this.baseURL}/cod/orders`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(orderData),
-      });
-
-      if (!response.ok) {
-        throw new Error('Failed to create COD order');
-      }
-
-      return await response.json();
-    } catch (error) {
-      console.error('Error creating COD order:', error);
-      throw new Error('Failed to create order. Please try again.');
+  static getInstance(): PaymentService {
+    if (!PaymentService.instance) {
+      PaymentService.instance = new PaymentService();
     }
-  }
-
-  static async getCODOrder(orderId: string): Promise<CODOrder | null> {
-    try {
-      if (import.meta.env.DEV) {
-        const orders = JSON.parse(localStorage.getItem('cod_orders') || '[]');
-        return orders.find((order: CODOrder) => order.id === orderId) || null;
-      }
-
-      const response = await fetch(`${this.baseURL}/cod/orders/${orderId}`);
-      if (!response.ok) {
-        if (response.status === 404) return null;
-        throw new Error('Failed to fetch order');
-      }
-
-      return await response.json();
-    } catch (error) {
-      console.error('Error fetching COD order:', error);
-      throw new Error('Failed to fetch order details');
-    }
-  }
-
-  static async updateCODOrderStatus(
-    orderId: string, 
-    status: CODOrder['status'],
-    note?: string
-  ): Promise<void> {
-    try {
-      if (import.meta.env.DEV) {
-        const orders = JSON.parse(localStorage.getItem('cod_orders') || '[]');
-        const orderIndex = orders.findIndex((order: CODOrder) => order.id === orderId);
-        if (orderIndex !== -1) {
-          orders[orderIndex].status = status;
-          orders[orderIndex].updatedAt = new Date();
-          localStorage.setItem('cod_orders', JSON.stringify(orders));
-        }
-        return;
-      }
-
-      const response = await fetch(`${this.baseURL}/cod/orders/${orderId}/status`, {
-        method: 'PATCH',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({ status, note }),
-      });
-
-      if (!response.ok) {
-        throw new Error('Failed to update order status');
-      }
-    } catch (error) {
-      console.error('Error updating order status:', error);
-      throw new Error('Failed to update order status');
-    }
-  }
-
-  static async getOrderTracking(orderId: string): Promise<OrderTracking | null> {
-    try {
-      if (import.meta.env.DEV) {
-        const order = await this.getCODOrder(orderId);
-        if (!order) return null;
-
-        return {
-          orderId: order.id,
-          status: order.status,
-          timeline: [
-            {
-              status: 'pending',
-              timestamp: order.createdAt,
-              note: 'Order placed',
-              updatedBy: 'system',
-            },
-          ],
-          estimatedDelivery: order.estimatedDeliveryDate,
-        };
-      }
-
-      const response = await fetch(`${this.baseURL}/cod/orders/${orderId}/tracking`);
-      if (!response.ok) {
-        if (response.status === 404) return null;
-        throw new Error('Failed to fetch tracking');
-      }
-
-      return await response.json();
-    } catch (error) {
-      console.error('Error fetching order tracking:', error);
-      throw new Error('Failed to fetch tracking information');
-    }
+    return PaymentService.instance;
   }
 
   /**
-   * InstaPay Subscription Management
+   * Process Cash on Delivery payment
    */
-  static async submitInstapayInvoice(
-    vendorId: string,
-    subscriptionPlan: VendorSubscriptionPlan,
-    amount: number,
-    receiptFile: File
-  ): Promise<InstapayInvoice> {
-    try {
-      if (import.meta.env.DEV) {
-        console.log('📄 Submitting InstaPay Invoice:', {
-          vendorId,
-          subscriptionPlan,
-          amount,
-          receiptFile: receiptFile.name,
-        });
+  async processCODPayment(orderId: string, order: Order): Promise<PaymentReceipt> {
+    logger.info('Processing COD payment', { orderId }, 'PAYMENT');
 
-        // Convert file to base64 for development storage
-        const receiptBase64 = await this.fileToBase64(receiptFile);
-
-        const invoice: InstapayInvoice = {
-          id: `INST-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`,
-          vendorId,
-          subscriptionPlan,
-          amount,
-          currency: 'EGP',
-          receiptImage: receiptBase64,
-          submittedAt: new Date(),
-          verificationStatus: 'pending',
-        };
-
-        // Store in localStorage for development
-        const existingInvoices = JSON.parse(localStorage.getItem('instapay_invoices') || '[]');
-        existingInvoices.push(invoice);
-        localStorage.setItem('instapay_invoices', JSON.stringify(existingInvoices));
-
-        await new Promise(resolve => setTimeout(resolve, 2000));
-        return invoice;
-      }
-
-      // Production: Upload file and create invoice
-      const formData = new FormData();
-      formData.append('vendorId', vendorId);
-      formData.append('subscriptionPlan', subscriptionPlan);
-      formData.append('amount', amount.toString());
-      formData.append('receiptImage', receiptFile);
-
-      const response = await fetch(`${this.baseURL}/instapay/invoices`, {
-        method: 'POST',
-        body: formData,
-      });
-
-      if (!response.ok) {
-        throw new Error('Failed to submit InstaPay invoice');
-      }
-
-      return await response.json();
-    } catch (error) {
-      console.error('Error submitting InstaPay invoice:', error);
-      throw new Error('Failed to submit payment receipt. Please try again.');
-    }
-  }
-
-  static async getInstapayInvoice(invoiceId: string): Promise<InstapayInvoice | null> {
-    try {
-      if (import.meta.env.DEV) {
-        const invoices = JSON.parse(localStorage.getItem('instapay_invoices') || '[]');
-        return invoices.find((invoice: InstapayInvoice) => invoice.id === invoiceId) || null;
-      }
-
-      const response = await fetch(`${this.baseURL}/instapay/invoices/${invoiceId}`);
-      if (!response.ok) {
-        if (response.status === 404) return null;
-        throw new Error('Failed to fetch invoice');
-      }
-
-      return await response.json();
-    } catch (error) {
-      console.error('Error fetching InstaPay invoice:', error);
-      throw new Error('Failed to fetch invoice details');
-    }
-  }
-
-  static async verifyInstapayInvoice(
-    invoiceId: string,
-    status: 'verified' | 'rejected',
-    notes?: string,
-    adminId?: string
-  ): Promise<void> {
-    try {
-      if (import.meta.env.DEV) {
-        const invoices = JSON.parse(localStorage.getItem('instapay_invoices') || '[]');
-        const invoiceIndex = invoices.findIndex((invoice: InstapayInvoice) => invoice.id === invoiceId);
-        if (invoiceIndex !== -1) {
-          invoices[invoiceIndex].verificationStatus = status;
-          invoices[invoiceIndex].verificationNotes = notes;
-          invoices[invoiceIndex].verifiedAt = new Date();
-          invoices[invoiceIndex].verifiedBy = adminId || 'admin';
-          localStorage.setItem('instapay_invoices', JSON.stringify(invoices));
-        }
-        return;
-      }
-
-      const response = await fetch(`${this.baseURL}/instapay/invoices/${invoiceId}/verify`, {
-        method: 'PATCH',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({ status, notes, adminId }),
-      });
-
-      if (!response.ok) {
-        throw new Error('Failed to verify invoice');
-      }
-    } catch (error) {
-      console.error('Error verifying InstaPay invoice:', error);
-      throw new Error('Failed to verify invoice');
-    }
-  }
-
-  /**
-   * Vendor Subscription Management
-   */
-  static async createVendorSubscription(
-    vendorId: string,
-    plan: VendorSubscriptionPlan,
-    invoiceId: string
-  ): Promise<VendorSubscription> {
-    try {
-      if (import.meta.env.DEV) {
-        const subscription: VendorSubscription = {
-          id: `SUB-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`,
-          vendorId,
-          plan,
-          status: 'pending',
-          autoRenew: true,
-          paymentHistory: [],
-          createdAt: new Date(),
-          updatedAt: new Date(),
-        };
-
-        const existingSubscriptions = JSON.parse(localStorage.getItem('vendor_subscriptions') || '[]');
-        existingSubscriptions.push(subscription);
-        localStorage.setItem('vendor_subscriptions', JSON.stringify(existingSubscriptions));
-
-        return subscription;
-      }
-
-      const response = await fetch(`${this.baseURL}/subscriptions`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({ vendorId, plan, invoiceId }),
-      });
-
-      if (!response.ok) {
-        throw new Error('Failed to create subscription');
-      }
-
-      return await response.json();
-    } catch (error) {
-      console.error('Error creating vendor subscription:', error);
-      throw new Error('Failed to create subscription');
-    }
-  }
-
-  static async getVendorSubscription(vendorId: string): Promise<VendorSubscription | null> {
-    try {
-      if (import.meta.env.DEV) {
-        const subscriptions = JSON.parse(localStorage.getItem('vendor_subscriptions') || '[]');
-        return subscriptions.find((sub: VendorSubscription) => sub.vendorId === vendorId) || null;
-      }
-
-      const response = await fetch(`${this.baseURL}/subscriptions/vendor/${vendorId}`);
-      if (!response.ok) {
-        if (response.status === 404) return null;
-        throw new Error('Failed to fetch subscription');
-      }
-
-      return await response.json();
-    } catch (error) {
-      console.error('Error fetching vendor subscription:', error);
-      throw new Error('Failed to fetch subscription details');
-    }
-  }
-
-  /**
-   * Payment Settings
-   */
-  static async getPaymentSettings(): Promise<PaymentSettings> {
-    // Return default settings - these would normally come from admin configuration
-    return {
-      cod: {
-        enabled: true,
-        minimumOrderAmount: 100,
-        maximumOrderAmount: 50000,
-        deliveryFee: 50,
-        freeDeliveryThreshold: 1000,
-        supportedGovernorates: [
-          'القاهرة', 'الجيزة', 'الإسكندرية', 'الدقهلية', 'الشرقية', 'القليوبية'
-        ],
-      },
-      instapay: {
-        enabled: true,
-        soukElSyaratNumber: '01234567890',
-        accountName: 'سوق السيارات - Souk El-Syarat',
-        instructions: 'Send payment to the InstaPay number and upload the receipt screenshot.',
-        instructionsAr: 'أرسل الدفع إلى رقم InstaPay وقم بإرفاق صورة الإيصال.',
-      },
+    const receipt: PaymentReceipt = {
+      id: `receipt-${Date.now()}`,
+      orderId,
+      amount: order.totalAmount,
+      currency: 'EGP',
+      paymentMethod: 'COD',
+      status: 'pending',
+      createdAt: new Date().toISOString(),
+      customerName: order.customerId, // Customer name from user lookup
+      customerEmail: '', // Would fetch from user service
     };
+
+    // Send confirmation email
+    await this.sendPaymentConfirmation(receipt);
+
+    return receipt;
   }
 
   /**
-   * Utility Methods
+   * Process InstaPay payment
    */
-  private static fileToBase64(file: File): Promise<string> {
-    return new Promise((resolve, reject) => {
-      const reader = new FileReader();
-      reader.readAsDataURL(file);
-      reader.onload = () => resolve(reader.result as string);
-      reader.onerror = error => reject(error);
-    });
+  async processInstapayPayment(
+    orderId: string,
+    paymentData: InstapayPayment
+  ): Promise<PaymentReceipt> {
+    logger.info('Processing InstaPay payment', { orderId }, 'PAYMENT');
+
+    // Validate InstaPay account
+    if (!this.validateInstapayAccount(paymentData.accountNumber)) {
+      throw new Error('Invalid InstaPay account number');
+    }
+
+    // Verify receipt image if provided
+    if (paymentData.receiptImage) {
+      const isValid = await this.verifyReceiptImage(paymentData.receiptImage);
+      if (!isValid) {
+        logger.warn('Invalid receipt image', { orderId }, 'PAYMENT');
+      }
+    }
+
+    const receipt: PaymentReceipt = {
+      id: `receipt-${Date.now()}`,
+      orderId,
+      amount: paymentData.amount,
+      currency: 'EGP',
+      paymentMethod: 'mobile_wallet', // InstaPay is a type of mobile wallet
+      status: 'processing', // Awaiting verification
+      createdAt: new Date().toISOString(),
+      instapayReference: paymentData.reference,
+      receiptUrl: paymentData.receiptImage,
+    };
+
+    // In production: Send to payment verification queue
+    logger.info('InstaPay payment submitted for verification', { orderId }, 'PAYMENT');
+
+    return receipt;
   }
 
-  static formatCurrency(amount: number, currency: string = 'EGP'): string {
-    return new Intl.NumberFormat('ar-EG', {
-      style: 'currency',
-      currency,
-      minimumFractionDigits: 0,
-    }).format(amount);
+  /**
+   * Verify payment receipt
+   */
+  async verifyPayment(receiptId: string): Promise<boolean> {
+    logger.info('Verifying payment', { receiptId }, 'PAYMENT');
+
+    // In production: Call payment gateway API or manual verification
+    if (import.meta.env.VITE_USE_MOCK_PAYMENTS === 'true') {
+      return true; // Auto-approve in mock mode
+    }
+
+    // Real implementation would verify with InstaPay API
+    // return await this.verifyWithInstapay(receiptId);
+
+    return true;
   }
 
-  static calculateDeliveryFee(governorate: string): number {
-    const lowCostGovernorates = ['القاهرة', 'الجيزة'];
-    return lowCostGovernorates.includes(governorate) ? 30 : 50;
+  /**
+   * Generate payment receipt PDF
+   */
+  async generateReceipt(order: Order): Promise<string> {
+    logger.info('Generating receipt', { orderId: order.id }, 'PAYMENT');
+
+    const receiptHTML = this.buildReceiptHTML(order);
+
+    // In production: Convert to PDF using library or service
+    // return await this.convertToPDF(receiptHTML);
+
+    // For now, return HTML
+    return receiptHTML;
   }
 
-  static estimateDeliveryDate(governorate: string): Date {
-    const lowCostGovernorates = ['القاهرة', 'الجيزة'];
-    const daysToAdd = lowCostGovernorates.includes(governorate) ? 1 : 3;
-    return new Date(Date.now() + daysToAdd * 24 * 60 * 60 * 1000);
+  /**
+   * Get payment history for user
+   */
+  async getPaymentHistory(userId: string): Promise<PaymentReceipt[]> {
+    logger.debug('Fetching payment history', { userId }, 'PAYMENT');
+
+    // In production: Fetch from database
+    // return await this.fetchFromDatabase(userId);
+
+    return []; // Mock empty history
+  }
+
+  /**
+   * Refund payment
+   */
+  async refundPayment(
+    receiptId: string,
+    amount: number,
+    reason: string
+  ): Promise<PaymentReceipt> {
+    logger.info('Processing refund', { receiptId, amount, reason }, 'PAYMENT');
+
+    // In production: Process refund through payment gateway
+    // return await this.processRefundWithGateway(receiptId, amount);
+
+    const refundReceipt: PaymentReceipt = {
+      id: `refund-${Date.now()}`,
+      orderId: receiptId,
+      amount: -amount, // Negative for refund
+      currency: 'EGP',
+      paymentMethod: 'refund',
+      status: 'completed',
+      createdAt: new Date().toISOString(),
+    };
+
+    return refundReceipt;
+  }
+
+  /**
+   * Calculate payment fees
+   */
+  calculatePaymentFees(amount: number, method: PaymentMethod): number {
+    switch (method) {
+      case 'COD':
+        return 0; // No fees for COD
+      case 'instapay':
+        return amount * 0.01; // 1% fee
+      case 'card':
+        return amount * 0.025; // 2.5% fee
+      case 'wallet':
+        return 0; // No fees
+      default:
+        return 0;
+    }
+  }
+
+  /**
+   * Validate payment method availability
+   */
+  isPaymentMethodAvailable(method: PaymentMethod): boolean {
+    const availableMethods: PaymentMethod[] = ['COD', 'instapay'];
+    
+    // In production, check payment gateway status
+    return availableMethods.includes(method);
+  }
+
+  // Private helper methods
+
+  private validateInstapayAccount(accountNumber: string): boolean {
+    // Egyptian mobile number format validation
+    const pattern = /^01[0-2,5]{1}[0-9]{8}$/;
+    return pattern.test(accountNumber);
+  }
+
+  private async verifyReceiptImage(imageUrl: string): Promise<boolean> {
+    // In production: Use image recognition or manual verification
+    logger.debug('Verifying receipt image', { imageUrl }, 'PAYMENT');
+    return true;
+  }
+
+  private buildReceiptHTML(order: Order): string {
+    return `
+      <!DOCTYPE html>
+      <html lang="ar" dir="rtl">
+      <head>
+        <meta charset="UTF-8">
+        <title>إيصال الدفع - ${order.id}</title>
+        <style>
+          body {
+            font-family: Arial, sans-serif;
+            direction: rtl;
+            padding: 20px;
+          }
+          .header {
+            text-align: center;
+            border-bottom: 2px solid #f59e0b;
+            padding-bottom: 20px;
+            margin-bottom: 20px;
+          }
+          .order-details {
+            margin-bottom: 20px;
+          }
+          .items-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-bottom: 20px;
+          }
+          .items-table th, .items-table td {
+            border: 1px solid #ddd;
+            padding: 10px;
+            text-align: right;
+          }
+          .total {
+            font-size: 1.5em;
+            font-weight: bold;
+            text-align: right;
+            color: #f59e0b;
+          }
+        </style>
+      </head>
+      <body>
+        <div class="header">
+          <h1>سوق السيارات</h1>
+          <p>إيصال الدفع</p>
+        </div>
+        
+        <div class="order-details">
+          <p><strong>رقم الطلب:</strong> ${order.id}</p>
+          <p><strong>التاريخ:</strong> ${new Date().toLocaleDateString('ar-EG')}</p>
+          <p><strong>العميل:</strong> ${order.customerId}</p>
+        </div>
+
+        <table class="items-table">
+          <thead>
+            <tr>
+              <th>المنتج</th>
+              <th>الكمية</th>
+              <th>السعر</th>
+              <th>المجموع</th>
+            </tr>
+          </thead>
+          <tbody>
+            ${order.items.map(item => `
+              <tr>
+                <td>${item.productSnapshot?.name || item.productSnapshot?.nameAr || 'Product'}</td>
+                <td>${item.quantity}</td>
+                <td>${item.price} جنيه</td>
+                <td>${item.price * item.quantity} جنيه</td>
+              </tr>
+            `).join('')}
+          </tbody>
+        </table>
+
+        <div class="total">
+          <p>المجموع الكلي: ${order.totalAmount} جنيه مصري</p>
+        </div>
+
+        <p style="text-align: center; color: #666; font-size: 0.9em; margin-top: 30px;">
+          شكراً لتعاملكم مع سوق السيارات
+        </p>
+      </body>
+      </html>
+    `;
+  }
+
+  private async sendPaymentConfirmation(receipt: PaymentReceipt): Promise<void> {
+    logger.info('Sending payment confirmation', { receiptId: receipt.id }, 'PAYMENT');
+    
+    // In production: Send email via AWS SES or email service
+    // await emailService.send({
+    //   to: receipt.customerEmail,
+    //   subject: 'تأكيد الدفع - سوق السيارات',
+    //   html: this.buildConfirmationEmail(receipt),
+    // });
   }
 }
 
-export default PaymentService;
+// Export singleton
+export const paymentService = PaymentService.getInstance();

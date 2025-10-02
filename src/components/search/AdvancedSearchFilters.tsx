@@ -7,10 +7,8 @@ import React, { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import {
   AdjustmentsHorizontalIcon,
-  XMarkIcon,
   ChevronDownIcon,
   FunnelIcon,
-  MagnifyingGlassIcon,
 } from '@heroicons/react/24/outline';
 import { SearchFilters, ProductCategory, ProductCondition } from '@/types';
 import { useAppStore } from '@/stores/appStore';
