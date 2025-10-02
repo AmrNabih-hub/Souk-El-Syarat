@@ -10,6 +10,7 @@ import { useAuthStore } from '@/stores/authStore';
 import { PushNotificationService } from '@/services/push-notification.service';
 import { useResourcePreloader } from '@/hooks/usePerformanceOptimization';
 import { initializeStateManager } from '@/utils/state-fix';
+import { enterpriseServicesManager } from '@/services/enterprise-services.manager';
 
 // Layout Components
 import Navbar from '@/components/layout/Navbar';
@@ -52,6 +53,7 @@ const ChatTestPage = React.lazy(() => import('@/pages/ChatTestPage'));
 const EnhancedVendorDashboard = React.lazy(() => import('@/pages/vendor/EnhancedVendorDashboard'));
 const CustomerDashboard = React.lazy(() => import('@/pages/customer/CustomerDashboard'));
 const AdminDashboard = React.lazy(() => import('@/pages/admin/AdminDashboard'));
+const AdvancedAnalyticsDashboard = React.lazy(() => import('@/components/dashboard/AdvancedAnalyticsDashboard'));
 const AdminLoginPage = React.lazy(() => import('@/pages/auth/AdminLoginPage'));
 
 // Protected Route Component
@@ -156,6 +158,11 @@ function App() {
     // Initialize auth state from storage
     initializeAuth().catch(err => {
       console.error('Failed to initialize auth:', err);
+    });
+    
+    // Initialize enterprise services
+    enterpriseServicesManager.initializeAllServices().catch(err => {
+      console.error('Failed to initialize enterprise services:', err);
     });
   }, [initializeAuth]);
 
@@ -478,6 +485,22 @@ function App() {
                         exit='exit'
                       >
                         <AdminDashboard />
+                      </motion.div>
+                    </ProtectedRoute>
+                  }
+                />
+
+                <Route
+                  path='/admin/analytics'
+                  element={
+                    <ProtectedRoute roles={['admin']} redirectTo='/admin/login'>
+                      <motion.div
+                        variants={pageVariants}
+                        initial='initial'
+                        animate='animate'
+                        exit='exit'
+                      >
+                        <AdvancedAnalyticsDashboard />
                       </motion.div>
                     </ProtectedRoute>
                   }
