@@ -156,7 +156,7 @@ export const AnalyticsDashboard: React.FC<AnalyticsDashboardProps> = ({
                 className="p-3 rounded-lg"
                 style={{ backgroundColor: `${metric.color}20` }}
               >
-                <metric.icon className="w-6 h-6" style={{ color: metric.color }} />
+                <metric.icon className="w-6 h-6" />
               </div>
               
               <div className={`flex items-center gap-1 text-sm font-medium ${
@@ -241,7 +241,7 @@ export const AnalyticsDashboard: React.FC<AnalyticsDashboardProps> = ({
                 cx="50%"
                 cy="50%"
                 labelLine={false}
-                label={({ name, percent }) => `${name}: ${(percent * 100).toFixed(0)}%`}
+                label={(props: any) => `${props.name}: ${(props.percent * 100).toFixed(0)}%`}
                 outerRadius={100}
                 fill="#8884d8"
                 dataKey="value"

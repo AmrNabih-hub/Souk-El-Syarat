@@ -9,7 +9,7 @@ describe('Service Layer Tests', () => {
   describe('Authentication Service', () => {
     it('should have auth service available', async () => {
       const module = await import('@/services/auth.service');
-      expect(module.authService).toBeDefined();
+      expect(module.AuthService).toBeDefined();
     });
 
     it('should validate email format', () => {
@@ -263,8 +263,8 @@ describe('Service Layer Tests', () => {
 
   describe('Real-Time Service', () => {
     it('should have real-time websocket service available', async () => {
-      const { realtimeWebSocketService } = await import('@/services/realtime-websocket.service');
-      expect(realtimeWebSocketService).toBeDefined();
+      const { RealTimeWebSocketService } = await import('@/services/realtime-websocket.service');
+      expect(RealTimeWebSocketService).toBeDefined();
     });
 
     it('should have realtime sync service available', async () => {
@@ -338,7 +338,7 @@ describe('Service Layer Tests', () => {
 
       const formatted = formatEGP(250000);
       expect(formatted).toContain('250');
-      expect(formatted).toContain('جنيه') || expect(formatted).toContain('EGP');
+      expect(formatted).toMatch(/جنيه|EGP/);
     });
   });
 });

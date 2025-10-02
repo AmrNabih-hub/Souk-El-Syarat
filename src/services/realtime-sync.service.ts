@@ -4,8 +4,8 @@
  */
 
 import { logger } from '@/utils/logger';
-import { realtimeWebSocketService } from './realtime-websocket.service';
-import type { User, VendorApplication, CarListing } from '@/types';
+import { RealTimeWebSocketService } from './realtime-websocket.service';
+import type { User, VendorApplication } from '@/types';
 
 export class RealTimeSyncService {
   private static instance: RealTimeSyncService;
@@ -29,25 +29,25 @@ export class RealTimeSyncService {
     logger.info('Initializing real-time synchronization', {}, 'REALTIME');
 
     // Subscribe to vendor approval events
-    realtimeWebSocketService.subscribe('VENDOR_APPROVED', (data) => {
+    RealTimeWebSocketService.getInstance().subscribe('VENDOR_APPROVED', (data) => {
       this.handleVendorApproval(data);
     });
 
-    realtimeWebSocketService.subscribe('VENDOR_REJECTED', (data) => {
+    RealTimeWebSocketService.getInstance().subscribe('VENDOR_REJECTED', (data) => {
       this.handleVendorRejection(data);
     });
 
     // Subscribe to car listing events
-    realtimeWebSocketService.subscribe('CAR_LISTING_APPROVED', (data) => {
+    RealTimeWebSocketService.getInstance().subscribe('CAR_LISTING_APPROVED', (data) => {
       this.handleCarListingApproval(data);
     });
 
-    realtimeWebSocketService.subscribe('CAR_LISTING_REJECTED', (data) => {
+    RealTimeWebSocketService.getInstance().subscribe('CAR_LISTING_REJECTED', (data) => {
       this.handleCarListingRejection(data);
     });
 
     // Subscribe to order updates
-    realtimeWebSocketService.subscribe('ORDER_STATUS_UPDATED', (data) => {
+    RealTimeWebSocketService.getInstance().subscribe('ORDER_STATUS_UPDATED', (data) => {
       this.handleOrderUpdate(data);
     });
 
@@ -285,7 +285,7 @@ export class RealTimeSyncService {
    */
   async verifyConnection(): Promise<boolean> {
     try {
-      const isConnected = realtimeWebSocketService.isConnected();
+      const isConnected = (RealTimeWebSocketService.getInstance() as any).isConnected;
       logger.info('Real-time connection status', { isConnected }, 'REALTIME');
       return isConnected;
     } catch (error) {

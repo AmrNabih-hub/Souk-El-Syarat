@@ -42,9 +42,10 @@ function mapConversationModelToApp(model: any): AppConversation {
     priority: model.priority || 'normal',
     tags: Array.isArray(model.tags) ? model.tags : (model.tags ? String(model.tags).split(',').map((t:any)=>String(t).trim()) : []),
     assignedTo: model.assignedTo || undefined,
-    createdAt: model.createdAt ? new Date(model.createdAt) : new Date(),
-    updatedAt: model.updatedAt ? new Date(model.updatedAt) : new Date(),
-    closedAt: model.closedAt ? new Date(model.closedAt) : undefined,
+    createdAt: model.createdAt ? new Date(model.createdAt).toISOString() : new Date().toISOString(),
+    updatedAt: model.updatedAt ? new Date(model.updatedAt).toISOString() : new Date().toISOString(),
+    closedAt: model.closedAt ? new Date(model.closedAt).toISOString() : undefined,
+    messages: [], // Add empty messages array as required by Conversation interface
   } as AppConversation;
 }
 

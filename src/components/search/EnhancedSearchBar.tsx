@@ -51,8 +51,8 @@ export const EnhancedSearchBar: React.FC<{ className?: string }> = ({ className 
 
       setIsLoading(true);
       try {
-        const results = await productService.searchProducts(query);
-        setSuggestions(results.slice(0, 5)); // Top 5 results
+        const results = await ProductService.searchProducts({ query });
+        setSuggestions(results.products.slice(0, 5)); // Top 5 results
       } catch (error) {
         console.error('Failed to fetch suggestions:', error);
       } finally {
@@ -156,15 +156,15 @@ export const EnhancedSearchBar: React.FC<{ className?: string }> = ({ className 
                   >
                     {/* Product image */}
                     <img
-                      src={product.images[0]}
-                      alt={product.name}
+                      src={product.images[0]?.url || '/placeholder-image.jpg'}
+                      alt={product.title}
                       className="w-12 h-12 object-cover rounded-lg"
                     />
                     
                     {/* Product info */}
                     <div className="flex-1 min-w-0">
                       <p className="font-medium text-neutral-900 dark:text-neutral-100 truncate">
-                        {language === 'ar' ? product.nameAr : product.name}
+                        {product.title}
                       </p>
                       <p className="text-sm text-primary-600 dark:text-primary-400 font-semibold">
                         {new Intl.NumberFormat(language === 'ar' ? 'ar-EG' : 'en-EG', {

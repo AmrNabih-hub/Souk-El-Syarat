@@ -181,9 +181,9 @@ export class PaymentService {
         return 0; // No fees for COD
       case 'instapay':
         return amount * 0.01; // 1% fee
-      case 'card':
+      case 'credit_card':
         return amount * 0.025; // 2.5% fee
-      case 'wallet':
+      case 'mobile_wallet':
         return 0; // No fees
       default:
         return 0;
@@ -278,7 +278,7 @@ export class PaymentService {
           <tbody>
             ${order.items.map(item => `
               <tr>
-                <td>${item.productSnapshot?.name || item.productSnapshot?.nameAr || 'Product'}</td>
+                <td>${item.productSnapshot?.title || 'Product'}</td>
                 <td>${item.quantity}</td>
                 <td>${item.price} جنيه</td>
                 <td>${item.price * item.quantity} جنيه</td>

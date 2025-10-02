@@ -24,6 +24,11 @@ interface AppStore extends AppState {
   // Recently viewed actions
   addToRecentlyViewed: (productId: string) => void;
   clearRecentlyViewed: () => void;
+
+  // Search history actions
+  searchHistory: string[];
+  addSearchHistory: (query: string) => void;
+  clearSearchHistory: () => void;
 }
 
 export const useAppStore = create<AppStore>()(
@@ -36,6 +41,7 @@ export const useAppStore = create<AppStore>()(
       cartItems: [],
       favorites: [],
       recentlyViewed: [],
+      searchHistory: [],
 
       // Theme actions
       setTheme: theme => set({ theme }),
@@ -138,6 +144,17 @@ export const useAppStore = create<AppStore>()(
       },
 
       clearRecentlyViewed: () => set({ recentlyViewed: [] }),
+
+      // Search history actions
+      addSearchHistory: query => {
+        const { searchHistory } = get();
+        const trimmedQuery = query.trim();
+        if (trimmedQuery && !searchHistory.includes(trimmedQuery)) {
+          const updated = [trimmedQuery, ...searchHistory.filter(q => q !== trimmedQuery)].slice(0, 10);
+          set({ searchHistory: updated });
+        }
+      },
+      clearSearchHistory: () => set({ searchHistory: [] }),
     }),
     {
       name: 'souk-app-store',
@@ -148,6 +165,7 @@ export const useAppStore = create<AppStore>()(
         cartItems: state.cartItems,
         favorites: state.favorites,
         recentlyViewed: state.recentlyViewed,
+        searchHistory: state.searchHistory,
       }),
     }
   )
