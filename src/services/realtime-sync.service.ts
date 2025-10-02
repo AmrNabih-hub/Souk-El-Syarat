@@ -252,25 +252,20 @@ export class RealTimeSyncService {
     import('react-hot-toast').then(({ default: toast }) => {
       const { title, message, type, duration = 5000 } = notification;
 
-      const toastMessage = (
-        <div className="flex flex-col gap-2">
-          <p className="font-bold text-lg">{title}</p>
-          <p>{message}</p>
-        </div>
-      );
+      const toastMessage = `${title}: ${message}`;
 
       switch (type) {
         case 'success':
-          toast.success(toastMessage as any, { duration });
+          toast.success(toastMessage, { duration });
           break;
         case 'error':
-          toast.error(toastMessage as any, { duration });
+          toast.error(toastMessage, { duration });
           break;
         case 'warning':
-          toast(toastMessage as any, { duration, icon: '⚠️' });
+          toast(toastMessage, { duration, icon: '⚠️' });
           break;
         case 'info':
-          toast(toastMessage as any, { duration, icon: 'ℹ️' });
+          toast(toastMessage, { duration, icon: 'ℹ️' });
           break;
       }
     });
