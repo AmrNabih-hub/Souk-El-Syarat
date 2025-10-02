@@ -6,15 +6,32 @@
 
 ---
 
-## 🔐 **ADMIN ACCOUNT**
+## 🔐 **ADMIN ACCOUNT (YOUR REAL GMAIL)**
 
-### **Main Admin (Static):**
+### **Production Admin (Real Account):**
+```
+Email:    soukalsayarat1@gmail.com
+Password: MZ:!z4kbg4QK22r
+Code:     ADMIN-2024-SECRET (if prompted)
+Role:     Admin (Platform Owner)
+Access:   Full platform control
+Gmail:    REAL - Receives actual notifications
+
+Login URL: /admin/login
+
+Purpose:
+✅ Receive vendor application emails in YOUR Gmail
+✅ Receive car listing emails in YOUR Gmail
+✅ Approve/reject all requests
+✅ Manage entire platform
+```
+
+### **Legacy Admin (Backup):**
 ```
 Email:    admin@soukel-syarat.com
 Password: SoukAdmin2024!@#
-Code:     ADMIN-2024-SECRET
-Role:     Admin
-Access:   Full platform control
+Role:     Admin (Backup account)
+Status:   Available for testing
 
 Login URL: /admin/login
 ```
