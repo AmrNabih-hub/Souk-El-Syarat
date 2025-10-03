@@ -307,7 +307,7 @@ class AdminSecurityManager {
     // TODO: Implement sending to CloudWatch, Datadog, or other logging service
     // For now, store in localStorage as backup
     try {
-      const logs = JSON.parse(localStorageService.getFilePreviewItem('admin_security_logs') || '[]');
+      const logs = JSON.parse(localStorage.getItem('admin_security_logs') || '[]');
       logs.push(event);
       // Keep only last 100 logs in localStorage
       if (logs.length > 100) logs.shift();

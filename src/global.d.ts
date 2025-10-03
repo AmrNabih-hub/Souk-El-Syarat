@@ -24,19 +24,17 @@ declare module 'os' {
   export default content;
 }
 
-// Add global type declarations
+// Global type declarations for Appwrite-powered marketplace
 declare namespace NodeJS {
   interface ProcessEnv {
     NODE_ENV: 'development' | 'production' | 'test';
-    VITE_APP_AWS_REGION: string;
-    VITE_APP_USER_POOL_ID: string;
-    VITE_APP_USER_POOL_WEB_CLIENT_ID: string;
-    VITE_APP_IDENTITY_POOL_ID: string;
-    VITE_APP_API_ENDPOINT: string;
+    VITE_APPWRITE_ENDPOINT: string;
+    VITE_APPWRITE_PROJECT_ID: string;
+    VITE_APPWRITE_DATABASE_ID: string;
   }
 }
 
-// Add global variables
+// Global variables
 declare const process: {
   env: NodeJS.ProcessEnv;
   browser: boolean;
@@ -45,3 +43,8 @@ declare const process: {
 declare const global: typeof globalThis & {
   process: typeof process;
 };
+
+// Appwrite SDK declarations
+declare module 'appwrite' {
+  export * from 'appwrite';
+}

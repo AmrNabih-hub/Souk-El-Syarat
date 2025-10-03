@@ -3,19 +3,23 @@ import react from '@vitejs/plugin-react'
 import { VitePWA } from 'vite-plugin-pwa'
 import path from 'path'
 
-// Optimized Vite configuration for Appwrite deployment
+// Professional Vite configuration for Appwrite Sites deployment
 export default defineConfig(({ command, mode }) => {
   const env = loadEnv(mode, process.cwd(), '')
   const isProduction = mode === 'production'
+  const isDevelopment = mode === 'development'
   
   return {
     plugins: [
       react({
-        jsxRuntime: 'automatic'
+        jsxRuntime: 'automatic',
+        babel: {
+          plugins: isDevelopment ? [] : []
+        }
       }),
       VitePWA({
         registerType: 'autoUpdate',
-        includeAssets: ['favicon.ico', 'robots.txt', 'icon-*.png'],
+        includeAssets: ['app-icon.svg', 'robots.txt', 'icon-*.png'],
         manifest: {
           name: 'Souk El-Sayarat - سوق السيارات',
           short_name: 'Souk El-Sayarat',
@@ -28,19 +32,14 @@ export default defineConfig(({ command, mode }) => {
           start_url: '/',
           icons: [
             {
-              src: '/icon-192x192.png',
-              sizes: '192x192',
-              type: 'image/png',
+              src: '/app-icon.svg',
+              sizes: '256x256',
+              type: 'image/svg+xml',
             },
             {
-              src: '/icon-512x512.png',
+              src: '/app-icon.svg',
               sizes: '512x512',
-              type: 'image/png',
-            },
-            {
-              src: '/icon-512x512.png',
-              sizes: '512x512',
-              type: 'image/png',
+              type: 'image/svg+xml',
               purpose: 'any maskable',
             },
           ],
@@ -48,17 +47,6 @@ export default defineConfig(({ command, mode }) => {
         workbox: {
           globPatterns: ['**/*.{js,css,html,ico,png,jpg,svg,woff2}'],
           runtimeCaching: [
-            {
-              urlPattern: /^https:\/\/images\.unsplash\.com\/.*/i,
-              handler: 'CacheFirst',
-              options: {
-                cacheName: 'unsplash-images',
-                expiration: {
-                  maxEntries: 50,
-                  maxAgeSeconds: 60 * 60 * 24 * 30, // 30 days
-                },
-              },
-            },
             {
               urlPattern: /^https:\/\/cloud\.appwrite\.io\/.*/i,
               handler: 'NetworkFirst',
@@ -115,16 +103,14 @@ export default defineConfig(({ command, mode }) => {
       outDir: 'dist',
       assetsDir: 'assets',
       minify: isProduction ? 'terser' : false,
-      commonjsOptions: {
-        transformMixedEsModules: true
-      },
+      sourcemap: false, // Disable source maps for production
       
       // Production-optimized terser options
       terserOptions: isProduction ? {
         compress: {
           drop_console: true,
           drop_debugger: true,
-          pure_funcs: ['console.log', 'console.info', 'console.warn'],
+          pure_funcs: ['console.log', 'console.info', 'console.debug'],
           passes: 2
         },
         mangle: {
@@ -148,8 +134,8 @@ export default defineConfig(({ command, mode }) => {
           },
           
           // Optimized file naming for caching
-          chunkFileNames: isProduction ? 'js/[name]-[hash].js' : 'js/[name].js',
-          entryFileNames: isProduction ? 'js/[name]-[hash].js' : 'js/[name].js',
+          chunkFileNames: 'js/[name]-[hash].js',
+          entryFileNames: 'js/[name]-[hash].js',
           assetFileNames: (assetInfo) => {
             if (!assetInfo.name) return 'assets/[name]-[hash][extname]';
             const info = assetInfo.name.split('.');
@@ -165,24 +151,24 @@ export default defineConfig(({ command, mode }) => {
         }
       },
       
-      // Source maps only in development
-      sourcemap: !isProduction,
-      
       // Build optimizations
       chunkSizeWarningLimit: 1000,
       assetsInlineLimit: 4096,
       cssCodeSplit: true,
       reportCompressedSize: isProduction,
+      emptyOutDir: true, // Clean dist folder before build
     },
     
     server: {
       port: 5000,
       host: '0.0.0.0',
+      cors: true,
     },
     
     preview: {
       port: 5000,
       host: '0.0.0.0',
+      cors: true,
     },
     
     // Environment variables
@@ -196,6 +182,8 @@ export default defineConfig(({ command, mode }) => {
     esbuild: {
       drop: isProduction ? ['console', 'debugger'] : [],
       legalComments: isProduction ? 'none' : 'inline',
+      target: 'es2020',
+      logOverride: { 'this-is-undefined-in-esm': 'silent' }
     },
   }
 })

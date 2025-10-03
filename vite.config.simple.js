@@ -13,6 +13,11 @@ export default defineConfig({
     outDir: 'dist',
     assetsDir: 'assets',
     sourcemap: false,
-    minify: 'esbuild'
-  }
+    minify: 'esbuild',
+    chunkSizeWarningLimit: 1000,
+  },
+  server: {
+    port: 5000,
+    host: '0.0.0.0',
+  },
 })

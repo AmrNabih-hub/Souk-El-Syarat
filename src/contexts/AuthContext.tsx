@@ -1,9 +1,9 @@
 import React, { createContext, useContext, useState, useEffect } from 'react';
-import { MockAuthService } from '@/services/mock-auth.service';
+import { appwriteAuthService } from '@/services/appwrite-auth.service';
 import { adminAuthService } from '@/services/admin-auth.service';
 import { envConfig } from '@/config/environment.config';
 
-// 🚀 SAFE DEVELOPMENT-FIRST AUTH CONTEXT - NO MORE BLANK PAGES
+// 🚀 SAFE DEVELOPMENT-FIRST AUTH CONTEXT WITH APPWRITE
 interface AuthContextType {
   user: any;
   setUser: (user: any) => void;
@@ -18,7 +18,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const [user, setUser] = useState<any>(null);
   const [loading, setLoading] = useState<boolean>(true);
 
-  // 🚀 DEVELOPMENT-SAFE AUTH INITIALIZATION - NO AMPLIFY DEPENDENCY
+  // 🚀 DEVELOPMENT-SAFE AUTH INITIALIZATION WITH APPWRITE
   useEffect(() => {
     let mounted = true;
 
@@ -31,32 +31,41 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
           }
         }, 100);
 
-        // Development mode - use localStorage for demo purposes
-        if (process.env.NODE_ENV === 'development' || window.location.hostname === 'localhost') {
-          console.log('🚀 Development mode - Using localStorage auth simulation');
-          
-          // Check if we have a stored demo user
-          const storedUser = localStorageService.getFilePreviewItem('demo_user');
-          if (storedUser && mounted) {
-            try {
-              const parsedUser = JSON.parse(storedUser);
-              setUser(parsedUser);
-              console.log('✅ Demo user loaded from localStorage');
-            } catch (e) {
-              console.warn('Invalid stored user data, clearing...');
-              localStorage.removeItem('demo_user');
-            }
+        // Check if we have a stored demo user (for backwards compatibility)
+        const storedUser = localStorage.getItem('demo_user');
+        if (storedUser && mounted) {
+          try {
+            const parsedUser = JSON.parse(storedUser);
+            setUser(parsedUser);
+            console.log('✅ Demo user loaded from localStorage');
+            return;
+          } catch (e) {
+            console.warn('Invalid stored user data, clearing...');
+            localStorage.removeItem('demo_user');
           }
-          return;
         }
 
-        // Production mode - try to initialize Appwrite auth safely
+        // Try to get current Appwrite user
         try {
-          const { AuthService } = await import('@/services/auth.service');
-          const current = await AuthService.getCurrentUser();
-          if (mounted) {
-            setUser(current);
-            console.log('✅ Production user authenticated');
+          const currentUser = await appwriteAuthService.getCurrentUser();
+          if (currentUser && mounted) {
+            const user = {
+              id: currentUser.$id,
+              email: currentUser.email,
+              displayName: currentUser.name,
+              role: 'customer',
+              isActive: true,
+              emailVerified: currentUser.emailVerified || false,
+              createdAt: new Date(currentUser.$createdAt),
+              updatedAt: new Date(currentUser.$updatedAt),
+              preferences: {
+                language: 'ar',
+                currency: 'EGP',
+                notifications: { email: true, sms: false, push: true }
+              }
+            };
+            setUser(user);
+            console.log('✅ Appwrite user authenticated');
           }
         } catch (error) {
           console.debug('Auth: No authenticated user, using guest mode');
@@ -95,71 +104,59 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         return adminUser;
       }
 
-      // Try mock auth service for test accounts (development)
-      if (envConfig.get('useMockAuth')) {
-        const mockUser = await MockAuthService.signIn(username, password);
-        setUser(mockUser);
-        localStorage.setItem('demo_user', JSON.stringify(mockUser));
-        setLoading(false);
-        return mockUser;
+      // Use Appwrite authentication
+      const session = await appwriteAuthService.login(username, password);
+      if (session) {
+        const currentUser = await appwriteAuthService.getCurrentUser();
+        if (currentUser) {
+          const user = {
+            id: currentUser.$id,
+            email: currentUser.email,
+            displayName: currentUser.name,
+            role: 'customer',
+            isActive: true,
+            emailVerified: currentUser.emailVerified || false,
+            createdAt: new Date(currentUser.$createdAt),
+            updatedAt: new Date(currentUser.$updatedAt),
+            preferences: {
+              language: 'ar',
+              currency: 'EGP',
+              notifications: { email: true, sms: false, push: true }
+            }
+          };
+          setUser(user);
+          localStorage.setItem('demo_user', JSON.stringify(user));
+          setLoading(false);
+          return user;
+        }
       }
 
-      // Development mode - create demo user (fallback)
-      if (process.env.NODE_ENV === 'development' || window.location.hostname === 'localhost') {
-        const demoUser = {
-          id: 'demo-user-' + Date.now(),
-          email: username,
-          displayName: 'Demo User',
-          role: 'customer',
-          isActive: true,
-          emailVerified: true,
-          createdAt: new Date(),
-          updatedAt: new Date(),
-          preferences: {
-            language: 'ar',
-            currency: 'USD',
-            notifications: {
-              email: true,
-              sms: false,
-              push: true,
-            },
-          },
-        };
-        
-        localStorage.setItem('demo_user', JSON.stringify(demoUser));
-        setUser(demoUser);
-        console.log('✅ Demo login successful');
-        return demoUser;
-      }
-
-      // Production mode - use real Appwrite auth
-      const { AuthService } = await import('@/services/auth.service');
-      const result = await AuthService.signIn(username, password);
-      setUser(result);
-      return result;
+      throw new Error('Login failed');
     } catch (error) {
       console.error('Login failed:', error);
+      setLoading(false);
       throw error;
     }
   };
 
   const logout = async () => {
     try {
-      // Development mode - clear localStorage
-      if (process.env.NODE_ENV === 'development' || window.location.hostname === 'localhost') {
-        localStorage.removeItem('demo_user');
-        setUser(null);
-        console.log('✅ Demo logout successful');
-        return;
+      // Check if admin logout
+      if (adminAuthService.isAdminLoggedIn()) {
+        adminAuthService.logoutAdmin();
       }
-
-      // Production mode - use real Appwrite signout
-      const { AuthService } = await import('@/services/auth.service');
-      await AuthService.signOut();
+      
+      // Appwrite logout
+      await appwriteAuthService.logout();
+      
+      // Clear storage
+      localStorage.removeItem('demo_user');
       setUser(null);
+      console.log('✅ Logout successful');
     } catch (error) {
       console.error('Logout failed:', error);
-      // Force logout even if Amplify fails
+      // Force logout even if it fails
+      localStorage.removeItem('demo_user');
       setUser(null);
     }
   };

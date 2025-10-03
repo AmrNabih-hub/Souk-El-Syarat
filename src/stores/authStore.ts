@@ -1,8 +1,7 @@
 import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
 import { User, AuthState } from '@/types';
-import { AuthService } from '@/services/auth.service';
-import { MockAuthService } from '@/services/mock-auth.service';
+import { appwriteAuthService } from '@/services/appwrite-auth.service';
 import { adminAuthService } from '@/services/admin-auth.service';
 import { envConfig } from '@/config/environment.config';
 
@@ -61,21 +60,33 @@ export const useAuthStore = create<AuthStore>()(
         return;
       }
 
-      // Check if using mock auth (development mode)
-      if (envConfig.get('useMockAuth')) {
-        console.log('🔐 Using mock authentication for test accounts');
-        const user = await MockAuthService.signIn(email, password);
-        set({ user, isLoading: false, loading: false });
-        
-        // Sync to demo_user for AuthContext compatibility
-        localStorage.setItem('demo_user', JSON.stringify(user));
-        return;
+      // Use Appwrite authentication
+      console.log('🔐 Using Appwrite authentication');
+      const session = await appwriteAuthService.login(email, password);
+      if (session) {
+        const currentUser = await appwriteAuthService.getCurrentUser();
+        if (currentUser) {
+          const user: User = {
+            id: currentUser.$id,
+            email: currentUser.email,
+            displayName: currentUser.name,
+            role: 'customer', // Default role
+            isActive: true,
+            emailVerified: currentUser.emailVerified || false,
+            createdAt: new Date(currentUser.$createdAt),
+            updatedAt: new Date(currentUser.$updatedAt),
+            preferences: {
+              language: 'ar',
+              currency: 'EGP',
+              notifications: { email: true, sms: false, push: true }
+            }
+          };
+          set({ user, isLoading: false, loading: false });
+          
+          // Sync to demo_user for AuthContext compatibility
+          localStorage.setItem('demo_user', JSON.stringify(user));
+        }
       }
-
-      // Otherwise use real AWS Amplify auth (production)
-      console.log('🔐 Using AWS Amplify authentication');
-      const user = await AuthService.signIn(email, password);
-      set({ user, isLoading: false, loading: false });
     } catch (error: any) {
       console.error('❌ Sign in error:', error);
       set({ error: error.message || 'Login failed', isLoading: false, loading: false });
@@ -86,8 +97,25 @@ export const useAuthStore = create<AuthStore>()(
   signUp: async (email: string, password: string, displayName: string) => {
     try {
       set({ isLoading: true, error: null });
-      const user = await AuthService.signUp(email, password, displayName);
-      set({ user, isLoading: false });
+      const user = await appwriteAuthService.register(email, password, displayName);
+      if (user) {
+        const userObj: User = {
+          id: user.$id,
+          email: user.email,
+          displayName: user.name,
+          role: 'customer',
+          isActive: true,
+          emailVerified: user.emailVerified || false,
+          createdAt: new Date(user.$createdAt),
+          updatedAt: new Date(user.$updatedAt),
+          preferences: {
+            language: 'ar',
+            currency: 'EGP',
+            notifications: { email: true, sms: false, push: true }
+          }
+        };
+        set({ user: userObj, isLoading: false });
+      }
     } catch (error: any) {
       set({ error: error.message, isLoading: false });
       throw error;
@@ -97,8 +125,28 @@ export const useAuthStore = create<AuthStore>()(
   signInWithGoogle: async () => {
     try {
       set({ isLoading: true, error: null });
-      const user = await AuthService.signInWithGoogle();
-      set({ user, isLoading: false });
+      const session = await appwriteAuthService.loginWithOAuth('google');
+      if (session) {
+        const currentUser = await appwriteAuthService.getCurrentUser();
+        if (currentUser) {
+          const user: User = {
+            id: currentUser.$id,
+            email: currentUser.email,
+            displayName: currentUser.name,
+            role: 'customer',
+            isActive: true,
+            emailVerified: currentUser.emailVerified || false,
+            createdAt: new Date(currentUser.$createdAt),
+            updatedAt: new Date(currentUser.$updatedAt),
+            preferences: {
+              language: 'ar',
+              currency: 'EGP',
+              notifications: { email: true, sms: false, push: true }
+            }
+          };
+          set({ user, isLoading: false });
+        }
+      }
     } catch (error: any) {
       set({ error: error.message, isLoading: false });
       throw error;
@@ -114,12 +162,8 @@ export const useAuthStore = create<AuthStore>()(
         adminAuthService.logoutAdmin();
       }
       
-      // Check if using mock auth
-      if (envConfig.get('useMockAuth')) {
-        await MockAuthService.signOut();
-      } else {
-        await AuthService.signOut();
-      }
+      // Use Appwrite logout
+      await appwriteAuthService.logout();
       
       // Clear all storage
       localStorage.removeItem('demo_user');
@@ -135,7 +179,7 @@ export const useAuthStore = create<AuthStore>()(
   resetPassword: async (email: string) => {
     try {
       set({ isLoading: true, error: null });
-      await AuthService.resetPassword(email);
+      await appwriteAuthService.sendPasswordReset(email);
       set({ isLoading: false });
     } catch (error: any) {
       set({ error: error.message, isLoading: false });
@@ -149,7 +193,7 @@ export const useAuthStore = create<AuthStore>()(
       if (!user) throw new Error('No user signed in');
 
       set({ isLoading: true, error: null });
-      await AuthService.updateUserProfile(user.id, updates);
+      // TODO: Implement profile update with Appwrite
       set({
         user: { ...user, ...updates },
         isLoading: false,
@@ -169,18 +213,6 @@ export const useAuthStore = create<AuthStore>()(
   initializeAuth: async () => {
     try {
       set({ isLoading: true, loading: true });
-      
-      // Check for mock user in localStorage first
-      const storedMockUser = localStorage.getItem('mock_current_user');
-      if (storedMockUser) {
-        const user = JSON.parse(storedMockUser);
-        console.log('✅ Restored mock user from localStorage:', user.email);
-        set({ user, isLoading: false, loading: false });
-        
-        // Also sync to demo_user for AuthContext compatibility
-        localStorage.setItem('demo_user', JSON.stringify(user));
-        return;
-      }
       
       // Check for demo user (legacy support)
       const storedDemoUser = localStorage.getItem('demo_user');
@@ -217,6 +249,36 @@ export const useAuthStore = create<AuthStore>()(
           localStorage.setItem('demo_user', JSON.stringify(user));
           return;
         }
+      }
+      
+      // Try to get current Appwrite user
+      try {
+        const currentUser = await appwriteAuthService.getCurrentUser();
+        if (currentUser) {
+          const user: User = {
+            id: currentUser.$id,
+            email: currentUser.email,
+            displayName: currentUser.name,
+            role: 'customer',
+            isActive: true,
+            emailVerified: currentUser.emailVerified || false,
+            createdAt: new Date(currentUser.$createdAt),
+            updatedAt: new Date(currentUser.$updatedAt),
+            preferences: {
+              language: 'ar',
+              currency: 'EGP',
+              notifications: { email: true, sms: false, push: true }
+            }
+          };
+          console.log('✅ Restored Appwrite user:', user.email);
+          set({ user, isLoading: false, loading: false });
+          
+          // Sync to demo_user for AuthContext compatibility
+          localStorage.setItem('demo_user', JSON.stringify(user));
+          return;
+        }
+      } catch (error) {
+        console.log('ℹ️ No active Appwrite session');
       }
       
       console.log('ℹ️ No stored user found');

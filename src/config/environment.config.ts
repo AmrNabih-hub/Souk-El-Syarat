@@ -1,13 +1,13 @@
 /**
  * Environment Configuration Manager
- * Centralized configuration for all environments: local, Replit, and production
+ * Centralized configuration for Appwrite-powered marketplace
  * 
  * This ensures consistent behavior across different deployment environments
  * and provides clear error messages when configuration is missing.
  */
 
 export type Environment = 'development' | 'production' | 'test';
-export type DeploymentPlatform = 'local' | 'replit' | 'aws' | 'vercel' | 'netlify';
+export type DeploymentPlatform = 'local' | 'appwrite-sites' | 'vercel' | 'netlify';
 
 interface AppConfig {
   // Core App Settings
@@ -16,8 +16,24 @@ interface AppConfig {
   appEnv: Environment;
   platform: DeploymentPlatform;
   
-  // API Configuration
-  apiBaseUrl: string;
+  // Appwrite Configuration
+  appwrite: {
+    endpoint: string;
+    projectId: string;
+    databaseId: string;
+    buckets: {
+      productImages: string;
+      vendorDocuments: string;
+      carListingImages: string;
+    };
+    collections: {
+      users: string;
+      products: string;
+      orders: string;
+      vendorApplications: string;
+      carListings: string;
+    };
+  };
   
   // Feature Flags
   enableRealTime: boolean;
@@ -25,20 +41,12 @@ interface AppConfig {
   enablePushNotifications: boolean;
   enableDarkMode: boolean;
   enableAnimations: boolean;
+  enablePWA: boolean;
   
   // Mock Data Configuration (for development/testing)
   useMockAuth: boolean;
   useMockData: boolean;
   useMockPayments: boolean;
-  
-  // AWS Amplify Configuration (optional, for production)
-  aws?: {
-    region: string;
-    userPoolId?: string;
-    userPoolWebClientId?: string;
-    identityPoolId?: string;
-    appSyncGraphqlEndpoint?: string;
-  };
   
   // Logging & Debugging
   logLevel: 'debug' | 'info' | 'warn' | 'error';
@@ -70,31 +78,45 @@ class EnvironmentConfig {
     
     return {
       // Core App Settings
-      appName: env.VITE_APP_NAME || 'Souk El-Syarat Marketplace',
+      appName: env.VITE_APP_NAME || 'Souk El-Sayarat',
       appVersion: env.VITE_APP_VERSION || '1.0.0',
       appEnv,
       platform,
       
-      // API Configuration
-      apiBaseUrl: env.VITE_API_BASE_URL || this.getDefaultApiUrl(platform),
+      // Appwrite Configuration
+      appwrite: {
+        endpoint: env.VITE_APPWRITE_ENDPOINT || 'https://cloud.appwrite.io/v1',
+        projectId: env.VITE_APPWRITE_PROJECT_ID || '',
+        databaseId: env.VITE_APPWRITE_DATABASE_ID || 'souk_main_db',
+        buckets: {
+          productImages: env.VITE_APPWRITE_PRODUCT_IMAGES_BUCKET_ID || 'product_images',
+          vendorDocuments: env.VITE_APPWRITE_VENDOR_DOCUMENTS_BUCKET_ID || 'vendor_documents',
+          carListingImages: env.VITE_APPWRITE_CAR_LISTING_IMAGES_BUCKET_ID || 'car_listing_images',
+        },
+        collections: {
+          users: env.VITE_APPWRITE_USERS_COLLECTION_ID || 'users',
+          products: env.VITE_APPWRITE_PRODUCTS_COLLECTION_ID || 'products',
+          orders: env.VITE_APPWRITE_ORDERS_COLLECTION_ID || 'orders',
+          vendorApplications: env.VITE_APPWRITE_VENDOR_APPLICATIONS_COLLECTION_ID || 'vendorApplications',
+          carListings: env.VITE_APPWRITE_CAR_LISTINGS_COLLECTION_ID || 'carListings',
+        },
+      },
       
       // Feature Flags
-      enableRealTime: this.parseBoolean(env.VITE_ENABLE_REAL_TIME, false),
-      enableAnalytics: this.parseBoolean(env.VITE_ENABLE_ANALYTICS, false),
+      enableRealTime: this.parseBoolean(env.VITE_ENABLE_REALTIME, true),
+      enableAnalytics: this.parseBoolean(env.VITE_ENABLE_ANALYTICS, appEnv === 'production'),
       enablePushNotifications: this.parseBoolean(env.VITE_ENABLE_PUSH_NOTIFICATIONS, false),
       enableDarkMode: this.parseBoolean(env.VITE_ENABLE_DARK_MODE, true),
       enableAnimations: this.parseBoolean(env.VITE_ENABLE_ANIMATIONS, true),
+      enablePWA: this.parseBoolean(env.VITE_ENABLE_PWA, true),
       
       // Mock Data Configuration
       useMockAuth: this.parseBoolean(env.VITE_USE_MOCK_AUTH, appEnv === 'development'),
       useMockData: this.parseBoolean(env.VITE_USE_MOCK_DATA, appEnv === 'development'),
       useMockPayments: this.parseBoolean(env.VITE_USE_MOCK_PAYMENTS, appEnv === 'development'),
       
-      // AWS Configuration (optional)
-      aws: this.loadAWSConfig(env),
-      
       // Logging & Debugging
-      logLevel: (env.VITE_LOG_LEVEL || 'info') as 'debug' | 'info' | 'warn' | 'error',
+      logLevel: (env.VITE_LOG_LEVEL || (appEnv === 'development' ? 'debug' : 'info')) as 'debug' | 'info' | 'warn' | 'error',
       enableConsoleLogs: this.parseBoolean(env.VITE_ENABLE_CONSOLE_LOGS, appEnv === 'development'),
       
       // Performance & Security
@@ -120,56 +142,18 @@ class EnvironmentConfig {
    * Determine deployment platform
    */
   private determinePlatform(): DeploymentPlatform {
-    // Check for Replit environment
-    if (import.meta.env.VITE_REPLIT_DEPLOYMENT || 
-        typeof window !== 'undefined' && window.location.hostname.includes('replit')) {
-      return 'replit';
+    // Check for Appwrite Sites
+    if (import.meta.env.VITE_APPWRITE_DEPLOYMENT || 
+        typeof window !== 'undefined' && window.location.hostname.includes('appwrite')) {
+      return 'appwrite-sites';
     }
     
     // Check for other platforms
     if (import.meta.env.VITE_VERCEL_ENV) return 'vercel';
     if (import.meta.env.VITE_NETLIFY) return 'netlify';
-    if (import.meta.env.VITE_AWS_REGION) return 'aws';
     
     // Default to local
     return 'local';
-  }
-  
-  /**
-   * Get default API URL based on platform
-   */
-  private getDefaultApiUrl(platform: DeploymentPlatform): string {
-    switch (platform) {
-      case 'replit':
-        // Replit uses the same domain for API
-        return typeof window !== 'undefined' ? `${window.location.origin}/api` : '/api';
-      case 'local':
-        return 'http://localhost:3001/api';
-      case 'aws':
-      case 'netlify':
-      case 'vercel':
-      default:
-        return '/api';
-    }
-  }
-  
-  /**
-   * Load AWS Amplify configuration if available
-   */
-  private loadAWSConfig(env: Record<string, any>): AppConfig['aws'] | undefined {
-    const region = env.VITE_AWS_REGION;
-    
-    if (!region) {
-      return undefined;
-    }
-    
-    return {
-      region,
-      userPoolId: env.VITE_AWS_USER_POOLS_ID,
-      userPoolWebClientId: env.VITE_AWS_USER_POOLS_WEB_CLIENT_ID,
-      identityPoolId: env.VITE_AWS_COGNITO_IDENTITY_POOL_ID,
-      appSyncGraphqlEndpoint: env.VITE_AWS_APPSYNC_GRAPHQL_ENDPOINT,
-    };
   }
   
   /**
@@ -190,14 +174,23 @@ class EnvironmentConfig {
   private validateConfiguration(): void {
     const errors: string[] = [];
     
+    // Appwrite configuration validation
+    if (!this.config.appwrite.endpoint) {
+      errors.push('VITE_APPWRITE_ENDPOINT is required');
+    }
+    
+    if (!this.config.appwrite.projectId) {
+      errors.push('VITE_APPWRITE_PROJECT_ID is required');
+    }
+    
     // Production-specific validations
     if (this.config.appEnv === 'production') {
-      if (!this.config.useMockAuth && !this.config.aws) {
-        errors.push('Production environment requires AWS configuration or mock auth must be enabled');
+      if (this.config.useMockAuth) {
+        console.warn('⚠️ WARNING: Mock authentication is enabled in production! This should be disabled.');
       }
       
-      if (this.config.useMockAuth) {
-        console.warn('⚠️ WARNING: Mock authentication is enabled in production! This is insecure.');
+      if (this.config.useMockData) {
+        console.warn('⚠️ WARNING: Mock data is enabled in production! This should be disabled.');
       }
     }
     
@@ -222,9 +215,16 @@ class EnvironmentConfig {
   }
   
   /**
+   * Get Appwrite configuration
+   */
+  public getAppwriteConfig() {
+    return this.config.appwrite;
+  }
+  
+  /**
    * Check if feature is enabled
    */
-  public isFeatureEnabled(feature: keyof Pick<AppConfig, 'enableRealTime' | 'enableAnalytics' | 'enablePushNotifications' | 'enableDarkMode' | 'enableAnimations'>): boolean {
+  public isFeatureEnabled(feature: keyof Pick<AppConfig, 'enableRealTime' | 'enableAnalytics' | 'enablePushNotifications' | 'enableDarkMode' | 'enableAnimations' | 'enablePWA'>): boolean {
     return this.config[feature];
   }
   
@@ -243,10 +243,10 @@ class EnvironmentConfig {
   }
   
   /**
-   * Check if running on Replit
+   * Check if running on Appwrite Sites
    */
-  public isReplit(): boolean {
-    return this.config.platform === 'replit';
+  public isAppwriteSites(): boolean {
+    return this.config.platform === 'appwrite-sites';
   }
   
   /**
@@ -260,7 +260,8 @@ class EnvironmentConfig {
     console.log(`   Mock Auth: ${this.config.useMockAuth ? '✅' : '❌'}`);
     console.log(`   Mock Data: ${this.config.useMockData ? '✅' : '❌'}`);
     console.log(`   Real-time: ${this.config.enableRealTime ? '✅' : '❌'}`);
-    console.log(`   AWS Configured: ${this.config.aws ? '✅' : '❌'}`);
+    console.log(`   Appwrite: ${this.config.appwrite.projectId ? '✅' : '❌'}`);
+    console.log(`   PWA: ${this.config.enablePWA ? '✅' : '❌'}`);
   }
 }
 

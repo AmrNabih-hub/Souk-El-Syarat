@@ -15,7 +15,8 @@ import {
 } from '@heroicons/react/24/outline';
 
 import { useAppStore } from '@/stores/appStore';
-import { EnhancedAuthService } from '@/services/enhanced-auth.service';
+import { appwriteAuthService } from '@/services/appwrite-auth.service';
+import { adminAuthService } from '@/services/admin-auth.service';
 import LoadingSpinner from '@/components/ui/LoadingSpinner';
 import toast from 'react-hot-toast';
 
@@ -59,23 +60,29 @@ const AdminLoginPage: React.FC = () => {
       setError('root', { message: '' });
 
       // Attempt admin authentication
-      const user = await EnhancedAuthService.adminSignIn({
-        email: data.email,
-        password: data.password,
-        adminCode: data.adminCode,
-      });
-
-      if (user.role === 'admin') {
-        toast.success(
-          language === 'ar' ? 'تم تسجيل الدخول كمسؤول بنجاح!' : 'Admin login successful!'
-        );
-        navigate('/admin/dashboard');
+      const adminResult = await adminAuthService.loginAdmin(data.email, data.password, data.adminCode);
+      
+      if (adminResult.success && adminResult.admin) {
+        const user = adminResult.admin;
+        if (user.role === 'admin') {
+          toast.success(
+            language === 'ar' ? 'تم تسجيل الدخول كمسؤول بنجاح!' : 'Admin login successful!'
+          );
+          navigate('/admin/dashboard');
+        } else {
+          setError('root', {
+            message:
+              language === 'ar'
+                ? 'هذا الحساب ليس لديه صلاحيات المسؤول'
+                : 'This account does not have admin privileges',
+          });
+        }
       } else {
         setError('root', {
           message:
             language === 'ar'
-              ? 'هذا الحساب ليس لديه صلاحيات المسؤول'
-              : 'This account does not have admin privileges',
+              ? 'بيانات الدخول غير صحيحة'
+              : 'Invalid credentials',
         });
       }
     } catch (error) {

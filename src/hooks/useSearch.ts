@@ -93,7 +93,7 @@ export const useSearch = (options: UseSearchOptions = {}): UseSearchReturn => {
 
   // Load recent searches from localStorage
   useEffect(() => {
-    const stored = localStorageService.getFilePreviewItem('recent_searches');
+    const stored = localStorage.getItem('recent_searches');
     if (stored) {
       try {
         setRecentSearches(JSON.parse(stored));
