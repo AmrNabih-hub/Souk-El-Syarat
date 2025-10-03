@@ -192,13 +192,15 @@ class EnvironmentConfig {
     
     // Production-specific validations
     if (this.config.appEnv === 'production') {
-      if (!this.config.useMockAuth && !this.config.aws) {
-        errors.push('Production environment requires AWS configuration or mock auth must be enabled');
-      }
+      // ✅ Appwrite is now the primary backend - no AWS required
+      // Appwrite config is validated in appwrite.config.ts
       
       if (this.config.useMockAuth) {
         console.warn('⚠️ WARNING: Mock authentication is enabled in production! This is insecure.');
       }
+      
+      // Log production status
+      console.log('✅ Production environment configured with Appwrite backend');
     }
     
     // Throw errors if any critical validations fail
@@ -257,10 +259,10 @@ class EnvironmentConfig {
     console.log(`   App: ${this.config.appName} v${this.config.appVersion}`);
     console.log(`   Environment: ${this.config.appEnv}`);
     console.log(`   Platform: ${this.config.platform}`);
+    console.log(`   Backend: Appwrite ✅`);
     console.log(`   Mock Auth: ${this.config.useMockAuth ? '✅' : '❌'}`);
     console.log(`   Mock Data: ${this.config.useMockData ? '✅' : '❌'}`);
     console.log(`   Real-time: ${this.config.enableRealTime ? '✅' : '❌'}`);
-    console.log(`   AWS Configured: ${this.config.aws ? '✅' : '❌'}`);
   }
 }
 
