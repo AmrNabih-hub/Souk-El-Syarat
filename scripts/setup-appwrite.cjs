@@ -13,7 +13,7 @@ require('dotenv').config();
 const APPWRITE_ENDPOINT = process.env.VITE_APPWRITE_ENDPOINT || 'https://cloud.appwrite.io/v1';
 const APPWRITE_PROJECT_ID = process.env.VITE_APPWRITE_PROJECT_ID;
 const APPWRITE_API_KEY = process.env.APPWRITE_API_KEY; // You need to create this in Appwrite Console
-const DATABASE_ID = 'souk-database';
+const DATABASE_ID = process.env.VITE_APPWRITE_DATABASE_ID || 'souk_main_db';
 
 // Initialize Appwrite SDK
 const client = new sdk.Client();
@@ -218,12 +218,24 @@ const BUCKETS = [
 
 async function createDatabase() {
   try {
-    console.log('📦 Creating database...');
+    console.log('📦 Checking database...');
+    // Try to list databases to check if it exists
+    const databasesList = await databases.list();
+    const existingDb = databasesList.databases.find(db => db.$id === DATABASE_ID);
+    
+    if (existingDb) {
+      console.log(`✅ Database '${DATABASE_ID}' already exists - using it`);
+      return;
+    }
+    
+    // Create database if it doesn't exist
     await databases.create(DATABASE_ID, 'Souk El-Sayarat Database');
     console.log('✅ Database created successfully');
   } catch (error) {
     if (error.code === 409) {
       console.log('ℹ️  Database already exists');
+    } else if (error.code === 403 && error.type === 'additional_resource_not_allowed') {
+      console.log(`✅ Using existing database '${DATABASE_ID}' (free plan limit reached)`);
     } else {
       throw error;
     }
