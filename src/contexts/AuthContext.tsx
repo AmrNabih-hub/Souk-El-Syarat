@@ -105,19 +105,17 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       }
 
       // Use Appwrite authentication
-      const session = await appwriteAuthService.login(username, password);
-      if (session) {
-        const currentUser = await appwriteAuthService.getCurrentUser();
-        if (currentUser) {
-          const user = {
-            id: currentUser.$id,
-            email: currentUser.email,
-            displayName: currentUser.name,
-            role: 'customer',
-            isActive: true,
-            emailVerified: currentUser.emailVerified || false,
-            createdAt: new Date(currentUser.$createdAt),
-            updatedAt: new Date(currentUser.$updatedAt),
+      const authUser = await appwriteAuthService.signIn({ email: username, password });
+      if (authUser) {
+        const user = {
+          id: authUser.$id,
+          email: authUser.email,
+          displayName: authUser.name,
+          role: authUser.role || 'customer',
+          isActive: authUser.isActive !== false,
+          emailVerified: authUser.emailVerified || false,
+          createdAt: new Date(authUser.$createdAt),
+          updatedAt: new Date(authUser.$updatedAt),
             preferences: {
               language: 'ar',
               currency: 'EGP',

@@ -55,7 +55,7 @@ describe('Appwrite Auth Service', () => {
 
       mockAppwriteClient.account.createEmailSession.mockResolvedValue(mockSession)
 
-      const result = await authService.login({
+      const result = await authService.signIn({
         email: 'test@example.com',
         password: 'password123'
       })
@@ -72,7 +72,7 @@ describe('Appwrite Auth Service', () => {
         new Error('Invalid credentials')
       )
 
-      await expect(authService.login({
+      await expect(authService.signIn({
         email: 'test@example.com',
         password: 'wrongpassword'
       })).rejects.toThrow('Invalid credentials')

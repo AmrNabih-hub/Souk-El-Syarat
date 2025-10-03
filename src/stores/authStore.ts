@@ -62,30 +62,27 @@ export const useAuthStore = create<AuthStore>()(
 
       // Use Appwrite authentication
       console.log('🔐 Using Appwrite authentication');
-      const session = await appwriteAuthService.login(email, password);
-      if (session) {
-        const currentUser = await appwriteAuthService.getCurrentUser();
-        if (currentUser) {
-          const user: User = {
-            id: currentUser.$id,
-            email: currentUser.email,
-            displayName: currentUser.name,
-            role: 'customer', // Default role
-            isActive: true,
-            emailVerified: currentUser.emailVerified || false,
-            createdAt: new Date(currentUser.$createdAt),
-            updatedAt: new Date(currentUser.$updatedAt),
-            preferences: {
-              language: 'ar',
-              currency: 'EGP',
-              notifications: { email: true, sms: false, push: true }
-            }
-          };
-          set({ user, isLoading: false, loading: false });
-          
-          // Sync to demo_user for AuthContext compatibility
-          localStorage.setItem('demo_user', JSON.stringify(user));
-        }
+      const authUser = await appwriteAuthService.signIn({ email, password });
+      if (authUser) {
+        const user: User = {
+          id: authUser.$id,
+          email: authUser.email,
+          displayName: authUser.name,
+          role: authUser.role || 'customer',
+          isActive: authUser.isActive !== false,
+          emailVerified: authUser.emailVerified || false,
+          createdAt: new Date(authUser.$createdAt),
+          updatedAt: new Date(authUser.$updatedAt),
+          preferences: authUser.preferences || {
+            language: 'ar',
+            currency: 'EGP',
+            notifications: { email: true, sms: false, push: true }
+          }
+        };
+        set({ user, isLoading: false, loading: false });
+        
+        // Sync to demo_user for AuthContext compatibility
+        localStorage.setItem('demo_user', JSON.stringify(user));
       }
     } catch (error: any) {
       console.error('❌ Sign in error:', error);
@@ -97,24 +94,31 @@ export const useAuthStore = create<AuthStore>()(
   signUp: async (email: string, password: string, displayName: string) => {
     try {
       set({ isLoading: true, error: null });
-      const user = await appwriteAuthService.register(email, password, displayName);
-      if (user) {
+      const authUser = await appwriteAuthService.signUp({ 
+        email, 
+        password, 
+        name: displayName 
+      });
+      if (authUser) {
         const userObj: User = {
-          id: user.$id,
-          email: user.email,
-          displayName: user.name,
-          role: 'customer',
-          isActive: true,
-          emailVerified: user.emailVerified || false,
-          createdAt: new Date(user.$createdAt),
-          updatedAt: new Date(user.$updatedAt),
-          preferences: {
+          id: authUser.$id,
+          email: authUser.email,
+          displayName: authUser.name,
+          role: authUser.role || 'customer',
+          isActive: authUser.isActive !== false,
+          emailVerified: authUser.emailVerified || false,
+          createdAt: new Date(authUser.$createdAt),
+          updatedAt: new Date(authUser.$updatedAt),
+          preferences: authUser.preferences || {
             language: 'ar',
             currency: 'EGP',
             notifications: { email: true, sms: false, push: true }
           }
         };
         set({ user: userObj, isLoading: false });
+        
+        // Sync to demo_user for AuthContext compatibility
+        localStorage.setItem('demo_user', JSON.stringify(userObj));
       }
     } catch (error: any) {
       set({ error: error.message, isLoading: false });
@@ -125,28 +129,8 @@ export const useAuthStore = create<AuthStore>()(
   signInWithGoogle: async () => {
     try {
       set({ isLoading: true, error: null });
-      const session = await appwriteAuthService.loginWithOAuth('google');
-      if (session) {
-        const currentUser = await appwriteAuthService.getCurrentUser();
-        if (currentUser) {
-          const user: User = {
-            id: currentUser.$id,
-            email: currentUser.email,
-            displayName: currentUser.name,
-            role: 'customer',
-            isActive: true,
-            emailVerified: currentUser.emailVerified || false,
-            createdAt: new Date(currentUser.$createdAt),
-            updatedAt: new Date(currentUser.$updatedAt),
-            preferences: {
-              language: 'ar',
-              currency: 'EGP',
-              notifications: { email: true, sms: false, push: true }
-            }
-          };
-          set({ user, isLoading: false });
-        }
-      }
+      // For now, throw an error since OAuth needs to be configured
+      throw new Error('Google OAuth is not configured yet. Please use email/password login.');
     } catch (error: any) {
       set({ error: error.message, isLoading: false });
       throw error;
@@ -163,7 +147,7 @@ export const useAuthStore = create<AuthStore>()(
       }
       
       // Use Appwrite logout
-      await appwriteAuthService.logout();
+      await appwriteAuthService.signOut();
       
       // Clear all storage
       localStorage.removeItem('demo_user');
@@ -259,12 +243,12 @@ export const useAuthStore = create<AuthStore>()(
             id: currentUser.$id,
             email: currentUser.email,
             displayName: currentUser.name,
-            role: 'customer',
-            isActive: true,
+            role: currentUser.role || 'customer',
+            isActive: currentUser.isActive !== false,
             emailVerified: currentUser.emailVerified || false,
             createdAt: new Date(currentUser.$createdAt),
             updatedAt: new Date(currentUser.$updatedAt),
-            preferences: {
+            preferences: currentUser.preferences || {
               language: 'ar',
               currency: 'EGP',
               notifications: { email: true, sms: false, push: true }

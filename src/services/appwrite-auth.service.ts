@@ -169,15 +169,21 @@ export class AppwriteAuthService {
       }
 
       // Update preferences if provided
-      if (preferences) {
-        const currentPrefs = this.currentUser?.preferences || {};
+      if (preferences || phone) {
+        const currentPrefs = await account.getPrefs();
         const updatedPrefs = {
           ...currentPrefs,
-          ...preferences,
-          notifications: {
-            ...currentPrefs.notifications,
-            ...preferences.notifications
-          }
+          ...(phone && { phone }),
+          ...(preferences && {
+            preferences: {
+              ...currentPrefs.preferences,
+              ...preferences,
+              notifications: {
+                ...currentPrefs.preferences?.notifications,
+                ...preferences.notifications
+              }
+            }
+          })
         };
 
         await account.updatePrefs(updatedPrefs);
@@ -286,7 +292,7 @@ export class AppwriteAuthService {
    * Get user role
    */
   public getUserRole(): UserRole | null {
-    return this.currentUser?.preferences?.role || null;
+    return this.currentUser?.role || null;
   }
 
   /**
