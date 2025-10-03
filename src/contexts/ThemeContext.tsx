@@ -28,7 +28,7 @@ export const ThemeProvider: React.FC<ThemeProviderProps> = ({
 
   // Initialize theme from localStorage
   useEffect(() => {
-    const storedTheme = localStorage.getItem(storageKey) as Theme;
+    const storedTheme = localStorageService.getFilePreviewItem(storageKey) as Theme;
     if (storedTheme && ['light', 'dark', 'auto'].includes(storedTheme)) {
       setTheme(storedTheme);
     }

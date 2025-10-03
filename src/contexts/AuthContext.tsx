@@ -36,7 +36,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
           console.log('🚀 Development mode - Using localStorage auth simulation');
           
           // Check if we have a stored demo user
-          const storedUser = localStorage.getItem('demo_user');
+          const storedUser = localStorageService.getFilePreviewItem('demo_user');
           if (storedUser && mounted) {
             try {
               const parsedUser = JSON.parse(storedUser);

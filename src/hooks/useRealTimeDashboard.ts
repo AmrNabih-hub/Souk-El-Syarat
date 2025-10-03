@@ -8,7 +8,7 @@ import { ProcessOrchestratorService } from '@/services/process-orchestrator.serv
 import { useAuthStore } from '@/stores/authStore';
 import { Notification, Order, Conversation as AppConversation, BusinessMetrics as AppBusinessMetrics, RealTimeStats as AppRealTimeStats } from '@/types';
 
-// Helpers: convert model shapes (from DataStore/GraphQL) into app domain types
+// Helpers: convert model shapes (from DatabaseService/GraphQL) into app domain types
 function mapConversationModelToApp(model: any): AppConversation {
   const participantsRaw = model.participants;
   let participants: string[] = [];
