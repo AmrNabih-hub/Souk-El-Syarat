@@ -1,0 +1,21 @@
+{
+  "projectId": "68de87060019a1ca2b8b",
+  "projectName": "Souk Al-Sayarat",
+  "site": {
+    "name": "Souk-Al-Sayarat",
+    "siteId": "souk-al-sayarat",
+    "framework": "vite",
+    "rootDirectory": "./",
+    "installCommand": "npm install",
+    "buildCommand": "npm run build",
+    "outputDirectory": "dist",
+    "nodeVersion": "20.17.0",
+    "environmentVariables": {
+      "VITE_APPWRITE_PROJECT_ID": "68de87060019a1ca2b8b",
+      "VITE_APPWRITE_ENDPOINT": "https://cloud.appwrite.io/v1",
+      "VITE_APPWRITE_DATABASE_ID": "souk_main_db",
+      "VITE_APP_VERSION": "1.0.0",
+      "NODE_ENV": "production"
+    }
+  }
+}
