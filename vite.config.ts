@@ -3,7 +3,7 @@ import react from '@vitejs/plugin-react'
 import { VitePWA } from 'vite-plugin-pwa'
 import path from 'path'
 
-// Unified Vite configuration for both development and production
+// Optimized Vite configuration for Appwrite deployment
 export default defineConfig(({ command, mode }) => {
   const env = loadEnv(mode, process.cwd(), '')
   const isProduction = mode === 'production'
@@ -60,26 +60,14 @@ export default defineConfig(({ command, mode }) => {
               },
             },
             {
-              urlPattern: /^https:\/\/.*\.amazonaws\.com\/.*/i,
+              urlPattern: /^https:\/\/cloud\.appwrite\.io\/.*/i,
               handler: 'NetworkFirst',
               options: {
-                cacheName: 'aws-resources',
+                cacheName: 'appwrite-resources',
                 expiration: {
                   maxEntries: 100,
                   maxAgeSeconds: 60 * 60 * 24 * 7, // 7 days
                 },
-              },
-            },
-            {
-              urlPattern: /\/api\/.*/i,
-              handler: 'NetworkFirst',
-              options: {
-                cacheName: 'api-responses',
-                expiration: {
-                  maxEntries: 50,
-                  maxAgeSeconds: 60 * 5, // 5 minutes
-                },
-                networkTimeoutSeconds: 10,
               },
             },
           ],
@@ -94,9 +82,6 @@ export default defineConfig(({ command, mode }) => {
       alias: {
         "@": path.resolve(__dirname, "./src"),
       },
-      // Enhanced resolution for better compatibility
-      conditions: ['import', 'module', 'browser', 'default'],
-      mainFields: ['browser', 'module', 'main'],
       extensions: ['.mjs', '.js', '.ts', '.jsx', '.tsx', '.json']
     },
 
@@ -117,23 +102,12 @@ export default defineConfig(({ command, mode }) => {
         'react-hook-form',
         '@hookform/resolvers/yup',
         'yup',
-        'zustand'
-      ],
-      exclude: [
-        '@aws-amplify/backend', 
-        '@aws-amplify/backend-cli',
-        'aws-amplify', // Exclude to avoid resolution issues
-        '@aws-amplify/storage',
-        'crc-32' // CommonJS module - exclude from optimization
+        'zustand',
+        'appwrite'
       ],
       esbuildOptions: {
         target: 'es2020'
       }
-    },
-    
-    // SSR / CommonJS handling
-    ssr: {
-      noExternal: ['crc-32']
     },
     
     build: {
@@ -142,7 +116,6 @@ export default defineConfig(({ command, mode }) => {
       assetsDir: 'assets',
       minify: isProduction ? 'terser' : false,
       commonjsOptions: {
-        include: [/crc-32/, /node_modules/],
         transformMixedEsModules: true
       },
       
@@ -170,7 +143,8 @@ export default defineConfig(({ command, mode }) => {
             'react-vendor': ['react', 'react-dom', 'react-router-dom'],
             'ui-vendor': ['framer-motion', '@heroicons/react/24/outline', '@heroicons/react/24/solid', 'react-hot-toast', '@headlessui/react', 'lucide-react'],
             'utils-vendor': ['date-fns', 'clsx', 'zustand', 'yup'],
-            'form-vendor': ['react-hook-form', '@hookform/resolvers']
+            'form-vendor': ['react-hook-form', '@hookform/resolvers'],
+            'appwrite-vendor': ['appwrite']
           },
           
           // Optimized file naming for caching
@@ -204,17 +178,6 @@ export default defineConfig(({ command, mode }) => {
     server: {
       port: 5000,
       host: '0.0.0.0',
-      // Critical for Replit: allow all hosts (proxy support)
-      allowedHosts: true,
-      
-      // Proxy configuration for local development
-      proxy: mode === 'development' ? {
-        '/api': {
-          target: 'http://localhost:3000',
-          changeOrigin: true,
-          secure: false,
-        }
-      } : {}
     },
     
     preview: {
@@ -234,14 +197,5 @@ export default defineConfig(({ command, mode }) => {
       drop: isProduction ? ['console', 'debugger'] : [],
       legalComments: isProduction ? 'none' : 'inline',
     },
-    
-    // CSS optimization
-    css: {
-      preprocessorOptions: {
-        scss: {
-          additionalData: `@import "@/styles/variables.scss";`
-        }
-      }
-    }
   }
 })
