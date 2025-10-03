@@ -4,8 +4,8 @@
  * Based on: https://appwrite.io/docs/products/auth/quick-start
  */
 
-import { account, type Models } from '@/config/appwrite.config';
-import { ID } from 'appwrite';
+import { account, appwriteConfig } from '@/config/appwrite.config';
+import { ID, type Models } from 'appwrite';
 import type { User, UserRole } from '@/types';
 
 export interface AuthUser extends Models.User<Models.Preferences> {

@@ -38,6 +38,11 @@ export class RealTimeWebSocketService {
 
   private connect(): void {
     try {
+      // TEMPORARILY DISABLED - Using Appwrite Realtime instead
+      console.log('ℹ️ Custom WebSocket disabled - Using Appwrite Realtime');
+      this.isConnected = false;
+      return;
+      
       // Use the WebSocket configuration from the blueprint
       const protocol = window.location.protocol === "https:" ? "wss:" : "ws:";
       const wsUrl = `${protocol}//${window.location.host}/ws`;
@@ -144,6 +149,10 @@ export class RealTimeWebSocketService {
   }
 
   public sendMessage(type: string, data: any): void {
+    // TEMPORARILY DISABLED - Using Appwrite Realtime instead
+    console.log('ℹ️ Custom WebSocket sendMessage disabled - Use Appwrite Realtime');
+    return;
+    
     if (this.socket && this.socket.readyState === WebSocket.OPEN) {
       const message: WebSocketMessage = {
         type: type as any,

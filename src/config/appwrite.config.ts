@@ -5,41 +5,38 @@
 
 import { Client, Account, Databases, Storage, Functions, Teams, Messaging } from 'appwrite';
 
+// Production Appwrite Configuration
+const APPWRITE_ENDPOINT = 'https://cloud.appwrite.io/v1';
+const APPWRITE_PROJECT_ID = '68de87060019a1ca2b8b';
+
 // Validate environment variables
 const validateConfig = () => {
-  const requiredVars = {
-    VITE_APPWRITE_ENDPOINT: import.meta.env.VITE_APPWRITE_ENDPOINT,
-    VITE_APPWRITE_PROJECT_ID: import.meta.env.VITE_APPWRITE_PROJECT_ID,
-  };
+  const endpoint = import.meta.env.VITE_APPWRITE_ENDPOINT || APPWRITE_ENDPOINT;
+  const projectId = import.meta.env.VITE_APPWRITE_PROJECT_ID || APPWRITE_PROJECT_ID;
 
-  const missing = Object.entries(requiredVars)
-    .filter(([_, value]) => !value)
-    .map(([key]) => key);
-
-  if (missing.length > 0) {
-    console.warn('⚠️ Missing Appwrite configuration:', missing.join(', '));
-    console.warn('⚠️ Please run setup-appwrite-mcp.sh to configure Appwrite');
+  if (!endpoint || !projectId) {
+    console.warn('⚠️ Missing critical Appwrite configuration');
+    return false;
   }
 
-  return missing.length === 0;
+  return true;
 };
 
 // Initialize Appwrite Client
 const client = new Client();
 
-// Configure client with environment variables
-if (validateConfig()) {
-  client
-    .setEndpoint(import.meta.env.VITE_APPWRITE_ENDPOINT || 'https://cloud.appwrite.io/v1')
-    .setProject(import.meta.env.VITE_APPWRITE_PROJECT_ID || '');
+// Always configure with production values
+client
+  .setEndpoint(import.meta.env.VITE_APPWRITE_ENDPOINT || APPWRITE_ENDPOINT)
+  .setProject(import.meta.env.VITE_APPWRITE_PROJECT_ID || APPWRITE_PROJECT_ID);
 
+// Log configuration status
+if (validateConfig()) {
   console.log('✅ Appwrite client configured successfully');
+  console.log('📡 Endpoint:', client.config.endpoint);
+  console.log('🏗️ Project:', client.config.project);
 } else {
-  console.warn('⚠️ Appwrite client running in fallback mode');
-  // Set minimal config to prevent errors
-  client
-    .setEndpoint('https://cloud.appwrite.io/v1')
-    .setProject('development-mode');
+  console.error('❌ Appwrite configuration failed');
 }
 
 // Initialize Appwrite services
@@ -53,8 +50,8 @@ export const messaging = new Messaging(client);
 
 // Export database and collection IDs
 export const appwriteConfig = {
-  endpoint: import.meta.env.VITE_APPWRITE_ENDPOINT || 'https://cloud.appwrite.io/v1',
-  projectId: import.meta.env.VITE_APPWRITE_PROJECT_ID || '',
+  endpoint: import.meta.env.VITE_APPWRITE_ENDPOINT || APPWRITE_ENDPOINT,
+  projectId: import.meta.env.VITE_APPWRITE_PROJECT_ID || APPWRITE_PROJECT_ID,
   databaseId: import.meta.env.VITE_APPWRITE_DATABASE_ID || 'souk_main_db',
   collections: {
     users: import.meta.env.VITE_APPWRITE_USERS_COLLECTION_ID || 'users',

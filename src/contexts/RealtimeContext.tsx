@@ -13,7 +13,8 @@ interface RealtimeContextType {
 const RealtimeContext = createContext<RealtimeContextType | undefined>(undefined);
 
 export const RealtimeProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
-  const isRealtimeEnabled = import.meta.env.VITE_ENABLE_REAL_TIME === 'true';
+  // TEMPORARILY DISABLED - Using Appwrite Realtime instead of custom WebSocket
+  const isRealtimeEnabled = false; // import.meta.env.VITE_ENABLE_REAL_TIME === 'true';
   const subscriptionsRef = React.useRef<Map<string, Set<() => void>>>(new Map());
 
   useEffect(() => {
