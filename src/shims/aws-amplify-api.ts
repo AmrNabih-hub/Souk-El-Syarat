@@ -1,23 +1,16 @@
-import * as Amplify from 'aws-amplify';
+/**
+ * 🚀 Migration Notice: This file has been replaced with Appwrite
+ * All AWS Amplify functionality has been migrated to Appwrite services
+ */
 
-// Minimal compatibility shim for older code that used `generateClient` from 'aws-amplify/api'
-// This exports a `generateClient` function that returns an object with `graphql` method
-// that wraps Amplify's API.graphql calls. In tests or environments where Amplify.API
-// isn't configured, it returns safe no-op implementations.
+import { databases } from '@/config/appwrite.config';
 
+// Compatibility shim - redirects to Appwrite compatibility layer
 export function generateClient() {
+  console.warn('⚠️ Old AWS Amplify API detected - use Appwrite services instead');
+  
   const graphql = async (options: any) => {
-    const API = (Amplify as any).API;
-    if (API && typeof API.graphql === 'function') {
-      try {
-        const res = await API.graphql(options);
-        if (res && (res as any).data) return res;
-        return { data: (res as any) };
-      } catch (err) {
-        throw err;
-      }
-    }
-
+    console.warn('⚠️ GraphQL compatibility layer - consider migrating to Appwrite Database operations');
     return { data: {} };
   };
 

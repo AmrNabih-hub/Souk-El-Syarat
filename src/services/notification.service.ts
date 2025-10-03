@@ -3,7 +3,7 @@
  * Handles all types of notifications with real-time delivery
  */
 
-import amplifyConfig from '@/config/amplify.config';
+import { appwriteConfig, messaging } from '@/config/appwrite.config';
 import { Notification, NotificationType } from '@/types';
 import {
   collection,

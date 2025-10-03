@@ -1,4 +1,4 @@
-import amplifyConfig from '@/config/amplify.config';
+import { appwriteConfig, messaging } from '@/config/appwrite.config';
 
 /**
  * Push Notification Service for Souk El-Sayarat
