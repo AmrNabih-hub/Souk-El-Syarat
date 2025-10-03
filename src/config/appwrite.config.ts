@@ -25,15 +25,23 @@ export const appwriteConfig = {
     vendorApplications: import.meta.env.VITE_APPWRITE_COLLECTION_VENDOR_APPLICATIONS || 'vendor-applications',
   },
   
-  // Storage buckets (matching your existing setup)
+  // Storage buckets (Free tier: single bucket for all files)
   buckets: {
-    products: import.meta.env.VITE_APPWRITE_BUCKET_PRODUCTS || import.meta.env.VITE_APPWRITE_STORAGE_PRODUCT_IMAGES_BUCKET_ID || 'product_images',
-    avatars: import.meta.env.VITE_APPWRITE_BUCKET_AVATARS || import.meta.env.VITE_APPWRITE_STORAGE_VENDOR_DOCUMENTS_BUCKET_ID || 'vendor_documents',
-    cars: import.meta.env.VITE_APPWRITE_BUCKET_CARS || import.meta.env.VITE_APPWRITE_STORAGE_CAR_LISTING_IMAGES_BUCKET_ID || 'car_listing_images',
+    main: import.meta.env.VITE_APPWRITE_BUCKET_MAIN || 'car_images',
+    // All file types use the same bucket on free tier
+    products: import.meta.env.VITE_APPWRITE_BUCKET_MAIN || 'car_images',
+    avatars: import.meta.env.VITE_APPWRITE_BUCKET_MAIN || 'car_images',
+    cars: import.meta.env.VITE_APPWRITE_BUCKET_MAIN || 'car_images',
+    documents: import.meta.env.VITE_APPWRITE_BUCKET_MAIN || 'car_images',
+    attachments: import.meta.env.VITE_APPWRITE_BUCKET_MAIN || 'car_images',
+    // Free tier optimization - single bucket for all file types
+    userAvatars: import.meta.env.VITE_APPWRITE_BUCKET_MAIN || 'car_images',
+    vendorDocuments: import.meta.env.VITE_APPWRITE_BUCKET_MAIN || 'car_images',
+    chatAttachments: import.meta.env.VITE_APPWRITE_BUCKET_MAIN || 'car_images',
   },
 };
 
-// Initialize Appwrite client
+// Initialize Appwrite client (simplified like official starter)
 const client = new Client()
   .setEndpoint(appwriteConfig.endpoint)
   .setProject(appwriteConfig.project);
@@ -46,6 +54,18 @@ export const functions = new Functions(client);
 
 // Export client for custom operations
 export { client };
+
+// Test connection function (like official starter)
+export const testConnection = async (): Promise<boolean> => {
+  try {
+    const result = await client.call('GET', '/ping');
+    console.log('✅ Appwrite connected successfully:', result);
+    return true;
+  } catch (error) {
+    console.error('❌ Appwrite connection failed:', error);
+    return false;
+  }
+};
 
 // Validation function
 export const validateAppwriteConfig = (): boolean => {

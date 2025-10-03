@@ -17,6 +17,10 @@ import Footer from '@/components/layout/Footer';
 import LoadingScreen from '@/components/ui/LoadingScreen';
 import ErrorBoundary from '@/components/ErrorBoundary';
 
+// Appwrite Test Component
+import AppwriteTest from '@/components/AppwriteTest';
+import AppwriteSetup from '@/components/AppwriteSetup';
+
 // Real-time Components - Lazy loaded for better performance
 const FloatingChatWidget = React.lazy(() =>
   import('@/components/realtime/FloatingChatWidget').then(module => ({ default: module.FloatingChatWidget }))
@@ -309,6 +313,36 @@ function App() {
                       exit='exit'
                     >
                       <ContactPage />
+                    </motion.div>
+                  }
+                />
+
+                {/* Appwrite Connection Test Route */}
+                <Route
+                  path='/appwrite-test'
+                  element={
+                    <motion.div
+                      variants={pageVariants}
+                      initial='initial'
+                      animate='animate'
+                      exit='exit'
+                    >
+                      <AppwriteTest />
+                    </motion.div>
+                  }
+                />
+
+                {/* Appwrite Setup Route */}
+                <Route
+                  path='/appwrite-setup'
+                  element={
+                    <motion.div
+                      variants={pageVariants}
+                      initial='initial'
+                      animate='animate'
+                      exit='exit'
+                    >
+                      <AppwriteSetup />
                     </motion.div>
                   }
                 />
