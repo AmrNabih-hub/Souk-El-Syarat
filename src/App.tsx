@@ -22,6 +22,7 @@ const RegisterPage = lazy(() => import('@/pages/auth/RegisterPage'));
 
 // Role-based Dashboard Pages (lazy loaded)
 const AdminDashboard = lazy(() => import('@/pages/admin/AdminDashboard'));
+const PendingRequestsPage = lazy(() => import('@/pages/admin/PendingRequestsPage'));
 const VendorDashboard = lazy(() => import('@/pages/vendor/VendorDashboard'));
 const CustomerDashboard = lazy(() => import('@/pages/customer/CustomerDashboard'));
 
@@ -94,6 +95,11 @@ function App() {
               <Route path="/admin/dashboard" element={
                 <ProtectedRoute allowedRoles={['admin']}>
                   <AdminDashboard />
+                </ProtectedRoute>
+              } />
+              <Route path="/admin/pending-requests" element={
+                <ProtectedRoute allowedRoles={['admin']}>
+                  <PendingRequestsPage />
                 </ProtectedRoute>
               } />
               <Route path="/vendor/dashboard" element={
