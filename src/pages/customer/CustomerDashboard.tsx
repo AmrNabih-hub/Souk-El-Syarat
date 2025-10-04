@@ -11,12 +11,12 @@ import {
   ReceiptRefundIcon
 } from '@heroicons/react/24/outline';
 import { useAppStore } from '@/stores/appStore';
-import { useAuth } from '@/contexts/AuthContext';
+import { useAuthStore } from '@/stores/authStore';
 import { Link } from 'react-router-dom';
 
 const CustomerDashboard: React.FC = () => {
   const { language } = useAppStore();
-  const { user } = useAuth();
+  const { user } = useAuthStore();
 
   const menuItems = [
     {
