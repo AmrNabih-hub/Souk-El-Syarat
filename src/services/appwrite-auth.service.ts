@@ -39,13 +39,15 @@ export class AppwriteAuthService {
         appwriteConfig.collections.users,
         ID.unique(),
         {
-          name: displayName,
+          userId: authAccount.$id,
           email: email,
+          displayName: displayName,
           role: role,
-          phone: null,
-          avatar: null,
-          location: null,
-          isVerified: false
+          phoneNumber: null,
+          photoURL: null,
+          isActive: true,
+          emailVerified: false,
+          createdAt: new Date().toISOString()
         }
       );
 
@@ -100,7 +102,7 @@ export class AppwriteAuthService {
       const userProfiles = await databases.listDocuments(
         appwriteConfig.databaseId,
         appwriteConfig.collections.users,
-        [Query.equal('email', authAccount.email)]
+        [Query.equal('userId', authAccount.$id)]
       );
 
       let userProfile;
@@ -114,14 +116,14 @@ export class AppwriteAuthService {
       const user: User = {
         id: authAccount.$id,
         email: authAccount.email,
-        displayName: userProfile.name || authAccount.name || 'User',
-        phoneNumber: userProfile.phone || null,
-        photoURL: userProfile.avatar || null,
+        displayName: userProfile.displayName || authAccount.name || 'User',
+        phoneNumber: userProfile.phoneNumber || null,
+        photoURL: userProfile.photoURL || null,
         role: userProfile.role || 'customer',
-        isActive: true,
-        emailVerified: authAccount.emailVerification,
-        createdAt: new Date(authAccount.$createdAt),
-        updatedAt: new Date(authAccount.$updatedAt),
+        isActive: userProfile.isActive ?? true,
+        emailVerified: userProfile.emailVerified ?? authAccount.emailVerification,
+        createdAt: new Date(userProfile.createdAt || authAccount.$createdAt),
+        updatedAt: new Date(),
         preferences: {
           language: 'ar',
           currency: 'EGP',
@@ -165,7 +167,7 @@ export class AppwriteAuthService {
       const userProfiles = await databases.listDocuments(
         appwriteConfig.databaseId,
         appwriteConfig.collections.users,
-        [Query.equal('email', authAccount.email)]
+        [Query.equal('userId', authAccount.$id)]
       );
 
       if (userProfiles.documents.length === 0) {
@@ -177,14 +179,14 @@ export class AppwriteAuthService {
       const user: User = {
         id: authAccount.$id,
         email: authAccount.email,
-        displayName: userProfile.name || authAccount.name,
-        phoneNumber: userProfile.phone || null,
-        photoURL: userProfile.avatar || null,
+        displayName: userProfile.displayName || authAccount.name,
+        phoneNumber: userProfile.phoneNumber || null,
+        photoURL: userProfile.photoURL || null,
         role: userProfile.role || 'customer',
-        isActive: true,
-        emailVerified: authAccount.emailVerification,
-        createdAt: new Date(authAccount.$createdAt),
-        updatedAt: new Date(authAccount.$updatedAt),
+        isActive: userProfile.isActive ?? true,
+        emailVerified: userProfile.emailVerified ?? authAccount.emailVerification,
+        createdAt: new Date(userProfile.createdAt || authAccount.$createdAt),
+        updatedAt: new Date(),
         preferences: {
           language: 'ar',
           currency: 'EGP',
@@ -272,15 +274,15 @@ export class AppwriteAuthService {
       appwriteConfig.collections.users,
       ID.unique(),
       {
-        name: authAccount.name || 'User',
+        userId: authAccount.$id,
         email: authAccount.email,
+        displayName: authAccount.name || 'User',
         role: 'customer',
-        phone: null,
-        avatar: null,
-        location: null,
-        isVerified: authAccount.emailVerification,
-        createdAt: new Date().toISOString(),
-        updatedAt: new Date().toISOString()
+        phoneNumber: null,
+        photoURL: null,
+        isActive: true,
+        emailVerified: authAccount.emailVerification,
+        createdAt: new Date().toISOString()
       }
     );
   }
