@@ -11,7 +11,7 @@ import {
   XMarkIcon
 } from '@heroicons/react/24/outline';
 import { useAppStore } from '@/stores/appStore';
-import { useAuth } from '@/contexts/AuthContext';
+import { useAuthStore } from '@/stores/authStore';
 import toast from 'react-hot-toast';
 
 const ProfilePage: React.FC = () => {
