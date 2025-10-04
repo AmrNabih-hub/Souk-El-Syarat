@@ -25,6 +25,8 @@
     "test:db": "tsx scripts/test-database-operations.ts",
     "setup:supabase": "tsx scripts/setup-supabase-complete.ts",
     "verify:auth-flow": "tsx scripts/verify-complete-auth-flow.ts",
+    "test:comprehensive": "tsx scripts/run-comprehensive-tests.ts",
+    "test:all": "npm run test && npm run test:e2e && npm run test:comprehensive",
     "lint": "eslint . --ext ts,tsx --report-unused-disable-directives --max-warnings 0",
     "lint:ci": "eslint . --ext ts,tsx --report-unused-disable-directives",
     "lint:fix": "eslint . --ext ts,tsx --fix",
