@@ -39,25 +39,15 @@ export class AppwriteAuthService {
         appwriteConfig.collections.users,
         ID.unique(),
         {
-          userId: authAccount.$id,
+          name: displayName,
           email: email,
-          displayName: displayName,
           role: role,
-          isActive: true,
-          emailVerified: false,
-          phoneNumber: null,
-          photoURL: null,
+          phone: null,
+          avatar: null,
+          location: null,
+          isVerified: false,
           createdAt: new Date().toISOString(),
-          updatedAt: new Date().toISOString(),
-          preferences: {
-            language: 'ar',
-            currency: 'EGP',
-            notifications: {
-              email: true,
-              sms: false,
-              push: true,
-            },
-          },
+          updatedAt: new Date().toISOString()
         }
       );
 
@@ -112,7 +102,7 @@ export class AppwriteAuthService {
       const userProfiles = await databases.listDocuments(
         appwriteConfig.databaseId,
         appwriteConfig.collections.users,
-        [Query.equal('userId', authAccount.$id)]
+        [Query.equal('email', authAccount.email)]
       );
 
       let userProfile;
@@ -126,15 +116,15 @@ export class AppwriteAuthService {
       const user: User = {
         id: authAccount.$id,
         email: authAccount.email,
-        displayName: userProfile.displayName || authAccount.name || 'User',
-        phoneNumber: userProfile.phoneNumber || null,
-        photoURL: userProfile.photoURL || null,
+        displayName: userProfile.name || authAccount.name || 'User',
+        phoneNumber: userProfile.phone || null,
+        photoURL: userProfile.avatar || null,
         role: userProfile.role || 'customer',
-        isActive: userProfile.isActive ?? true,
+        isActive: true,
         emailVerified: authAccount.emailVerification,
         createdAt: new Date(authAccount.$createdAt),
         updatedAt: new Date(authAccount.$updatedAt),
-        preferences: userProfile.preferences || {
+        preferences: {
           language: 'ar',
           currency: 'EGP',
           notifications: {
@@ -177,7 +167,7 @@ export class AppwriteAuthService {
       const userProfiles = await databases.listDocuments(
         appwriteConfig.databaseId,
         appwriteConfig.collections.users,
-        [Query.equal('userId', authAccount.$id)]
+        [Query.equal('email', authAccount.email)]
       );
 
       if (userProfiles.documents.length === 0) {
@@ -189,15 +179,15 @@ export class AppwriteAuthService {
       const user: User = {
         id: authAccount.$id,
         email: authAccount.email,
-        displayName: userProfile.displayName || authAccount.name,
-        phoneNumber: userProfile.phoneNumber || null,
-        photoURL: userProfile.photoURL || null,
+        displayName: userProfile.name || authAccount.name,
+        phoneNumber: userProfile.phone || null,
+        photoURL: userProfile.avatar || null,
         role: userProfile.role || 'customer',
-        isActive: userProfile.isActive ?? true,
+        isActive: true,
         emailVerified: authAccount.emailVerification,
         createdAt: new Date(authAccount.$createdAt),
         updatedAt: new Date(authAccount.$updatedAt),
-        preferences: userProfile.preferences || {
+        preferences: {
           language: 'ar',
           currency: 'EGP',
           notifications: {
@@ -284,25 +274,15 @@ export class AppwriteAuthService {
       appwriteConfig.collections.users,
       ID.unique(),
       {
-        userId: authAccount.$id,
+        name: authAccount.name || 'User',
         email: authAccount.email,
-        displayName: authAccount.name || 'User',
         role: 'customer',
-        isActive: true,
-        emailVerified: authAccount.emailVerification,
-        phoneNumber: null,
-        photoURL: null,
+        phone: null,
+        avatar: null,
+        location: null,
+        isVerified: authAccount.emailVerification,
         createdAt: new Date().toISOString(),
-        updatedAt: new Date().toISOString(),
-        preferences: {
-          language: 'ar',
-          currency: 'EGP',
-          notifications: {
-            email: true,
-            sms: false,
-            push: true,
-          },
-        },
+        updatedAt: new Date().toISOString()
       }
     );
   }

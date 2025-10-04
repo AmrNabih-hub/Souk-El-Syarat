@@ -5,7 +5,7 @@
   "type": "module",
   "description": "Professional Arabic car marketplace with comprehensive features",
   "engines": {
-    "node": ">=18.0.0",
+    "node": ">=18.0.0 <=22.18.0",
     "npm": ">=8.0.0"
   },
   "packageManager": "npm@10.8.2",
@@ -40,7 +40,7 @@
     "test:appwrite": "start appwrite-test.html",
     "deploy:build": "npm run build:production",
     "deploy:appwrite": "npm run deploy:build && echo 'Build ready for Appwrite deployment'",
-    "build:deployment": "node scripts/build-for-deployment.js",
+    "build:appwrite": "node scripts/build-appwrite.js",
     "postinstall": "echo '✅ Dependencies installed successfully - TypeScript checking moved to CI/CD workflows'",
     "//prepare": "node -e \"process.env.CI ? console.log('Skipping prepare hook in CI environment') : require('child_process').execSync('npm run precommit', {stdio: 'inherit'})\"",
     "precommit": "npm run lint:fix && npm run format && npm run type-check:ci",
