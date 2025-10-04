@@ -45,9 +45,7 @@ export class AppwriteAuthService {
           phone: null,
           avatar: null,
           location: null,
-          isVerified: false,
-          createdAt: new Date().toISOString(),
-          updatedAt: new Date().toISOString()
+          isVerified: false
         }
       );
 

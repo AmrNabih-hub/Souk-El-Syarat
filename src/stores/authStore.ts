@@ -1,9 +1,7 @@
 import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
 import { User, AuthState } from '@/types';
-import { AppwriteAuthService } from '@/services/appwrite-auth.service';
-import { MockAuthService } from '@/services/mock-auth.service';
-import { adminAuthService } from '@/services/admin-auth.service';
+import { SimpleAppwriteAuthService } from '@/services/simple-auth.service';
 import { envConfig } from '@/config/environment.config';
 
 interface AuthStore extends AuthState {
@@ -36,60 +34,19 @@ export const useAuthStore = create<AuthStore>()(
     try {
       set({ isLoading: true, loading: true, error: null });
       
-      // 1. First, check if this is an admin login
-      const adminResult = await adminAuthService.loginAdmin(email, password);
-      if (adminResult.success && adminResult.admin) {
-        const adminUser: User = {
-          id: adminResult.admin.id,
-          email: adminResult.admin.email,
-          displayName: adminResult.admin.displayName,
-          role: adminResult.admin.role,
-          isActive: true,
-          emailVerified: true,
-          createdAt: new Date(),
-          updatedAt: new Date(),
-          preferences: {
-            language: 'ar',
-            currency: 'EGP',
-            notifications: { email: true, sms: false, push: true }
-          }
-        };
-        set({ user: adminUser, isLoading: false, loading: false });
-        
-        // Sync to demo_user for AuthContext compatibility
-        localStorage.setItem('demo_user', JSON.stringify(adminUser));
-        console.log('✅ Admin login successful');
-        return;
-      }
-
-      // 2. Try Appwrite authentication
-      try {
-        console.log('🔐 Attempting Appwrite authentication...');
-        const user = await AppwriteAuthService.signIn(email, password);
-        set({ user, isLoading: false, loading: false });
-        console.log('✅ Appwrite login successful');
-        return;
-      } catch (appwriteError: any) {
-        console.warn('⚠️ Appwrite login failed, trying fallbacks...', appwriteError.message);
-        
-        // 3. Check if using mock auth (development mode)
-        if (envConfig.get('useMockAuth')) {
-          console.log('🔐 Using mock authentication for test accounts');
-          const user = await MockAuthService.signIn(email, password);
-          set({ user, isLoading: false, loading: false });
-          
-          // Sync to demo_user for AuthContext compatibility
-          localStorage.setItem('demo_user', JSON.stringify(user));
-          console.log('✅ Mock auth login successful');
-          return;
-        }
-        
-        // If Appwrite failed and mock auth is disabled, throw the error
-        throw appwriteError;
-      }
+      // Use simplified Appwrite authentication
+      console.log('🔐 Attempting simplified Appwrite authentication...');
+      const user = await SimpleAppwriteAuthService.signIn(email, password);
+      set({ user, isLoading: false, loading: false });
+      console.log('✅ Appwrite login successful');
+      return;
     } catch (error: any) {
       console.error('❌ Sign in error:', error);
-      set({ error: error.message || 'Login failed', isLoading: false, loading: false });
+      set({ 
+        error: error.message || 'Authentication failed', 
+        isLoading: false, 
+        loading: false 
+      });
       throw error;
     }
   },
@@ -98,9 +55,9 @@ export const useAuthStore = create<AuthStore>()(
     try {
       set({ isLoading: true, loading: true, error: null });
       
-      // Use Appwrite for registration
-      console.log('🔐 Registering user with Appwrite...');
-      const user = await AppwriteAuthService.signUp(email, password, displayName);
+      // Use simplified Appwrite for registration
+      console.log('🔐 Registering user with simplified Appwrite...');
+      const user = await SimpleAppwriteAuthService.signUp(email, password, displayName);
       set({ user, isLoading: false, loading: false });
       console.log('✅ Registration successful');
     } catch (error: any) {
@@ -128,30 +85,16 @@ export const useAuthStore = create<AuthStore>()(
     try {
       set({ isLoading: true, loading: true, error: null });
       
-      // Check if admin
-      if (adminAuthService.isAdminLoggedIn()) {
-        adminAuthService.logoutAdmin();
-      }
-      
-      // Try Appwrite sign out
+      // Use simplified Appwrite sign out
       try {
-        await AppwriteAuthService.signOut();
+        await SimpleAppwriteAuthService.signOut();
         console.log('✅ Appwrite sign out successful');
       } catch (appwriteError) {
         console.warn('⚠️ Appwrite sign out failed (non-blocking):', appwriteError);
       }
       
-      // Check if using mock auth
-      if (envConfig.get('useMockAuth')) {
-        await MockAuthService.signOut();
-      }
-      
       // Clear all storage
       localStorage.removeItem('demo_user');
-      localStorage.removeItem('mock_current_user');
-      localStorage.removeItem('mock_auth_user');
-      localStorage.removeItem('mock_auth_session');
-      localStorage.removeItem('admin_session');
       
       set({ user: null, isLoading: false, loading: false });
       console.log('✅ Sign out successful');
@@ -215,7 +158,7 @@ export const useAuthStore = create<AuthStore>()(
       // 1. Try to get current Appwrite user
       try {
         console.log('🔍 Checking Appwrite session...');
-        const appwriteUser = await AppwriteAuthService.getCurrentUser();
+        const appwriteUser = await SimpleAppwriteAuthService.getCurrentUser();
         if (appwriteUser) {
           console.log('✅ Restored Appwrite user:', appwriteUser.email);
           set({ user: appwriteUser, isLoading: false, loading: false });
