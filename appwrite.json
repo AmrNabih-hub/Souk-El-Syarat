@@ -1,0 +1,249 @@
+{
+  "projectId": "68e030b8002f5fcaa59c",
+  "projectName": "Souk-Al-Sayarat",
+  "services": {
+    "databases": [
+      {
+        "databaseId": "souk_main_db",
+        "name": "Souk Main Database",
+        "collections": [
+          {
+            "collectionId": "users",
+            "name": "Users",
+            "permissions": ["read(\"any\")", "write(\"users\")"],
+            "documentSecurity": true,
+            "attributes": [
+              {
+                "key": "name",
+                "type": "string",
+                "size": 255,
+                "required": true
+              },
+              {
+                "key": "email",
+                "type": "string",
+                "size": 255,
+                "required": true
+              },
+              {
+                "key": "role",
+                "type": "string",
+                "size": 50,
+                "required": true,
+                "default": "customer"
+              },
+              {
+                "key": "phone",
+                "type": "string",
+                "size": 20,
+                "required": false
+              },
+              {
+                "key": "avatar",
+                "type": "string",
+                "size": 500,
+                "required": false
+              },
+              {
+                "key": "location",
+                "type": "string",
+                "size": 255,
+                "required": false
+              },
+              {
+                "key": "isVerified",
+                "type": "boolean",
+                "required": true,
+                "default": false
+              },
+              {
+                "key": "createdAt",
+                "type": "datetime",
+                "required": true
+              },
+              {
+                "key": "updatedAt",
+                "type": "datetime",
+                "required": true
+              }
+            ],
+            "indexes": [
+              {
+                "key": "email_index",
+                "type": "unique",
+                "attributes": ["email"]
+              },
+              {
+                "key": "role_index",
+                "type": "key",
+                "attributes": ["role"]
+              }
+            ]
+          },
+          {
+            "collectionId": "car_listings",
+            "name": "Car Listings",
+            "permissions": ["read(\"any\")", "create(\"users\")", "update(\"users\")", "delete(\"users\")"],
+            "documentSecurity": true,
+            "attributes": [
+              {
+                "key": "title",
+                "type": "string",
+                "size": 255,
+                "required": true
+              },
+              {
+                "key": "description",
+                "type": "string",
+                "size": 2000,
+                "required": true
+              },
+              {
+                "key": "price",
+                "type": "integer",
+                "required": true
+              },
+              {
+                "key": "brand",
+                "type": "string",
+                "size": 100,
+                "required": true
+              },
+              {
+                "key": "model",
+                "type": "string",
+                "size": 100,
+                "required": true
+              },
+              {
+                "key": "year",
+                "type": "integer",
+                "required": true
+              },
+              {
+                "key": "mileage",
+                "type": "integer",
+                "required": true
+              },
+              {
+                "key": "condition",
+                "type": "string",
+                "size": 50,
+                "required": true
+              },
+              {
+                "key": "fuelType",
+                "type": "string",
+                "size": 50,
+                "required": true
+              },
+              {
+                "key": "transmission",
+                "type": "string",
+                "size": 50,
+                "required": true
+              },
+              {
+                "key": "location",
+                "type": "string",
+                "size": 255,
+                "required": true
+              },
+              {
+                "key": "images",
+                "type": "string",
+                "size": 2000,
+                "required": false,
+                "array": true
+              },
+              {
+                "key": "vendorId",
+                "type": "string",
+                "size": 255,
+                "required": true
+              },
+              {
+                "key": "status",
+                "type": "string",
+                "size": 50,
+                "required": true,
+                "default": "active"
+              },
+              {
+                "key": "views",
+                "type": "integer",
+                "required": true,
+                "default": 0
+              },
+              {
+                "key": "createdAt",
+                "type": "datetime",
+                "required": true
+              },
+              {
+                "key": "updatedAt",
+                "type": "datetime",
+                "required": true
+              }
+            ],
+            "indexes": [
+              {
+                "key": "vendor_index",
+                "type": "key",
+                "attributes": ["vendorId"]
+              },
+              {
+                "key": "status_index",
+                "type": "key",
+                "attributes": ["status"]
+              },
+              {
+                "key": "brand_model_index",
+                "type": "key",
+                "attributes": ["brand", "model"]
+              },
+              {
+                "key": "price_index",
+                "type": "key",
+                "attributes": ["price"]
+              },
+              {
+                "key": "location_index",
+                "type": "key",
+                "attributes": ["location"]
+              }
+            ]
+          }
+        ]
+      }
+    ],
+    "storage": [
+      {
+        "bucketId": "car_images",
+        "name": "Car Images",
+        "permissions": ["read(\"any\")", "create(\"users\")", "update(\"users\")", "delete(\"users\")"],
+        "fileSecurity": true,
+        "enabled": true,
+        "maximumFileSize": 30000000,
+        "allowedFileExtensions": ["jpg", "jpeg", "png", "webp", "gif"],
+        "compression": "gzip",
+        "encryption": true,
+        "antivirus": true
+      }
+    ],
+    "auth": {
+      "methods": [
+        "email",
+        "phone"
+      ],
+      "security": {
+        "duration": 31536000,
+        "limit": 0,
+        "sessionsLimit": 10,
+        "passwordHistory": 0,
+        "passwordDictionary": false,
+        "personalDataCheck": false
+      }
+    }
+  }
+}

@@ -5,16 +5,16 @@
   "type": "module",
   "description": "Professional Arabic car marketplace with comprehensive features",
   "engines": {
-    "node": ">=18.0.0",
-    "npm": ">=8.0.0"
+    "node": ">=18.0.0 <23.0.0",
+    "npm": ">=8.0.0 <11.0.0"
   },
   "packageManager": "npm@10.8.2",
   "scripts": {
     "dev": "vite",
-    "build": "vite build",
-    "build:production": "vite build",
-    "build:ci": "vite build",
-    "build:deploy": "vite build",
+    "build": "vite build --config vite.config.cjs",
+    "build:production": "vite build --config vite.config.cjs --mode production",
+    "build:ci": "vite build --config vite.config.cjs",
+    "build:deploy": "vite build --config vite.config.cjs --mode production",
     "deploy:fullstack": "bash deploy-fullstack.sh",
     "preview": "npx vite preview",
     "lint": "eslint . --ext ts,tsx --report-unused-disable-directives",
