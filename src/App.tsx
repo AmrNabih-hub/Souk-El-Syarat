@@ -31,6 +31,7 @@ const GlobalLiveFeatures = lazy(() => import('@/components/advanced/GlobalLiveFe
 // Customer Pages (lazy loaded)
 const UsedCarSellingPage = lazy(() => import('@/pages/customer/UsedCarSellingPage'));
 const ProfilePage = lazy(() => import('@/pages/customer/ProfilePage'));
+const MyRequestsPage = lazy(() => import('@/pages/customer/MyRequestsPage'));
 
 // Loading Components
 import LoadingScreen from '@/components/ui/LoadingScreen';
@@ -112,6 +113,13 @@ function App() {
               <Route path="/profile" element={
                 <ProtectedRoute requireAuth={true}>
                   <ProfilePage />
+                </ProtectedRoute>
+              } />
+
+              {/* My Requests Route (Protected - any authenticated user) */}
+              <Route path="/my-requests" element={
+                <ProtectedRoute requireAuth={true}>
+                  <MyRequestsPage />
                 </ProtectedRoute>
               } />
               

@@ -15,8 +15,8 @@ import {
 
 import { useAppStore } from '@/stores/appStore';
 import { useAuthStore } from '@/stores/authStore';
-// import { useTheme } from '@/contexts/ThemeContext';
 import ProfessionalThemeToggle from '@/components/ui/ProfessionalThemeToggle';
+import NotificationPanel from '@/components/notifications/NotificationPanel';
 import clsx from 'clsx';
 
 const Navbar: React.FC = () => {
@@ -249,6 +249,9 @@ const Navbar: React.FC = () => {
                   </Link>
                 </motion.div>
 
+                {/* Notification Bell */}
+                <NotificationPanel />
+
                 {/* User Menu */}
                 <div className='relative' ref={userMenuRef}>
                   <motion.button
@@ -286,6 +289,14 @@ const Navbar: React.FC = () => {
                           onClick={() => setIsUserMenuOpen(false)}
                         >
                           {language === 'ar' ? 'الملف الشخصي' : 'Profile'}
+                        </Link>
+
+                        <Link
+                          to='/my-requests'
+                          className='block px-4 py-2 text-sm text-neutral-700 hover:bg-neutral-50 transition-colors'
+                          onClick={() => setIsUserMenuOpen(false)}
+                        >
+                          {language === 'ar' ? 'طلباتي' : 'My Requests'}
                         </Link>
 
                         {user.role === 'admin' && (
