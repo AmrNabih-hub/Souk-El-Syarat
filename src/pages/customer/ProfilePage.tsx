@@ -16,7 +16,7 @@ import toast from 'react-hot-toast';
 
 const ProfilePage: React.FC = () => {
   const { language } = useAppStore();
-  const { user } = useAuth();
+  const { user } = useAuthStore();
   const [isEditing, setIsEditing] = useState(false);
   const [formData, setFormData] = useState({
     displayName: user?.displayName || '',
