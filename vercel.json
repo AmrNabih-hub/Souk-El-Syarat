@@ -1,25 +1,26 @@
 {
   "version": 2,
   "name": "souk-el-sayarat",
-  "builds": [
+  "buildCommand": "npm run build",
+  "outputDirectory": "dist",
+  "installCommand": "npm ci",
+  "framework": "vite",
+  "rewrites": [
     {
-      "src": "dist/**",
-      "use": "@vercel/static"
-    }
-  ],
-  "routes": [
-    {
-      "src": "/assets/(.*)",
-      "headers": {
-        "cache-control": "public, max-age=31536000, immutable"
-      }
-    },
-    {
-      "src": "/(.*)",
-      "dest": "/index.html"
+      "source": "/(.*)",
+      "destination": "/index.html"
     }
   ],
   "headers": [
+    {
+      "source": "/assets/(.*)",
+      "headers": [
+        {
+          "key": "Cache-Control",
+          "value": "public, max-age=31536000, immutable"
+        }
+      ]
+    },
     {
       "source": "/(.*)",
       "headers": [
@@ -46,11 +47,6 @@
       ]
     }
   ],
-  "functions": {
-    "dist/**": {
-      "includeFiles": "dist/**"
-    }
-  },
   "redirects": [
     {
       "source": "/home",
@@ -62,17 +58,5 @@
       "destination": "/marketplace",
       "permanent": true
     }
-  ],
-  "rewrites": [
-    {
-      "source": "/api/(.*)",
-      "destination": "https://zgnwfnfehdwehuycbcsz.supabase.co/rest/v1/$1"
-    }
-  ],
-  "env": {
-    "VITE_APP_NAME": "Souk El-Sayarat",
-    "VITE_CURRENCY": "EGP",
-    "VITE_DEFAULT_LANGUAGE": "ar",
-    "VITE_ENVIRONMENT": "production"
-  }
+  ]
 }
