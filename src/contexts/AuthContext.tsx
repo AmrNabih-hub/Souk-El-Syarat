@@ -17,30 +17,136 @@ const AuthContext = createContext<AuthContextType | undefined>(undefined);
 export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const [user, setUser] = useState<any>(null);
   const [loading, setLoading] = useState<boolean>(true);
+  const navigate = useNavigate();
 
   useEffect(() => {
-    // Check for demo user in localStorage
-    const demoUser = localStorage.getItem('demo_user');
-    if (demoUser) {
-      setUser(JSON.parse(demoUser));
-    }
-    setLoading(false);
+    // Get initial session
+    const getSession = async () => {
+      try {
+        const { data: { session }, error } = await supabase.auth.getSession();
+        
+        if (error) {
+          console.warn('⚠️ Session error:', error.message);
+        }
+
+        if (session?.user) {
+          // Try to get user profile
+          try {
+            const { data: profile } = await supabase
+              .from('profiles')
+              .select('*')
+              .eq('id', session.user.id)
+              .single();
+
+            const userData = {
+              id: session.user.id,
+              email: session.user.email,
+              displayName: profile?.display_name || profile?.first_name || session.user.email?.split('@')[0],
+              role: profile?.user_role || 'customer',
+              isActive: true,
+              emailVerified: session.user.email_confirmed_at !== null,
+              createdAt: session.user.created_at,
+              updatedAt: session.user.updated_at,
+              profile: profile
+            };
+
+            setUser(userData);
+          } catch (profileError) {
+            console.warn('⚠️ Profile fetch failed:', profileError);
+            // Use basic user data without profile
+            const basicUserData = {
+              id: session.user.id,
+              email: session.user.email,
+              displayName: session.user.email?.split('@')[0] || 'User',
+              role: 'customer',
+              isActive: true,
+              emailVerified: session.user.email_confirmed_at !== null,
+              createdAt: session.user.created_at,
+              updatedAt: session.user.updated_at,
+            };
+            setUser(basicUserData);
+          }
+        } else {
+          // Check for demo user in localStorage
+          const demoUser = localStorage.getItem('demo_user');
+          if (demoUser) {
+            setUser(JSON.parse(demoUser));
+          }
+        }
+      } catch (sessionError) {
+        console.warn('⚠️ Session initialization failed:', sessionError);
+        
+        // Check for demo user as fallback
+        const demoUser = localStorage.getItem('demo_user');
+        if (demoUser) {
+          setUser(JSON.parse(demoUser));
+        }
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    getSession();
+
+    // Listen for auth changes
+    const { data: { subscription } } = supabase.auth.onAuthStateChange(async (event, session) => {
+      console.log('🔄 Auth state changed:', event);
+      
+      if (event === 'SIGNED_IN' && session?.user) {
+        // User signed in
+        try {
+          const { data: profile } = await supabase
+            .from('profiles')
+            .select('*')
+            .eq('id', session.user.id)
+            .single();
+
+          const userData = {
+            id: session.user.id,
+            email: session.user.email,
+            displayName: profile?.display_name || profile?.first_name || session.user.email?.split('@')[0],
+            role: profile?.user_role || 'customer',
+            isActive: true,
+            emailVerified: session.user.email_confirmed_at !== null,
+            createdAt: session.user.created_at,
+            updatedAt: session.user.updated_at,
+            profile: profile
+          };
+
+          setUser(userData);
+          
+          // Redirect to role-based dashboard
+          setTimeout(() => {
+            redirectToUserDashboard(userData.role);
+          }, 1000);
+        } catch (error) {
+          console.warn('⚠️ Profile fetch failed on sign in:', error);
+        }
+      } else if (event === 'SIGNED_OUT') {
+        // User signed out
+        setUser(null);
+        localStorage.removeItem('demo_user');
+        localStorage.removeItem('supabase_user');
+      }
+    });
+
+    return () => subscription.unsubscribe();
   }, []);
 
   const redirectToUserDashboard = (userRole: string) => {
     // Role-based redirect logic
     switch (userRole) {
       case 'admin':
-        window.location.href = '/admin/dashboard';
+        navigate('/admin/dashboard');
         break;
       case 'vendor':
-        window.location.href = '/vendor/dashboard';
+        navigate('/vendor/dashboard');
         break;
       case 'customer':
-        window.location.href = '/customer/dashboard';
+        navigate('/customer/dashboard');
         break;
       default:
-        window.location.href = '/marketplace';
+        navigate('/marketplace');
         break;
     }
   };
@@ -91,52 +197,32 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
       // Try Supabase authentication for real users
       try {
+        console.log('🔐 Attempting Supabase login...');
+        
         const { data, error } = await supabase.auth.signInWithPassword({
           email,
           password,
         });
 
-        if (error) throw error;
+        if (error) {
+          console.error('❌ Supabase auth error:', error);
+          throw error;
+        }
 
         if (data.user) {
-          // Get user profile from profiles table
-          const { data: profile, error: profileError } = await supabase
-            .from('profiles')
-            .select('*')
-            .eq('id', data.user.id)
-            .single();
-
-          const userData = {
-            id: data.user.id,
-            email: data.user.email,
-            displayName: profile?.display_name || profile?.first_name || 'User',
-            role: profile?.role || 'customer',
-            isActive: true,
-            emailVerified: data.user.email_confirmed_at !== null,
-            createdAt: data.user.created_at,
-            updatedAt: data.user.updated_at,
-            profile: profile
-          };
-
-          setUser(userData);
-          localStorage.setItem('supabase_user', JSON.stringify(userData));
-          setLoading(false);
-
-          // Redirect to role-based dashboard
-          setTimeout(() => {
-            redirectToUserDashboard(userData.role);
-          }, 1000);
-
-          return userData;
+          console.log('✅ Supabase login successful');
+          // The auth state change listener will handle the user setup
+          return data.user;
         }
-      } catch (supabaseError) {
-        console.warn('Supabase auth failed, falling back to demo mode:', supabaseError);
+      } catch (supabaseError: any) {
+        console.warn('⚠️ Supabase auth failed:', supabaseError.message);
+        throw new Error(supabaseError.message || 'Authentication failed');
       }
 
       throw new Error('Invalid credentials');
       
-    } catch (error) {
-      console.error('Login failed:', error);
+    } catch (error: any) {
+      console.error('❌ Login failed:', error);
       setLoading(false);
       throw error;
     }
@@ -149,21 +235,24 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       localStorage.removeItem('supabase_user');
       
       // Sign out from Supabase
-      await supabase.auth.signOut();
+      const { error } = await supabase.auth.signOut();
+      if (error) {
+        console.warn('⚠️ Supabase sign out warning:', error);
+      }
       
       setUser(null);
       
       // Redirect to home page
-      window.location.href = '/';
+      navigate('/');
       
       console.log('✅ Logout successful');
     } catch (error) {
-      console.error('Logout failed:', error);
+      console.error('❌ Logout failed:', error);
       // Force logout even if it fails
       localStorage.removeItem('demo_user');
       localStorage.removeItem('supabase_user');
       setUser(null);
-      window.location.href = '/';
+      navigate('/');
     }
   };
 

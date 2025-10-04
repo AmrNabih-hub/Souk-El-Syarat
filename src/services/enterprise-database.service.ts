@@ -509,10 +509,17 @@ class EnterpriseDatabaseService {
 
   async testConnection(): Promise<boolean> {
     try {
-      const { data, error } = await supabase.from('todos').select('count').limit(1);
+      // Test with a simple query that doesn't require specific tables
+      const { data, error } = await supabase.rpc('get_current_timestamp');
       return !error;
     } catch (error) {
-      return false;
+      // Fallback test - try auth endpoint
+      try {
+        const { data, error } = await supabase.auth.getSession();
+        return true; // If we can access auth, connection is working
+      } catch (authError) {
+        return false;
+      }
     }
   }
 

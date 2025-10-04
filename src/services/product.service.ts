@@ -7,12 +7,40 @@ import { databaseService } from './supabase-database.service';
 import { storageService } from './supabase-storage.service';
 import { functionsService } from './supabase-functions.service';
 import { realtimeService } from './supabase-realtime.service';
-import type { Database } from '@/types/supabase';
 import type { Product, ProductImage, CarDetails, Specifications } from '@/types';
 
-type ProductRow = Database['public']['Tables']['products']['Row'];
-type ProductInsert = Database['public']['Tables']['products']['Insert'];
-type ProductUpdate = Database['public']['Tables']['products']['Update'];
+// Database types - simplified for now
+interface ProductRow {
+  id: string;
+  vendor_id: string;
+  title: string;
+  description: string;
+  category: string;
+  subcategory?: string;
+  images: any;
+  price: number;
+  original_price?: number;
+  currency: string;
+  in_stock: boolean;
+  quantity: number;
+  specifications?: any;
+  features?: string[];
+  tags?: string[];
+  condition: string;
+  warranty?: string;
+  car_details?: any;
+  status: string;
+  views: number;
+  favorites: number;
+  rating: number;
+  review_count: number;
+  published_at?: string;
+  created_at: string;
+  updated_at: string;
+}
+
+interface ProductInsert extends Omit<ProductRow, 'id' | 'created_at' | 'updated_at'> {}
+interface ProductUpdate extends Partial<ProductInsert> {}
 
 export interface CreateProductData {
   title: string;
@@ -263,15 +291,19 @@ export class ProductServiceExtensions {
   static async getSampleProducts(): Promise<Product[]> {
     try {
       // Try to fetch real products from Supabase first
-      const { data: products, error } = await supabase
-        .from('products')
-        .select('*')
-        .eq('is_active', true)
-        .limit(20);
+      try {
+        const { data: products, error } = await supabase
+          .from('products')
+          .select('*')
+          .eq('status', 'active')
+          .limit(20);
 
-      if (!error && products && products.length > 0) {
-        // Return real products from database
-        return products.map(this.transformSupabaseProduct);
+        if (!error && products && products.length > 0) {
+          // Return real products from database
+          return products.map(this.transformSupabaseProduct);
+        }
+      } catch (supabaseError) {
+        console.warn('⚠️ Supabase products query failed:', supabaseError);
       }
 
       // Fallback to sample data if no real products
@@ -496,3 +528,6 @@ export const productService = Object.assign(new ProductService(), {
 });
 
 export default productService;
+
+// Import supabase for sample products
+import { supabase } from '@/config/supabase.config';

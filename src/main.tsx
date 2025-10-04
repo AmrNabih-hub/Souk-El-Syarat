@@ -7,7 +7,7 @@ import App from './App';
 import './index.css';
 import './registerSW'; // PWA Service Worker
 import Providers from '@/components/common/Providers';
-import { supabase } from '@/config/supabase.config';
+import { connectionService } from '@/services/supabase-connection.service';
 
 // 🚀 PROFESSIONAL SUPABASE INITIALIZATION
 console.log('🚀 Starting Souk El-Sayarat Marketplace with Supabase...');
@@ -18,30 +18,17 @@ const initializeApp = async () => {
     console.log('🚀 Initializing Supabase backend...');
     
     // Test Supabase connection with proper error handling
-    const { data, error } = await supabase
-      .from('todos')
-      .select('count', { count: 'exact', head: true })
-      .limit(1);
+    const healthStatus = await connectionService.getHealthStatus();
     
-    if (error) {
-      console.warn('⚠️ Supabase connection issue:', error.message);
-      console.warn('⚠️ Running in development mode with limited functionality');
-      
-      // Try to create todos table if it doesn't exist
-      if (error.code === 'PGRST116' || error.message.includes('does not exist')) {
-        console.log('📝 Creating todos table for demo...');
-        
-        const { error: createError } = await supabase.rpc('create_todos_table');
-        if (!createError) {
-          console.log('✅ Demo table created successfully');
-        }
-      }
-    } else {
+    if (healthStatus.connected) {
       console.log('✅ Supabase is configured and ready');
-      console.log(`📊 Found ${data?.length || 0} demo records`);
+      console.log(`⚡ Connection latency: ${healthStatus.latency}ms`);
+    } else {
+      console.warn('⚠️ Supabase connection issue -', healthStatus.error || 'Please check your configuration');
+      console.warn('⚠️ Running in development mode with limited functionality');
     }
-  } catch (error) {
-    console.error('❌ Supabase initialization error:', error);
+  } catch (error: any) {
+    console.warn('⚠️ Supabase initialization warning:', error.message);
     console.warn('⚠️ Continuing with limited functionality...');
   }
 };
