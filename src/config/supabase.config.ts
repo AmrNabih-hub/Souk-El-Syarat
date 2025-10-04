@@ -7,10 +7,16 @@
 import { createClient, SupabaseClient } from '@supabase/supabase-js';
 import { Database } from '@/types/supabase';
 
-// Supabase Configuration
-const supabaseUrl = import.meta.env.VITE_SUPABASE_URL;
-const supabaseAnonKey = import.meta.env.VITE_SUPABASE_ANON_KEY;
+// Supabase Configuration - with fallbacks for debugging
+const supabaseUrl = import.meta.env.VITE_SUPABASE_URL || 'https://zgnwfnfehdwehuycbcsz.supabase.co';
+const supabaseAnonKey = import.meta.env.VITE_SUPABASE_ANON_KEY || 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InpnbndmbmZlaGR3ZWh1eWNiY3N6Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTk1MDMxMDAsImV4cCI6MjA3NTA3OTEwMH0.4nYLZq-ZkvoidVwL6RM24xMvXDCVbYBVaYSS3mD-uc0';
 const supabaseServiceKey = import.meta.env.SUPABASE_SERVICE_ROLE_KEY;
+
+// Debug logging
+console.log('🔍 Environment check:');
+console.log('- VITE_SUPABASE_URL from env:', import.meta.env.VITE_SUPABASE_URL);
+console.log('- VITE_SUPABASE_ANON_KEY from env:', import.meta.env.VITE_SUPABASE_ANON_KEY ? '✅ Set' : '❌ Missing');
+console.log('- Using supabaseUrl:', supabaseUrl);
 
 // Validate environment variables
 const validateConfig = () => {
@@ -19,6 +25,7 @@ const validateConfig = () => {
     console.error('Please check your environment variables:');
     console.error('- VITE_SUPABASE_URL:', supabaseUrl ? '✅' : '❌');
     console.error('- VITE_SUPABASE_ANON_KEY:', supabaseAnonKey ? '✅' : '❌');
+    console.error('Available env vars:', Object.keys(import.meta.env));
     return false;
   }
   return true;
@@ -26,8 +33,8 @@ const validateConfig = () => {
 
 // Initialize Supabase Client (Public)
 export const supabase: SupabaseClient<Database> = createClient(
-  supabaseUrl!,
-  supabaseAnonKey!,
+  supabaseUrl,
+  supabaseAnonKey,
   {
     auth: {
       autoRefreshToken: true,
