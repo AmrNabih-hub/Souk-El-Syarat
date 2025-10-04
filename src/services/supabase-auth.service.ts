@@ -63,6 +63,20 @@ class SupabaseAuthService {
     try {
       const { email, password, name, role = 'customer', phone, metadata = {} } = data;
 
+      // Step 1: Check if email already exists
+      console.log('🔍 Checking if email exists:', email);
+      const { data: existingUsers, error: checkError } = await supabase
+        .from('users')
+        .select('email')
+        .eq('email', email)
+        .limit(1);
+
+      if (existingUsers && existingUsers.length > 0) {
+        throw new Error('هذا البريد الإلكتروني مسجل بالفعل / This email is already registered');
+      }
+
+      // Step 2: Attempt signup
+      console.log('📝 Creating new user:', email);
       const response = await supabase.auth.signUp({
         email,
         password,
@@ -77,16 +91,45 @@ class SupabaseAuthService {
         },
       });
 
-      if (response.error) throw response.error;
+      if (response.error) {
+        console.error('❌ Signup error:', response.error);
+        throw response.error;
+      }
 
-      // Create user profile after successful signup
+      console.log('✅ Signup response:', response.data);
+
+      // Step 3: Check if email confirmation is required
+      if (response.data.user && !response.data.session) {
+        console.log('📧 Email confirmation required');
+        // User created but needs to confirm email
+        // Create profile anyway so user exists in database
+        await this.createUserProfile(response.data.user, { name, role, phone });
+        
+        throw new Error(
+          'تم إنشاء الحساب! يرجى التحقق من بريدك الإلكتروني لتأكيد الحساب. / Account created! Please check your email to confirm your account.'
+        );
+      }
+
+      // Step 4: Create user profile after successful signup
       if (response.data.user) {
+        console.log('👤 Creating user profile');
         await this.createUserProfile(response.data.user, { name, role, phone });
       }
 
       return response;
-    } catch (error) {
+    } catch (error: any) {
       console.error('❌ Sign up error:', error);
+      
+      // Enhance error messages
+      if (error.message?.includes('already registered') || error.message?.includes('User already registered')) {
+        throw new Error('هذا البريد الإلكتروني مسجل بالفعل / This email is already registered');
+      }
+      
+      if (error.message?.includes('Email confirmation')) {
+        // This is our custom message, pass it through
+        throw error;
+      }
+      
       throw error;
     }
   }
@@ -96,20 +139,50 @@ class SupabaseAuthService {
    */
   async signIn(data: SignInData): Promise<AuthResponse> {
     try {
+      console.log('🔐 Attempting sign in for:', data.email);
+      
       const response = await supabase.auth.signInWithPassword({
         email: data.email,
         password: data.password,
       });
 
-      if (response.error) throw response.error;
+      console.log('🔐 Sign in response:', response);
+
+      if (response.error) {
+        console.error('❌ Sign in error:', response.error);
+        
+        // Enhance error messages
+        if (response.error.message?.includes('Invalid login credentials')) {
+          throw new Error(
+            'البريد الإلكتروني أو كلمة المرور غير صحيحة. إذا لم تؤكد بريدك الإلكتروني بعد، يرجى التحقق من صندوق الوارد. / Invalid email or password. If you haven\'t confirmed your email yet, please check your inbox.'
+          );
+        }
+        
+        if (response.error.message?.includes('Email not confirmed')) {
+          throw new Error(
+            'يرجى تأكيد بريدك الإلكتروني أولاً. تحقق من صندوق الوارد للحصول على رابط التأكيد. / Please confirm your email first. Check your inbox for the confirmation link.'
+          );
+        }
+        
+        throw response.error;
+      }
+
+      // Check if user has confirmed email
+      if (response.data.user && !response.data.user.email_confirmed_at) {
+        console.warn('⚠️ Email not confirmed yet');
+        throw new Error(
+          'يرجى تأكيد بريدك الإلكتروني أولاً. تحقق من صندوق الوارد. / Please confirm your email first. Check your inbox.'
+        );
+      }
 
       // Update last login timestamp
       if (response.data.user) {
+        console.log('✅ Sign in successful');
         await this.updateLastLogin(response.data.user.id);
       }
 
       return response;
-    } catch (error) {
+    } catch (error: any) {
       console.error('❌ Sign in error:', error);
       throw error;
     }
@@ -321,6 +394,8 @@ class SupabaseAuthService {
    */
   private async createUserProfile(user: User, data: { name: string; role: UserRole; phone?: string }) {
     try {
+      console.log('👤 Creating user profile for:', user.email);
+      
       // Insert into users table
       const { error: userError } = await supabase
         .from('users')
@@ -334,8 +409,15 @@ class SupabaseAuthService {
           is_active: true,
         });
 
-      if (userError && userError.code !== '23505') { // Ignore duplicate key error
-        console.warn('⚠️ User creation warning:', userError);
+      if (userError) {
+        if (userError.code === '23505') {
+          console.log('ℹ️ User already exists in database');
+        } else {
+          console.warn('⚠️ User creation warning:', userError);
+          // Continue anyway, profile might still be created
+        }
+      } else {
+        console.log('✅ User record created');
       }
 
       // Insert into profiles table
@@ -346,13 +428,20 @@ class SupabaseAuthService {
           display_name: data.name,
         });
 
-      if (profileError && profileError.code !== '23505') { // Ignore duplicate key error
-        console.warn('⚠️ Profile creation warning:', profileError);
+      if (profileError) {
+        if (profileError.code === '23505') {
+          console.log('ℹ️ Profile already exists');
+        } else {
+          console.warn('⚠️ Profile creation warning:', profileError);
+        }
+      } else {
+        console.log('✅ Profile record created');
       }
 
       console.log('✅ User profile created successfully');
     } catch (error) {
       console.error('❌ Create user profile error:', error);
+      // Don't throw - we want signup to complete even if profile creation fails
     }
   }
 
