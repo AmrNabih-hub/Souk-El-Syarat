@@ -63,14 +63,15 @@ const AdminDashboard: React.FC = () => {
       // Load recent vendors
       const { vendors: recentVendors } = await VendorService.getAllVendors('active', 10);
 
-      // Mock stats for demo - in real app this would come from various services
+      // Get REAL stats from database - NO MOCK DATA
+      const realStats = await AdminStatsService.getPlatformStats();
       setStats({
-        totalUsers: 1250,
-        totalVendors: vendorStats.total,
-        totalProducts: 850,
-        totalOrders: 420,
-        pendingApplications: vendorStats.applications.pending,
-        monthlyRevenue: 125000,
+        totalUsers: realStats.totalUsers,
+        totalVendors: realStats.totalVendors,
+        totalProducts: realStats.totalProducts,
+        totalOrders: realStats.totalOrders,
+        pendingApplications: realStats.pendingVendorApplications,
+        monthlyRevenue: realStats.monthlyRevenue,
       });
 
       setApplications(pendingApps);

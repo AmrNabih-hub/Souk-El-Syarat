@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { 
   ShoppingBagIcon,
@@ -13,10 +13,32 @@ import {
 import { useAppStore } from '@/stores/appStore';
 import { useAuthStore } from '@/stores/authStore';
 import { Link } from 'react-router-dom';
+import { CustomerStatsService, CustomerStats } from '@/services/customer-stats.service';
 
 const CustomerDashboard: React.FC = () => {
   const { language } = useAppStore();
   const { user } = useAuthStore();
+  const [stats, setStats] = useState<CustomerStats | null>(null);
+  const [loading, setLoading] = useState(true);
+
+  // Load REAL stats from database
+  useEffect(() => {
+    async function loadStats() {
+      if (!user?.id) return;
+      
+      try {
+        setLoading(true);
+        const realStats = await CustomerStatsService.getCustomerStats(user.id);
+        setStats(realStats);
+      } catch (error) {
+        console.error('[CustomerDashboard] Error loading stats:', error);
+      } finally {
+        setLoading(false);
+      }
+    }
+
+    loadStats();
+  }, [user?.id]);
 
   const menuItems = [
     {
@@ -68,13 +90,13 @@ const CustomerDashboard: React.FC = () => {
           </p>
         </motion.div>
 
-        {/* Stats Cards */}
+        {/* Stats Cards - REAL DATA */}
         <div className='grid grid-cols-1 md:grid-cols-4 gap-6 mb-12'>
           {[
-            { label: { ar: 'الطلبات النشطة', en: 'Active Orders' }, value: '3', color: 'text-blue-600' },
-            { label: { ar: 'المفضلة', en: 'Favorites' }, value: '12', color: 'text-red-600' },
-            { label: { ar: 'النقاط', en: 'Points' }, value: '1,250', color: 'text-green-600' },
-            { label: { ar: 'الطلبات المكتملة', en: 'Completed' }, value: '8', color: 'text-purple-600' }
+            { label: { ar: 'الطلبات النشطة', en: 'Active Orders' }, value: stats?.activeOrders || 0, color: 'text-blue-600' },
+            { label: { ar: 'المفضلة', en: 'Favorites' }, value: stats?.favorites || 0, color: 'text-red-600' },
+            { label: { ar: 'النقاط', en: 'Points' }, value: stats?.points.toLocaleString() || '0', color: 'text-green-600' },
+            { label: { ar: 'الطلبات المكتملة', en: 'Completed' }, value: stats?.completedOrders || 0, color: 'text-purple-600' }
           ].map((stat, index) => (
             <motion.div
               key={index}
