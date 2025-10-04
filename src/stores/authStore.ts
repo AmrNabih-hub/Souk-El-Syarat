@@ -1,281 +1,331 @@
+/**
+ * 🔐 Auth Store
+ * Professional authentication state management using Supabase
+ */
+
 import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
-import { User, AuthState } from '@/types';
-import { appwriteAuthService } from '@/services/appwrite-auth.service';
-import { adminAuthService } from '@/services/admin-auth.service';
-import { envConfig } from '@/config/environment.config';
+import { authService, type AuthUser } from '@/services/supabase-auth.service';
+import type { Session } from '@supabase/supabase-js';
 
-interface AuthStore extends AuthState {
+interface AuthState {
+  // State
+  user: AuthUser | null;
+  session: Session | null;
+  isLoading: boolean;
+  error: string | null;
+  isInitialized: boolean;
+
   // Actions
   signIn: (email: string, password: string) => Promise<void>;
-  signUp: (email: string, password: string, displayName: string) => Promise<void>;
-  signInWithGoogle: () => Promise<void>;
+  signUp: (email: string, password: string, name: string, role?: 'customer' | 'vendor') => Promise<void>;
+  signInWithProvider: (provider: 'google' | 'facebook' | 'github') => Promise<void>;
   signOut: () => Promise<void>;
   resetPassword: (email: string) => Promise<void>;
-  updateProfile: (updates: Partial<User>) => Promise<void>;
-  setUser: (user: User | null) => void;
+  updateProfile: (updates: { name?: string; phone?: string; metadata?: Record<string, any> }) => Promise<void>;
+  verifyOtp: (email: string, token: string) => Promise<void>;
+  resendConfirmation: (email: string) => Promise<void>;
+  
+  // Internal actions
+  setUser: (user: AuthUser | null) => void;
+  setSession: (session: Session | null) => void;
   setLoading: (loading: boolean) => void;
   setError: (error: string | null) => void;
   clearError: () => void;
-  initializeAuth: () => Promise<void>;
-  loading: boolean;  // Add this property for compatibility
+  initialize: () => Promise<void>;
 }
 
-export const useAuthStore = create<AuthStore>()(
+export const useAuthStore = create<AuthState>()(
   persist(
     (set, get) => ({
       // Initial state
       user: null,
+      session: null,
       isLoading: false,
-      loading: false,  // Add this for compatibility
       error: null,
+      isInitialized: false,
 
-  // Actions
-  signIn: async (email: string, password: string) => {
-    try {
-      set({ isLoading: true, loading: true, error: null });
-      
-      // First, check if this is an admin login
-      const adminResult = await adminAuthService.loginAdmin(email, password);
-      if (adminResult.success && adminResult.admin) {
-        const adminUser: User = {
-          id: adminResult.admin.id,
-          email: adminResult.admin.email,
-          displayName: adminResult.admin.displayName,
-          role: adminResult.admin.role,
-          isActive: true,
-          emailVerified: true,
-          createdAt: new Date(),
-          updatedAt: new Date(),
-          preferences: {
-            language: 'ar',
-            currency: 'EGP',
-            notifications: { email: true, sms: false, push: true }
-          }
-        };
-        set({ user: adminUser, isLoading: false, loading: false });
-        
-        // Sync to demo_user for AuthContext compatibility
-        localStorage.setItem('demo_user', JSON.stringify(adminUser));
-        return;
-      }
-
-      // Use Appwrite authentication
-      console.log('🔐 Using Appwrite authentication');
-      const authUser = await appwriteAuthService.signIn({ email, password });
-      if (authUser) {
-        const user: User = {
-          id: authUser.$id,
-          email: authUser.email,
-          displayName: authUser.name,
-          role: authUser.role || 'customer',
-          isActive: authUser.isActive !== false,
-          emailVerified: authUser.emailVerified || false,
-          createdAt: new Date(authUser.$createdAt),
-          updatedAt: new Date(authUser.$updatedAt),
-          preferences: authUser.preferences || {
-            language: 'ar',
-            currency: 'EGP',
-            notifications: { email: true, sms: false, push: true }
-          }
-        };
-        set({ user, isLoading: false, loading: false });
-        
-        // Sync to demo_user for AuthContext compatibility
-        localStorage.setItem('demo_user', JSON.stringify(user));
-      }
-    } catch (error: any) {
-      console.error('❌ Sign in error:', error);
-      set({ error: error.message || 'Login failed', isLoading: false, loading: false });
-      throw error;
-    }
-  },
-
-  signUp: async (email: string, password: string, displayName: string) => {
-    try {
-      set({ isLoading: true, error: null });
-      const authUser = await appwriteAuthService.signUp({ 
-        email, 
-        password, 
-        name: displayName 
-      });
-      if (authUser) {
-        const userObj: User = {
-          id: authUser.$id,
-          email: authUser.email,
-          displayName: authUser.name,
-          role: authUser.role || 'customer',
-          isActive: authUser.isActive !== false,
-          emailVerified: authUser.emailVerified || false,
-          createdAt: new Date(authUser.$createdAt),
-          updatedAt: new Date(authUser.$updatedAt),
-          preferences: authUser.preferences || {
-            language: 'ar',
-            currency: 'EGP',
-            notifications: { email: true, sms: false, push: true }
-          }
-        };
-        set({ user: userObj, isLoading: false });
-        
-        // Sync to demo_user for AuthContext compatibility
-        localStorage.setItem('demo_user', JSON.stringify(userObj));
-      }
-    } catch (error: any) {
-      set({ error: error.message, isLoading: false });
-      throw error;
-    }
-  },
-
-  signInWithGoogle: async () => {
-    try {
-      set({ isLoading: true, error: null });
-      // For now, throw an error since OAuth needs to be configured
-      throw new Error('Google OAuth is not configured yet. Please use email/password login.');
-    } catch (error: any) {
-      set({ error: error.message, isLoading: false });
-      throw error;
-    }
-  },
-
-  signOut: async () => {
-    try {
-      set({ isLoading: true, loading: true, error: null });
-      
-      // Check if admin
-      if (adminAuthService.isAdminLoggedIn()) {
-        adminAuthService.logoutAdmin();
-      }
-      
-      // Use Appwrite logout
-      await appwriteAuthService.signOut();
-      
-      // Clear all storage
-      localStorage.removeItem('demo_user');
-      localStorage.removeItem('mock_current_user');
-      
-      set({ user: null, isLoading: false, loading: false });
-    } catch (error: any) {
-      set({ error: error.message, isLoading: false, loading: false });
-      throw error;
-    }
-  },
-
-  resetPassword: async (email: string) => {
-    try {
-      set({ isLoading: true, error: null });
-      await appwriteAuthService.sendPasswordReset(email);
-      set({ isLoading: false });
-    } catch (error: any) {
-      set({ error: error.message, isLoading: false });
-      throw error;
-    }
-  },
-
-  updateProfile: async (updates: Partial<User>) => {
-    try {
-      const { user } = get();
-      if (!user) throw new Error('No user signed in');
-
-      set({ isLoading: true, error: null });
-      // TODO: Implement profile update with Appwrite
-      set({
-        user: { ...user, ...updates },
-        isLoading: false,
-      });
-    } catch (error: any) {
-      set({ error: error.message, isLoading: false });
-      throw error;
-    }
-  },
-
-  setUser: (user: User | null) => set({ user }),
-  setLoading: (isLoading: boolean) => set({ isLoading, loading: isLoading }),
-  setError: (error: string | null) => set({ error }),
-  clearError: () => set({ error: null }),
-  
-  // Initialize auth state from storage
-  initializeAuth: async () => {
-    try {
-      set({ isLoading: true, loading: true });
-      
-      // Check for demo user (legacy support)
-      const storedDemoUser = localStorage.getItem('demo_user');
-      if (storedDemoUser) {
-        const user = JSON.parse(storedDemoUser);
-        console.log('✅ Restored demo user from localStorage:', user.email);
-        set({ user, isLoading: false, loading: false });
-        return;
-      }
-      
-      // Check if admin is logged in
-      if (adminAuthService.isAdminLoggedIn()) {
-        const adminUser = adminAuthService.getCurrentAdmin();
-        if (adminUser) {
-          const user: User = {
-            id: adminUser.id,
-            email: adminUser.email,
-            displayName: adminUser.displayName,
-            role: adminUser.role as any,
-            isActive: true,
-            emailVerified: true,
-            createdAt: new Date(),
-            updatedAt: new Date(),
-            preferences: {
-              language: 'ar',
-              currency: 'EGP',
-              notifications: { email: true, sms: false, push: true }
-            }
-          };
-          console.log('✅ Restored admin user:', user.email);
-          set({ user, isLoading: false, loading: false });
+      // Sign in with email and password
+      signIn: async (email: string, password: string) => {
+        try {
+          set({ isLoading: true, error: null });
           
-          // Sync to demo_user for AuthContext compatibility
-          localStorage.setItem('demo_user', JSON.stringify(user));
-          return;
-        }
-      }
-      
-      // Try to get current Appwrite user
-      try {
-        const currentUser = await appwriteAuthService.getCurrentUser();
-        if (currentUser) {
-          const user: User = {
-            id: currentUser.$id,
-            email: currentUser.email,
-            displayName: currentUser.name,
-            role: currentUser.role || 'customer',
-            isActive: currentUser.isActive !== false,
-            emailVerified: currentUser.emailVerified || false,
-            createdAt: new Date(currentUser.$createdAt),
-            updatedAt: new Date(currentUser.$updatedAt),
-            preferences: currentUser.preferences || {
-              language: 'ar',
-              currency: 'EGP',
-              notifications: { email: true, sms: false, push: true }
-            }
-          };
-          console.log('✅ Restored Appwrite user:', user.email);
-          set({ user, isLoading: false, loading: false });
+          const response = await authService.signIn({ email, password });
           
-          // Sync to demo_user for AuthContext compatibility
-          localStorage.setItem('demo_user', JSON.stringify(user));
-          return;
+          if (response.error) {
+            throw new Error(response.error.message);
+          }
+
+          if (response.data.session && response.data.user) {
+            const userProfile = await authService.getUserProfile(response.data.user.id);
+            set({ 
+              session: response.data.session,
+              user: userProfile,
+              isLoading: false 
+            });
+          }
+        } catch (error) {
+          console.error('❌ Sign in error:', error);
+          set({ 
+            error: error instanceof Error ? error.message : 'Sign in failed',
+            isLoading: false 
+          });
+          throw error;
         }
-      } catch (error) {
-        console.log('ℹ️ No active Appwrite session');
-      }
-      
-      console.log('ℹ️ No stored user found');
-      set({ user: null, isLoading: false, loading: false });
-    } catch (error) {
-      console.error('❌ Auth initialization error:', error);
-      set({ user: null, isLoading: false, loading: false });
-    }
-  },
-}),
+      },
+
+      // Sign up with email and password
+      signUp: async (email: string, password: string, name: string, role: 'customer' | 'vendor' = 'customer') => {
+        try {
+          set({ isLoading: true, error: null });
+          
+          const response = await authService.signUp({
+            email,
+            password,
+            name,
+            role,
+          });
+          
+          if (response.error) {
+            throw new Error(response.error.message);
+          }
+
+          // Don't set user/session here as email confirmation is required
+          set({ isLoading: false });
+          
+        } catch (error) {
+          console.error('❌ Sign up error:', error);
+          set({ 
+            error: error instanceof Error ? error.message : 'Sign up failed',
+            isLoading: false 
+          });
+          throw error;
+        }
+      },
+
+      // Sign out
+      signOut: async () => {
+        try {
+          set({ isLoading: true, error: null });
+          
+          const { error } = await authService.signOut();
+          
+          if (error) {
+            throw error;
+          }
+
+          set({ 
+            user: null,
+            session: null,
+            isLoading: false 
+          });
+          
+        } catch (error) {
+          console.error('❌ Sign out error:', error);
+          set({ 
+            error: error instanceof Error ? error.message : 'Sign out failed',
+            isLoading: false 
+          });
+          throw error;
+        }
+      },
+
+      // Reset password
+      resetPassword: async (email: string) => {
+        try {
+          set({ isLoading: true, error: null });
+          
+          const { error } = await authService.resetPassword({ email });
+          
+          if (error) {
+            throw error;
+          }
+
+          set({ isLoading: false });
+          
+        } catch (error) {
+          console.error('❌ Reset password error:', error);
+          set({ 
+            error: error instanceof Error ? error.message : 'Reset password failed',
+            isLoading: false 
+          });
+          throw error;
+        }
+      },
+
+      // Sign in with OAuth provider
+      signInWithProvider: async (provider: 'google' | 'facebook' | 'github') => {
+        try {
+          set({ isLoading: true, error: null });
+          await authService.signInWithProvider(provider);
+        } catch (error) {
+          console.error(`❌ ${provider} sign in error:`, error);
+          set({ 
+            error: error instanceof Error ? error.message : `${provider} sign in failed`,
+            isLoading: false 
+          });
+          throw error;
+        }
+      },
+
+      // Update profile
+      updateProfile: async (updates: { name?: string; phone?: string; metadata?: Record<string, any> }) => {
+        try {
+          set({ isLoading: true, error: null });
+          
+          const { error } = await authService.updateProfile(updates);
+          
+          if (error) {
+            throw error;
+          }
+
+          // Refresh user profile
+          const currentUser = get().user;
+          if (currentUser) {
+            const updatedProfile = await authService.getUserProfile(currentUser.id);
+            set({ user: updatedProfile, isLoading: false });
+          } else {
+            set({ isLoading: false });
+          }
+          
+        } catch (error) {
+          console.error('❌ Update profile error:', error);
+          set({ 
+            error: error instanceof Error ? error.message : 'Update profile failed',
+            isLoading: false 
+          });
+          throw error;
+        }
+      },
+
+      // Verify OTP
+      verifyOtp: async (email: string, token: string) => {
+        try {
+          set({ isLoading: true, error: null });
+          
+          const response = await authService.verifyOtp(email, token);
+          
+          if (response.error) {
+            throw new Error(response.error.message);
+          }
+
+          if (response.data.session && response.data.user) {
+            const userProfile = await authService.getUserProfile(response.data.user.id);
+            set({ 
+              session: response.data.session,
+              user: userProfile,
+              isLoading: false 
+            });
+          }
+          
+        } catch (error) {
+          console.error('❌ Verify OTP error:', error);
+          set({ 
+            error: error instanceof Error ? error.message : 'OTP verification failed',
+            isLoading: false 
+          });
+          throw error;
+        }
+      },
+
+      // Resend confirmation email
+      resendConfirmation: async (email: string) => {
+        try {
+          set({ isLoading: true, error: null });
+          
+          const { error } = await authService.resendConfirmation(email);
+          
+          if (error) {
+            throw error;
+          }
+
+          set({ isLoading: false });
+          
+        } catch (error) {
+          console.error('❌ Resend confirmation error:', error);
+          set({ 
+            error: error instanceof Error ? error.message : 'Resend confirmation failed',
+            isLoading: false 
+          });
+          throw error;
+        }
+      },
+
+      // Set user (internal)
+      setUser: (user: AuthUser | null) => {
+        set({ user });
+      },
+
+      // Set session (internal)
+      setSession: (session: Session | null) => {
+        set({ session });
+      },
+
+      // Set loading state
+      setLoading: (isLoading: boolean) => {
+        set({ isLoading });
+      },
+
+      // Set error
+      setError: (error: string | null) => {
+        set({ error });
+      },
+
+      // Clear error
+      clearError: () => {
+        set({ error: null });
+      },
+
+      // Initialize auth state
+      initialize: async () => {
+        try {
+          set({ isLoading: true });
+          
+          const session = await authService.getSession();
+          
+          if (session?.user) {
+            const userProfile = await authService.getUserProfile(session.user.id);
+            set({ 
+              session,
+              user: userProfile,
+              isInitialized: true,
+              isLoading: false 
+            });
+          } else {
+            set({ 
+              session: null,
+              user: null,
+              isInitialized: true,
+              isLoading: false 
+            });
+          }
+          
+        } catch (error) {
+          console.error('❌ Initialize auth error:', error);
+          set({ 
+            session: null,
+            user: null,
+            isInitialized: true,
+            isLoading: false 
+          });
+        }
+      },
+    }),
     {
       name: 'auth-storage',
-      partialize: (state) => ({ user: state.user }),
+      partialize: (state) => ({
+        user: state.user,
+        session: state.session,
+      }),
     }
   )
 );
+
+// Helper hooks
+export const useAuth = () => useAuthStore();
+export const useUser = () => useAuthStore((state) => state.user);
+export const useSession = () => useAuthStore((state) => state.session);
+export const useAuthLoading = () => useAuthStore((state) => state.isLoading);
+export const useAuthError = () => useAuthStore((state) => state.error);
+
+export default useAuthStore;

@@ -7,24 +7,41 @@ import App from './App';
 import './index.css';
 import './registerSW'; // PWA Service Worker
 import Providers from '@/components/common/Providers';
-import { isAppwriteConfigured } from '@/config/appwrite.config';
+import { supabase } from '@/config/supabase.config';
 
-// 🚀 PROFESSIONAL APPWRITE INITIALIZATION
-console.log('🚀 Starting Souk El-Sayarat Marketplace with Appwrite...');
+// 🚀 PROFESSIONAL SUPABASE INITIALIZATION
+console.log('🚀 Starting Souk El-Sayarat Marketplace with Supabase...');
 
-// Initialize Appwrite safely
+// Initialize Supabase safely
 const initializeApp = async () => {
   try {
-    console.log('🚀 Initializing Appwrite backend...');
+    console.log('🚀 Initializing Supabase backend...');
     
-    if (isAppwriteConfigured()) {
-      console.log('✅ Appwrite is configured and ready');
-    } else {
-      console.warn('⚠️ Appwrite not configured - Please run setup-appwrite-mcp.sh');
+    // Test Supabase connection with proper error handling
+    const { data, error } = await supabase
+      .from('todos')
+      .select('count', { count: 'exact', head: true })
+      .limit(1);
+    
+    if (error) {
+      console.warn('⚠️ Supabase connection issue:', error.message);
       console.warn('⚠️ Running in development mode with limited functionality');
+      
+      // Try to create todos table if it doesn't exist
+      if (error.code === 'PGRST116' || error.message.includes('does not exist')) {
+        console.log('📝 Creating todos table for demo...');
+        
+        const { error: createError } = await supabase.rpc('create_todos_table');
+        if (!createError) {
+          console.log('✅ Demo table created successfully');
+        }
+      }
+    } else {
+      console.log('✅ Supabase is configured and ready');
+      console.log(`📊 Found ${data?.length || 0} demo records`);
     }
   } catch (error) {
-    console.error('❌ Appwrite initialization error:', error);
+    console.error('❌ Supabase initialization error:', error);
     console.warn('⚠️ Continuing with limited functionality...');
   }
 };

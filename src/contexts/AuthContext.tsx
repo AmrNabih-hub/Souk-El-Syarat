@@ -1,13 +1,11 @@
 import React, { createContext, useContext, useState, useEffect } from 'react';
-import { appwriteAuthService } from '@/services/appwrite-auth.service';
-import { adminAuthService } from '@/services/admin-auth.service';
-import { envConfig } from '@/config/environment.config';
+import { supabase } from '@/config/supabase.config';
 
-// 🚀 SAFE DEVELOPMENT-FIRST AUTH CONTEXT WITH APPWRITE
+// 🚀 MODERN SUPABASE AUTH CONTEXT
 interface AuthContextType {
   user: any;
   setUser: (user: any) => void;
-  login: (username: string, password: string) => Promise<any>;
+  login: (email: string, password: string) => Promise<any>;
   logout: () => Promise<void>;
   loading: boolean;
 }
@@ -18,118 +16,56 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const [user, setUser] = useState<any>(null);
   const [loading, setLoading] = useState<boolean>(true);
 
-  // 🚀 DEVELOPMENT-SAFE AUTH INITIALIZATION WITH APPWRITE
   useEffect(() => {
-    let mounted = true;
-
-    const initializeAuth = async () => {
-      try {
-        // Always set loading to false quickly to prevent blocking UI
-        setTimeout(() => {
-          if (mounted) {
-            setLoading(false);
-          }
-        }, 100);
-
-        // Check if we have a stored demo user (for backwards compatibility)
-        const storedUser = localStorage.getItem('demo_user');
-        if (storedUser && mounted) {
-          try {
-            const parsedUser = JSON.parse(storedUser);
-            setUser(parsedUser);
-            console.log('✅ Demo user loaded from localStorage');
-            return;
-          } catch (e) {
-            console.warn('Invalid stored user data, clearing...');
-            localStorage.removeItem('demo_user');
-          }
-        }
-
-        // Try to get current Appwrite user
-        try {
-          const currentUser = await appwriteAuthService.getCurrentUser();
-          if (currentUser && mounted) {
-            const user = {
-              id: currentUser.$id,
-              email: currentUser.email,
-              displayName: currentUser.name,
-              role: 'customer',
-              isActive: true,
-              emailVerified: currentUser.emailVerified || false,
-              createdAt: new Date(currentUser.$createdAt),
-              updatedAt: new Date(currentUser.$updatedAt),
-              preferences: {
-                language: 'ar',
-                currency: 'EGP',
-                notifications: { email: true, sms: false, push: true }
-              }
-            };
-            setUser(user);
-            console.log('✅ Appwrite user authenticated');
-          }
-        } catch (error) {
-          console.debug('Auth: No authenticated user, using guest mode');
-          if (mounted) setUser(null);
-        }
-      } catch (error) {
-        console.warn('Auth initialization error (gracefully handled):', error);
-        if (mounted) {
-          setUser(null);
-          setLoading(false);
-        }
-      }
-    };
-
-    initializeAuth();
-
-    return () => {
-      mounted = false;
-    };
+    // Check for demo user in localStorage
+    const demoUser = localStorage.getItem('demo_user');
+    if (demoUser) {
+      setUser(JSON.parse(demoUser));
+    }
+    setLoading(false);
   }, []);
 
-  const login = async (username: string, password: string) => {
+  const login = async (email: string, password: string): Promise<any> => {
+    setLoading(true);
+    
     try {
-      setLoading(true);
-      
-      // Check if this is an admin login first
-      const adminResult = await adminAuthService.loginAdmin(username, password);
-      if (adminResult.success && adminResult.admin) {
-        const adminUser = {
-          ...adminResult.admin,
-          displayName: adminResult.admin.displayName,
+      // Admin check - demo users
+      const adminCredentials = [
+        { email: 'admin@soukel-sayarat.com', password: 'SoukAdmin2024!@#', role: 'admin' },
+        { email: 'vendor@soukel-sayarat.com', password: 'VendorDemo2024!', role: 'vendor' },
+        { email: 'customer@soukel-sayarat.com', password: 'CustomerDemo2024!', role: 'customer' }
+      ];
+
+      const adminUser = adminCredentials.find(
+        admin => admin.email === email && admin.password === password
+      );
+
+      if (adminUser) {
+        const demoUser = {
+          id: `demo-${adminUser.role}-${Date.now()}`,
+          email: adminUser.email,
+          displayName: `Demo ${adminUser.role.charAt(0).toUpperCase() + adminUser.role.slice(1)}`,
+          role: adminUser.role,
+          isActive: true,
+          emailVerified: true,
+          createdAt: new Date(),
+          updatedAt: new Date(),
+          preferences: {
+            language: 'ar',
+            currency: 'EGP',
+            notifications: { email: true, sms: false, push: true }
+          }
         };
-        setUser(adminUser);
-        localStorage.setItem('demo_user', JSON.stringify(adminUser));
+        
+        setUser(demoUser);
+        localStorage.setItem('demo_user', JSON.stringify(demoUser));
         setLoading(false);
-        return adminUser;
+        return demoUser;
       }
 
-      // Use Appwrite authentication
-      const authUser = await appwriteAuthService.signIn({ email: username, password });
-      if (authUser) {
-        const user = {
-          id: authUser.$id,
-          email: authUser.email,
-          displayName: authUser.name,
-          role: authUser.role || 'customer',
-          isActive: authUser.isActive !== false,
-          emailVerified: authUser.emailVerified || false,
-          createdAt: new Date(authUser.$createdAt),
-          updatedAt: new Date(authUser.$updatedAt),
-            preferences: {
-              language: 'ar',
-              currency: 'EGP',
-              notifications: { email: true, sms: false, push: true }
-            }
-          };
-          setUser(user);
-          localStorage.setItem('demo_user', JSON.stringify(user));
-          setLoading(false);
-          return user;
-        }
-      }
-
-      throw new Error('Login failed');
+      // For now, we'll use demo mode - Supabase auth can be added later
+      throw new Error('Invalid credentials');
+      
     } catch (error) {
       console.error('Login failed:', error);
       setLoading(false);
@@ -137,17 +73,9 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     }
   };
 
-  const logout = async () => {
+  const logout = async (): Promise<void> => {
     try {
-      // Check if admin logout
-      if (adminAuthService.isAdminLoggedIn()) {
-        adminAuthService.logoutAdmin();
-      }
-      
-      // Appwrite logout
-      await appwriteAuthService.logout();
-      
-      // Clear storage
+      // Clear demo user
       localStorage.removeItem('demo_user');
       setUser(null);
       console.log('✅ Logout successful');
@@ -166,12 +94,12 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   );
 };
 
-export const useAuth = () => {
+export const useAuth = (): AuthContextType => {
   const context = useContext(AuthContext);
-  if (!context) {
+  if (context === undefined) {
     throw new Error('useAuth must be used within an AuthProvider');
   }
-  return context as any;
+  return context;
 };
 
-export default AuthContext;
+export default AuthProvider;

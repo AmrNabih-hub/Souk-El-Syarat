@@ -1,0 +1,78 @@
+{
+  "version": 2,
+  "name": "souk-el-sayarat",
+  "builds": [
+    {
+      "src": "dist/**",
+      "use": "@vercel/static"
+    }
+  ],
+  "routes": [
+    {
+      "src": "/assets/(.*)",
+      "headers": {
+        "cache-control": "public, max-age=31536000, immutable"
+      }
+    },
+    {
+      "src": "/(.*)",
+      "dest": "/index.html"
+    }
+  ],
+  "headers": [
+    {
+      "source": "/(.*)",
+      "headers": [
+        {
+          "key": "X-Content-Type-Options",
+          "value": "nosniff"
+        },
+        {
+          "key": "X-Frame-Options",
+          "value": "DENY"
+        },
+        {
+          "key": "X-XSS-Protection",
+          "value": "1; mode=block"
+        },
+        {
+          "key": "Referrer-Policy",
+          "value": "strict-origin-when-cross-origin"
+        },
+        {
+          "key": "Content-Security-Policy",
+          "value": "default-src 'self'; script-src 'self' 'unsafe-inline' 'unsafe-eval' https://zgnwfnfehdwehuycbcsz.supabase.co; style-src 'self' 'unsafe-inline'; img-src 'self' data: https: blob:; font-src 'self' data:; connect-src 'self' https://zgnwfnfehdwehuycbcsz.supabase.co wss://zgnwfnfehdwehuycbcsz.supabase.co;"
+        }
+      ]
+    }
+  ],
+  "functions": {
+    "dist/**": {
+      "includeFiles": "dist/**"
+    }
+  },
+  "redirects": [
+    {
+      "source": "/home",
+      "destination": "/",
+      "permanent": true
+    },
+    {
+      "source": "/shop",
+      "destination": "/marketplace",
+      "permanent": true
+    }
+  ],
+  "rewrites": [
+    {
+      "source": "/api/(.*)",
+      "destination": "https://zgnwfnfehdwehuycbcsz.supabase.co/rest/v1/$1"
+    }
+  ],
+  "env": {
+    "VITE_APP_NAME": "Souk El-Sayarat",
+    "VITE_CURRENCY": "EGP",
+    "VITE_DEFAULT_LANGUAGE": "ar",
+    "VITE_ENVIRONMENT": "production"
+  }
+}

@@ -1,0 +1,51 @@
+# Netlify configuration for Souk El-Sayarat
+[build]
+  publish = "dist"
+  command = "npm run build"
+
+[build.environment]
+  NODE_VERSION = "20"
+  NPM_VERSION = "10"
+
+# Redirect rules for SPA
+[[redirects]]
+  from = "/*"
+  to = "/index.html"
+  status = 200
+
+# Security headers
+[[headers]]
+  for = "/*"
+  [headers.values]
+    X-Frame-Options = "DENY"
+    X-XSS-Protection = "1; mode=block"
+    X-Content-Type-Options = "nosniff"
+    Referrer-Policy = "strict-origin-when-cross-origin"
+    Content-Security-Policy = "default-src 'self'; script-src 'self' 'unsafe-inline' 'unsafe-eval' https://zgnwfnfehdwehuycbcsz.supabase.co; style-src 'self' 'unsafe-inline'; img-src 'self' data: https: blob:; font-src 'self' data:; connect-src 'self' https://zgnwfnfehdwehuycbcsz.supabase.co wss://zgnwfnfehdwehuycbcsz.supabase.co;"
+
+# Cache static assets
+[[headers]]
+  for = "/assets/*"
+  [headers.values]
+    Cache-Control = "public, max-age=31536000, immutable"
+
+# Specific redirects
+[[redirects]]
+  from = "/home"
+  to = "/"
+  status = 301
+
+[[redirects]]
+  from = "/shop"
+  to = "/marketplace"
+  status = 301
+
+# API proxy to Supabase
+[[redirects]]
+  from = "/api/*"
+  to = "https://zgnwfnfehdwehuycbcsz.supabase.co/rest/v1/:splat"
+  status = 200
+
+# Form handling for contact forms
+[forms]
+  path = "/contact"

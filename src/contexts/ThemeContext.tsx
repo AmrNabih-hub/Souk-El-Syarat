@@ -6,7 +6,7 @@ interface ThemeContextType {
   theme: Theme;
   setTheme: (theme: Theme) => void;
   resolvedTheme: 'light' | 'dark';
-  actualTheme: 'light' | 'dark'; // Alias for resolvedTheme for test compatibility
+  actualTheme: 'light' | 'dark';
   toggleTheme: () => void;
 }
 
@@ -20,7 +20,7 @@ interface ThemeProviderProps {
 
 export const ThemeProvider: React.FC<ThemeProviderProps> = ({
   children,
-  defaultTheme = 'auto',
+  defaultTheme = 'light',
   storageKey = 'souk-theme',
 }) => {
   const [theme, setTheme] = useState<Theme>(defaultTheme);
@@ -28,69 +28,71 @@ export const ThemeProvider: React.FC<ThemeProviderProps> = ({
 
   // Initialize theme from localStorage
   useEffect(() => {
-    const storedTheme = localStorage.getItem(storageKey) as Theme;
-    if (storedTheme && ['light', 'dark', 'auto'].includes(storedTheme)) {
-      setTheme(storedTheme);
+    try {
+      const stored = localStorage.getItem(storageKey) as Theme;
+      if (stored && ['light', 'dark', 'auto'].includes(stored)) {
+        setTheme(stored);
+      }
+    } catch (error) {
+      console.warn('Failed to load theme from localStorage:', error);
     }
   }, [storageKey]);
 
-  // Listen for system theme changes
+  // Resolve theme based on system preference
   useEffect(() => {
-    const mediaQuery = window.matchMedia('(prefers-color-scheme: dark)');
-
-    const handleChange = () => {
+    const resolveTheme = () => {
       if (theme === 'auto') {
-        setResolvedTheme(mediaQuery.matches ? 'dark' : 'light');
+        const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+        setResolvedTheme(prefersDark ? 'dark' : 'light');
+      } else {
+        setResolvedTheme(theme);
       }
     };
 
-    // Set initial resolved theme
-    if (theme === 'auto') {
-      setResolvedTheme(mediaQuery.matches ? 'dark' : 'light');
-    } else {
-      setResolvedTheme(theme);
-    }
+    resolveTheme();
 
-    mediaQuery.addEventListener('change', handleChange);
-    return () => mediaQuery.removeEventListener('change', handleChange);
+    if (theme === 'auto') {
+      const mediaQuery = window.matchMedia('(prefers-color-scheme: dark)');
+      mediaQuery.addEventListener('change', resolveTheme);
+      return () => mediaQuery.removeEventListener('change', resolveTheme);
+    }
   }, [theme]);
 
   // Apply theme to document
   useEffect(() => {
-    const root = window.document.documentElement;
-
-    root.classList.remove('light', 'dark');
-    root.classList.add(resolvedTheme);
-  }, [resolvedTheme]);
-
-  // Store theme preference separately
-  useEffect(() => {
-    localStorage.setItem(storageKey, theme);
-  }, [theme, storageKey]);
+    try {
+      const root = document.documentElement;
+      root.classList.remove('light', 'dark');
+      root.classList.add(resolvedTheme);
+      
+      // Store theme preference
+      localStorage.setItem(storageKey, theme);
+    } catch (error) {
+      console.warn('Failed to apply theme:', error);
+    }
+  }, [resolvedTheme, theme, storageKey]);
 
   const handleSetTheme = (newTheme: Theme) => {
     setTheme(newTheme);
   };
 
   const toggleTheme = () => {
-    if (theme === 'light') {
-      setTheme('dark');
-    } else if (theme === 'dark') {
-      setTheme('auto');
-    } else {
-      setTheme('light');
-    }
+    setTheme(current => current === 'light' ? 'dark' : 'light');
   };
 
-  const value: ThemeContextType = {
+  const value = {
     theme,
     setTheme: handleSetTheme,
     resolvedTheme,
-    actualTheme: resolvedTheme, // Alias for test compatibility
+    actualTheme: resolvedTheme, // Alias for compatibility
     toggleTheme,
   };
 
-  return <ThemeContext.Provider value={value}>{children}</ThemeContext.Provider>;
+  return (
+    <ThemeContext.Provider value={value}>
+      {children}
+    </ThemeContext.Provider>
+  );
 };
 
 export const useTheme = (): ThemeContextType => {
@@ -101,4 +103,4 @@ export const useTheme = (): ThemeContextType => {
   return context;
 };
 
-export default ThemeContext;
+export default ThemeProvider;

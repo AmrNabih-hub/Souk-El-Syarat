@@ -1,10 +1,10 @@
 /**
- * 🛒 Appwrite Order Service
- * Professional order management service using Appwrite Cloud
- * Replaces AWS Amplify order service
+ * 📦 Order Service
+ * Professional order management with Supabase integration
  */
 
-import { appwriteDatabaseService } from './appwrite-database.service';
+import { supabase } from '@/config/supabase.config';
+import type { Order, OrderStatus, CreateOrderData, UpdateOrderData } from '@/types';
 
 export type OrderStatus =
   | 'pending' // Order placed, waiting for vendor confirmation

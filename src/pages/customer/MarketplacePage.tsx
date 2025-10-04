@@ -10,7 +10,7 @@ import {
 import { useAppStore } from '@/stores/appStore';
 
 import { Product, ProductCategory, ProductCondition, SearchFilters } from '@/types';
-import { ProductService } from '@/services/product.service';
+import { productService } from '@/services/product.service';
 
 import ProductCard from '@/components/product/ProductCard';
 import { EgyptianLoader } from '@/components/ui/CustomIcons';
@@ -62,7 +62,7 @@ const MarketplacePage: React.FC = () => {
       setIsLoading(true);
 
       // Get sample products and add variety
-      const sampleProducts = await ProductService.getSampleProducts();
+      const sampleProducts = await productService.getSampleProducts();
       setProducts(sampleProducts);
     } catch (error) {
       if (process.env.NODE_ENV === 'development')
