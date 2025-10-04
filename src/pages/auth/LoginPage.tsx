@@ -42,7 +42,26 @@ const LoginPage: React.FC = () => {
       clearError();
       await signIn(data.email, data.password);
       toast.success(language === 'ar' ? 'تم تسجيل الدخول بنجاح!' : 'Logged in successfully!');
-      navigate('/');
+      
+      // Role-based redirect after successful login
+      const { user: currentUser } = useAuthStore.getState();
+      if (currentUser) {
+        switch (currentUser.role) {
+          case 'admin':
+            navigate('/admin/dashboard');
+            break;
+          case 'vendor':
+            navigate('/vendor/dashboard');
+            break;
+          case 'customer':
+            navigate('/customer/dashboard');
+            break;
+          default:
+            navigate('/');
+        }
+      } else {
+        navigate('/');
+      }
     } catch (error: any) {
       toast.error(error?.message || 'Failed to sign in');
     }

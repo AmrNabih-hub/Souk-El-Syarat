@@ -116,9 +116,9 @@ class SupabaseAuthService {
   }
 
   /**
-   * Sign in with OAuth provider
+   * Sign in with OAuth provider (Google or GitHub)
    */
-  async signInWithProvider(provider: 'google' | 'facebook' | 'github') {
+  async signInWithProvider(provider: 'google' | 'github') {
     try {
       const { data, error } = await supabase.auth.signInWithOAuth({
         provider,

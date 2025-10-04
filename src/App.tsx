@@ -28,9 +28,15 @@ const CustomerDashboard = lazy(() => import('@/pages/customer/CustomerDashboard'
 // Advanced Components (lazy loaded)
 const GlobalLiveFeatures = lazy(() => import('@/components/advanced/GlobalLiveFeatures'));
 
+// Customer Pages (lazy loaded)
+const UsedCarSellingPage = lazy(() => import('@/pages/customer/UsedCarSellingPage'));
+
 // Loading Components
 import LoadingScreen from '@/components/ui/LoadingScreen';
 import EgyptianLoader from '@/components/ui/EgyptianLoader';
+
+// Auth Components
+import ProtectedRoute from '@/components/auth/ProtectedRoute';
 
 // Professional Loading Component
 const AppLoadingScreen = () => (
@@ -80,56 +86,42 @@ function App() {
               <Route path="/login" element={<LoginPage />} />
               <Route path="/register" element={<RegisterPage />} />
               
-              {/* Role-based Dashboard Routes */}
-              <Route path="/admin/dashboard" element={<AdminDashboard />} />
-              <Route path="/vendor/dashboard" element={<VendorDashboard />} />
-              <Route path="/customer/dashboard" element={<CustomerDashboard />} />
+              {/* Role-based Dashboard Routes (Protected) */}
+              <Route path="/admin/dashboard" element={
+                <ProtectedRoute allowedRoles={['admin']}>
+                  <AdminDashboard />
+                </ProtectedRoute>
+              } />
+              <Route path="/vendor/dashboard" element={
+                <ProtectedRoute allowedRoles={['vendor']}>
+                  <VendorDashboard />
+                </ProtectedRoute>
+              } />
+              <Route path="/customer/dashboard" element={
+                <ProtectedRoute allowedRoles={['customer']}>
+                  <CustomerDashboard />
+                </ProtectedRoute>
+              } />
               
-              {/* Vendor System */}
-              <Route path="/vendor/apply" element={<VendorApplicationPage />} />
+              {/* Vendor System (Protected) */}
+              <Route path="/vendor/apply" element={
+                <ProtectedRoute requireAuth={true}>
+                  <VendorApplicationPage />
+                </ProtectedRoute>
+              } />
               <Route path="/become-vendor" element={<Navigate to="/vendor/apply" replace />} />
               
-              {/* Additional Routes */}
+              {/* Sell Your Car - Customer Only (Protected) */}
               <Route path="/sell-your-car" element={
-                <div className="min-h-screen bg-gradient-to-br from-emerald-50 to-teal-50 dark:from-emerald-950 dark:to-teal-950 py-20">
-                  <div className="max-w-4xl mx-auto px-4 text-center">
-                    <motion.div
-                      initial={{ opacity: 0, y: 30 }}
-                      animate={{ opacity: 1, y: 0 }}
-                      transition={{ duration: 0.8 }}
-                    >
-                      <div className="text-6xl mb-6">🚗</div>
-                      <h1 className="text-4xl font-bold text-neutral-900 dark:text-white mb-6">
-                        بيع سيارتك بسهولة
-                      </h1>
-                      <p className="text-xl text-neutral-600 dark:text-neutral-300 mb-8 max-w-2xl mx-auto">
-                        ادخل بيانات سيارتك واحصل على أفضل العروض من تجار معتمدين في جميع أنحاء مصر
-                      </p>
-                      <div className="bg-white dark:bg-neutral-800 rounded-2xl shadow-xl p-8 max-w-2xl mx-auto">
-                        <p className="text-emerald-600 dark:text-emerald-400 font-semibold mb-4">
-                          🚀 قريباً - خدمة بيع السيارات الفورية
-                        </p>
-                        <ul className="text-right space-y-3 text-neutral-700 dark:text-neutral-300">
-                          <li className="flex items-center gap-3">
-                            <span className="text-emerald-500">✓</span>
-                            تقييم فوري لسيارتك
-                          </li>
-                          <li className="flex items-center gap-3">
-                            <span className="text-emerald-500">✓</span>
-                            عروض من تجار معتمدين
-                          </li>
-                          <li className="flex items-center gap-3">
-                            <span className="text-emerald-500">✓</span>
-                            إجراءات آمنة ومضمونة
-                          </li>
-                          <li className="flex items-center gap-3">
-                            <span className="text-emerald-500">✓</span>
-                            دعم فني 24/7
-                          </li>
-                        </ul>
-                      </div>
-                    </motion.div>
-                  </div>
+                <ProtectedRoute allowedRoles={['customer']} requireAuth={true}>
+                  <UsedCarSellingPage />
+                </ProtectedRoute>
+              } />
+              
+              {/* OAuth Callback Route */}
+              <Route path="/auth/callback" element={
+                <div className="min-h-screen flex items-center justify-center">
+                  <LoadingScreen />
                 </div>
               } />
               
