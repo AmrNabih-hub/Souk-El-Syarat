@@ -104,6 +104,8 @@ function App() {
                   <CustomerDashboard />
                 </ProtectedRoute>
               } />
+              {/* Legacy dashboard route - redirect to customer */}
+              <Route path="/dashboard" element={<Navigate to="/customer/dashboard" replace />} />
               
               {/* Vendor System (Protected) */}
               <Route path="/vendor/apply" element={

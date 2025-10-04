@@ -310,7 +310,7 @@ const Navbar: React.FC = () => {
 
                         {user.role === 'customer' && (
                           <Link
-                            to='/dashboard'
+                            to='/customer/dashboard'
                             className='block px-4 py-2 text-sm text-neutral-700 hover:bg-neutral-50 transition-colors'
                             onClick={() => setIsUserMenuOpen(false)}
                           >
