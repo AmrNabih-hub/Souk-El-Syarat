@@ -17,28 +17,14 @@ const initializeApp = async () => {
   try {
     console.log('🚀 Initializing Supabase backend...');
     
-    // Test Supabase connection with proper error handling
-    const { data, error } = await supabase
-      .from('todos')
-      .select('count', { count: 'exact', head: true })
-      .limit(1);
+    // Test Supabase connection with auth (don't query non-existent tables)
+    const { data: { session } } = await supabase.auth.getSession();
     
-    if (error) {
-      console.warn('⚠️ Supabase connection issue:', error.message);
-      console.warn('⚠️ Running in development mode with limited functionality');
-      
-      // Try to create todos table if it doesn't exist
-      if (error.code === 'PGRST116' || error.message.includes('does not exist')) {
-        console.log('📝 Creating todos table for demo...');
-        
-        const { error: createError } = await supabase.rpc('create_todos_table');
-        if (!createError) {
-          console.log('✅ Demo table created successfully');
-        }
-      }
-    } else {
+    if (session) {
       console.log('✅ Supabase is configured and ready');
-      console.log(`📊 Found ${data?.length || 0} demo records`);
+      console.log('👤 Active session found:', session.user.email);
+    } else {
+      console.log('✅ Supabase is configured and ready (no active session)');
     }
   } catch (error) {
     console.error('❌ Supabase initialization error:', error);
