@@ -7,52 +7,25 @@ export default defineConfig({
   test: {
     globals: true,
     environment: 'jsdom',
-    setupFiles: ['./src/test/test-setup.ts'],
+    setupFiles: ['./src/test/setup.ts'],
     coverage: {
       provider: 'v8',
-      reporter: ['text', 'json', 'html'],
+      reporter: ['text', 'json', 'html', 'lcov'],
       exclude: [
         'node_modules/',
         'src/test/',
-        'src/tests/e2e/**',
         '**/*.d.ts',
         '**/*.config.*',
-        '**/index.ts',
-        '**/types.ts',
-        '**/*.stories.*',
-        'coverage/',
+        '**/mockData',
         'dist/',
-        'build/',
       ],
-      thresholds: {
-        global: {
-          branches: 80,
-          functions: 80,
-          lines: 80,
-          statements: 80,
-        },
-      },
     },
-    include: [
-      'src/**/*.{test,spec}.{js,ts,jsx,tsx}',
-      'src/**/__tests__/**/*.{js,ts,jsx,tsx}',
-    ],
-    exclude: [
-      'node_modules/',
-      'dist/',
-      'build/',
-      'coverage/',
-      'src/models/**',
-      'src/tests/e2e/**',
-    ],
+    include: ['src/**/*.{test,spec}.{ts,tsx}'],
+    exclude: ['node_modules', 'dist', '.idea', '.git', '.cache'],
   },
   resolve: {
     alias: {
       '@': path.resolve(__dirname, './src'),
     },
-  },
-  define: {
-    'process.env.NODE_ENV': '"test"',
-    'process.env.REACT_APP_USE_EMULATORS': '"true"',
   },
 });

@@ -15,7 +15,7 @@ export default defineConfig({
   },
   build: {
     outDir: 'dist',
-    sourcemap: false,
+    sourcemap: true, // Enable sourcemaps for debugging
     minify: 'terser',
     chunkSizeWarningLimit: 1000,
     rollupOptions: {
@@ -60,7 +60,7 @@ export default defineConfig({
     },
     terserOptions: {
       compress: {
-        drop_console: true,
+        drop_console: false, // Keep console logs for now to debug
         drop_debugger: true
       }
     }

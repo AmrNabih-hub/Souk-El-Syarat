@@ -19,7 +19,7 @@ interface AuthState {
   // Actions
   signIn: (email: string, password: string) => Promise<void>;
   signUp: (email: string, password: string, name: string, role?: 'customer' | 'vendor') => Promise<void>;
-  signInWithProvider: (provider: 'google' | 'facebook' | 'github') => Promise<void>;
+  signInWithProvider: (provider: 'google' | 'github') => Promise<void>;
   signOut: () => Promise<void>;
   resetPassword: (email: string) => Promise<void>;
   updateProfile: (updates: { name?: string; phone?: string; metadata?: Record<string, any> }) => Promise<void>;
@@ -153,8 +153,8 @@ export const useAuthStore = create<AuthState>()(
         }
       },
 
-      // Sign in with OAuth provider
-      signInWithProvider: async (provider: 'google' | 'facebook' | 'github') => {
+      // Sign in with OAuth provider (Google or GitHub)
+      signInWithProvider: async (provider: 'google' | 'github') => {
         try {
           set({ isLoading: true, error: null });
           await authService.signInWithProvider(provider);
