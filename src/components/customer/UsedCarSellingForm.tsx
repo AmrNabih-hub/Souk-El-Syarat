@@ -10,6 +10,8 @@ import { useAppStore } from '@/stores/appStore';
 import { useAuthStore } from '@/stores/authStore';
 
 import { productService } from '@/services/product.service';
+import { supabase } from '@/config/supabase.config';
+import { EmailNotificationService } from '@/services/email-notification.service';
 import LoadingSpinner from '@/components/ui/LoadingSpinner';
 import toast from 'react-hot-toast';
 

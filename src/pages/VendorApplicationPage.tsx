@@ -21,6 +21,7 @@ import LoadingSpinner from '@/components/ui/LoadingSpinner';
 import SubscriptionPlans from '@/components/payment/SubscriptionPlans';
 import toast from 'react-hot-toast';
 import { vendorApplicationService, VendorApplicationData } from '@/services/vendor-application.service';
+import { EmailNotificationService } from '@/services/email-notification.service';
 
 interface VendorApplicationFormData {
   businessName: string;
@@ -256,11 +257,22 @@ const VendorApplicationPage: React.FC = () => {
       
       console.log('Application submitted with ID:', applicationId);
 
+      // Send notification to admin (async, don't wait)
+      EmailNotificationService.notifyAdminNewVendorApplication({
+        companyName: data.businessName,
+        userName: user.displayName || user.email || 'Unknown',
+        userEmail: user.email || '',
+        licenseNumber: data.businessLicense,
+        description: data.description,
+        applicationId
+      }).catch(err => console.error('[VendorApplication] Email error:', err));
+
       setApplicationSubmitted(true);
       toast.success(
         language === 'ar' 
           ? 'تم تقديم الطلب بنجاح! سيتم مراجعته خلال 3-5 أيام عمل.' 
-          : 'Application submitted successfully! It will be reviewed within 3-5 business days.'
+          : 'Application submitted successfully! It will be reviewed within 3-5 business days.',
+        { duration: 5000 }
       );
       
       // Update user status to indicate pending vendor application
