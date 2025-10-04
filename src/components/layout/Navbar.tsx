@@ -433,6 +433,24 @@ const Navbar: React.FC = () => {
                   </motion.div>
                 ))}
 
+                {/* Sell Your Car - Mobile (Customer Only) */}
+                {user?.role === 'customer' && (
+                  <motion.div
+                    initial={{ x: -20, opacity: 0 }}
+                    animate={{ x: 0, opacity: 1 }}
+                    transition={{ duration: 0.2 }}
+                    className='px-2 my-2'
+                  >
+                    <Link
+                      to='/sell-your-car'
+                      className='block px-4 py-3 text-sm font-bold text-white bg-gradient-to-r from-emerald-500 to-teal-600 text-center rounded-lg shadow-md hover:shadow-lg transition-all'
+                      onClick={() => setIsMobileMenuOpen(false)}
+                    >
+                      {language === 'ar' ? '🚗 بيع عربيتك' : '🚗 Sell Your Car'}
+                    </Link>
+                  </motion.div>
+                )}
+
                 {/* Theme Toggle in Mobile Menu */}
                 <div className='mt-6 pt-4 border-t border-neutral-200'>
                   <div className='px-4 py-2 text-xs font-semibold text-neutral-500 uppercase tracking-wider'>
