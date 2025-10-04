@@ -21,6 +21,8 @@
     "init-supabase": "node scripts/init-supabase.js",
     "verify": "node scripts/verify-production.cjs",
     "verify:build": "node scripts/verify-production.cjs && npm run build",
+    "validate:supabase": "tsx scripts/validate-supabase-integration.ts",
+    "test:db": "tsx scripts/test-database-operations.ts",
     "lint": "eslint . --ext ts,tsx --report-unused-disable-directives --max-warnings 0",
     "lint:ci": "eslint . --ext ts,tsx --report-unused-disable-directives",
     "lint:fix": "eslint . --ext ts,tsx --fix",
