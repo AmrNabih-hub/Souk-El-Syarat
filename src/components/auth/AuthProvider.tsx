@@ -35,53 +35,79 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
         if (session?.user) {
           console.log('✅ [AuthProvider] Session found:', session.user.email);
+          console.log('📋 [AuthProvider] User metadata:', session.user.user_metadata);
           
           try {
             // Try to get profile from database
+            console.log('🔍 [AuthProvider] Fetching profile from database...');
             const userProfile = await authService.getUserProfile(session.user.id);
             
             if (userProfile && mounted) {
-              console.log('✅ [AuthProvider] Profile loaded:', {
+              console.log('✅ [AuthProvider] Profile loaded from database:', {
                 email: userProfile.email,
                 role: userProfile.role,
-                id: userProfile.id
+                id: userProfile.id,
+                emailVerified: userProfile.emailVerified
               });
               setSession(session);
               setUser(userProfile);
-            } else if (mounted) {
-              // Fallback to session data
-              console.log('⚠️ [AuthProvider] Using fallback profile from session');
-              const fallbackUser = {
-                id: session.user.id,
-                email: session.user.email,
-                phone: session.user.phone,
-                role: (session.user.user_metadata?.role || 'customer') as 'customer' | 'vendor' | 'admin',
-                isActive: true,
-                emailVerified: !!session.user.email_confirmed_at,
-                phoneVerified: false,
-                createdAt: new Date(session.user.created_at),
-                updatedAt: new Date(),
-                metadata: session.user.user_metadata,
-              };
-              setSession(session);
-              setUser(fallbackUser);
+            } else {
+              // Profile doesn't exist or query failed - use fallback
+              console.warn('⚠️ [AuthProvider] Profile not found in database, using session data');
+              console.log('📝 [AuthProvider] Creating fallback profile from session');
+              
+              if (mounted) {
+                const fallbackUser = {
+                  id: session.user.id,
+                  email: session.user.email!,
+                  phone: session.user.phone,
+                  role: (session.user.user_metadata?.role || session.user.user_metadata?.display_role || 'customer') as 'customer' | 'vendor' | 'admin',
+                  isActive: true,
+                  emailVerified: !!session.user.email_confirmed_at,
+                  phoneVerified: !!session.user.phone_confirmed_at,
+                  createdAt: new Date(session.user.created_at),
+                  updatedAt: new Date(),
+                  metadata: session.user.user_metadata,
+                  displayName: session.user.user_metadata?.display_name || session.user.email?.split('@')[0],
+                  photoURL: session.user.user_metadata?.avatar_url,
+                };
+                
+                console.log('✅ [AuthProvider] Using fallback profile:', {
+                  email: fallbackUser.email,
+                  role: fallbackUser.role,
+                  emailVerified: fallbackUser.emailVerified
+                });
+                
+                setSession(session);
+                setUser(fallbackUser);
+              }
             }
           } catch (profileError) {
-            console.error('❌ [AuthProvider] Profile fetch failed:', profileError);
+            console.error('❌ [AuthProvider] Profile fetch error:', profileError);
+            
             if (mounted) {
-              // Still use fallback
+              // Create fallback profile
+              console.log('🔄 [AuthProvider] Creating fallback profile after error');
               const fallbackUser = {
                 id: session.user.id,
-                email: session.user.email,
+                email: session.user.email!,
                 phone: session.user.phone,
-                role: (session.user.user_metadata?.role || 'customer') as 'customer' | 'vendor' | 'admin',
+                role: (session.user.user_metadata?.role || session.user.user_metadata?.display_role || 'customer') as 'customer' | 'vendor' | 'admin',
                 isActive: true,
                 emailVerified: !!session.user.email_confirmed_at,
-                phoneVerified: false,
+                phoneVerified: !!session.user.phone_confirmed_at,
                 createdAt: new Date(session.user.created_at),
                 updatedAt: new Date(),
                 metadata: session.user.user_metadata,
+                displayName: session.user.user_metadata?.display_name || session.user.email?.split('@')[0],
+                photoURL: session.user.user_metadata?.avatar_url,
               };
+              
+              console.log('✅ [AuthProvider] Fallback profile created:', {
+                email: fallbackUser.email,
+                role: fallbackUser.role
+              });
+              
               setSession(session);
               setUser(fallbackUser);
             }
@@ -124,22 +150,48 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         case 'SIGNED_IN':
         case 'TOKEN_REFRESHED':
           if (session?.user) {
+            console.log('🔐 [AuthProvider] Processing SIGNED_IN event for:', session.user.email);
             try {
               const userProfile = await authService.getUserProfile(session.user.id);
               if (userProfile && mounted) {
-                console.log('✅ [AuthProvider] User profile updated:', userProfile.role);
+                console.log('✅ [AuthProvider] User profile updated from database:', {
+                  role: userProfile.role,
+                  email: userProfile.email
+                });
                 setSession(session);
                 setUser(userProfile);
               } else if (mounted) {
                 // Fallback
+                console.log('⚠️ [AuthProvider] Using fallback for SIGNED_IN event');
                 const fallbackUser = {
                   id: session.user.id,
-                  email: session.user.email,
+                  email: session.user.email!,
+                  phone: session.user.phone,
+                  role: (session.user.user_metadata?.role || session.user.user_metadata?.display_role || 'customer') as 'customer' | 'vendor' | 'admin',
+                  isActive: true,
+                  emailVerified: !!session.user.email_confirmed_at,
+                  phoneVerified: !!session.user.phone_confirmed_at,
+                  createdAt: new Date(session.user.created_at),
+                  updatedAt: new Date(),
+                  metadata: session.user.user_metadata,
+                  displayName: session.user.user_metadata?.display_name || session.user.email?.split('@')[0],
+                  photoURL: session.user.user_metadata?.avatar_url,
+                };
+                console.log('✅ [AuthProvider] Fallback user set:', fallbackUser.role);
+                setSession(session);
+                setUser(fallbackUser);
+              }
+            } catch (error) {
+              console.error('❌ [AuthProvider] Profile fetch error:', error);
+              if (mounted) {
+                const fallbackUser = {
+                  id: session.user.id,
+                  email: session.user.email!,
                   phone: session.user.phone,
                   role: (session.user.user_metadata?.role || 'customer') as 'customer' | 'vendor' | 'admin',
                   isActive: true,
                   emailVerified: !!session.user.email_confirmed_at,
-                  phoneVerified: false,
+                  phoneVerified: !!session.user.phone_confirmed_at,
                   createdAt: new Date(session.user.created_at),
                   updatedAt: new Date(),
                   metadata: session.user.user_metadata,
@@ -147,8 +199,6 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
                 setSession(session);
                 setUser(fallbackUser);
               }
-            } catch (error) {
-              console.error('❌ [AuthProvider] Profile fetch error:', error);
             }
           }
           break;
