@@ -30,6 +30,7 @@ const GlobalLiveFeatures = lazy(() => import('@/components/advanced/GlobalLiveFe
 
 // Customer Pages (lazy loaded)
 const UsedCarSellingPage = lazy(() => import('@/pages/customer/UsedCarSellingPage'));
+const ProfilePage = lazy(() => import('@/pages/customer/ProfilePage'));
 
 // Loading Components
 import LoadingScreen from '@/components/ui/LoadingScreen';
