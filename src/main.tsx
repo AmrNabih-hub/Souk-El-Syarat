@@ -5,7 +5,7 @@ import { Toaster } from 'react-hot-toast';
 
 import App from './App';
 import './index.css';
-import './registerSW'; // PWA Service Worker
+// import './registerSW'; // PWA Service Worker - Temporarily disabled for deployment
 import Providers from '@/components/common/Providers';
 
 // 🚀 PROFESSIONAL DEVELOPMENT-READY INITIALIZATION
