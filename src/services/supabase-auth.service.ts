@@ -268,7 +268,8 @@ class SupabaseAuthService {
 
       console.log('🔍 Querying users table for:', user.id);
       
-      const { data, error } = await supabase
+      // Add timeout to prevent hanging queries
+      const queryPromise = supabase
         .from('users')
         .select(`
           *,
@@ -284,6 +285,12 @@ class SupabaseAuthService {
         `)
         .eq('id', user.id)
         .single();
+      
+      const timeoutPromise = new Promise<never>((_, reject) => 
+        setTimeout(() => reject(new Error('Query timeout after 5 seconds')), 5000)
+      );
+      
+      const { data, error } = await Promise.race([queryPromise, timeoutPromise]) as any;
 
       if (error) {
         console.error('❌ Database query error:', error);

@@ -15,6 +15,15 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
   useEffect(() => {
     let mounted = true;
+    
+    // Maximum initialization time: 10 seconds
+    const maxInitTimeout = setTimeout(() => {
+      if (mounted && isInitializing) {
+        console.warn('⚠️ [AuthProvider] Initialization timeout after 10 seconds, forcing completion');
+        setIsInitializing(false);
+        setLoading(false);
+      }
+    }, 10000);
 
     const initializeAuth = async () => {
       try {
@@ -229,10 +238,11 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     // Cleanup
     return () => {
       mounted = false;
+      clearTimeout(maxInitTimeout);
       subscription.unsubscribe();
       console.log('🔐 [AuthProvider] Cleanup complete');
     };
-  }, [setUser, setSession, setLoading]);
+  }, [setUser, setSession, setLoading, isInitializing]);
 
   // Show loading only during initial mount
   if (isInitializing) {
