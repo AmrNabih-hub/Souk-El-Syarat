@@ -8,8 +8,8 @@ import { describe, it, expect, beforeEach } from 'vitest';
 describe('Service Layer Tests', () => {
   describe('Authentication Service', () => {
     it('should have auth service available', async () => {
-      const module = await import('@/services/auth.service');
-      expect(module.AuthService).toBeDefined();
+      const module = await import('@/services/supabase-auth.service');
+      expect(module.authService).toBeDefined();
     });
 
     it('should validate email format', () => {

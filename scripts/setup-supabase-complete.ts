@@ -4,6 +4,8 @@
  * Run with: tsx scripts/setup-supabase-complete.ts
  */
 
+/* eslint-disable no-console */
+
 import { createClient } from '@supabase/supabase-js';
 import { readFileSync } from 'fs';
 import { resolve, dirname } from 'path';
@@ -66,11 +68,11 @@ async function runDatabaseMigrations() {
     log.info('Checking for migration files...');
     
     let migrationsRun = 0;
-    let migrationsFailed = 0;
+    
 
     // Try to read and run each migration
     try {
-      const migration1 = readFileSync(migrationPath1, 'utf-8');
+      readFileSync(migrationPath1, 'utf-8');
       log.info('Found migration 001_initial_schema.sql');
       log.info('Note: Tables might already exist, this is normal');
       migrationsRun++;
@@ -79,7 +81,7 @@ async function runDatabaseMigrations() {
     }
 
     try {
-      const migration2 = readFileSync(migrationPath2, 'utf-8');
+      readFileSync(migrationPath2, 'utf-8');
       log.info('Found migration 002_car_listings_and_applications.sql');
       log.info('Note: Tables might already exist, this is normal');
       migrationsRun++;
@@ -89,7 +91,7 @@ async function runDatabaseMigrations() {
 
     // Try the new minimal migration
     try {
-      const migration3 = readFileSync(migrationPath3, 'utf-8');
+      readFileSync(migrationPath3, 'utf-8');
       log.info('Found migration 003_add_missing_tables_only.sql');
       log.info('This migration adds only missing tables (car_listings, vendor_applications, admin_logs)');
       
@@ -126,15 +128,15 @@ async function runDatabaseMigrations() {
     });
 
     return true;
-  } catch (error: any) {
-    log.error(`Migration check failed: ${error.message}`);
+  } catch (error: unknown) {
+    log.error(`Migration check failed: ${error instanceof Error ? error.message : String(error)}`);
     log.info('This is OK - migrations can be run manually via Supabase Dashboard');
     
     results.push({
       step: 'Database Migrations',
       success: true, // Changed to true since it's not critical
       message: 'Migration files found. Run manually via SQL Editor for best results.',
-      error: error.message
+      error: error instanceof Error ? error.message : String(error)
     });
     return true; // Don't fail the whole setup
   }
@@ -157,14 +159,14 @@ async function createStorageBuckets() {
     for (const bucket of buckets) {
       log.info(`Creating bucket: ${bucket.name}...`);
       
-      const { data, error } = await supabase.storage.createBucket(bucket.name, {
+      const { error } = await supabase.storage.createBucket(bucket.name, {
         public: bucket.public,
         fileSizeLimit: bucket.fileSizeLimit,
         allowedMimeTypes: bucket.allowedMimeTypes,
       });
 
-      if (error && !error.message.includes('already exists')) {
-        log.warning(`Bucket ${bucket.name}: ${error.message}`);
+      if (error && !error instanceof Error ? error.message : String(error).includes('already exists')) {
+        log.warning(`Bucket ${bucket.name}: ${error instanceof Error ? error.message : String(error)}`);
       } else {
         log.success(`Bucket ${bucket.name} created`);
       }
@@ -177,13 +179,13 @@ async function createStorageBuckets() {
     });
 
     return true;
-  } catch (error: any) {
-    log.error(`Storage setup failed: ${error.message}`);
+  } catch (error: unknown) {
+    log.error(`Storage setup failed: ${error instanceof Error ? error.message : String(error)}`);
     results.push({
       step: 'Storage Buckets',
       success: false,
       message: 'Failed to create storage buckets',
-      error: error.message
+      error: error instanceof Error ? error.message : String(error)
     });
     return false;
   }
@@ -261,14 +263,14 @@ async function verifyTables() {
     try {
       const { error } = await supabase.from(table).select('*').limit(1);
       
-      if (error && error.message.includes('relation')) {
+      if (error && error instanceof Error ? error.message : String(error).includes('relation')) {
         log.error(`Table ${table} not found`);
         allFound = false;
       } else {
         log.success(`Table ${table} exists`);
       }
-    } catch (error: any) {
-      log.error(`Error checking ${table}: ${error.message}`);
+    } catch (error: unknown) {
+      log.error(`Error checking ${table}: ${error instanceof Error ? error.message : String(error)}`);
       allFound = false;
     }
   }
@@ -295,7 +297,7 @@ async function testAuthFlow() {
     const testEmail = `test_${Date.now()}@souk-test.com`;
     const testPassword = 'Test123!@#';
 
-    const { data, error } = await supabase.auth.admin.createUser({
+    const { error } = await supabase.auth.admin.createUser({
       email: testEmail,
       password: testPassword,
       email_confirm: true,
@@ -324,13 +326,13 @@ async function testAuthFlow() {
     });
 
     return true;
-  } catch (error: any) {
-    log.error(`Auth test failed: ${error.message}`);
+  } catch (error: unknown) {
+    log.error(`Auth test failed: ${error instanceof Error ? error.message : String(error)}`);
     results.push({
       step: 'Auth Flow Test',
       success: false,
       message: 'Auth system has issues',
-      error: error.message
+      error: error instanceof Error ? error.message : String(error)
     });
     return false;
   }
@@ -426,7 +428,7 @@ Starting automated setup...
 
 // Run setup
 main().catch(error => {
-  log.error(`Setup failed: ${error.message}`);
+  log.error(`Setup failed: ${error instanceof Error ? error.message : String(error)}`);
   console.error(error);
   process.exit(1);
 });

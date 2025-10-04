@@ -12,5 +12,5 @@
     "strict": false
   },
   "include": ["vite.config.ts"],
-  "exclude": ["src/**/*"]
+  "exclude": ["src/**/*", "scripts/**/*"]
 }

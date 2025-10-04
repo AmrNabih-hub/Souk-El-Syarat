@@ -41,7 +41,7 @@
     },
 
     /* Type checking */
-    "types": ["vite/client", "node"],
+    "types": ["vite/client"],
     "typeRoots": ["./node_modules/@types"],
     "moduleDetection": "force",
     "esModuleInterop": true,
@@ -50,6 +50,9 @@
     "useUnknownInCatchVariables": false
   },
   "include": ["src/**/*", "src/**/*.tsx", "src/**/*.ts", "src/vite-env.d.ts", "src/types/**/*.d.ts"],
-  "exclude": ["node_modules", "dist", "build", "coverage"],
-  "references": [{ "path": "./tsconfig.node.json" }]
+  "exclude": ["node_modules", "dist", "build", "coverage", "scripts"],
+  "references": [
+    { "path": "./tsconfig.node.json" },
+    { "path": "./tsconfig.scripts.json" }
+  ]
 }

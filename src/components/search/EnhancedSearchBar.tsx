@@ -13,7 +13,7 @@ import {
 } from '@heroicons/react/24/outline';
 import { useNavigate } from 'react-router-dom';
 import { useAppStore } from '@/stores/appStore';
-import { ProductService } from '@/services/product.service';
+import { productService } from '@/services/product.service';
 import type { Product } from '@/types';
 
 export const EnhancedSearchBar: React.FC<{ className?: string }> = ({ className }) => {

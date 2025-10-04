@@ -495,4 +495,7 @@ export const productService = Object.assign(new ProductService(), {
   getSampleProducts: ProductServiceExtensions.getSampleProducts.bind(ProductServiceExtensions)
 });
 
+// Export the class for testing
+export { ProductService };
+
 export default productService;

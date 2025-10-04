@@ -28,6 +28,9 @@ export interface AuthUser {
   createdAt: Date;
   updatedAt: Date;
   metadata?: UserMetadata;
+  // OAuth properties
+  displayName?: string;
+  photoURL?: string;
 }
 
 export interface SignUpData {

@@ -82,7 +82,7 @@ function TodoExample() {
       
       <div className="mt-4 pt-4 border-t border-gray-200">
         <div className="text-xs text-gray-500 space-y-1">
-          <div>🔗 Connected to: {supabase.supabaseUrl}</div>
+          <div>🔗 Connected to Supabase</div>
           <div>🏢 Project: zgnwfnfehdwehuycbcsz</div>
           <div>⚡ Real-time: Active</div>
         </div>

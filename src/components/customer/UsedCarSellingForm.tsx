@@ -9,7 +9,7 @@ import * as yup from 'yup';
 import { useAppStore } from '@/stores/appStore';
 import { useAuthStore } from '@/stores/authStore';
 
-import { ProductService } from '@/services/product.service';
+import { productService } from '@/services/product.service';
 import LoadingSpinner from '@/components/ui/LoadingSpinner';
 import toast from 'react-hot-toast';
 
