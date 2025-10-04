@@ -261,8 +261,13 @@ class SupabaseAuthService {
   async getUserProfile(userId?: string): Promise<AuthUser | null> {
     try {
       const user = userId ? { id: userId } : await this.getCurrentUser();
-      if (!user) return null;
+      if (!user) {
+        console.error('❌ No user found for getUserProfile');
+        return null;
+      }
 
+      console.log('🔍 Querying users table for:', user.id);
+      
       const { data, error } = await supabase
         .from('users')
         .select(`
@@ -280,7 +285,34 @@ class SupabaseAuthService {
         .eq('id', user.id)
         .single();
 
-      if (error) throw error;
+      if (error) {
+        console.error('❌ Database query error:', error);
+        console.error('Error details:', {
+          code: error.code,
+          message: error.message,
+          details: error.details,
+          hint: error.hint
+        });
+        
+        // If user not found, return null (will trigger fallback)
+        if (error.code === 'PGRST116') {
+          console.error('❌ User not found in users table:', user.id);
+          return null;
+        }
+        
+        throw error;
+      }
+
+      if (!data) {
+        console.error('❌ Query returned no data for user:', user.id);
+        return null;
+      }
+
+      console.log('✅ User data retrieved from database:', {
+        id: data.id,
+        email: data.email,
+        role: data.role
+      });
 
       return {
         id: data.id,
