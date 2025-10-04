@@ -40,29 +40,40 @@ const LoginPage: React.FC = () => {
   const onSubmit = useCallback(async (data: LoginFormData) => {
     try {
       clearError();
+      console.log('🔐 Attempting login...');
       await signIn(data.email, data.password);
-      toast.success(language === 'ar' ? 'تم تسجيل الدخول بنجاح!' : 'Logged in successfully!');
       
-      // Role-based redirect after successful login
+      // Give AuthInitializer time to update the state
+      await new Promise(resolve => setTimeout(resolve, 500));
+      
       const { user: currentUser } = useAuthStore.getState();
+      console.log('👤 Current user after login:', currentUser?.email, currentUser?.role);
+      
       if (currentUser) {
+        toast.success(language === 'ar' ? 'تم تسجيل الدخول بنجاح!' : 'Logged in successfully!');
+        
+        // Role-based redirect
         switch (currentUser.role) {
           case 'admin':
-            navigate('/admin/dashboard');
+            console.log('🔀 Redirecting to admin dashboard');
+            navigate('/admin/dashboard', { replace: true });
             break;
           case 'vendor':
-            navigate('/vendor/dashboard');
+            console.log('🔀 Redirecting to vendor dashboard');
+            navigate('/vendor/dashboard', { replace: true });
             break;
           case 'customer':
-            navigate('/customer/dashboard');
-            break;
           default:
-            navigate('/');
+            console.log('🔀 Redirecting to customer dashboard');
+            navigate('/customer/dashboard', { replace: true });
+            break;
         }
       } else {
-        navigate('/');
+        console.warn('⚠️ No user found after login, redirecting to home');
+        navigate('/', { replace: true });
       }
     } catch (error: any) {
+      console.error('❌ Login error:', error);
       toast.error(error?.message || 'Failed to sign in');
     }
   }, [signIn, clearError, language, navigate]);

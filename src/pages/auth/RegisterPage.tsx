@@ -76,20 +76,28 @@ const RegisterPage: React.FC = () => {
   const onSubmit = useCallback(async (data: RegisterFormData) => {
     try {
       clearError();
-      await signUp(data.email, data.password, data.displayName);
-      toast.success(language === 'ar' ? 'تم إنشاء الحساب بنجاح!' : 'Account created successfully!');
+      console.log('📝 Registering user with role:', data.role);
+      await signUp(data.email, data.password, data.displayName, data.role);
       
-      // If registering as vendor, redirect to vendor application
-      if (data.role === 'vendor') {
-        toast.success(language === 'ar' ? 'سيتم توجيهك لملء طلب الانضمام كتاجر' : 'You will be redirected to complete the vendor application', {
-          duration: 3000,
-          icon: '📋'
-        });
-        setTimeout(() => navigate('/vendor/apply'), 1500);
-      } else {
-        navigate('/login');
-      }
+      toast.success(
+        language === 'ar' 
+          ? 'تم إنشاء الحساب بنجاح! يرجى التحقق من بريدك الإلكتروني.' 
+          : 'Account created successfully! Please check your email to confirm.',
+        { duration: 5000 }
+      );
+      
+      // Show email confirmation message
+      toast.info(
+        language === 'ar'
+          ? 'تحقق من صندوق البريد والرسائل غير المرغوب فيها'
+          : 'Check your inbox and spam folder',
+        { duration: 5000, icon: '📧' }
+      );
+      
+      // Redirect to login after short delay
+      setTimeout(() => navigate('/login'), 2000);
     } catch (error: any) {
+      console.error('❌ Registration error:', error);
       toast.error(error?.message || 'Failed to create account');
     }
   }, [signUp, clearError, language, navigate]);

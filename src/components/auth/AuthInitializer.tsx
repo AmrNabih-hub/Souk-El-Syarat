@@ -31,14 +31,22 @@ export const AuthInitializer: React.FC = () => {
         case 'SIGNED_IN':
         case 'TOKEN_REFRESHED':
           if (session?.user) {
-            console.log('✅ User signed in, fetching profile...');
+            console.log('✅ User signed in/refreshed:', session.user.email);
             try {
+              setLoading(true);
               const userProfile = await authService.getUserProfile(session.user.id);
+              console.log('✅ Profile fetched:', {
+                email: userProfile.email,
+                role: userProfile.role,
+                id: userProfile.id
+              });
               setSession(session);
               setUser(userProfile);
-              console.log('✅ Auth state updated:', userProfile.role);
+              setLoading(false);
+              console.log('✅ Auth state fully updated');
             } catch (error) {
               console.error('❌ Error fetching user profile:', error);
+              setLoading(false);
             }
           }
           break;
