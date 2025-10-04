@@ -26,7 +26,7 @@ const loginSchema = yup.object().shape({
 const LoginPage: React.FC = () => {
   const [showPassword, setShowPassword] = useState(false);
   const navigate = useNavigate();
-  const { signIn, signInWithGoogle, isLoading, error, clearError } = useAuthStore();
+  const { signIn, signInWithProvider, isLoading, error, clearError } = useAuthStore();
   const { language } = useAppStore();
 
   const {
@@ -70,13 +70,13 @@ const LoginPage: React.FC = () => {
   const handleGoogleSignIn = useCallback(async () => {
     try {
       clearError();
-      await signInWithGoogle();
+      await signInWithProvider('google');
       toast.success(language === 'ar' ? 'تم تسجيل الدخول بنجاح!' : 'Logged in successfully!');
       navigate('/');
     } catch (error: any) {
       toast.error(error?.message || 'Failed to sign in with Google');
     }
-  }, [signInWithGoogle, clearError, language, navigate]);
+  }, [signInWithProvider, clearError, language, navigate]);
 
   const togglePasswordVisibility = useCallback(() => {
     setShowPassword(!showPassword);

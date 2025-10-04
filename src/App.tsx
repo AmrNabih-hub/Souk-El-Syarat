@@ -37,6 +37,7 @@ import EgyptianLoader from '@/components/ui/EgyptianLoader';
 
 // Auth Components
 import ProtectedRoute from '@/components/auth/ProtectedRoute';
+import AuthInitializer from '@/components/auth/AuthInitializer';
 
 // Professional Loading Component
 const AppLoadingScreen = () => (
@@ -63,6 +64,9 @@ const AppLoadingScreen = () => (
 function App() {
   return (
     <div className="min-h-screen bg-neutral-50 dark:bg-neutral-950 transition-colors duration-300">
+      {/* Initialize Authentication State */}
+      <AuthInitializer />
+      
       {/* Global Live Features - Real-time notifications and updates */}
       <Suspense fallback={null}>
         <GlobalLiveFeatures />
