@@ -44,62 +44,37 @@ const LoginPage: React.FC = () => {
       console.log('📧 [LoginPage] Email:', data.email);
       
       await signIn(data.email, data.password);
-      console.log('✅ [LoginPage] signIn() completed, waiting for auth state...');
+      console.log('✅ [LoginPage] signIn() completed');
       
-      // Wait for auth state to update - give it more time
-      let attempts = 0;
-      const maxAttempts = 15; // Increased from 10 to 15 (3 seconds total)
+      // SIMPLIFIED: Just wait 1 second for AuthProvider to process SIGNED_IN event
+      await new Promise(resolve => setTimeout(resolve, 1000));
       
-      while (attempts < maxAttempts) {
-        const { user: currentUser } = useAuthStore.getState();
+      const { user: currentUser } = useAuthStore.getState();
+      
+      if (currentUser) {
+        console.log('✅ [LoginPage] User loaded:', {
+          email: currentUser.email,
+          role: currentUser.role
+        });
         
-        if (currentUser) {
-          console.log('✅ [LoginPage] User loaded after', attempts * 200, 'ms');
-          console.log('👤 [LoginPage] User details:', {
-            email: currentUser.email,
-            role: currentUser.role,
-            emailVerified: currentUser.emailVerified
-          });
-          
-          toast.success(language === 'ar' ? 'تم تسجيل الدخول بنجاح!' : 'Logged in successfully!');
-          
-          // Role-based redirect
-          const dashboardRoutes: Record<string, string> = {
-            admin: '/admin/dashboard',
-            vendor: '/vendor/dashboard',
-            customer: '/customer/dashboard',
-          };
-          
-          const targetRoute = dashboardRoutes[currentUser.role] || '/customer/dashboard';
-          console.log('🔀 [LoginPage] Redirecting to:', targetRoute);
-          
-          // Small delay before redirect to ensure state is fully updated
-          await new Promise(resolve => setTimeout(resolve, 100));
-          navigate(targetRoute, { replace: true });
-          return;
-        }
+        toast.success(language === 'ar' ? 'تم تسجيل الدخول بنجاح!' : 'Logged in successfully!');
         
-        console.log(`⏳ [LoginPage] Waiting for user... attempt ${attempts + 1}/${maxAttempts}`);
-        await new Promise(resolve => setTimeout(resolve, 200));
-        attempts++;
+        // Role-based redirect
+        const dashboardRoutes: Record<string, string> = {
+          admin: '/admin/dashboard',
+          vendor: '/vendor/dashboard',
+          customer: '/customer/dashboard',
+        };
+        
+        const targetRoute = dashboardRoutes[currentUser.role] || '/customer/dashboard';
+        console.log('🔀 [LoginPage] Redirecting to:', targetRoute);
+        
+        navigate(targetRoute, { replace: true });
+      } else {
+        console.error('❌ [LoginPage] No user after 1 second - check AuthProvider');
+        toast.error('Please refresh the page');
+        window.location.href = '/';
       }
-      
-      // If we get here, user didn't load in time
-      console.error('❌ [LoginPage] User failed to load after', maxAttempts * 200, 'ms');
-      console.error('❌ [LoginPage] This likely means:');
-      console.error('   - getUserProfile returned null');
-      console.error('   - Fallback profile creation failed');
-      console.error('   - Check AuthProvider logs above');
-      
-      toast.error(
-        language === 'ar'
-          ? 'تم تسجيل الدخول ولكن فشل تحميل بيانات المستخدم. يرجى تحديث الصفحة.'
-          : 'Login succeeded but failed to load user data. Please refresh the page.',
-        { duration: 5000 }
-      );
-      
-      // Redirect to home as fallback
-      navigate('/', { replace: true });
       
     } catch (error: any) {
       console.error('❌ [LoginPage] Login error:', error);
