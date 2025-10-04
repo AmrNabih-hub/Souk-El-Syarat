@@ -14,6 +14,7 @@ module.exports = defineConfig({
     sourcemap: false,
     minify: 'esbuild',
     target: 'es2015',
+    assetsDir: 'assets',
     rollupOptions: {
       output: {
         manualChunks: {
@@ -27,7 +28,7 @@ module.exports = defineConfig({
   },
   define: {
     global: 'globalThis',
-    __DEV__: false,
+    __DEV__: JSON.stringify(false),
   },
   server: {
     port: 5173,
@@ -36,5 +37,8 @@ module.exports = defineConfig({
   preview: {
     port: 4173,
     host: true,
+  },
+  optimizeDeps: {
+    include: ['react', 'react-dom', 'appwrite'],
   },
 });
