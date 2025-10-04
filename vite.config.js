@@ -12,7 +12,7 @@ export default defineConfig({
   build: {
     outDir: 'dist',
     sourcemap: false,
-    minify: true,
+    minify: 'esbuild',
     target: 'es2015',
     assetsDir: 'assets',
     rollupOptions: {
@@ -20,12 +20,15 @@ export default defineConfig({
         manualChunks: {
           vendor: ['react', 'react-dom'],
           appwrite: ['appwrite'],
+          router: ['react-router-dom'],
+          ui: ['@headlessui/react', '@heroicons/react', 'framer-motion'],
         },
       },
     },
   },
   define: {
     global: 'globalThis',
+    __DEV__: JSON.stringify(false),
   },
   server: {
     port: 5173,
@@ -34,5 +37,8 @@ export default defineConfig({
   preview: {
     port: 4173,
     host: true,
+  },
+  optimizeDeps: {
+    include: ['react', 'react-dom', 'appwrite'],
   },
 })
