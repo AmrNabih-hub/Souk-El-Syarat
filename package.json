@@ -5,16 +5,16 @@
   "type": "module",
   "description": "Professional Arabic car marketplace with comprehensive features",
   "engines": {
-    "node": ">=20.0.0 <21.0.0",
+    "node": ">=20.0.0",
     "npm": ">=10.0.0"
   },
   "packageManager": "npm@10.8.2",
   "scripts": {
     "dev": "vite",
-    "build": "npx vite build",
-    "build:production": "cross-env NODE_ENV=production npx vite build",
-    "build:ci": "cross-env NODE_ENV=production CI=true npx vite build --mode production",
-    "build:deploy": "echo 'Building for deployment...' && cross-env NODE_ENV=production CI=true npx vite build --mode production",
+    "build": "npx vite build --config vite.config.cjs",
+    "build:production": "npx vite build --config vite.config.cjs",
+    "build:ci": "npx vite build --config vite.config.cjs --mode production",
+    "build:deploy": "npx vite build --config vite.config.cjs --mode production",
     "deploy:fullstack": "bash deploy-fullstack.sh",
     "preview": "npx vite preview",
     "lint": "eslint . --ext ts,tsx --report-unused-disable-directives",
