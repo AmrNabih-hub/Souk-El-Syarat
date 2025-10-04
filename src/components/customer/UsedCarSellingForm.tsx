@@ -101,39 +101,58 @@ const UsedCarSellingForm: React.FC = () => {
     try {
       setIsSubmitting(true);
 
-      const productData = {
-        title: data.title,
-        description: data.description,
-        category: 'cars',
-        subcategory: 'used_cars',
-        price: data.price,
-        condition: 'used',
-        specifications: [
-          { name: 'Make', value: data.make, category: 'General' },
-          { name: 'Model', value: data.model, category: 'General' },
-          { name: 'Year', value: data.year.toString(), category: 'General' },
-          { name: 'Mileage', value: `${data.mileage.toLocaleString()} km`, category: 'General' },
-          { name: 'Fuel Type', value: data.fuelType, category: 'Engine' },
-          { name: 'Transmission', value: data.transmission, category: 'Engine' },
-          { name: 'Engine Size', value: `${data.engineSize}L`, category: 'Engine' },
-          { name: 'Body Type', value: data.bodyType, category: 'Body' },
-          { name: 'Color', value: data.color, category: 'Body' },
-          { name: 'Doors', value: data.doors.toString(), category: 'Body' },
-          { name: 'Seats', value: data.seats.toString(), category: 'Body' },
-        ],
-        features: [],
-        tags: [data.make, data.model, data.year.toString(), 'used car'],
-        images: data.images,
-        contactPhone: data.contactPhone,
-        location: data.location,
-      };
+      if (!user) {
+        toast.error(language === 'ar' ? 'يجب تسجيل الدخول أولاً' : 'Please login first');
+        return;
+      }
 
-      if (!user) throw new Error('User must be logged in');
-      const userId = user.id;
-      await ProductService.createProduct(userId, productData as any);
+      // Create car listing in car_listings table (not products)
+      const { data: carListing, error: listingError } = await supabase
+        .from('car_listings')
+        .insert({
+          customer_id: user.id,
+          title: data.title,
+          description: data.description,
+          price: data.price,
+          make: data.make,
+          model: data.model,
+          year: data.year,
+          mileage: data.mileage,
+          fuel_type: data.fuelType,
+          transmission: data.transmission,
+          body_type: data.bodyType,
+          color: data.color,
+          engine_size: data.engineSize,
+          doors: data.doors,
+          seats: data.seats,
+          location: data.location,
+          contact_phone: data.contactPhone,
+          status: 'pending', // Pending admin approval
+          images: [], // TODO: Upload images to storage
+          created_at: new Date().toISOString()
+        })
+        .select()
+        .single();
+
+      if (listingError) {
+        throw new Error(listingError.message);
+      }
+
+      // Send notification to admin (async, don't wait)
+      EmailNotificationService.notifyAdminNewCarListing({
+        carTitle: data.title,
+        userName: user.displayName || user.email || 'Unknown',
+        userEmail: user.email || '',
+        price: data.price,
+        description: data.description,
+        listingId: carListing.id
+      }).catch(err => console.error('[CarListing] Email error:', err));
 
       toast.success(
-        language === 'ar' ? 'تم إضافة السيارة المستعملة بنجاح!' : 'Used car added successfully!'
+        language === 'ar'
+          ? 'تم إرسال طلبك بنجاح! سيتم مراجعته خلال 24 ساعة.'
+          : 'Your car listing submitted successfully! It will be reviewed within 24 hours.',
+        { duration: 5000 }
       );
 
       reset();
