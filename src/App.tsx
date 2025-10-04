@@ -20,6 +20,11 @@ const VendorApplicationPage = lazy(() => import('@/pages/VendorApplicationPage')
 const LoginPage = lazy(() => import('@/pages/auth/LoginPage'));
 const RegisterPage = lazy(() => import('@/pages/auth/RegisterPage'));
 
+// Role-based Dashboard Pages (lazy loaded)
+const AdminDashboard = lazy(() => import('@/pages/admin/AdminDashboard'));
+const VendorDashboard = lazy(() => import('@/pages/vendor/VendorDashboard'));
+const CustomerDashboard = lazy(() => import('@/pages/customer/CustomerDashboard'));
+
 // Advanced Components (lazy loaded)
 const GlobalLiveFeatures = lazy(() => import('@/components/advanced/GlobalLiveFeatures'));
 
@@ -74,6 +79,11 @@ function App() {
               {/* Authentication Routes */}
               <Route path="/login" element={<LoginPage />} />
               <Route path="/register" element={<RegisterPage />} />
+              
+              {/* Role-based Dashboard Routes */}
+              <Route path="/admin/dashboard" element={<AdminDashboard />} />
+              <Route path="/vendor/dashboard" element={<VendorDashboard />} />
+              <Route path="/customer/dashboard" element={<CustomerDashboard />} />
               
               {/* Vendor System */}
               <Route path="/vendor/apply" element={<VendorApplicationPage />} />

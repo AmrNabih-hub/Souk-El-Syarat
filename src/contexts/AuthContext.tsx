@@ -1,13 +1,15 @@
 import React, { createContext, useContext, useState, useEffect } from 'react';
 import { supabase } from '@/config/supabase.config';
+import { useNavigate } from 'react-router-dom';
 
-// 🚀 MODERN SUPABASE AUTH CONTEXT
+// 🚀 MODERN SUPABASE AUTH CONTEXT WITH ROLE-BASED ROUTING
 interface AuthContextType {
   user: any;
   setUser: (user: any) => void;
   login: (email: string, password: string) => Promise<any>;
   logout: () => Promise<void>;
   loading: boolean;
+  redirectToUserDashboard: (userRole: string) => void;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -24,6 +26,24 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     }
     setLoading(false);
   }, []);
+
+  const redirectToUserDashboard = (userRole: string) => {
+    // Role-based redirect logic
+    switch (userRole) {
+      case 'admin':
+        window.location.href = '/admin/dashboard';
+        break;
+      case 'vendor':
+        window.location.href = '/vendor/dashboard';
+        break;
+      case 'customer':
+        window.location.href = '/customer/dashboard';
+        break;
+      default:
+        window.location.href = '/marketplace';
+        break;
+    }
+  };
 
   const login = async (email: string, password: string): Promise<any> => {
     setLoading(true);
@@ -60,10 +80,59 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         setUser(demoUser);
         localStorage.setItem('demo_user', JSON.stringify(demoUser));
         setLoading(false);
+        
+        // Redirect to role-based dashboard
+        setTimeout(() => {
+          redirectToUserDashboard(adminUser.role);
+        }, 1000);
+        
         return demoUser;
       }
 
-      // For now, we'll use demo mode - Supabase auth can be added later
+      // Try Supabase authentication for real users
+      try {
+        const { data, error } = await supabase.auth.signInWithPassword({
+          email,
+          password,
+        });
+
+        if (error) throw error;
+
+        if (data.user) {
+          // Get user profile from profiles table
+          const { data: profile, error: profileError } = await supabase
+            .from('profiles')
+            .select('*')
+            .eq('id', data.user.id)
+            .single();
+
+          const userData = {
+            id: data.user.id,
+            email: data.user.email,
+            displayName: profile?.display_name || profile?.first_name || 'User',
+            role: profile?.role || 'customer',
+            isActive: true,
+            emailVerified: data.user.email_confirmed_at !== null,
+            createdAt: data.user.created_at,
+            updatedAt: data.user.updated_at,
+            profile: profile
+          };
+
+          setUser(userData);
+          localStorage.setItem('supabase_user', JSON.stringify(userData));
+          setLoading(false);
+
+          // Redirect to role-based dashboard
+          setTimeout(() => {
+            redirectToUserDashboard(userData.role);
+          }, 1000);
+
+          return userData;
+        }
+      } catch (supabaseError) {
+        console.warn('Supabase auth failed, falling back to demo mode:', supabaseError);
+      }
+
       throw new Error('Invalid credentials');
       
     } catch (error) {
@@ -77,18 +146,29 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     try {
       // Clear demo user
       localStorage.removeItem('demo_user');
+      localStorage.removeItem('supabase_user');
+      
+      // Sign out from Supabase
+      await supabase.auth.signOut();
+      
       setUser(null);
+      
+      // Redirect to home page
+      window.location.href = '/';
+      
       console.log('✅ Logout successful');
     } catch (error) {
       console.error('Logout failed:', error);
       // Force logout even if it fails
       localStorage.removeItem('demo_user');
+      localStorage.removeItem('supabase_user');
       setUser(null);
+      window.location.href = '/';
     }
   };
 
   return (
-    <AuthContext.Provider value={{ user, setUser, login, logout, loading }}>
+    <AuthContext.Provider value={{ user, setUser, login, logout, loading, redirectToUserDashboard }}>
       {children}
     </AuthContext.Provider>
   );

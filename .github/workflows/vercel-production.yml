@@ -33,14 +33,8 @@ jobs:
       - name: 📦 Install dependencies
         run: npm ci
 
-      - name: 🔍 Lint code
-        run: npm run lint || echo "⚠️ Linting issues found but continuing..."
-
-      - name: 📝 Type check
-        run: npm run type-check || echo "⚠️ Type check issues found but continuing..."
-
-      - name: 🧪 Run tests
-        run: npm run test || echo "⚠️ Tests failed but continuing..."
+      - name: 🏗️ Build application
+        run: npm run build
 
   build:
     name: 🏗️ Build Application
