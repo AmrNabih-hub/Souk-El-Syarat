@@ -43,7 +43,7 @@ export const useAuthStore = create<AuthState>()(
       session: null,
       isLoading: false,
       error: null,
-      isInitialized: false,
+      isInitialized: true, // Changed to true - AuthProvider handles initialization
 
       // Sign in with email and password
       signIn: async (email: string, password: string) => {

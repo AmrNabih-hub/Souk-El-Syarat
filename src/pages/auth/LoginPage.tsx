@@ -40,40 +40,45 @@ const LoginPage: React.FC = () => {
   const onSubmit = useCallback(async (data: LoginFormData) => {
     try {
       clearError();
-      console.log('🔐 Attempting login...');
+      console.log('🔐 [LoginPage] Attempting login...');
+      
       await signIn(data.email, data.password);
       
-      // Give AuthInitializer time to update the state
-      await new Promise(resolve => setTimeout(resolve, 500));
+      // Wait for auth state to update
+      let attempts = 0;
+      const maxAttempts = 10;
       
-      const { user: currentUser } = useAuthStore.getState();
-      console.log('👤 Current user after login:', currentUser?.email, currentUser?.role);
-      
-      if (currentUser) {
-        toast.success(language === 'ar' ? 'تم تسجيل الدخول بنجاح!' : 'Logged in successfully!');
+      while (attempts < maxAttempts) {
+        await new Promise(resolve => setTimeout(resolve, 200));
+        const { user: currentUser } = useAuthStore.getState();
         
-        // Role-based redirect
-        switch (currentUser.role) {
-          case 'admin':
-            console.log('🔀 Redirecting to admin dashboard');
-            navigate('/admin/dashboard', { replace: true });
-            break;
-          case 'vendor':
-            console.log('🔀 Redirecting to vendor dashboard');
-            navigate('/vendor/dashboard', { replace: true });
-            break;
-          case 'customer':
-          default:
-            console.log('🔀 Redirecting to customer dashboard');
-            navigate('/customer/dashboard', { replace: true });
-            break;
+        if (currentUser) {
+          console.log('✅ [LoginPage] User loaded:', currentUser.email, currentUser.role);
+          toast.success(language === 'ar' ? 'تم تسجيل الدخول بنجاح!' : 'Logged in successfully!');
+          
+          // Role-based redirect
+          const dashboardRoutes = {
+            admin: '/admin/dashboard',
+            vendor: '/vendor/dashboard',
+            customer: '/customer/dashboard',
+          };
+          
+          const targetRoute = dashboardRoutes[currentUser.role] || '/';
+          console.log('🔀 [LoginPage] Redirecting to:', targetRoute);
+          navigate(targetRoute, { replace: true });
+          return;
         }
-      } else {
-        console.warn('⚠️ No user found after login, redirecting to home');
-        navigate('/', { replace: true });
+        
+        attempts++;
       }
+      
+      // If we get here, user didn't load
+      console.error('❌ [LoginPage] User failed to load after', maxAttempts * 200, 'ms');
+      toast.error('Login succeeded but failed to load user data. Please refresh the page.');
+      navigate('/', { replace: true });
+      
     } catch (error: any) {
-      console.error('❌ Login error:', error);
+      console.error('❌ [LoginPage] Login error:', error);
       toast.error(error?.message || 'Failed to sign in');
     }
   }, [signIn, clearError, language, navigate]);
@@ -93,7 +98,8 @@ const LoginPage: React.FC = () => {
     setShowPassword(!showPassword);
   }, [showPassword]);
 
-  if (isLoading || isSubmitting) {
+  // Only show loading during form submission, not during auth initialization
+  if (isSubmitting) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-primary-50 to-secondary-50 dark:from-neutral-900 dark:to-neutral-800">
         <LoadingSpinner size="lg" />

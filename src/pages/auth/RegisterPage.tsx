@@ -110,7 +110,8 @@ const RegisterPage: React.FC = () => {
     setShowConfirmPassword(!showConfirmPassword);
   }, [showConfirmPassword]);
 
-  if (isLoading || isSubmitting) {
+  // Only show loading during form submission, not during auth initialization
+  if (isSubmitting) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-primary-50 to-secondary-50 dark:from-neutral-900 dark:to-neutral-800">
         <LoadingSpinner size="lg" />

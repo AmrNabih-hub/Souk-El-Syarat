@@ -37,7 +37,7 @@ import EgyptianLoader from '@/components/ui/EgyptianLoader';
 
 // Auth Components
 import ProtectedRoute from '@/components/auth/ProtectedRoute';
-import AuthInitializer from '@/components/auth/AuthInitializer';
+import AuthProvider from '@/components/auth/AuthProvider';
 
 // Professional Loading Component
 const AppLoadingScreen = () => (
@@ -63,21 +63,19 @@ const AppLoadingScreen = () => (
 
 function App() {
   return (
-    <div className="min-h-screen bg-neutral-50 dark:bg-neutral-950 transition-colors duration-300">
-      {/* Initialize Authentication State */}
-      <AuthInitializer />
-      
-      {/* Global Live Features - Real-time notifications and updates */}
-      <Suspense fallback={null}>
-        <GlobalLiveFeatures />
-      </Suspense>
+    <AuthProvider>
+      <div className="min-h-screen bg-neutral-50 dark:bg-neutral-950 transition-colors duration-300">
+        {/* Global Live Features - Real-time notifications and updates */}
+        <Suspense fallback={null}>
+          <GlobalLiveFeatures />
+        </Suspense>
 
-      {/* Professional Navigation */}
-      <Navbar />
+        {/* Professional Navigation */}
+        <Navbar />
 
-      <main className="flex-1">
-        <Suspense fallback={<AppLoadingScreen />}>
-          <Routes>
+        <main className="flex-1">
+          <Suspense fallback={<AppLoadingScreen />}>
+            <Routes>
               {/* Core Application Routes */}
               <Route path="/" element={<HomePage />} />
               <Route path="/home" element={<Navigate to="/" replace />} />
@@ -135,9 +133,10 @@ function App() {
         </Suspense>
       </main>
 
-      {/* Professional Footer */}
-      <Footer />
-    </div>
+        {/* Professional Footer */}
+        <Footer />
+      </div>
+    </AuthProvider>
   );
 }
 
